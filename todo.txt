@@ -1,0 +1,63 @@
+ 
+=== Pro Feature ===
+
+General/DefaultGeneral.js
+Tag: Custom HTML wrapper tags (e.g., h1-h6).--ok
+Effect: Slider transition animations.---ok
+Left/Right Inner Gap: Spacing inside the slider items.---ok
+Slide Direction:(Horizontal and vertical) Control the movement path.--- ok
+Arrow Style: Custom arrow designs. -- ok
+Slide On MouseWheel: Scroll to change slides. --- ok 
+Arrow Follow Mouse: Interactive cursor-following arrows. --- ok
+Slide on Mouse Drag: Drag-to-slide interaction. --- ok
+Lazy Load Enable: Defer offscreen image loading. -- ok
+Move From Edge: Spacing from the edge.--ok 
+
+
+📂 General/VideoGeneral.js
+
+Reset On End: Restart video upon completion.
+Auto Hide Control: Hide controls during inactivity.
+Mute: Video controls. 
+PIP: Picture-in-Picture mode.
+Airplay / Download / Settings / Fullscreen: Extended media tools.
+
+📂 General/GridGeneral.js
+Position: Alignment of the pagination button. - ok
+
+📂 General/Post-query.js
+Include Post/Product: Manually select specific items to show. ok
+Exclude Post/Product: Manually select items to hide. ok
+Exclude Current Post/Product: Prevent the current post from appearing in the feed. ok
+
+📂 General/Carousel/Controls.js
+Mouse Wheel: Scroll to move the carousel.
+Grab Cursor: Enable dragging and show the grab icon.
+ 
+📂 General/ThumbnailsGeneral.js
+Direction: Layout flow of thumbnails.
+Show Arrow/Navigation: Toggle arrows specifically for the thumbnails.
+
+📂 Style/DefaultStyle.js
+ 
+
+Margin & Padding: Box model spacing controls. ---ok
+Typography: Advanced font and text styles.--- ok 
+Colors & Hover Colors: Standard and interactive color states. ---ok
+Border & Radius: Box outlines and rounded corners. --- ok 
+Animation (Delay / Duration): Entrance animations and timing. --- ok 
+
+
+📂 Style/ThumbnailsStyle.js
+
+Position: Placement of the thumbnails relative to the main slider.
+Width & Height: Thumbnail dimensions.
+Overly Color: Tint/color overlay on thumbnails.
+Border: Thumbnail outlines.
+
+
+📂 Item.js 
+
+Button label: Text for call-to-action buttons. -- ok
+Button Url: Link destination. -- ok
+Open in new tab: Toggle to open the link in a new browser tab. -- ok

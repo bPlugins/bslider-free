@@ -1,0 +1,46 @@
+{
+	"name": "slider-block",
+	"version": "1.1.14",
+	"description": "Bootstrap Slider Plugin",
+	"main": "build/index.js",
+	"scripts": {
+		"packages-update": "wp-scripts packages-update",
+		"lint": "eslint src",
+		"lint:css": "wp-scripts lint-style",
+		"lint:js": "wp-scripts lint-js",
+		"format": "wp-scripts format",
+		"start": "wp-scripts start --webpack-copy-php",
+		"build": "wp-scripts build --webpack-copy-php",
+		"i18n-pot": "wp i18n make-pot . languages/sliders.pot --exclude=\"src\" && cp ./languages/sliders.pot ./languages/sliders-en_US.po",
+		"i18n-json": "wp i18n make-json languages/ --no-purge",
+		"i18n-mo": "wp i18n make-mo languages/",
+		"i18n": "npm run i18n-pot && npm run i18n-json && npm run i18n-mo",
+		"plugin-zip": "wp-scripts plugin-zip",
+		"find-ds": "find . -name '.DS_Store' -delete",
+		"bundle": "npm run lint && npm run build && npm run i18n && npm run find-ds && npm run plugin-zip"
+	},
+	"dependencies": {
+		"@fancyapps/ui": "^5.0.33",
+		"@svgr/webpack": "^8.1.0",
+		"@wordpress/components": "^29.0.0",
+		"ace-builds": "^1.43.2",
+		"animate.css": "^4.1.1",
+		"immer": "^10.1.1",
+		"react-ace": "^13.0.0",
+		"react-dom": "^19.1.1",
+		"react-hot-toast": "^2.5.2",
+		"react-justified-grid": "^1.0.0",
+		"react-responsive-masonry": "^2.3.0",
+		"react-router-dom": "^7.7.1",
+		"react-sortable-hoc": "^2.0.0",
+		"react-toastify": "^10.0.6",
+		"select-pure": "^0.6.2",
+		"swiper": "^11.1.9",
+		"url-loader": "^4.1.1"
+	},
+	"devDependencies": {
+		"@wordpress/scripts": "^27.9.0",
+		"eslint-webpack-plugin": "^4.2.0",
+		"string-replace-loader": "^3.3.0"
+	}
+}

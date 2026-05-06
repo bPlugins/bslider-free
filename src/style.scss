@@ -1,0 +1,770 @@
+.wp-block-bsb-slider {
+    * {
+        box-sizing: border-box;
+    }
+
+    a {
+        text-decoration: none;
+    }
+
+    .bsbNoPosts {
+        color: red;
+        text-align: center;
+        font-size: 20px;
+    }
+
+    .apbLoading {
+        color: #8344c5 !important;
+        font-size: 21px !important;
+        font-weight: bold !important;
+        display: flex;
+        align-items: center;
+
+        .components-spinner {
+            margin-top: 0;
+            color: #8344c5;
+        }
+    }
+
+    .bsbCarousel {
+
+        .indicatorsWrapper {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+        }
+
+        .carousel-indicators {
+            display: grid;
+            position: absolute;
+            margin: 0;
+            gap: 10px;
+            width: fit-content;
+            height: fit-content;
+            align-items: center;
+            top: auto;
+            right: auto;
+            bottom: auto;
+            left: auto;
+
+            @media all and (max-width: 575px) {
+                gap: 2px;
+            }
+
+            &.horizontal {
+                width: 100%;
+                height: auto;
+                justify-content: center;
+
+                &.top-left,
+                &.center-left,
+                &.bottom-left {
+                    justify-content: start;
+                }
+
+                &.center-left,
+                &.center-center,
+                &.center-right {
+                    top: 50%;
+                    transform: translateY(-50%);
+                }
+
+                &.top-right,
+                &.center-right,
+                &.bottom-right {
+                    justify-content: end;
+                }
+
+                &.bottom-left,
+                &.bottom-center,
+                &.bottom-right {
+                    bottom: 0;
+                }
+
+                button {
+                    width: 100%;
+                    height: auto;
+                }
+            }
+
+            &.vertical {
+                width: auto;
+                height: 100%;
+                align-content: center;
+
+                &.top-left,
+                &.top-center,
+                &.top-right {
+                    align-content: start;
+                }
+
+                &.top-center,
+                &.center-center,
+                &.bottom-center {
+                    left: 50%;
+                    transform: translateX(-50%);
+                }
+
+                &.bottom-left,
+                &.bottom-center,
+                &.bottom-right {
+                    align-content: end;
+                }
+
+                &.top-right,
+                &.center-right,
+                &.bottom-right {
+                    right: 0;
+                }
+
+                button {
+                    width: auto;
+                    height: 100%;
+                }
+            }
+
+            button {
+                aspect-ratio: 1/1;
+                border: none;
+                position: relative;
+                overflow: hidden;
+                margin: 0;
+                box-sizing: border-box;
+                opacity: 1.1 !important;
+
+                &.active {
+                    img {
+                        transform: scale(2);
+                    }
+                }
+
+                img {
+                    width: inherit;
+                    height: inherit;
+                    aspect-ratio: 1/1;
+                    object-fit: cover;
+                    box-sizing: border-box;
+                    position: absolute;
+                    left: 0;
+                    top: 0;
+                    padding: 0;
+                    transform: scale(2);
+                }
+            }
+
+            &.image {
+                margin-bottom: 0;
+            }
+        }
+
+        .item {
+            position: relative;
+
+            .plyr {
+                width: 100%;
+                height: 100%;
+            }
+        }
+
+        .carousel-caption {
+            z-index: 1 !important;
+            padding: 0px;
+            height: calc(100% - 30%);
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+
+            .captionContent {
+                position: absolute;
+                width: 100%;
+                max-width: 100%;
+                text-align: center;
+
+                &.top-left {
+                    text-align: left;
+                    top: 0;
+                }
+
+                &.top-center {
+                    text-align: center;
+                    top: 0;
+                }
+
+                &.top-right {
+                    text-align: right;
+                    top: 0;
+                }
+
+                &.center-left {
+                    text-align: left;
+                    top: 50%;
+                    transform: translateY(-50%);
+                }
+
+                &.center-center {
+                    text-align: center;
+                    top: 50%;
+                    transform: translateY(-50%);
+                }
+
+                &.center-right {
+                    text-align: right;
+                    top: 50%;
+                    transform: translateY(-50%);
+                }
+
+                &.bottom-left {
+                    text-align: left;
+                    bottom: 0;
+                }
+
+                &.bottom-center {
+                    text-align: center;
+                    bottom: 0;
+                }
+
+                &.bottom-right {
+                    text-align: right;
+                    bottom: 0;
+                }
+            }
+
+            .carousel-button {
+                margin-top: 20px;
+
+                a {
+                    text-decoration: none;
+
+                }
+            }
+        }
+
+        .bsbButtonDesign {
+            button {
+                background: none;
+                background-color: transparent !important;
+                border: none;
+                cursor: pointer;
+            }
+
+            &:hover {
+                background: none;
+            }
+
+            .bsbArrowButton {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+
+                .fas {
+                    font-style: normal;
+                    font-variant: unicase;
+                }
+            }
+
+            &.arrowMouseEffect {
+                button {
+                    width: 50% !important;
+
+                    .bsbArrowButton {
+                        display: none;
+                    }
+                }
+            }
+        }
+
+        .item {
+            width: 100%;
+            height: 100%;
+
+            .contentArea {
+                position: relative;
+                height: 100%;
+
+                .img {
+                    height: 100%;
+                }
+            }
+
+            img {
+                width: 100% !important;
+                height: 100% !important;
+                object-fit: cover;
+                max-width: 100% !important;
+                margin: 0 !important;
+
+            }
+
+        }
+
+        &.flip {
+
+            .carousel-item-next:not(.carousel-item-start),
+            .active.carousel-item-end,
+            .carousel-item-prev:not(.carousel-item-end),
+            .active.carousel-item-start {
+                transform: rotateY(180deg);
+            }
+
+            &.vertical {
+
+                .carousel-item-next:not(.carousel-item-start),
+                .active.carousel-item-end,
+                .carousel-item-prev:not(.carousel-item-end),
+                .active.carousel-item-start {
+                    transform: rotateX(180deg);
+                }
+            }
+        }
+
+        &.default {
+            .carousel-indicators {
+                // gap: 10px;
+            }
+        }
+
+        &.vertical {
+            .item {
+                overflow: hidden;
+            }
+
+            .carousel-item-next:not(.carousel-item-start),
+            .active.carousel-item-end {
+                transform: translateY(100%);
+            }
+
+            .carousel-item-prev:not(.carousel-item-end),
+            .active.carousel-item-start {
+                transform: translateY(-100%);
+            }
+
+            .carousel-control-prev,
+            .carousel-control-next {
+                width: 100%;
+                height: 60px;
+            }
+
+            .carousel-control-prev-icon,
+            .carousel-control-next-icon {
+                transform: rotateZ(90deg);
+            }
+
+            .carousel-control-next {
+                top: unset;
+                bottom: 0;
+            }
+
+            .bsbButtonDesign {
+                .bsbArrowButton {
+                    transform: rotateZ(90deg);
+                }
+            }
+
+            .arrowMouseEffect {
+                .carousel-control-prev {
+                    left: 0;
+                    top: 0;
+                    width: 100%;
+                    height: 50%;
+                }
+
+                button.carousel-control-next {
+                    bottom: 0;
+                    right: 0;
+                    width: 100%;
+                    height: 50%;
+                }
+
+            }
+        }
+
+        &.mouseDrag {
+            cursor: grabbing;
+        }
+
+        @media all and (max-width: 767px) {
+            .item {
+                img {
+                    height: 100%;
+                }
+            }
+        }
+    }
+
+    // carousel layout 
+    .bsb-main-carousel-wrapper {
+
+        .bsb-carousel-wrapper {
+            position: relative;
+
+            .swiper {
+                .swiper-wrapper {
+                    height: 100%;
+
+                    .swiper-slide {
+                        height: 100%;
+
+                        &.center {
+                            display: flex;
+                            align-items: end;
+                            justify-content: center;
+                            transition: all 200ms linear;
+                            transform: scale(0.9);
+
+                            &.swiper-slide-active {
+                                transform: scale(1);
+                            }
+                        }
+                    }
+                }
+            }
+
+            .bsbArrowWrapper {
+
+
+                .bsbArrowButton {
+                    pointer-events: all;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    cursor: pointer;
+                    border: none;
+                }
+
+                .bsbArrowButtonPrev {
+                    position: absolute;
+                    transform: translateY(-50%);
+                    top: 50%;
+                    left: 0px;
+                    z-index: 9;
+                }
+
+                .bsbArrowButtonNext {
+                    position: absolute;
+                    transform: translateY(-50%);
+                    top: 50%;
+                    right: 0px;
+                    z-index: 9;
+                }
+            }
+        }
+
+        .bsb-carousel-pagination {
+            text-align: center;
+            position: unset;
+            display: inline-block;
+            margin: 0;
+            padding: 0 !important;
+            // margin-top: 10px;
+
+
+            .bsb-bullet {
+                margin-right: 5px;
+                cursor: pointer;
+
+                &:last-of-type {
+                    margin-right: 0px;
+                }
+            }
+        }
+
+    }
+
+    .mainLayout {
+        .grid-wrapper {
+            box-sizing: border-box;
+
+            .grid {
+                display: grid;
+
+                &__item {
+                    transition: box-shadow 0.3s ease;
+                }
+            }
+
+            .pagination {
+                display: flex;
+                justify-content: center;
+                margin-top: 20px;
+
+                &__button {
+                    cursor: pointer;
+                    margin-right: 10px;
+
+                    &:last-of-type {
+
+                        margin-right: 0px;
+                    }
+                }
+
+                .disabled {
+                    display: none;
+                }
+            }
+
+            .load-more {
+                margin-top: 20px;
+
+                button {
+                    cursor: pointer;
+                }
+            }
+        }
+
+        .content-area {
+            position: absolute;
+            top: 0;
+            left: 0;
+            display: flex;
+            align-items: end;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            z-index: 9;
+
+            .carousel-button {
+                a {
+                    display: inline-block;
+                }
+
+                margin-bottom: 15px;
+            }
+        }
+
+        .item {
+            height: 100%;
+
+            .img {
+                height: 100%;
+                object-fit: cover;
+
+                img {
+                    height: 100%;
+                }
+            }
+        }
+    }
+
+    // Thumbnails layout 
+    .thumbnails {
+
+        .bsb-main-carousel-wrapper {
+
+            .bsbArrowWrapper {
+
+                .bsbArrowButtonPrev {
+                    position: absolute;
+                    transform: translateY(-50%);
+                    top: 50%;
+                    left: 10px;
+                    z-index: 9;
+                }
+
+                .bsbArrowButtonNext {
+                    position: absolute;
+                    transform: translateY(-50%);
+                    top: 50%;
+                    right: 10px;
+                    z-index: 9;
+                }
+            }
+
+            // two side thumbnails
+            &.side-by-side {
+                display: flex;
+                gap: 15px;
+
+                .bsb-thumbnail-left {}
+
+                .carousel-wrapper {}
+
+
+                &.right {
+                    flex-direction: row-reverse;
+                }
+
+
+            }
+
+            &.top-by-bottom {
+                display: flex;
+                flex-direction: column;
+
+                .swiper {
+                    width: 100%;
+                }
+
+                &.bottom {
+                    flex-direction: column-reverse;
+                }
+
+                .bsb-slider-thumbnail {
+                    margin-bottom: 15px;
+
+                    // Override when in bottom position
+                    &.bsb-thumbnail-bottom {
+                        order: 1;
+                        margin-bottom: 0;
+                        margin-top: 15px;
+                    }
+                }
+
+                .carousel-wrapper {
+                    order: 1;
+                }
+            }
+
+        }
+
+        .bsb-slider-thumbnail {
+
+
+            .swiper-slide {
+                .single_thumbnails {
+                    height: 100%;
+                    cursor: pointer;
+
+                    .img {
+                        width: 100%;
+                        height: 100%;
+                        position: relative;
+                        overflow: hidden;
+
+                        img {
+                            width: 100%;
+                            height: 100%;
+                            object-fit: cover;
+                            display: block;
+                        }
+
+                        &::after {
+                            content: '';
+                            width: 100%;
+                            height: 100%;
+                            position: absolute;
+                            top: 0;
+                            left: 0;
+                            background: #00000088;
+                            pointer-events: none;
+                        }
+                    }
+                }
+            }
+
+            &.bsb-thumbnail-top {
+                margin-bottom: 20px;
+            }
+
+            &.bsb-thumbnail-bottom {
+                margin-top: 20px;
+            }
+        }
+    }
+
+    .mainLayout {
+
+        .videoItem {
+
+            .bsbvid {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+            .plyr {
+                height: 100%;
+
+                a {
+                    color: #fff;
+                }
+            }
+        }
+
+
+
+        .lightboxArea {
+
+            height: 100%;
+            position: relative;
+
+            .contentArea {
+                height: 100%;
+
+                .img {
+                    height: 100%;
+
+                    img {
+                        height: 100%;
+                        width: 100%;
+                        object-fit: cover;
+                    }
+
+                    .play {
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        width: 100%;
+                        height: 100%;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        cursor: pointer;
+
+                        .icon {
+                            width: 40px;
+                            height: 40px;
+                            border-radius: 50%;
+                            border: 2px solid #fff;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                        }
+                    }
+                }
+            }
+
+            &.db_carousel {
+                display: block;
+            }
+        }
+    }
+}
+
+.swiper-wrapper {
+    transition-timing-function: linear !important;
+}
+
+/*
+*
+*column set
+*/
+@for $i from 1 through 12 {
+    .columns-#{$i} {
+        grid-template-columns: repeat(#{$i}, 1fr);
+        columns: $i;
+    }
+}
+
+@media (max-width: 768px) {
+    @for $i from 1 through 12 {
+        .columns-tablet-#{$i} {
+            grid-template-columns: repeat(#{$i}, 1fr);
+            columns: $i;
+        }
+    }
+}
+
+@media (max-width: 576px) {
+    @for $i from 1 through 12 {
+        .columns-mobile-#{$i} {
+            grid-template-columns: repeat(#{$i}, 1fr);
+            columns: $i;
+        }
+    }
+}
+
+.bsb-backend-inner-item {
+    display: none;
+}

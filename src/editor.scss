@@ -1,0 +1,432 @@
+svg#bsbSlider {
+    fill: none;
+}
+
+.bsbGeneralMainArea {
+
+    .components-base-control__field {
+        flex-direction: column;
+    }
+
+    .bsbToggle {
+        .components-base-control__field {
+            flex-direction: row !important;
+            margin-top: 15px;
+            justify-content: space-between !important;
+        }
+    }
+
+    label {
+        display: block;
+    }
+
+    .bsbButtonArea {
+        display: flex;
+        align-items: center;
+        column-gap: 10px;
+    }
+
+    .bsbImageUpload {
+        font-size: 16px;
+        border-radius: 3px;
+        background-color: #4527a4;
+        color: #fff;
+        margin-top: 5px;
+    }
+
+    .components-button-group {
+        border-radius: 3px;
+
+        button.is-primary {
+            background: #000080 !important;
+
+            &:hover {
+                background: #002fa7 !important;
+            }
+        }
+    }
+
+    .components-grid {
+        margin-top: 15px;
+    }
+
+}
+
+.bsbGeneralMainArea,
+.bsb-tab-panel {
+
+    label,
+    span,
+    p,
+    span {
+
+        font-weight: 500;
+    }
+}
+
+.wp-block-bsb-slider {
+    .bsb_content_type {
+        border: 1px solid #ddd;
+        padding: 10px;
+        border-radius: 3px;
+
+        h2 {
+            font-size: 16px;
+            font-weight: 500;
+            color: #000000c7;
+            margin: 0;
+            padding: 0;
+            margin-bottom: 10px;
+        }
+
+        .content_type_area {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+
+            button {
+                font-size: 16px;
+                font-weight: 400;
+                color: #000000ba;
+                background: #fff;
+                border: 1px solid #ddd;
+                border-radius: 3px;
+                padding: 3px 5px;
+                cursor: pointer;
+            }
+        }
+    }
+
+    .bsbCarousel {
+        .block-editor__container {
+            img {
+                height: 100% !important;
+            }
+        }
+
+    }
+
+
+    .clipBtnWrapper {
+        text-align: center;
+        margin-bottom: 30px;
+
+        p {
+            font-size: 18px;
+            font-weight: 500;
+        }
+
+        button {
+            border: none;
+            background: rgb(69, 39, 164);
+            color: rgb(255, 255, 255);
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            font-size: 15px;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+
+            &:hover {
+                background: rgb(69, 39, 164);
+                color: rgb(255, 255, 255);
+            }
+        }
+    }
+}
+
+
+
+.bsb-tab-panel {
+    p {
+        margin-top: 0px !important;
+    }
+
+    svg {
+        // fill: none;
+    }
+
+    button.is-primary {
+        background: #000080 !important;
+
+        &:hover {
+            background: #002fa7 !important;
+        }
+    }
+
+    .bsbWHControl {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        column-gap: 10px;
+        margin-top: -15px;
+        margin-bottom: 10px;
+    }
+
+    .marginLeft {
+        margin-bottom: 0px !important;
+    }
+
+    .warning {
+        font-size: 12px;
+        font-weight: 400;
+    }
+}
+
+.bPlBtnGroup {
+    button {
+        svg {
+            margin-right: 0px !important;
+        }
+    }
+}
+
+.noticePatter {
+    text-align: center;
+    padding: 5px 5px;
+    background: red;
+    color: #fff;
+    margin-top: 13px !important;
+    margin-bottom: 8p
+}
+
+.bsbPatters {
+    position: relative;
+    margin-bottom: 5px;
+
+    img {}
+
+    .overlyButton {
+        position: absolute;
+        top: 0;
+        left: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        transition: 0.3s;
+        background-color: #1e1b1b94;
+
+        button {
+            border: none;
+            font-size: 12px;
+            border-radius: 2px;
+            padding: 4px 15px;
+            font-weight: 500;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: 0.3s;
+
+            &:hover {
+                color: #fff;
+                background-color: #007cba;
+                transition: 0.3s;
+
+            }
+        }
+    }
+
+    &:hover .overlyButton {
+        opacity: 1;
+        transition: 0.3s;
+    }
+}
+
+.labelPro {
+    padding: 0px 5px;
+    border-radius: 5px;
+    color: #fff;
+    background-color: #4527a4;
+}
+
+.bsbProModal {
+
+    .components-modal__content {
+        margin-top: 30px;
+
+        .components-modal__header {
+            padding-top: 10px;
+
+            .components-modal__header-heading-container {
+                margin-bottom: 10px;
+            }
+        }
+    }
+
+    .proList {
+
+
+        .title {
+            font-size: 17px;
+            margin: 0px 0;
+            margin-top: 0px;
+            font-weight: 600;
+            color: #333;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 5px;
+            margin-top: 10px;
+        }
+
+        .list {
+            margin: 10px 0;
+            padding-left: 20px; // normal indent for list
+
+            .feature {
+                list-style: disc; // default bullet
+                font-size: 15px;
+                font-weight: 400;
+                color: #444;
+                margin: 1px 0;
+                line-height: 1.6;
+            }
+        }
+    }
+
+    .bsbProFeature {
+        text-align: left;
+        margin-top: 10px;
+
+        .upgradeBtn {
+            font-size: 16px;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            position: relative;
+            padding: 12px 28px;
+            border: none;
+            border-radius: 0.5em;
+            outline: 0;
+            z-index: 0;
+            cursor: pointer;
+            overflow: hidden;
+            transition: all 0.5s ease-in-out;
+            background: #146EF5;
+            color: #fff;
+
+            &::before {
+                background: #070127;
+                content: "";
+                width: 0;
+                height: 100%;
+                position: absolute;
+                left: 0;
+                top: 0;
+                z-index: -1;
+                transition: all 0.5s ease-in-out;
+            }
+
+            &:hover::before {
+                width: 100%;
+            }
+        }
+
+    }
+}
+
+.bsb-backend-inner-item {
+    display: none;
+}
+
+.bsb_main_parent {
+    box-shadow: 0px 0px 1px 1px #146EF5;
+    border-radius: 3px;
+    padding: 15px 15px;
+
+    .bsb_backBtn {
+        font-size: 14px;
+        font-weight: 500;
+        padding: 3px 6px;
+        border: 1px solid #146EF5;
+        border-radius: 3px;
+        color: #146EF5;
+        background: #fff;
+        font-family: Roboto;
+        cursor: pointer;
+    }
+
+    h2 {
+        margin: 0;
+        padding: 0;
+        margin-top: 5px;
+        font-size: 20px;
+        font-weight: 500;
+        color: #146EF5;
+        margin-bottom: 15px;
+        font-family: Roboto;
+    }
+
+    .bsb_parent_area {
+        margin-bottom: 15px;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        column-gap: 20px;
+
+        .single_lay {
+            position: relative;
+            border: 1px solid #146EF5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border-radius: 3px;
+            padding: 10px;
+            cursor: pointer;
+
+            .title {
+                color: #146EF5;
+                font-size: 17px;
+                font-weight: 400;
+                font-weight: 500;
+                font-family: Roboto;
+                text-align: center;
+            }
+
+            .icon {
+
+                svg {
+                    fill: #146EF5;
+                }
+            }
+
+            .pro {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+
+                p {
+                    margin: 0;
+                    font-size: 12px;
+                    font-weight: 500;
+                    background: #000;
+                    padding: 1px 10px;
+                    color: #fff;
+                    border-radius: 14px;
+
+                }
+            }
+        }
+    }
+}
+
+
+.bsbNotice {
+    display: flex;
+    margin-bottom: 10px;
+
+    .icon {}
+
+    p {
+        margin-bottom: 0px;
+        font-size: 13px;
+    }
+}

@@ -1,0 +1,182 @@
+.bPl-token-field-main-wrapper .bPl-single-token-field-wrapper {
+    width: fit-content;
+    position: relative;
+
+    .bPl-token-field-dropdown-wrapper {
+        position: absolute;
+        left: 0;
+        right: 0;
+        background: #fff;
+        padding: 5px 5px;
+        border: 1px solid #B3B3B3;
+        border-top: none;
+        border-radius: 0px 0px 5px 5px;
+        box-shadow: 0px 1px 6px #E5E5E5;
+        overflow-x: hidden;
+        overflow-y: auto;
+        max-height: 240px;
+        z-index: 9999;
+
+        .bPl-token-field-dropdown-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+
+            li {
+                color: #444;
+                cursor: pointer;
+                /* background:linear-gradient(#5C3BC7 20%, #422C8D 50%, #422C8D 52%, #5C3BC7 100%); */
+                padding: 5px 5px;
+                margin-bottom: 2px;
+                font-size: 14px;
+            }
+
+            li:hover:not(.multipleActiveItem) {
+                color: #fff;
+                background: linear-gradient(#5C3BC7 20%,
+                        #422C8D 50%,
+                        #422C8D 52%,
+                        #5C3BC7 100%);
+            }
+
+            .activeItemInList {
+                color: #fff;
+                background: linear-gradient(#5C3BC7 20%,
+                        #422C8D 50%,
+                        #422C8D 52%,
+                        #5C3BC7 100%);
+            }
+
+            .multipleActiveItem {
+                color: #ccc;
+            }
+        }
+    }
+
+    .bPl-single-token-field {
+        width: fit-content;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        cursor: pointer;
+        background: linear-gradient(#fff 20%, #F6F6F6 50%, #eee 52%, #F4F4F4 100%);
+        padding: 5px 10px;
+        border-radius: 5px;
+        /* border: 1px solid #E5E5E5; */
+        border: 1px solid #B3B3B3;
+
+        .bPl-token-field-value {
+            color: #ADADAD;
+            font-size: 14px;
+        }
+
+        .bPl-xMark-icon,
+        .bPl-arrow-icon {
+            fill: #ADADAD;
+            transition: all 0.2s ease-in-out;
+            display: flex;
+
+            svg {
+                margin: 0;
+            }
+
+            &:hover {
+                fill: #000;
+            }
+        }
+    }
+
+    .activeField {
+        border-bottom: none;
+        border-radius: 5px 5px 0px 0px;
+        background-image: linear-gradient(#eee 20%, #fff 80%);
+    }
+
+    .bPl-token-multiple-filed-wrapper {
+        .bPl-token-multiple-filed-wrapper-item {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 5px;
+            border: 1px solid #ccc;
+            padding: 8px 10px;
+            position: relative;
+            height: 30px;
+            height: auto;
+            /* padding-top: 6px; */
+            overflow: hidden;
+
+            &:focus {
+                border-color: #4527A4;
+            }
+
+            .bPl-multiple-search {
+                border: none;
+                outline: none;
+                min-width: 80px;
+                width: unset;
+                flex: 1;
+                padding: 0 5px;
+                margin: 0;
+                min-height: 16px;
+                height: 16px;
+
+                &:focus {
+                    border: 1px solid #eee;
+                    outline: none !important;
+                    box-shadow: none;
+                }
+            }
+
+            .bPl-multiple-token-field {
+                width: fit-content;
+                display: flex;
+                align-items: center;
+                gap: 5px;
+                cursor: pointer;
+                background: linear-gradient(#fff 20%,
+                        #F6F6F6 50%,
+                        #eee 52%,
+                        #F4F4F4 100%);
+                padding: 2px 5px;
+                border-radius: 3px;
+                border: 1px solid #B3B3B3;
+                height: 16px;
+
+                .bPl-multiple-token-field-value {
+                    color: #252525;
+                    font-size: 13px;
+                }
+
+                .bPl-xMark-icon {
+                    fill: #ADADAD;
+                    transition: all 0.2s ease-in-out;
+                    display: flex;
+
+                    svg {
+                        margin: 0;
+                    }
+
+                    &:hover {
+                        fill: #000;
+                    }
+                }
+            }
+
+            .bPl-empty-token-field {
+                position: absolute;
+                inset: 0;
+                color: #A3A3A3;
+                background: linear-gradient(#eee 1%, #fff 15%);
+                display: flex;
+                align-items: center;
+                padding-left: 10px;
+            }
+        }
+
+        .focusItem {
+            border-color: #4527A4;
+            box-shadow: 0px 0px 2px #6B59A5;
+        }
+    }
+}
