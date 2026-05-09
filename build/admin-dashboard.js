@@ -549,7 +549,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "react");
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _style_scss__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./style.scss */ "../bpl-tools/Admin/Changelog/style.scss");
+/* harmony import */ var _Components_Button_Button__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../Components/Button/Button */ "../bpl-tools/Components/Button/Button.js");
+/* harmony import */ var _style_scss__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./style.scss */ "../bpl-tools/Admin/Changelog/style.scss");
+
 
 
 
@@ -563,11 +565,14 @@ __webpack_require__.r(__webpack_exports__);
  */
 const Changelog = props => {
   const {
-    changelogs
+    slug,
+    changelogs,
+    limit = 5,
+    loadMoreLabel
   } = props;
   return changelogs?.length && (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
     className: "bPlDashboardChangelog bPlDashboardCard"
-  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("h3", null, "Release Notes(Changelog)..."), changelogs?.slice(0, 5)?.map((changelog, index) => {
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("h3", null, "Release Notes(Changelog)..."), changelogs?.slice(0, limit)?.map((changelog, index) => {
     const {
       type,
       version,
@@ -583,7 +588,12 @@ const Changelog = props => {
     }, item))), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", {
       className: "time"
     }, version));
-  }));
+  }), loadMoreLabel && (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("br", null), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_Components_Button_Button__WEBPACK_IMPORTED_MODULE_1__["default"], {
+    className: "mt20",
+    target: "_blank",
+    rel: "noopener noreferrer",
+    href: `https://wordpress.org/plugins/${slug}/#developers`
+  }, loadMoreLabel)));
 };
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Changelog);
 
@@ -1966,6 +1976,18 @@ const Overview = props => {
     description: 'Our Expert Support Team is always ready to help you out promptly.',
     link: 'https://bplugins.com/support',
     linkText: 'Contact Support'
+  }, {
+    titleIcon: (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 292 512",
+      fill: "#1877F2"
+    }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("path", {
+      d: "m66 299.3v212.7h116v-212.7h86.5l18-97.8h-104.5v-34.6c0-51.7 20.3-71.5 72.7-71.5 16.3 0 29.4 0.4 37 1.2v-88.7c-14.3-3.9-49.3-7.9-69.5-7.9-106.9 0-156.2 50.5-156.2 159.4v42.1h-66v97.8z"
+    })),
+    title: 'Join Our Community',
+    description: 'Get tutorials, plugin updates, feature announcements, and support from other WordPress users.',
+    link: 'https://facebook.com/groups/1828495198556137',
+    linkText: 'Join Now →'
   }];
   return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
     className: "bPlDashboardOverview"
@@ -2012,6 +2034,7 @@ const Overview = props => {
   }, helpInfo?.map((item, index) => {
     const {
       image,
+      titleIcon,
       title,
       description,
       link,
@@ -2023,7 +2046,7 @@ const Overview = props => {
     }, image && (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("figure", null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("img", {
       src: image,
       alt: "Support Thumb"
-    })), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("h4", null, title), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, description), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_Components_Button_Button__WEBPACK_IMPORTED_MODULE_2__["default"], {
+    })), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("h4", null, title, " ", titleIcon), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, description), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_Components_Button_Button__WEBPACK_IMPORTED_MODULE_2__["default"], {
       href: link,
       target: "_blank",
       rel: "noopener noreferrer"
@@ -13735,9 +13758,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "react");
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _bpl_tools_Admin_Overview__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../../../bpl-tools/Admin/Overview */ "../bpl-tools/Admin/Overview/index.js");
-/* harmony import */ var _bpl_tools_Admin_Changelog__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../../bpl-tools/Admin/Changelog */ "../bpl-tools/Admin/Changelog/index.js");
-/* harmony import */ var _bpl_tools_Admin_ProAds__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../../../bpl-tools/Admin/ProAds */ "../bpl-tools/Admin/ProAds/index.js");
+/* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @wordpress/i18n */ "@wordpress/i18n");
+/* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _bpl_tools_Admin_Overview__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../../bpl-tools/Admin/Overview */ "../bpl-tools/Admin/Overview/index.js");
+/* harmony import */ var _bpl_tools_Admin_Changelog__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../../../bpl-tools/Admin/Changelog */ "../bpl-tools/Admin/Changelog/index.js");
+/* harmony import */ var _bpl_tools_Admin_ProAds__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../../../bpl-tools/Admin/ProAds */ "../bpl-tools/Admin/ProAds/index.js");
+
 
 
 
@@ -13746,7 +13772,7 @@ const Welcome = props => {
   const {
     isPremium
   } = props;
-  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_bpl_tools_Admin_Overview__WEBPACK_IMPORTED_MODULE_1__["default"], {
+  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_bpl_tools_Admin_Overview__WEBPACK_IMPORTED_MODULE_2__["default"], {
     ...props
   }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
     style: {
@@ -13754,9 +13780,11 @@ const Welcome = props => {
       gridTemplateColumns: isPremium ? '1fr' : 'repeat(auto-fill, minmax(min(480px, 100%), 1fr))',
       gap: '32px'
     }
-  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_bpl_tools_Admin_Changelog__WEBPACK_IMPORTED_MODULE_2__["default"], {
-    ...props
-  }), !isPremium && (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_bpl_tools_Admin_ProAds__WEBPACK_IMPORTED_MODULE_3__["default"], {
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_bpl_tools_Admin_Changelog__WEBPACK_IMPORTED_MODULE_3__["default"], {
+    ...props,
+    limit: 5,
+    loadMoreLabel: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)('View More Changelogs', 'b-slider')
+  }), !isPremium && (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_bpl_tools_Admin_ProAds__WEBPACK_IMPORTED_MODULE_4__["default"], {
     ...props
   })));
 };
@@ -13828,6 +13856,10 @@ const dashboardInfo = info => {
     },
     licenseActiveNonce,
     changelogs: [{
+      version: '2.0.11 - 7 May 2026',
+      type: 'update',
+      list: [' Update: Removed restricted "Locked Fields" to improve user flexibility', 'New: Custom Slider Height: Easily define and set the perfect height for your sliders', 'New: Dynamic Indicators: Fully customize indicator types, positioning, and direction (Horizontal or Vertical).', 'New: Carousel Enhancements: Toggle visibility for Navigation Arrows and Pagination Indicators with a single click.', 'New: Grid Flexibility: Set items per page and choose your preferred pagination style (Standard Button or Load More).', 'New: Post Per Page: Control the exact density of your content.', ' New: Advanced Sorting: Organize content by specific criteria (Order By) and direction (ASC/DESC).', 'New: Post Offset: Skip specific posts to create unique layouts and avoid duplication.', ' New: Playback Settings: New options for Auto-play, Loop/Repeat, and Muted starts.', ' New: Comprehensive Player Controls: Empower users with a full suite of controls including Play/Pause, Mute, Rewind/Fast-Forward, and real-time displays for Progress, Current Time, and Duration.', ' Improved: Overall code quality and strengthened security protocols.']
+    }, {
       version: '2.0.10 - 5 April 2026',
       type: 'new',
       list: ['Added a new modern dashboard.']
@@ -13860,7 +13892,7 @@ const dashboardInfo = info => {
       type: 'update',
       list: ['Fixed missing authorization check that allowed authenticated users (admin) to install arbitrary plugins;']
     }],
-    proFeatures: ['Advanced Carousel Styles: Create unique carousels with ticker, grid, and 3D effects.', 'Creative Effects: Use coverflow and card-style transitions for modern visual appeal.', 'Buttons in Content: Add clickable buttons inside slides for CTAs and product links.', 'Advanced Animations: Control timing, delay, and duration for text and button animations.', 'Custom Image Indicators: Replace default indicators with images for a more branded look.', 'Multiple Arrow Icons: Select from different arrow styles to fit your design.', 'Flexible Content Positioning: Place content anywhere within each slide for more control.', 'Drag-and-Drop Reordering: Organize slides easily by dragging and dropping items.', 'Mouse Controls: Navigate with the mouse wheel, dragging, or grab the cursor for better usability.', 'Arrow Follow Mouse: Enable arrows that follow mouse movement for dynamic navigation.', 'Responsive Slider Height: Adjust slider height per device for better responsiveness.', 'Advanced Post Controls: Set posts per page, change order, exclude/include posts, or skip current post.', 'WooCommerce Advanced Options: Apply the same filters and display controls to products.', 'Full Video Controls: Unlock rewind, fast forward, progress bar, time display, mute, volume, PIP, AirPlay, download, and full screen.', 'Grid Pagination: Add pagination with options for load more or numbered pages, aligned left, right, or center.', 'Pagination Styling: Customize buttons with typography, colors, padding, and borders.', 'Enhanced Thumbnails: Control navigation arrows, overlays, cursor options, and direction for thumbnails.', 'Multiple Layouts: Switch between slider, carousel, grid, or thumbnails for flexible presentations.'],
+    proFeatures: ['Custom HTML Wrapper Tags**: Options to use specific tags like h1-h6 for better structure and SEO.', 'Slider Transition Effects**: Professional animation effects for seamless slide transitions.', 'Left/Right Inner Gap**: Customizable internal spacing between slider items.', 'Dual Slide Direction**: Support for both horizontal and vertical movement paths.', 'Custom Arrow Styles**: Unique navigation arrow designs to match your branding.', 'Slide on Mouse Wheel**: Ability to navigate through slides using the mouse scroll wheel.', 'Arrow Follow Mouse**: Interactive navigation arrows that dynamically follow the cursor.', 'Slide on Mouse Drag**: Smooth drag-to-slide functionality for a tactile user experience.', 'Lazy Load Enable**: Optimizes performance by deferring the loading of offscreen images.', 'Move From Edge**: Precise control over the spacing of content from the slider edges.', 'Video Reset On End**: Automatically restarts videos from the beginning once they finish.', 'Video Auto Hide Controls**: Automatically hides playback UI during periods of inactivity.', 'Advanced Video Tools**: Includes Mute, PIP (Picture-in-Picture), AirPlay, Download, and Fullscreen.', 'Pagination Position**: Flexible alignment for pagination buttons within grid layouts.', 'Include/Exclude Posts & Products**: Manually select exactly which items to display or hide.', 'Exclude Current Post**: Prevents the post being currently viewed from appearing in the feed.', 'Grab Cursor Interaction**: Displays a "grab" icon to improve carousel usability.', 'Thumbnail Direction & Navigation**: Controls for thumbnail flow and dedicated navigation arrows.', 'Thumbnail Styling**: Custom settings for thumbnail position, dimensions, borders, and color overlays.', 'Box Model Controls**: Full management of Margin, Padding, Border, and Border Radius.', 'Advanced Typography**: Comprehensive styling for fonts, sizes, and text behavior.', 'Interactive Color States**: Set specific colors for both standard and hover states.', 'Animation Timing**: Granular control over animation duration and start delays.', 'Clickable CTA Buttons**: Add custom button labels and URLs directly into slide content.', 'Smart Link Behavior**: Option to open button links in a new browser tab automatically.', 'Advanced Carousel Styles**: Create unique carousels with ticker, grid, and 3D effects.'],
     startButton: {
       label: 'Start Now',
       url: `wp-admin/post-new.php?post_type=bsb`
@@ -14110,6 +14142,17 @@ module.exports = window["wp"]["components"];
 
 "use strict";
 module.exports = window["wp"]["data"];
+
+/***/ }),
+
+/***/ "@wordpress/i18n":
+/*!******************************!*\
+  !*** external ["wp","i18n"] ***!
+  \******************************/
+/***/ ((module) => {
+
+"use strict";
+module.exports = window["wp"]["i18n"];
 
 /***/ }),
 

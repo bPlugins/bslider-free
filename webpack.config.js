@@ -14,6 +14,22 @@ module.exports = {
 		...defaultConfig.entry(),
 		'admin-dashboard': './src/admin/dashboard.js',
 	},
+	module: {
+		...defaultConfig.module,
+		rules: [
+			...defaultConfig.module.rules,
+			{
+				test: /ace-builds.*snippets[\\/]html\.js$/,
+				loader: 'string-replace-loader',
+				options: {
+					multiple: [
+						{ search: 'https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js', replace: '' },
+						{ search: 'https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js', replace: '' }
+					]
+				}
+			}
+		]
+	},
 	plugins: [
 		...plugins,
 		new ESLintPlugin()

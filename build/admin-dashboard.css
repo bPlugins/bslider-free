@@ -1685,8 +1685,16 @@ div.fs-notice.updated {
 .bPlDashboardOverview .overviewRight .helpInfoItem h4 {
   font-size: 18px;
   font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   color: var(--bpl-dashboard-title-color, #001737);
   margin-bottom: 8px;
+}
+.bPlDashboardOverview .overviewRight .helpInfoItem h4 svg {
+  width: 18px;
+  height: 18px;
+  margin-left: 4px;
 }
 .bPlDashboardOverview .overviewRight .helpInfoItem p {
   font-size: 14px;
@@ -2079,6 +2087,15 @@ div.fs-notice.updated {
   font-size: 14px;
   color: rgba(var(--bpl-dashboard-content-color-rgb, #1B2E4B), 0.75);
   margin: 0;
+}
+.bPlDashboardChangelog .bPlButton {
+  font-size: 16px;
+  color: #fff;
+  background: var(--bpl-dashboard-primary-color, #6155F5);
+  padding: 10px 21px;
+}
+.bPlDashboardChangelog .bPlButton::before {
+  background: var(--bpl-dashboard-secondary-color, #091E42);
 }
 /*!***********************************************************************************************************************************************************************************************************************************************************!*\
   !*** css ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[4].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[4].use[2]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[4].use[3]!../bpl-tools/Admin/ProAds/style.scss ***!
