@@ -9,12 +9,12 @@ const GridGeneral = ({ attributes, updateObject }) => {
     const { per_page } = postsQuery;
 
     return <>
-        <PanelBody className='' title={__('Pagination', 'slider')} initialOpen={false}>
+        <PanelBody className='' title={__('Pagination', 'b-slider')} initialOpen={false}>
 
-            {(sourceType !== 'posts' && sourceType !== 'woo') && <RangeControl label={__('Per Page', 'slider')} labelPosition='side' className='mt10' value={per_page} onChange={val => updateObject('postsQuery', 'per_page', val)} min={1} />}
+            {(sourceType !== 'posts' && sourceType !== 'woo') && <RangeControl label={__('Per Page', 'b-slider')} labelPosition='side' className='mt10' value={per_page} onChange={val => updateObject('postsQuery', 'per_page', val)} min={1} />}
 
-            <SelectControl label={__('Pagination Type', 'slider')} className='mt10' options={paginationTypeOpt} value={paginationType} onChange={val => updateObject('grid', 'paginationType', val)} />
-            <Notice status='premium' isIcon={true}>{__('Position(Left, Right, Center) settings are available in the Premium version.', 'b-slider')}</Notice>
+            <SelectControl label={__('Pagination Type', 'b-slider')} className='mt10' options={paginationTypeOpt} value={paginationType} onChange={val => updateObject('grid', 'paginationType', val)} />
+
         </PanelBody>
     </>
 }

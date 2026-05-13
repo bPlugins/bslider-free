@@ -21,29 +21,29 @@ const DefaultGeneral = ({ attributes, setAttributes, updateObject, device, setDe
         <PanelBody className='bPlPanelBody' title={__('Title', 'b-slider')} initialOpen={false}>
 
             <ToggleControl className='mt10' label={__('Import Title From Media Caption', 'b-slider')} checked={titleFCaption} onChange={(val) => setAttributes({ titleFCaption: val })} />
-            <Notice status='premium' isIcon={true}>{__('Custom HTML wrapper tags (e.g., h1-h6) are available in the Premium version.', 'b-slider')}</Notice>
+            
         </PanelBody>
 
         {
             layoutType === "carousel" && <PanelBody className='bPlPanelBody' title={__('Controls', 'b-slider')} initialOpen={false}>
 
-                <SelectControl label={__('Carousel Style', "slider")} value={carouselStyle} options={carouselStyOpt} onChange={val => updateObject("carousel", "carouselStyle", val)} />
+                <SelectControl label={__('Carousel Style', 'b-slider')} value={carouselStyle} options={carouselStyOpt} onChange={val => updateObject("carousel", "carouselStyle", val)} />
 
                 {carouselStyle !== "ticker" && <>
                     <Controls attributes={attributes} updateObject={updateObject} />
                 </>}
 
-                {carouselStyle === "ticker" && <ToggleControl className='mt10' label={__("Reverse Direction", "slider")} checked={reverseDirection} onChange={val => updateObject("carousel", "reverseDirection", val)} />}
+                {carouselStyle === "ticker" && <ToggleControl className='mt10' label={__("Reverse Direction", 'b-slider')} checked={reverseDirection} onChange={val => updateObject("carousel", "reverseDirection", val)} />}
 
-                {(carouselStyle === "standard" || carouselStyle === "ticker") && <SelectControl className='mt10' label={__('Direction', "slider")} value={caroDirection} options={caroDirectionOpt} onChange={val => updateObject("carousel", "caroDirection", val)} />}
+                {(carouselStyle === "standard" || carouselStyle === "ticker") && <SelectControl className='mt10' label={__('Direction', 'b-slider')} value={caroDirection} options={caroDirectionOpt} onChange={val => updateObject("carousel", "caroDirection", val)} />}
 
                 {carouselStyle !== "ticker" && <>
-                    <ToggleControl className='mt10' label={__('Show Arrow/Navigation', 'slider')} checked={arrow.visibility} onChange={(value) => { updateObject('arrow', 'visibility', value) }} />
+                    <ToggleControl className='mt10' label={__('Show Arrow/Navigation', 'b-slider')} checked={arrow.visibility} onChange={(value) => { updateObject('arrow', 'visibility', value) }} />
 
-                    <ToggleControl className='mt10' label={__('Show Indicators/Pagination', 'slider')} checked={indicator.visibility} onChange={(value) => updateObject('indicator', 'visibility', value)} />
+                    <ToggleControl className='mt10' label={__('Show Indicators/Pagination', 'b-slider')} checked={indicator.visibility} onChange={(value) => updateObject('indicator', 'visibility', value)} />
                 </>}
 
-                <Notice status='premium' isIcon={true}>{__('Carousel Style (Ticker, Grid, 3D Carousel), Effect(Default, Cards,Coverflow), Mouse Wheel, Grab Cursor settings are available in the Premium version.', 'b-slider')}</Notice>
+                
             </PanelBody>
         }
 
@@ -72,13 +72,13 @@ const DefaultGeneral = ({ attributes, setAttributes, updateObject, device, setDe
 
             {/* Height define option  */}
             <PanelRow className='mt20'>
-                <Label mt='0'>{__('Height:', 'slider')}</Label>
+                <Label mt='0'>{__('Height:', 'b-slider')}</Label>
                 <BDevice label={__('Slider Height')} device={device} onChange={val => setDevice(val)} />
             </PanelRow>
 
             <UnitControl className='mb20' label={`${layoutType === 'grid' ? 'Item' : 'Slider'} Height`} labelPosition='left' value={sliderHeight[device] || height} onChange={val => { setAttributes({ sliderHeight: { ...sliderHeight, [device]: val } }) }} units={[pxUnit(400), vhUnit(30)]} isResetValueOnUnitChange={true} beforeIcon='grid-view' />
 
-            <Notice status='premium' isIcon={true}>{__('Slide Direction-(Horizontal and vertical), Arrow Styles, are available in the Premium version.', 'b-slider')}</Notice>
+            
         </PanelBody>
 
         {(layoutType !== "carousel" && layoutType !== "grid" && layoutType !== "thumbnails") && <>
@@ -102,7 +102,7 @@ const DefaultGeneral = ({ attributes, setAttributes, updateObject, device, setDe
                     (layoutType !== "carousel" && layoutType !== "grid" && layoutType !== "thumbnails") && <ToggleControl className='mt10' label={__('Show Indicators/Pagination', 'b-slider')} checked={indicator.visibility} onChange={(value) => updateObject('indicator', 'visibility', value)} />
                 }
 
-                <Notice status='premium' isIcon={true}>{__('Slide On MouseWheel, Slide on Mouse Drag, Arrow Follow Mouse and Lazy Load Enable options are available in the Premium version.', 'b-slider')}</Notice>
+                
             </PanelBody>
         </>}
 
@@ -120,7 +120,7 @@ const DefaultGeneral = ({ attributes, setAttributes, updateObject, device, setDe
             })} options={indicatorOption} />
 
             <PanelRow className='mt20 mb10'>
-                <Label className='mb0'>{__('Position:', 'slider')}</Label>
+                <Label className='mb0'>{__('Position:', 'b-slider')}</Label>
                 <AlignmentMatrixControl value={indicator.position}
                     onChange={val => {
                         setAttributes({
@@ -130,9 +130,9 @@ const DefaultGeneral = ({ attributes, setAttributes, updateObject, device, setDe
                 />
             </PanelRow>
 
-            <SelectControl label={__('Direction', 'slider')} labelPosition='side' value={indicator.direction} onChange={(val) => { updateObject('indicator', 'direction', val) }} options={indicatorOptions} />
+            <SelectControl label={__('Direction', 'b-slider')} labelPosition='side' value={indicator.direction} onChange={(val) => { updateObject('indicator', 'direction', val) }} options={indicatorOptions} />
 
-            <Notice status='premium' isIcon={true}>{__('Move From Edge option is available in the Premium version.', 'b-slider')}</Notice>
+            
         </PanelBody>}
     </>
 }

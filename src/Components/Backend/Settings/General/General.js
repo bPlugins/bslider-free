@@ -50,7 +50,7 @@ const General = ({ attributes, setAttributes, activeIndex, setActiveIndex, updat
             <PanelBody className='bPlPanelBody' title={__('Slides', 'b-slider')} initialOpen={false}>
                 <MainItem itemsProps={itemsProps} />
 
-                <Notice status='premium' isIcon={true}>{__('Button label, Button Url, Open In New Tab settings are available in the Premium version.', 'b-slider')}</Notice>
+                
             </PanelBody>}
 
         {(sourceType === "posts" || sourceType === "woo") && <PostQuery {...commonProps} getTaxonomy={getTaxonomy} />}

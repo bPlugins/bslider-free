@@ -40,7 +40,7 @@ export const RenderLayout = ({ attributes, firstPosts, totalPosts, nonce, }) => 
 	const { cId, layoutType, sliders } = attributes;
 	const commonDeProps = { clientId: cId, carousel, setCarousel };
 
-	const isOld = !layoutType && sliders[0]?.img?.url !== 'https://templates.bplugins.com/wp-content/uploads/2025/02/n-39.jpg';
+	const isOld = !layoutType && sliders[0]?.img?.url !== '';
 	const LayoutEl = <Layout {...{ attributes, commonDeProps, firstPosts, products: firstPosts, totalPosts, nonce, isBackend: false, PostsGrid: PostsGridFront }} />;
 
 	return <div className={`mainLayout ${layoutType}`}>

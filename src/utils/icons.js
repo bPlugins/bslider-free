@@ -53,7 +53,7 @@ export const slider = (width, height) => <svg xmlns="http://www.w3.org/2000/svg"
 
 export const loaderIcon = <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 200 200"><circle fill="none" strokeOpacity="1" stroke="#000" strokeWidth=".5" cx="100" cy="100" r="0"><animate attributeName="r" calcMode="spline" dur="2" values="1;80" keyTimes="0;1" keySplines="0 .2 .5 1" repeatCount="indefinite"></animate><animate attributeName="stroke-width" calcMode="spline" dur="2" values="0;25" keyTimes="0;1" keySplines="0 .2 .5 1" repeatCount="indefinite"></animate><animate attributeName="stroke-opacity" calcMode="spline" dur="2" values="1;0" keyTimes="0;1" keySplines="0 .2 .5 1" repeatCount="indefinite"></animate></circle></svg>;
 
-export const placeholderImg = 'https://bblockswp.com/wp-content/demo/img/green-hill.jpg';
+export const placeholderImg = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='600' viewBox='0 0 800 600'%3E%3Crect width='800' height='600' fill='%23cccccc'/%3E%3Ctext x='400' y='300' font-family='sans-serif' font-size='24' text-anchor='middle' fill='%23666666' dy='.3em'%3EImage%3C/text%3E%3C/svg%3E";
 
 export const play = <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" viewBox="0 0 15 15" fill="#fff">
 	<path d="M4.79062 2.09314C4.63821 1.98427 4.43774 1.96972 4.27121 2.05542C4.10467 2.14112 4 2.31271 4 2.5V12.5C4 12.6873 4.10467 12.8589 4.27121 12.9446C4.43774 13.0303 4.63821 13.0157 4.79062 12.9069L11.7906 7.90687C11.922 7.81301 12 7.66148 12 7.5C12 7.33853 11.922 7.18699 11.7906 7.09314L4.79062 2.09314Z" fill="#fff" /></svg>

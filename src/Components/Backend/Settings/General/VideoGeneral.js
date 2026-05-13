@@ -13,14 +13,12 @@ const VideoGeneral = ({ attributes, setAttributes, updateObject }) => {
 
             {isPopup && <ToggleControl className='mt10' label={__('Icon', 'b-slider')} checked={icon} onChange={val => updateObject('videoConf', 'icon', val)} />}
 
-            <ToggleControl className='mt10' label={__('Repeat', 'slider')} checked={repeat} onChange={val => updateObject('videoConf', 'repeat', val)} />
+            <ToggleControl className='mt10' label={__('Repeat', 'b-slider')} checked={repeat} onChange={val => updateObject('videoConf', 'repeat', val)} />
 
-            <ToggleControl className='mt10' label={__('Autoplay', 'slider')} checked={isAutoPlay} onChange={val => updateObject('videoConf', 'isAutoPlay', val)} />
-            <small>{__('Autoplay might require muting based on the browser.', 'slider')}</small>
+            <ToggleControl className='mt10' label={__('Autoplay', 'b-slider')} checked={isAutoPlay} onChange={val => updateObject('videoConf', 'isAutoPlay', val)} />
+            <small>{__('Autoplay might require muting based on the browser.', 'b-slider')}</small>
 
-            <ToggleControl className='mt10' label={__('Muted', 'slider')} checked={muted} onChange={val => updateObject('videoConf', 'muted', val)} />
-
-            <Notice status='premium' isIcon={true}>{__('Reset On End, Auto Hide Control settings are available in the Premium version.', 'b-slider')}</Notice>
+            <ToggleControl className='mt10' label={__('Muted', 'b-slider')} checked={muted} onChange={val => updateObject('videoConf', 'muted', val)} />
         </PanelBody>
 
         <PanelBody className='bPlPanelBody' title={__('Controls', 'b-slider')} initialOpen={false}>
@@ -42,7 +40,7 @@ const VideoGeneral = ({ attributes, setAttributes, updateObject }) => {
             <ToggleControl className='mt10' label={__('Duration', 'video-player')} checked={duration} onChange={val => setAttributes({ videoConf: { ...videoConf, controls: { ...controls, 'duration': val } } })} />
 
             <ToggleControl className='mt10' label={__('Mute', 'video-player')} checked={mute} onChange={val => setAttributes({ videoConf: { ...videoConf, controls: { ...controls, 'mute': val } } })} />
-            <Notice status='premium' isIcon={true}>{__('Volume, PIP, Airplay, Settings, Download, Fullscreen settings are available in the Premium version.', 'b-slider')}</Notice>
+
         </PanelBody>
     </>
 }

@@ -3,9 +3,9 @@ Contributors: bplugins, abuhayat, btechnologies, farazi1, freemius
 Donate link: https://www.buymeacoffee.com/abuhayat
 Tags: block, carousel, slider, bootstrap, Gutenberg block
 Requires at least: 6.5
-Tested up to: 6.9.4
-Stable tag: 2.0.11
-Requires PHP: 7.1
+Tested up to: 6.9
+Stable tag: 2.0.12
+Requires PHP: 7.2
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -235,7 +235,10 @@ Please report security bugs found in the source code of the bSlider plugin throu
 
 == Changelog ==
 
-= 2.0.11 - 7 May, 2026 =
+= 2.0.12 - 13 May, 2026 =
+* Update: Fixed a security vulnerability through responsible disclosure.
+
+= 2.0.11 - 9 May, 2026 =
 * Update: Removed restricted "Locked Fields" to improve user flexibility
 * New: Custom Slider Height: Easily define and set the perfect height for your sliders.
 * New: Dynamic Indicators: Fully customize indicator types, positioning, and direction (Horizontal or Vertical).
@@ -416,19 +419,6 @@ Please report security bugs found in the source code of the bSlider plugin throu
 * Initial Release
 
 == Upgrade Notice == 
-
-= 2.0.11 - 7 May, 2026 =
-* Update: Removed restricted "Locked Fields" to improve user flexibility
-* New: Custom Slider Height: Easily define and set the perfect height for your sliders.
-* New: Dynamic Indicators: Fully customize indicator types, positioning, and direction (Horizontal or Vertical).
-* New: Carousel Enhancements: Toggle visibility for Navigation Arrows and Pagination Indicators with a single click.
-* New: Grid Flexibility: Set items per page and choose your preferred pagination style (Standard Button or Load More).
-* New: Post Per Page: Control the exact density of your content.
-* New: Advanced Sorting: Organize content by specific criteria (Order By) and direction (ASC/DESC).
-* New: Post Offset: Skip specific posts to create unique layouts and avoid duplication.
-* New: Playback Settings: New options for Auto-play, Loop/Repeat, and Muted starts.
-* New: Comprehensive Player Controls: Empower users with a full suite of controls including Play/Pause, Mute, Rewind/Fast-Forward, and real-time displays for Progress, Current Time, and Duration.
-* Improved: Overall code quality and strengthened security protocols.
 
 = 2.0.10 - 5 April, 2026 =
 * Added a new modern dashboard;
@@ -631,9 +621,37 @@ This plugin bundles the following third-party JavaScript/PHP libraries.
 * **License:** SIL OFL 1.1 (Fonts), MIT (CSS) – https://fontawesome.com/license/free
 * **Purpose:** Provides scalable vector icons used for slider navigation arrows and UI elements.
 
-= Freemius Lite SDK (Custom) =
-* **Purpose:** A custom-made version of the Freemius SDK that calls through api.bplugins.com to handle opt-in usage tracking and analytics to help improve the plugin.
+= Freemius Lite SDK =
+
+* **Source:** [https://bplugins.com/](https://bplugins.com/)
+* **GitHub:** [https://github.com/bPlugins/freemius-lite-sdk](https://github.com/bPlugins/freemius-lite-sdk)
+* **License:** GPL-2.0-or-later – [https://www.gnu.org/licenses/gpl-2.0.html](https://www.gnu.org/licenses/gpl-2.0.html)
+* **Purpose:** Provides an opt-in consent form for usage tracking and analytics to help improve the plugin. No data is sent before explicit user consent.
+* **External Services:** Communicates with `api.bplugins.com` (activation events) and `wp.freemius.com` (opt-in processing) only after user opt-in. See [bPlugins Privacy Policy](https://bplugins.com/privacy-policy) and [Freemius Privacy Policy](https://freemius.com/privacy/).
 
 = External Link (Placeholder Image) =
 * **Source:** https://bblockswp.com/wp-content/demo/img/green-hill.jpg
+* **Source:** https://templates.bplugins.com/wp-content/uploads/2025/02/n-39.jpg
+* **Source:** https://templates.bplugins.com/wp-content/uploads/2025/02/n-37.jpg
 * **Purpose:** This image is hosted on our own server and is strictly used as a fallback/dummy placeholder in the editor preview when a user has not yet selected or uploaded their own image content. It is not loaded on the frontend for site visitors. 
+
+
+== External Services ==
+
+This plugin connects to the following external services from the admin dashboard:
+
+= bPlugins API =
+
+* **Service URL:** [https://api.bplugins.com](https://api.bplugins.com)
+* **Purpose:** The plugin's admin dashboard fetches product comparison data and pricing information to display relevant upgrade options and feature details.
+* **Data Sent:** Only the plugin slug is transmitted; no personal or site data is collected.
+* **Terms of Service:** [https://bplugins.com/terms-of-service/](https://bplugins.com/terms-of-service/)
+* **Privacy Policy:** [https://bplugins.com/privacy-policy/](https://bplugins.com/privacy-policy/)
+
+= WordPress.org Plugins API =
+
+* **Service URL:** [https://api.wordpress.org/plugins/info/1.2/](https://api.wordpress.org/plugins/info/1.2/)
+* **Purpose:** The admin dashboard queries the official WordPress.org Plugins API to retrieve and display a curated list of other plugins by the same author ("Our Plugins" section).
+* **Data Sent:** Plugin slugs and author name; no personal or site data is collected.
+* **Terms of Service:** [https://wordpress.org/about/tos/](https://wordpress.org/about/tos/)
+* **Privacy Policy:** [https://wordpress.org/about/privacy/](https://wordpress.org/about/privacy/)

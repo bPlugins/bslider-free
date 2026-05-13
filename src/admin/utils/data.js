@@ -27,11 +27,7 @@ export const dashboardInfo = (info) => {
             docs: `https://bplugins.com/docs/${slug}/`,
             pricing: `https://bplugins.com/products/${slug}/pricing`,
         },
-        freemius: {
-            product_id: 19318,
-            plan_id: 32001,
-            public_key: 'pk_b24b0b3f21a9dbfaff418c0c40fc1'
-        },
+
         licenseActiveNonce,
         changelogs: [
             {
@@ -109,34 +105,7 @@ export const dashboardInfo = (info) => {
             }
 
         ],
-        proFeatures: [
-            'Custom HTML Wrapper Tags**: Options to use specific tags like h1-h6 for better structure and SEO.',
-            'Slider Transition Effects**: Professional animation effects for seamless slide transitions.',
-            'Left/Right Inner Gap**: Customizable internal spacing between slider items.',
-            'Dual Slide Direction**: Support for both horizontal and vertical movement paths.',
-            'Custom Arrow Styles**: Unique navigation arrow designs to match your branding.',
-            'Slide on Mouse Wheel**: Ability to navigate through slides using the mouse scroll wheel.',
-            'Arrow Follow Mouse**: Interactive navigation arrows that dynamically follow the cursor.',
-            'Slide on Mouse Drag**: Smooth drag-to-slide functionality for a tactile user experience.',
-            'Lazy Load Enable**: Optimizes performance by deferring the loading of offscreen images.',
-            'Move From Edge**: Precise control over the spacing of content from the slider edges.',
-            'Video Reset On End**: Automatically restarts videos from the beginning once they finish.',
-            'Video Auto Hide Controls**: Automatically hides playback UI during periods of inactivity.',
-            'Advanced Video Tools**: Includes Mute, PIP (Picture-in-Picture), AirPlay, Download, and Fullscreen.',
-            'Pagination Position**: Flexible alignment for pagination buttons within grid layouts.',
-            'Include/Exclude Posts & Products**: Manually select exactly which items to display or hide.',
-            'Exclude Current Post**: Prevents the post being currently viewed from appearing in the feed.',
-            'Grab Cursor Interaction**: Displays a "grab" icon to improve carousel usability.',
-            'Thumbnail Direction & Navigation**: Controls for thumbnail flow and dedicated navigation arrows.',
-            'Thumbnail Styling**: Custom settings for thumbnail position, dimensions, borders, and color overlays.',
-            'Box Model Controls**: Full management of Margin, Padding, Border, and Border Radius.',
-            'Advanced Typography**: Comprehensive styling for fonts, sizes, and text behavior.',
-            'Interactive Color States**: Set specific colors for both standard and hover states.',
-            'Animation Timing**: Granular control over animation duration and start delays.',
-            'Clickable CTA Buttons**: Add custom button labels and URLs directly into slide content.',
-            'Smart Link Behavior**: Option to open button links in a new browser tab automatically.',
-            'Advanced Carousel Styles**: Create unique carousels with ticker, grid, and 3D effects.'
-        ],
+
         startButton: {
             label: 'Start Now',
             url: `wp-admin/post-new.php?post_type=bsb`

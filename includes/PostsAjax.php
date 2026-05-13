@@ -1,8 +1,8 @@
 <?php
-namespace BSB\PostsAjax;
+namespace B_SLIDER;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
-if(!class_exists( 'PostsAjax' )){
+if(!class_exists( __NAMESPACE__ . '\PostsAjax' )){
     class PostsAjax{
         public function __construct(){
             add_action( 'wp_ajax_bsbPosts', [$this, 'bsbPosts'] );
@@ -16,9 +16,9 @@ if(!class_exists( 'PostsAjax' )){
                 wp_send_json_error( 'Invalid Request' );
             }
 
-            $postsQuery = isset( $_POST['queryAttr'] ) ? \BSB\Posts\Posts::sanitize_array( map_deep( wp_unslash( $_POST['queryAttr'] ), 'sanitize_text_field' ) ) : [];
+            $postsQuery = isset( $_POST['queryAttr'] ) ? Posts::sanitize_array( map_deep( wp_unslash( $_POST['queryAttr'] ), 'sanitize_text_field' ) ) : [];
             $pageNumber = isset( $_POST['pageNumber'] ) ? (int) sanitize_text_field( wp_unslash( $_POST['pageNumber'] ) ) : 1;
-            wp_send_json_success( \BSB\Posts\Posts::getPosts( [ 'postsQuery' => $postsQuery ], $pageNumber ) );
+            wp_send_json_success( Posts::getPosts( [ 'postsQuery' => $postsQuery ], $pageNumber ) );
         }
     }
     new PostsAjax();

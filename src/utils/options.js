@@ -18,13 +18,13 @@ export const postsOrders = [
 ];
 
 export const indicatorOption = [
-    { label: __('Default', 'slider'), value: 'default' },
-    { label: __('Image', 'slider'), value: 'image' }
+    { label: __('Default', 'b-slider'), value: 'default' },
+    { label: __('Image', 'b-slider'), value: 'image' }
 ];
 
 export const indicatorOptions = [
-    { label: __('Horizontal', 'slider'), value: 'horizontal' },
-    { label: __('Vertical', 'slider'), value: 'vertical' },
+    { label: __('Horizontal', 'b-slider'), value: 'horizontal' },
+    { label: __('Vertical', 'b-slider'), value: 'vertical' },
 ]
 
 export const paginationTypeOpt = [

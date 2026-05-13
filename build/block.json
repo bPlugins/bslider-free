@@ -515,15 +515,15 @@
     "file:./index.js",
     "bootstrap",
     "lazyLoad",
-    "lbb-plyr-script",
+    "b-slider-plyr-script",
     "wp-api",
     "wp-util"
   ],
   "editorStyle": "file:./index.css",
   "style": [
     "file:./view.css",
-    "bsb-style",
-    "lbb-plyr-style"
+    "b-slider-style",
+    "b-slider-plyr-style"
   ],
   "render": "file:./render.php",
   "viewScript": [
@@ -531,7 +531,7 @@
     "jquery",
     "bootstrap",
     "lazyLoad",
-    "lbb-plyr-script",
+    "b-slider-plyr-script",
     "wp-util",
     "wp-api"
   ]

@@ -21,7 +21,7 @@ call_user_func( function( $attributes ) {
     $is_excerpt_from_content = isset( $posts_query['isExcerptFromContent'] ) ? $posts_query['isExcerptFromContent'] : true;
     $excerpt_length = isset( $posts_query['excerptLength'] ) ? $posts_query['excerptLength'] : 25;
 
-    $posts = \BSB\Posts\Posts::arrangedPosts( get_posts( \BSB\Posts\Posts::query( $attributes ) ), $post_type, $fimg_size, $meta_date_format, $is_excerpt_from_content, $excerpt_length );
+    $posts = \B_SLIDER\Posts::arrangedPosts( get_posts( \B_SLIDER\Posts::query( $attributes ) ), $post_type, $fimg_size, $meta_date_format, $is_excerpt_from_content, $excerpt_length );
 
     ?>
     <div
@@ -29,7 +29,7 @@ call_user_func( function( $attributes ) {
         id='bsbCarousel-<?php echo esc_attr( $attributes['cId'] ); ?>'
         data-attributes='<?php echo esc_attr( wp_json_encode( $attributes ) ); ?>'
         data-nonce='<?php echo esc_attr( wp_json_encode( wp_create_nonce( 'wp_ajax' ) ) ); ?>'
-        data-totalposts=<?php echo esc_attr( count( get_posts( array_merge( \BSB\Posts\Posts::query( $attributes ), [ 'posts_per_page' => -1 ] ) ) ) ); ?>
+        data-totalposts=<?php echo esc_attr( count( get_posts( array_merge( \B_SLIDER\Posts::query( $attributes ), [ 'posts_per_page' => -1 ] ) ) ) ); ?>
     >
         <pre id='posts' style='display: none;'>
             <?php echo esc_html( wp_json_encode( $posts ) ); ?>

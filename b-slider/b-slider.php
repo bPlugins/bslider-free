@@ -1,8 +1,8 @@
 <?php
 /**
- * Plugin Name: bSlider
+ * Plugin Name: bSlider – Create Responsive Image, Post, Product, and Video Sliders
  * Description: Simple slider with bootstrap.
- * Version: 2.0.11
+ * Version: 2.0.12
  * Author: bPlugins
  * Author URI: http://bplugins.com
  * License: GPLv3
@@ -13,18 +13,22 @@
     // ABS PATH
     if (!defined('ABSPATH')) {exit;}
 
-    define( 'BSB_PLUGIN_VERSION', isset( $_SERVER['HTTP_HOST'] ) && 'localhost' === $_SERVER['HTTP_HOST'] ? time() : '2.0.11' );
-    define('BSB_DIR', plugin_dir_url(__FILE__));
-    define('BSB_DIR_PATH', plugin_dir_path(__FILE__));
-    define('BSB_ASSETS_DIR', plugin_dir_url(__FILE__) . 'assets/');
+    if (defined('WP_DEBUG') && WP_DEBUG === true) {
+        define('B_SLIDER_PLUGIN_VERSION', time());
+    } else {
+        define('B_SLIDER_PLUGIN_VERSION', '2.0.12');
+    }
+    define('B_SLIDER_DIR', plugin_dir_url(__FILE__));
+    define('B_SLIDER_DIR_PATH', plugin_dir_path(__FILE__));
+    define('B_SLIDER_ASSETS_DIR', plugin_dir_url(__FILE__) . 'assets/');
 
-    if(!function_exists('bs_fs')) {
+    if(!function_exists('b_slider_fs')) {
         
-        function bs_fs() 
+        function b_slider_fs() 
         {
-            global $bs_fs;
+            global $b_slider_fs;
 
-            if ( !isset( $bs_fs ) ) {
+            if ( !isset( $b_slider_fs ) ) {
                 require_once dirname(__FILE__) . '/vendor/freemius-lite/start.php'; 
 
                 $bs_fs = fs_lite_dynamic_init([
@@ -40,16 +44,16 @@
                     )
                 ]);
             }
-            return $bs_fs;
+            return $b_slider_fs;
         }
-        bs_fs();
-        do_action('bs_fs_loaded'); 
+        b_slider_fs();
+        do_action('b_slider_fs_loaded'); 
     }
 
     require_once plugin_dir_path(__FILE__) . '/includes/Posts.php';
     require_once plugin_dir_path(__FILE__) . '/includes/PostsAjax.php';
 
-    class BSB_Slider{
+    class B_Slider{
 
         private static $instance;
 
@@ -77,7 +81,7 @@
         public function load_classes () {
             require_once plugin_dir_path(__FILE__) . '/includes/admin-menu.php'; 
             require_once plugin_dir_path(__FILE__) . '/custom-post.php';
-            new BSB_SLIDER\LPBCustomPost(); 
+            new B_SLIDER\CustomPost();
         }
 
         public function plugin_action_links($links, $file) {
@@ -113,12 +117,12 @@
 
         // Enqueue Block assets 
         public function enqueueBlockAssets(){
-            wp_register_style('bsb-style', BSB_ASSETS_DIR . 'css/bootstrap.min.css', [], BSB_PLUGIN_VERSION);
-            wp_register_style('lbb-plyr-style', BSB_ASSETS_DIR . 'css/plyr.min.css', [], BSB_PLUGIN_VERSION);
+            wp_register_style('b-slider-style', B_SLIDER_ASSETS_DIR . 'css/bootstrap.min.css', [], B_SLIDER_PLUGIN_VERSION);
+            wp_register_style('b-slider-plyr-style', B_SLIDER_ASSETS_DIR . 'css/plyr.min.css', [], B_SLIDER_PLUGIN_VERSION);
 
-            wp_register_script('bootstrap', BSB_ASSETS_DIR . 'js/bootstrap.min.js', [], BSB_PLUGIN_VERSION, true);
-            wp_register_script('lazyLoad', BSB_ASSETS_DIR . 'js/lazyLoad.js', [], BSB_PLUGIN_VERSION, true);
-            wp_register_script('lbb-plyr-script', BSB_ASSETS_DIR . 'js/plyr.min.js', [], BSB_PLUGIN_VERSION, true);
+            wp_register_script('bootstrap', B_SLIDER_ASSETS_DIR . 'js/bootstrap.min.js', [], B_SLIDER_PLUGIN_VERSION, true);
+            wp_register_script('lazyLoad', B_SLIDER_ASSETS_DIR . 'js/lazyLoad.js', [], B_SLIDER_PLUGIN_VERSION, true);
+            wp_register_script('b-slider-plyr-script', B_SLIDER_ASSETS_DIR . 'js/plyr.min.js', [], B_SLIDER_PLUGIN_VERSION, true);
 
              
         }
@@ -126,8 +130,8 @@
         // Short code style
         public function adminEnqueueScripts($hook){
             if ('edit.php' === $hook || 'post.php' === $hook) {
-                wp_enqueue_style('bsbAdmin', BSB_ASSETS_DIR . 'css/admin.css', [], BSB_PLUGIN_VERSION);
-                wp_enqueue_script('bsbAdmin', BSB_ASSETS_DIR . 'js/admin.js', ['wp-i18n'], BSB_PLUGIN_VERSION, true);
+                wp_enqueue_style('b-slider-admin', B_SLIDER_ASSETS_DIR . 'css/admin.css', [], B_SLIDER_PLUGIN_VERSION);
+                wp_enqueue_script('b-slider-admin', B_SLIDER_ASSETS_DIR . 'js/admin.js', ['wp-i18n'], B_SLIDER_PLUGIN_VERSION, true);
             }
         }
 
@@ -135,7 +139,7 @@
             register_block_type( __DIR__ . '/build' );
         }
     }
-    BSB_Slider::get_instance();
+    B_Slider::get_instance();
 
 
  

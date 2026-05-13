@@ -38,7 +38,7 @@ const PostQuery = ({ updateObject, attributes, getTaxonomy }) => {
 
         <Label>{__(`${sourceType === 'posts' ? 'Post' : 'Product'} Per Page:`, 'slider')}</Label>
         <RangeControl value={per_page} onChange={val => updateObject("postsQuery", "per_page", val)} min={-1} max={36} step={1} />
-        <small>{__('To show all posts set -1', 'slider')}</small>
+        <small>{__('To show all posts set -1', 'b-slider')}</small>
 
         <PanelRow className='mt20'>
             <Label className=''>{__(`${sourceType === 'posts' ? 'Post' : 'Product'} Order By:`, 'slider')}</Label>
@@ -51,7 +51,7 @@ const PostQuery = ({ updateObject, attributes, getTaxonomy }) => {
         </PanelRow>
 
         <NumberControl className='mt20' label={__(`${sourceType === 'posts' ? 'Post' : 'Product'} Offset:`, 'slider')} labelPosition='left' value={offset} onChange={val => updateObject("postsQuery", "offset", parseInt(val))} min={0} />
-        <small>{__('`Post Offset` will not work if `Post Per Page` is -1', 'slider')}</small>
+        <small>{__('`Post Offset` will not work if `Post Per Page` is -1', 'b-slider')}</small>
 
         <ToggleControl className='mt15' label={__('Show Excerpt from Content', 'b-slider')} checked={isExcerptFromContent} onChange={val => updateObject("postsQuery", "isExcerptFromContent", val)} />
 
@@ -60,7 +60,7 @@ const PostQuery = ({ updateObject, attributes, getTaxonomy }) => {
         <RangeControl value={excerptLength} onChange={val => updateObject("postsQuery", "excerptLength", val)} min={-1} max={120} step={1} />
         {/* <small>{__(`Set -1 to show all the ${isExcerptFromContent ? 'content' : 'excerpt'}`, 'b-slider')}</small> */}
 
-        <Notice status='premium' isIcon={true}>{__('Include, Exclude, Current Post settings are available in the Premium version.', 'b-slider')}</Notice>
+        
     </PanelBody >
 }
 export default PostQuery;

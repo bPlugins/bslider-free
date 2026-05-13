@@ -1,9 +1,9 @@
 <?php
-namespace BSB_SLIDER;
+namespace B_SLIDER;
 
 if (!defined('ABSPATH')) {exit;}
-
-class LPBCustomPost{
+ 
+class CustomPost{
 	public $post_type = 'bsb';
 
 	public function __construct(){
@@ -52,7 +52,10 @@ class LPBCustomPost{
 	}
 
 	public function onAddShortcode( $atts ) {
-        $post_id = $atts['id'];
+        if ( empty( $atts['id'] ) ) {
+            return '';
+        }
+        $post_id = (int) $atts['id'];
         $post = get_post( $post_id );
         if ( !$post ) {
             return '';

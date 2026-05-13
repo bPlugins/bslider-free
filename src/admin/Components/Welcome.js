@@ -1,7 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import Overview from '../../../../bpl-tools/Admin/Overview';
 import Changelog from '../../../../bpl-tools/Admin/Changelog';
-import ProAds from '../../../../bpl-tools/Admin/ProAds';
+
 
 const Welcome = (props) => {
     const { isPremium } = props;
@@ -15,7 +15,6 @@ const Welcome = (props) => {
             <Changelog {...props} limit={5} loadMoreLabel={__('View More Changelogs', 'b-slider')} />
 
 
-            {!isPremium && <ProAds {...props} />}
         </div>
     </Overview>
 }
