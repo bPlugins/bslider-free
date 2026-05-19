@@ -21,7 +21,9 @@ const DefaultGeneral = ({ attributes, setAttributes, updateObject, device, setDe
         <PanelBody className='bPlPanelBody' title={__('Title', 'b-slider')} initialOpen={false}>
 
             <ToggleControl className='mt10' label={__('Import Title From Media Caption', 'b-slider')} checked={titleFCaption} onChange={(val) => setAttributes({ titleFCaption: val })} />
-            
+
+            <Notice status='premium' isIcon={true}>{__('Custom HTML wrapper tags (e.g., h1-h6) are available in the Premium version.', 'b-slider')}</Notice>
+
         </PanelBody>
 
         {
@@ -43,7 +45,7 @@ const DefaultGeneral = ({ attributes, setAttributes, updateObject, device, setDe
                     <ToggleControl className='mt10' label={__('Show Indicators/Pagination', 'b-slider')} checked={indicator.visibility} onChange={(value) => updateObject('indicator', 'visibility', value)} />
                 </>}
 
-                
+                <Notice status='premium' isIcon={true}>{__('Carousel Style (Ticker, Grid, 3D Carousel), Effect(Default, Cards,Coverflow), Mouse Wheel, Grab Cursor settings are available in the Premium version.', 'b-slider')}</Notice>
             </PanelBody>
         }
 
@@ -78,7 +80,7 @@ const DefaultGeneral = ({ attributes, setAttributes, updateObject, device, setDe
 
             <UnitControl className='mb20' label={`${layoutType === 'grid' ? 'Item' : 'Slider'} Height`} labelPosition='left' value={sliderHeight[device] || height} onChange={val => { setAttributes({ sliderHeight: { ...sliderHeight, [device]: val } }) }} units={[pxUnit(400), vhUnit(30)]} isResetValueOnUnitChange={true} beforeIcon='grid-view' />
 
-            
+            <Notice status='premium' isIcon={true}>{__('Slide Direction-(Horizontal and vertical), Arrow Styles, are available in the Premium version.', 'b-slider')}</Notice>
         </PanelBody>
 
         {(layoutType !== "carousel" && layoutType !== "grid" && layoutType !== "thumbnails") && <>
@@ -102,7 +104,7 @@ const DefaultGeneral = ({ attributes, setAttributes, updateObject, device, setDe
                     (layoutType !== "carousel" && layoutType !== "grid" && layoutType !== "thumbnails") && <ToggleControl className='mt10' label={__('Show Indicators/Pagination', 'b-slider')} checked={indicator.visibility} onChange={(value) => updateObject('indicator', 'visibility', value)} />
                 }
 
-                
+                <Notice status='premium' isIcon={true}>{__('Slide On MouseWheel, Slide on Mouse Drag, Arrow Follow Mouse and Lazy Load Enable options are available in the Premium version.', 'b-slider')}</Notice>
             </PanelBody>
         </>}
 
@@ -132,7 +134,7 @@ const DefaultGeneral = ({ attributes, setAttributes, updateObject, device, setDe
 
             <SelectControl label={__('Direction', 'b-slider')} labelPosition='side' value={indicator.direction} onChange={(val) => { updateObject('indicator', 'direction', val) }} options={indicatorOptions} />
 
-            
+            <Notice status='premium' isIcon={true}>{__('Move From Edge option is available in the Premium version.', 'b-slider')}</Notice>
         </PanelBody>}
     </>
 }

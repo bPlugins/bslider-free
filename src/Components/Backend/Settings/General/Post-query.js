@@ -60,7 +60,7 @@ const PostQuery = ({ updateObject, attributes, getTaxonomy }) => {
         <RangeControl value={excerptLength} onChange={val => updateObject("postsQuery", "excerptLength", val)} min={-1} max={120} step={1} />
         {/* <small>{__(`Set -1 to show all the ${isExcerptFromContent ? 'content' : 'excerpt'}`, 'b-slider')}</small> */}
 
-        
+        <Notice status='premium' isIcon={true}>{__('Include, Exclude, Current Post settings are available in the Premium version.', 'b-slider')}</Notice>
     </PanelBody >
 }
 export default PostQuery;

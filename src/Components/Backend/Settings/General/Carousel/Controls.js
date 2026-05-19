@@ -14,7 +14,8 @@ const Controls = ({ attributes, updateObject }) => {
 
         {isAutoPlay && <NumberControl className='mt10' label={__("Duration", 'b-slider')} isShiftStepEnabled={true} shiftStep={10} value={autoPlayDelay} onChange={val => updateObject("carousel", "autoPlayDelay", val)} />}
 
-        
+        <Notice status='premium' isIcon={true}>{__('Mouse Wheel, Grab Cursor, Direction(Horizontal, Vertical), Show Arrow/Navigation settings are available in the Premium version.', 'b-slider')}</Notice>
+
     </>
 }
 export default Controls;
