@@ -36,7 +36,7 @@ const PostsGridFront = ({ attributes, firstPosts, totalPosts, nonce }) => {
                     const { thumbnail, title: postTitle, link } = post;
                     return <div key={index} className={`item ${index === 0 ? 'active' : ''} `}>
                         <div className="img">
-                            {thumbnail?.url && <> <img loading="lazy" data-src={thumbnail.url} className="d-block w-100 lazyload" /></>}
+                            {thumbnail?.url && <> <img src={thumbnail.url} className="d-block w-100 " /></>}
                         </div>
 
                         <div className={'content-area'}>

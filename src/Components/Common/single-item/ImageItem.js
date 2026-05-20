@@ -7,17 +7,16 @@ const ImageItem = (props) => {
 
 
     const { img, title: slideTitle, desc, altText } = slide || {};
+
     const titleCheck = titleFCaption ?
         (img?.caption || img?.title) :
-        ((slideTitle !== null || slideTitle !== undefined) ?
+        ((slideTitle !== null && slideTitle !== undefined) ?
             slideTitle :
             img?.caption || img?.title);
-    // const titleCheck = titleFCaption ? img?.caption || img?.title : slideTitle;
-    // console.log({ titleFCaption, img, titleCheck });
 
     return <div className={`item ${index === 0 ? 'active' : ''} ${classNames.item || ''}`}>
         <div className="img">
-            {img?.url && <> <img loading="lazy" data-src={img.url} className="d-block w-100 lazyload" alt={altText || img?.alt || img?.title} /></>}
+            {img?.url && <img src={img.url} className="d-block w-100" alt={altText || img?.alt || img?.title} />}
         </div>
 
         <div className={classNames.contentArea || 'content-area'}>

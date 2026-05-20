@@ -11,7 +11,7 @@ const PostItem = (props) => {
 
     return <div className={`item ${index === 0 ? 'active' : ''} ${classNames.item || ''}`}>
         <div className="img">
-            {thumbnail?.url && <> <img loading="lazy" data-src={thumbnail.url} className="d-block w-100 lazyload" /></>}
+            {thumbnail?.url && <img src={thumbnail.url} className="d-block w-100" />}
         </div>
 
         <div className={classNames.contentArea || 'content-area'}>

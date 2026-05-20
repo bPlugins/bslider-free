@@ -12,7 +12,7 @@ const Posts = ({ attributes, thumbnails, setThumbsSwiper, posts }) => {
                     <div className="single_thumbnails">
                         <div className="img">
                             {thumbnail?.url && (
-                                <img loading="lazy" data-src={thumbnail?.url} className="d-block w-100 lazyload" alt={thumbnail?.alt || thumbnail?.title} />
+                                <img src={thumbnail.url} className="d-block w-100" alt={thumbnail?.alt || thumbnail?.title} />
                             )}
                         </div>
                     </div>

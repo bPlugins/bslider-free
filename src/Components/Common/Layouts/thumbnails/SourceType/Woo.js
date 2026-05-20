@@ -12,7 +12,7 @@ const Woo = ({ attributes, thumbnails, setThumbsSwiper, products }) => {
                     <div className="single_thumbnails">
                         <div className="img">
                             {thumbnail?.src && (
-                                <img loading="lazy" data-src={thumbnail?.src} className="d-block w-100 lazyload" alt={thumbnail?.alt || thumbnail?.title} />
+                                <img src={thumbnail.src} className="d-block w-100" alt={thumbnail?.alt || thumbnail?.title} />
                             )}
                         </div>
                     </div>

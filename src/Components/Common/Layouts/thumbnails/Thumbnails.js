@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Navigation, Thumbs, FreeMode, Autoplay, Mousewheel, } from 'swiper/modules';
+import { Navigation, Thumbs, FreeMode, Autoplay, Mousewheel } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
 import "swiper/css/autoplay";
@@ -17,9 +17,18 @@ const Thumbnails = ({ attributes, firstPosts, commonDeProps }) => {
 
     const videoRefs = useRef([]);
     const hiddenVideoRefs = useRef([]);
+    const swiperRef = useRef(null);
+    const prevRef = useRef(null);
+    const nextRef = useRef(null);
 
     const { sourceType, sliders, carousel, arrow, arrowStyle, columns, columnGap, thumbnails, videoConf } = attributes;
-    const { clientId } = commonDeProps;
+    const { clientId, activeIndex, isBackEnd } = commonDeProps;
+
+    useEffect(() => {
+        if (isBackEnd && swiperRef.current) {
+            swiperRef.current.slideTo(activeIndex || 0);
+        }
+    }, [activeIndex]);
     const { loop, isAutoPlay, autoPlayDelay, mousewheel, grabCursor, caroDirection } = carousel;
     const { isPopup, icon } = videoConf;
     const { position } = thumbnails;
@@ -47,10 +56,13 @@ const Thumbnails = ({ attributes, firstPosts, commonDeProps }) => {
         autoplay: isAutoPlay ? { delay: autoPlayDelay } : false,
         className: "bsb-main-slider",
         direction: caroDirection,
+        // navigation: arrow?.visibility,
+
         navigation: arrow?.visibility ? {
             nextEl: '.bsbArrowButtonNext',
             prevEl: '.bsbArrowButtonPrev'
         } : false,
+
     }
 
     const thumbnailsSliderEle = {
@@ -79,16 +91,22 @@ const Thumbnails = ({ attributes, firstPosts, commonDeProps }) => {
 
             {arrow?.visibility && (
                 <div className="bsbArrowWrapper bsbButtonDesign">
-
-                    <button className="bsbArrowButtonPrev bsbArrowButton" dangerouslySetInnerHTML={{ __html: arrows[arrowStyle].left(arrow?.size, arrow?.color) }}></button>
-
-                    <button className="bsbArrowButtonNext bsbArrowButton" dangerouslySetInnerHTML={{ __html: arrows[arrowStyle].right(arrow?.size, arrow?.color) }}></button>
+                    <button ref={prevRef} className="bsbArrowButtonPrev bsbArrowButton" dangerouslySetInnerHTML={{ __html: arrows[arrowStyle].left(arrow?.size, arrow?.color) }}></button>
+                    <button ref={nextRef} className="bsbArrowButtonNext bsbArrowButton" dangerouslySetInnerHTML={{ __html: arrows[arrowStyle].right(arrow?.size, arrow?.color) }}></button>
                 </div>
             )}
 
-            <Swiper {...mainSlider} onInit={() => {
-                plyrInt(clientId, videoRefs, hiddenVideoRefs, attributes);
-            }}>
+            <Swiper {...mainSlider}
+                onBeforeInit={(swiper) => {
+                    if (arrow?.visibility) {
+                        swiper.params.navigation.prevEl = prevRef.current;
+                        swiper.params.navigation.nextEl = nextRef.current;
+                    }
+                }}
+                onSwiper={(swiper) => { swiperRef.current = swiper; }}
+                onInit={() => {
+                    plyrInt(clientId, videoRefs, hiddenVideoRefs, attributes);
+                }}>
                 {(() => {
                     switch (sourceType) {
                         case 'image':
@@ -164,7 +182,7 @@ export const ThumbnailsSlider = ({ attributes, thumbnailsSliderEle, setThumbsSwi
                     <div className="single_thumbnails">
                         <div className="img">
                             {url && (
-                                <img loading="lazy" data-src={url} className="d-block w-100 lazyload" alt={altText} />
+                                <img src={url} className="d-block w-100" alt={altText} />
                             )}
                         </div>
                     </div>

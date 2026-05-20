@@ -7,8 +7,8 @@ const Sliders = (props) => {
 	const { attributes, clientId, carousel = null, setCarousel, children, firstPosts, products } = props;
 	const { options, arrow, arrowStyle, indicator, animation, direction, sourceType } = attributes;
 
-	// Click any content slide quick slide 
 	const sliderDom = useRef();
+
 	// setting autoplay option
 	useEffect(() => {
 		if (sliderDom?.current) {
@@ -44,13 +44,13 @@ const Sliders = (props) => {
 		{arrow.visibility && <>
 			<div className={`bsbButtonDesign`}>
 
-				<button className={`carousel-control-prev`} id={`bsbCarousel-prev-${clientId}`} type="button" data-bs-target={`#bsbCarousel-${clientId} .carousel`} data-bs-slide="prev" aria-label='Carousel left arrow'>
+				<button className={`carousel-control-prev`} id={`bsbCarousel-prev-${clientId}`} type="button" onClick={(e) => { e.stopPropagation(); carousel && carousel.prev(); }} aria-label='Carousel left arrow'>
 
 					<div className="bsbArrowButton" dangerouslySetInnerHTML={{ __html: arrows[arrowStyle].left(arrow?.size, arrow?.color) }}>
 					</div>
 				</button>
 
-				<button className="carousel-control-next" id={`bsbCarousel-next-${clientId}`} type="button" data-bs-target={`#bsbCarousel-${clientId} .carousel`} data-bs-slide="next" aria-label='Carousel right arrow'>
+				<button className="carousel-control-next" id={`bsbCarousel-next-${clientId}`} type="button" onClick={(e) => { e.stopPropagation(); carousel && carousel.next(); }} aria-label='Carousel right arrow'>
 
 					<div className="bsbArrowButton" dangerouslySetInnerHTML={{ __html: arrows[arrowStyle].right(arrow?.size, arrow?.color) }}>
 					</div>

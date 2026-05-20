@@ -20,10 +20,19 @@ const Carousel = (props) => {
     const { attributes, firstPosts, products, commonDeProps } = props;
     const videoRefs = useRef([]);
     const hiddenVideoRefs = useRef([]);
+    const swiperRef = useRef(null);
+    const prevRef = useRef(null);
+    const nextRef = useRef(null);
     const { sourceType, sliders, columns, carousel, columnGap, arrow, arrowStyle, videoConf, indicator } = attributes;
     const { loop, isAutoPlay, autoPlayDelay, mousewheel, effect, carouselStyle, grabCursor, reverseDirection, caroDirection, pagination } = carousel;
 
-    const { clientId } = commonDeProps;
+    const { clientId, activeIndex, isBackEnd } = commonDeProps;
+
+    useEffect(() => {
+        if (isBackEnd && swiperRef.current) {
+            swiperRef.current.slideTo(activeIndex || 0);
+        }
+    }, [activeIndex]);
     const { isPopup, icon } = videoConf;
     const autoplay = isAutoPlay ? { delay: autoPlayDelay } : false;
     const centeredSlides = (carouselStyle === 'center' || carouselStyle === '3dcarousel') ? true : false;
@@ -64,10 +73,7 @@ const Carousel = (props) => {
         autoplay,
         centeredSlides,
         breakpoints,
-        navigation: arrow?.visibility ? {
-            nextEl: '.bsbArrowButtonNext',
-            prevEl: '.bsbArrowButtonPrev'
-        } : false,
+        navigation: arrow?.visibility,
         allowTouchMove: grabCursor,
         simulateTouch: grabCursor,
         grabCursor,
@@ -115,18 +121,26 @@ const Carousel = (props) => {
                     arrow?.visibility && (
                         <div className="bsbArrowWrapper bsbButtonDesign">
 
-                            <button className="bsbArrowButtonPrev bsbArrowButton" dangerouslySetInnerHTML={{ __html: arrows[arrowStyle].left(arrow?.size, arrow?.color) }}></button>
+                            <button ref={prevRef} className="bsbArrowButtonPrev bsbArrowButton" dangerouslySetInnerHTML={{ __html: arrows[arrowStyle].left(arrow?.size, arrow?.color) }}></button>
 
-                            <button className="bsbArrowButtonNext bsbArrowButton" dangerouslySetInnerHTML={{ __html: arrows[arrowStyle].right(arrow?.size, arrow?.color) }}></button>
+                            <button ref={nextRef} className="bsbArrowButtonNext bsbArrowButton" dangerouslySetInnerHTML={{ __html: arrows[arrowStyle].right(arrow?.size, arrow?.color) }}></button>
                         </div>
                     )
 
                 }
             </>}
 
-            <Swiper {...checkCarouselLayout} onInit={() => {
-                plyrInt(clientId, videoRefs, hiddenVideoRefs, attributes);
-            }}>
+            <Swiper {...checkCarouselLayout}
+                onBeforeInit={(swiper) => {
+                    if (arrow?.visibility) {
+                        swiper.params.navigation.prevEl = prevRef.current;
+                        swiper.params.navigation.nextEl = nextRef.current;
+                    }
+                }}
+                onSwiper={(swiper) => { swiperRef.current = swiper; }}
+                onInit={() => {
+                    plyrInt(clientId, videoRefs, hiddenVideoRefs, attributes);
+                }}>
                 {(() => {
                     switch (sourceType) {
                         case 'image':

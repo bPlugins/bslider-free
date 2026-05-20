@@ -106,8 +106,6 @@ const Edit = (props) => {
 
 	const shortcode = `[bsb-slider id=${currentPostId}]`;
 
-	console.log(isOld);
-
 
 	return (
 		<div {...useBlockProps()}>  {CPTType === "bsb" && <ClipBoard shortcode={shortcode} />}
