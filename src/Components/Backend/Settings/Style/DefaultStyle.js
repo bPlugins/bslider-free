@@ -4,6 +4,7 @@ import { PanelBody, __experimentalUnitControl as UnitControl, __experimentalBoxC
 
 import { ColorControl, ColorsControl, Notice, Typography } from '../../../../../../bpl-tools/Components';
 import { emUnit, perUnit, pxUnit, styles } from '../../../../utils/options';
+import { PremiumBadge, PremiumPanel } from '../../../../../../bpl-tools/ProControls';
 
 import { adminUrl } from '../../../../utils/functions';
 
@@ -16,8 +17,8 @@ const DefaultStyle = ({ attributes, setAttributes, updateObject }) => {
             <ColorControl className='mb20' label={__('Overly Color', 'b-slider')} value={SliderOverly} defaultColor="#59595952" onChange={(val) => { setAttributes({ SliderOverly: val }) }} />
 
             <BoxControl className='mt20' label={__('Border Radius', 'b-slider')} values={borderRadius} onChange={val => setAttributes({ borderRadius: val })} resetValues={{ top: '0px', right: '0px', bottom: '0px', left: '0px' }} units={[pxUnit(3), emUnit(2)]} />
+            <Notice status='premium' isIcon={true}>{__('Margin option is available in the Premium version.', 'b-slider')}</Notice>
 
-            
         </PanelBody>
 
 
@@ -28,7 +29,7 @@ const DefaultStyle = ({ attributes, setAttributes, updateObject }) => {
 
             <BoxControl label={__('Padding', 'b-slider')} values={titleMargin} onChange={val => setAttributes({ titleMargin: val })} resetValues={{ top: '0px', left: '0px', right: '0px', bottom: '0px' }} />
 
-            
+            <Notice status='premium' isIcon={true}>{__('Animation, Delay, Duration settings are available in the Premium version.', 'b-slider')}</Notice>
         </PanelBody>
 
         <PanelBody className='' title={__('Description', 'b-slider')} initialOpen={false}>
@@ -38,12 +39,15 @@ const DefaultStyle = ({ attributes, setAttributes, updateObject }) => {
 
             <BoxControl label={__("Margin", 'b-slider')} values={descMargin} onChange={val => setAttributes({ descMargin: val })} resetValues={{ top: '0px', left: '0px', right: '0px', bottom: '0px' }} />
 
-            
+            <Notice status='premium' isIcon={true}>{__('Animation, Delay, Duration settings are available in the Premium version.', 'b-slider')}</Notice>
         </PanelBody>
 
 
 
-
+        <PanelBody className='bPlPanelBody' title={<> {__('Button', 'b-slider')}<PremiumBadge />
+        </>} initialOpen={false}>
+            <PremiumPanel title={__('Premium Button', 'b-slider')} description={__('Typography,Colors, Hover Colors, Padding, Border, Border Radius , Animation, Delay and Duration are available in the Premium version.', 'b-slider')} pricingUrl={adminUrl()} demoUrl='https://bplugins.com/products/b-slider/#demos' />
+        </PanelBody>
 
 
         {(layoutType !== "grid") && <>

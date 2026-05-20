@@ -46,7 +46,7 @@ const Edit = (props) => {
 			sliders: [
 				...sliders,
 				{
-					img: { url: '' },
+					img: { url: 'https://templates.bplugins.com/wp-content/uploads/2025/02/n-37.jpg' },
 					video: "",
 					title: null,
 					desc: `This is description here-${sliders?.length + 1}`,
@@ -101,10 +101,13 @@ const Edit = (props) => {
 	const commonDeProps = { clientId, activeIndex, carousel, setCarousel, updateSlider, isBackEnd: true };
 	const settingsProps = { clientId, attributes, setAttributes, updateSlider, addSlider, removeSlider, duplicateSlider, activeIndex, setActiveIndex, allCategories, multipleAttrChange, updateObject };
 
-	const isOld = !layoutType && sliders[0]?.img?.url !== '';
+	const isOld = !layoutType && sliders[0]?.img?.url !== 'https://templates.bplugins.com/wp-content/uploads/2025/02/n-39.jpg';
 	const LayoutEl = <Layout {...{ attributes, firstPosts: posts, products: posts, totalPosts, setAttributes, commonDeProps, PostsGrid: PostsGridBack, updateObject }} />;
 
 	const shortcode = `[bsb-slider id=${currentPostId}]`;
+
+	console.log(isOld);
+
 
 	return (
 		<div {...useBlockProps()}>  {CPTType === "bsb" && <ClipBoard shortcode={shortcode} />}

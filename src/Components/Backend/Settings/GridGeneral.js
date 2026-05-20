@@ -15,6 +15,8 @@ const GridGeneral = ({ attributes, updateObject }) => {
 
             <SelectControl label={__('Pagination Type', 'b-slider')} className='mt10' options={paginationTypeOpt} value={paginationType} onChange={val => updateObject('grid', 'paginationType', val)} />
 
+            <Notice status='premium' isIcon={true}>{__('Position(Left, Right, Center) settings are available in the Premium version.', 'b-slider')}</Notice>
+
         </PanelBody>
     </>
 }
