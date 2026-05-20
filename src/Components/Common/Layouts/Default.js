@@ -47,7 +47,7 @@ const Default = ({ attributes, firstPosts, products, commonDeProps }) => {
 
                     case 'video':
                         return <>
-                            <CheckPopUp sliders={sliders} videoRefs={videoRefs} attributes={attributes} id={clientId} />
+                            <CheckPopUp sliders={sliders} videoRefs={videoRefs} attributes={attributes} id={clientId} isBackEnd={isBackEnd} />
 
                             <div className='bsb-backend-inner-item'>
                                 {sliders?.map((slider, index) => {

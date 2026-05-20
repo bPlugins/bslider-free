@@ -64,14 +64,13 @@ export const plyrInt = (id, videoRefs, hiddenVideoRefs, attributes) => {
             videoRefs.current[index].plyr = player;
 
             player.on('play', () => {
-                prevEle.style.display = 'none';
-                nextEle.style.display = 'none';
+                if (prevEle) prevEle.style.display = 'none';
+                if (nextEle) nextEle.style.display = 'none';
             });
 
             player.on('pause', () => {
-                prevEle.style.display = 'block';
-                nextEle.style.display = 'block';
-
+                if (prevEle) prevEle.style.display = 'block';
+                if (nextEle) nextEle.style.display = 'block';
             });
 
             if (isAutoPlay && carouselItem.classList.contains('active')) {
@@ -107,57 +106,44 @@ export const manageVideo = (player) => {
     player.elements?.container?.classList?.add('fancybox__content');
 }
 
+const bsb_fancybox_options = (attributes) => ({
+    on: {
+        done: () => {
+            const videoElement = document.querySelectorAll('.fancybox__html5video');
+            const youtubeVideos = document.querySelectorAll('.has-youtube .fancybox__content');
+            const vimeoVideos = document.querySelectorAll('.has-vimeo .fancybox__content');
+
+            const videoPlayers = Plyr.setup(videoElement, plyrConfig(attributes), {
+                fullscreen: { enabled: true, fallback: true, iosNative: true, container: null }
+            });
+
+            const youtubePlayers = Plyr.setup(youtubeVideos);
+            const vimeoPlayers = Plyr.setup(vimeoVideos);
+
+            videoPlayers?.forEach(player => manageVideo(player));
+            youtubePlayers?.forEach(player => manageVideo(player));
+            vimeoPlayers?.forEach(player => manageVideo(player));
+        }
+    },
+    autoFocus: false,
+    backdropClick: "close",
+    closeButton: "auto",
+    commonCaption: false,
+    contentClick: "toggleZoom",
+    contentDblClick: "toggleCover",
+    defaultDisplay: "flex",
+    Thumbs: { type: 'classic' },
+});
+
 export const bsb_lightbox_config = (id, attributes) => {
+    Fancybox.bind(`[data-fancybox='${id}-video-gallery']`, bsb_fancybox_options(attributes));
+}
 
-    // const controlsOpt = Object.keys(controls).filter(key => controls[key]);
-
-    Fancybox.bind(`[data-fancybox='${id}-video-gallery']`, {
-        on: {
-            done: () => {
-                const videoElement = document.querySelectorAll('.fancybox__html5video');
-                const youtubeVideos = document.querySelectorAll('.has-youtube .fancybox__content');
-                const vimeoVideos = document.querySelectorAll('.has-vimeo .fancybox__content');
-
-                const videoPlayers = Plyr.setup(videoElement, plyrConfig(attributes), {
-                    // controls: controlsOpt,
-                    fullscreen: {
-                        enabled: true,
-                        fallback: true,
-                        iosNative: true,
-                        container: null
-                    }
-                });
-
-                const youtubePlayers = Plyr.setup(youtubeVideos);
-                const vimeoPlayers = Plyr.setup(vimeoVideos);
-
-                videoPlayers?.forEach(player => manageVideo(player));
-                youtubePlayers?.forEach(player => manageVideo(player));
-                vimeoPlayers?.forEach(player => manageVideo(player));
-            }
-        },
-
-        // wheel: options.wheel,
-        autoFocus: false,
-        backdropClick: "close",
-        closeButton: "auto",
-        commonCaption: false,
-        contentClick: "toggleZoom",
-        contentDblClick: "toggleCover",
-        defaultDisplay: "flex",
-        // Carousel: {
-        //     transition: options?.transition
-        // },
-
-        Thumbs: {
-            type: 'classic',
-            // showOnStart: thumb.showOnStart,
-            // minCount: 2,
-        },
-
-        // Slideshow: {
-        //     playOnStart: slideShow?.playOnStart,
-        //     timeout: slideShow?.timeout,
-        // }
-    });
+export const bsb_open_video_popup = (sliders, index, attributes) => {
+    const items = sliders.map(slide => ({
+        src: slide?.video?.url,
+        type: 'html5video',
+        caption: ''
+    }));
+    Fancybox.show(items, { ...bsb_fancybox_options(attributes), startIndex: index });
 }

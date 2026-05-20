@@ -1,6 +1,7 @@
 import { placeholderImg, play } from '../../../../utils/icons';
+import { bsb_open_video_popup } from '../../../../utils/config';
 
-const CheckPopUp = ({ sliders, videoRefs, attributes, id, }) => {
+const CheckPopUp = ({ sliders, videoRefs, attributes, id, isBackEnd }) => {
     const { videoConf } = attributes;
     const { isPopup, icon } = videoConf;
 
@@ -13,7 +14,7 @@ const CheckPopUp = ({ sliders, videoRefs, attributes, id, }) => {
                 <video controls poster={posterImage} className="bsbvid" id="player">
                     <source src={video?.url} type="video/mp4" /></video>
             </div> :
-                <a data-fancybox={`${id}-video-gallery`} data-caption="" className={`carousel-item videoItem lightboxArea ${index === 0 ? 'active' : ''}`} href={video?.url} data-type={'html5video'}>
+                <a key={index} data-fancybox={`${id}-video-gallery`} data-caption="" className={`carousel-item videoItem lightboxArea ${index === 0 ? 'active' : ''}`} href={video?.url} data-type={'html5video'} onClick={isBackEnd ? (e) => { e.preventDefault(); e.stopPropagation(); bsb_open_video_popup(sliders, index, attributes); } : undefined}>
                     <div className={`contentArea`}>
                         <div className="img">
                             <img className="rounded" src={posterImage || placeholderImg} alt={img?.caption || img?.alt || img?.title} />

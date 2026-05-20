@@ -9,7 +9,7 @@ import 'swiper/css/pagination';
 import 'swiper/css/effect-cards';
 import 'swiper/css/grid';
 
-import { bsb_lightbox_config, plyrInt } from '../../../utils/config';
+import { bsb_lightbox_config, plyrInt, bsb_open_video_popup } from '../../../utils/config';
 import { placeholderImg, play } from '../../../utils/icons';
 import arrows from '../../../utils/arrows';
 import ImageItem from '../single-item/ImageItem';
@@ -176,7 +176,7 @@ const Carousel = (props) => {
                                     <video controls poster={slide?.img.url} className="bsbvid" id="player">
                                         <source src={slide?.video?.url} type="video/mp4" /></video>
                                 </div> :
-                                    <a data-fancybox={`${clientId}-video-gallery`} data-caption="" className={`lightboxArea videoItem db_carousel ${index === 0 ? 'active' : ''}`} href={slide?.video?.url} data-type={'html5video'}>
+                                    <a data-fancybox={`${clientId}-video-gallery`} data-caption="" className={`lightboxArea videoItem db_carousel ${index === 0 ? 'active' : ''}`} href={slide?.video?.url} data-type={'html5video'} onClick={isBackEnd ? (e) => { e.preventDefault(); e.stopPropagation(); bsb_open_video_popup(sliders, index, attributes); } : undefined}>
                                         <div className={`contentArea popContentArea`}>
                                             <div className="img">
                                                 <img className="rounded" src={slide?.img.url || placeholderImg} alt={slide?.img?.caption || slide?.img?.alt || slide?.img?.title} />
