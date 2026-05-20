@@ -12,7 +12,7 @@ const Image = ({ attributes, thumbnails, setThumbsSwiper }) => {
                     <div className="single_thumbnails">
                         <div className="img">
                             {img?.url && (
-                                <img src={url} className="d-block w-100" alt={altText} />
+                                <img src={img?.url} className="d-block w-100" alt={altText} />
                             )}
                         </div>
                     </div>

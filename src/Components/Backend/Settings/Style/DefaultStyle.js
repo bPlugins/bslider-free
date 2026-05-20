@@ -1,16 +1,21 @@
 import { __ } from '@wordpress/i18n';
 import { produce } from 'immer';
-import { PanelBody, __experimentalUnitControl as UnitControl, __experimentalBoxControl as BoxControl, RangeControl, BorderControl, SelectControl } from "@wordpress/components";
+import { PanelBody, __experimentalUnitControl as UnitControl, __experimentalBoxControl as BoxControl, RangeControl, BorderControl, SelectControl, PanelRow } from "@wordpress/components";
+import { useState } from 'react';
 
 import { ColorControl, ColorsControl, Notice, Typography } from '../../../../../../bpl-tools/Components';
-import { emUnit, perUnit, pxUnit, styles } from '../../../../utils/options';
+import { emUnit, perUnit, pxUnit, styles, vhUnit } from '../../../../utils/options';
 import { PremiumBadge, PremiumPanel } from '../../../../../../bpl-tools/ProControls';
 
 import { adminUrl } from '../../../../utils/functions';
+import { BDevice } from '../../../../../../bpl-tools/Components/Deprecated';
 
 const DefaultStyle = ({ attributes, setAttributes, updateObject }) => {
 
-    const { layoutType, titleTypo, titleColor, descTypo, descColor, titleMargin, descMargin, SliderOverly, borderRadius, arrowRadius, arrow, indicator, arrowBorder } = attributes;
+    const [DArrowWidth, setDArrowWidth] = useState('desktop');
+    const [DArrowHeight, setDArrowHeight] = useState('desktop');
+
+    const { layoutType, titleTypo, titleColor, descTypo, descColor, titleMargin, descMargin, SliderOverly, borderRadius, arrowRadius, arrow, indicator, arrowBorder, deviceArrowWidth, arrowHeight, deviceArrowHeight, arrowWidth } = attributes;
 
     return <>
         <PanelBody className='' title={__('Slider', 'b-slider')} initialOpen={false}>
@@ -56,6 +61,20 @@ const DefaultStyle = ({ attributes, setAttributes, updateObject }) => {
                 <RangeControl className='mt20' label={__('Icon Size', 'b-slider')} value={arrow.size} onChange={(value) => {
                     updateObject('arrow', 'size', value)
                 }} min={1} max={100} />
+
+                <PanelRow className='mt0'>
+                    <p></p>
+                    <BDevice device={DArrowWidth} onChange={val => setDArrowWidth(val)} />
+                </PanelRow>
+
+                <UnitControl className='mb0' label={__('Width', 'slider')} labelPosition='left' value={deviceArrowWidth[DArrowWidth] || arrowWidth} onChange={val => { setAttributes({ deviceArrowWidth: { ...deviceArrowWidth, [DArrowWidth]: val } }) }} units={[pxUnit(400), vhUnit(30)]} isResetValueOnUnitChange={true} beforeIcon='grid-view' />
+
+                <PanelRow className=''>
+                    <p></p>
+                    <BDevice device={DArrowHeight} onChange={val => setDArrowHeight(val)} />
+                </PanelRow>
+
+                <UnitControl className='' label={__('Height', 'slider')} labelPosition='left' value={deviceArrowHeight[DArrowHeight] || arrowHeight} onChange={val => { setAttributes({ deviceArrowHeight: { ...deviceArrowHeight, [DArrowHeight]: val } }) }} units={[pxUnit(400), vhUnit(30)]} isResetValueOnUnitChange={true} beforeIcon='grid-view' />
 
                 <ColorsControl className='mt10' label={__('Background', 'b-slider')} value={arrow}
                     onChange={val => setAttributes({ arrow: { ...arrow, ...val } })} defaults={{ bg: 'transparent' }} isColor={false} />

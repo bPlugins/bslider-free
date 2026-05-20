@@ -73,7 +73,7 @@ const Carousel = (props) => {
         autoplay,
         centeredSlides,
         breakpoints,
-        navigation: arrow?.visibility,
+        navigation: arrow?.visibility ? { prevEl: prevRef.current, nextEl: nextRef.current } : false,
         allowTouchMove: grabCursor,
         simulateTouch: grabCursor,
         grabCursor,
