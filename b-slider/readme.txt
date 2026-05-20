@@ -236,7 +236,7 @@ Please report security bugs found in the source code of the bSlider plugin throu
 == Changelog ==
 
 = 2.0.13 - 20 May, 2026 =
-* Fix: The backend defaults, carousel, and thumbnail layouts slides have been fixed and are now working properly.
+* Fix: The backend defaults, carousel, and thumbnail slides have been fixed and are now working properly.
 
 = 2.0.12 - 13 May, 2026 =
 * Update: Fixed a security vulnerability through responsible disclosure.
