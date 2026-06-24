@@ -1,12 +1,17 @@
+import { gridIcon, masonryIcon, sliderIcon, tickerIcon } from '../../utils/icons';
+import { elementorTabIcon, gutenbergTabIcon, phpTabIcon, shortcodeTabIcon } from './icons';
+
 
 const slug = 'b-slider';
 
 export const dashboardInfo = (info) => {
-    const { version, isPremium, hasPro, licenseActiveNonce } = info;
+    const { version, isPremium, hasPro, adminUrl, licenseActiveNonce, deleteDataOnUninstall = false, uninstallNonce = '' } = info;
+
+    const proSuffix = isPremium ? ' Pro' : '';
 
     return {
-        name: `B Slider Block`,
-        displayName: `B Slider Block - Create Responsive Image, Post, Product, and Video Sliders`,
+        name: `B Slider Block${proSuffix}`,
+        displayName: `B Slider Block${proSuffix} - Create Responsive Image, Post, Product, and Video Sliders`,
         description: 'bSlider is a WordPress slider plugin that lets you create responsive image, post, product, and video carousels using the Gutenberg block & shortcode.',
         slug,
         version,
@@ -32,117 +37,13 @@ export const dashboardInfo = (info) => {
             plan_id: 32001,
             public_key: 'pk_b24b0b3f21a9dbfaff418c0c40fc1'
         },
-
+        adminUrl,
         licenseActiveNonce,
-        changelogs: [
-            {
-                version: '2.0.11 - 7 May 2026',
-                type: 'update',
-                list: [
-                    ' Update: Removed restricted "Locked Fields" to improve user flexibility',
-                    'New: Custom Slider Height: Easily define and set the perfect height for your sliders',
-                    'New: Dynamic Indicators: Fully customize indicator types, positioning, and direction (Horizontal or Vertical).',
-                    'New: Carousel Enhancements: Toggle visibility for Navigation Arrows and Pagination Indicators with a single click.',
-                    'New: Grid Flexibility: Set items per page and choose your preferred pagination style (Standard Button or Load More).',
-                    'New: Post Per Page: Control the exact density of your content.',
-                    ' New: Advanced Sorting: Organize content by specific criteria (Order By) and direction (ASC/DESC).',
-                    'New: Post Offset: Skip specific posts to create unique layouts and avoid duplication.',
-                    ' New: Playback Settings: New options for Auto-play, Loop/Repeat, and Muted starts.',
-                    ' New: Comprehensive Player Controls: Empower users with a full suite of controls including Play/Pause, Mute, Rewind/Fast-Forward, and real-time displays for Progress, Current Time, and Duration.',
-                    ' Improved: Overall code quality and strengthened security protocols.',
-                ]
-            },
-            {
-                version: '2.0.10 - 5 April 2026',
-                type: 'new',
-                list: [
-                    'Added a new modern dashboard.',
-                ]
-            },
-            {
-                version: '2.0.9 - 14 Mar 2026',
-                type: 'new',
-                list: [
-                    'The free plugin now supports shortcodes.',
-                ]
-            },
-            {
-                version: '2.0.8 - 22 Jan, 2026',
-                type: 'update',
-                list: [
-                    'There were some minor issues with the title and the query, but I have resolved them.',
-                ]
-            },
-            {
-                version: '2.0.7 - 18 Jan, 2026',
-                type: 'update',
-                list: [
-                    'Patchstack ( Cross Site Scripting) problem solved;',
-                ]
-            },
-            {
-                version: '2.0.3 - 18 Sept, 2025',
-                type: 'update',
-                list: [
-                    'Solved the image max-width and margin;',
-                ]
-            },
-            {
-                version: '2.0.2 - 23 Aug, 2025',
-                type: 'update',
-                list: [
-                    'Resolved the conflict between Modula Image Gallery and bSlider;',
-                ]
-            },
-            {
-                version: '2.0.1 - 12 Aug, 2025',
-                type: 'update',
-                list: [
-                    'Resolved all security vulnerabilities identified by Wordfence;',
-                ]
-            },
-            {
-                version: '2.0.0 - 9 Aug, 2025',
-                type: 'update',
-                list: [
-                    'Fixed missing authorization check that allowed authenticated users (admin) to install arbitrary plugins;',
-                ]
-            }
-
-        ],
-        proFeatures: [
-            'Custom HTML Wrapper Tags**: Options to use specific tags like h1-h6 for better structure and SEO.',
-            'Slider Transition Effects**: Professional animation effects for seamless slide transitions.',
-            'Left/Right Inner Gap**: Customizable internal spacing between slider items.',
-            'Dual Slide Direction**: Support for both horizontal and vertical movement paths.',
-            'Custom Arrow Styles**: Unique navigation arrow designs to match your branding.',
-            'Slide on Mouse Wheel**: Ability to navigate through slides using the mouse scroll wheel.',
-            'Arrow Follow Mouse**: Interactive navigation arrows that dynamically follow the cursor.',
-            'Slide on Mouse Drag**: Smooth drag-to-slide functionality for a tactile user experience.',
-            'Lazy Load Enable**: Optimizes performance by deferring the loading of offscreen images.',
-            'Move From Edge**: Precise control over the spacing of content from the slider edges.',
-            'Video Reset On End**: Automatically restarts videos from the beginning once they finish.',
-            'Video Auto Hide Controls**: Automatically hides playback UI during periods of inactivity.',
-            'Advanced Video Tools**: Includes Mute, PIP (Picture-in-Picture), AirPlay, Download, and Fullscreen.',
-            'Pagination Position**: Flexible alignment for pagination buttons within grid layouts.',
-            'Include/Exclude Posts & Products**: Manually select exactly which items to display or hide.',
-            'Exclude Current Post**: Prevents the post being currently viewed from appearing in the feed.',
-            'Grab Cursor Interaction**: Displays a "grab" icon to improve carousel usability.',
-            'Thumbnail Direction & Navigation**: Controls for thumbnail flow and dedicated navigation arrows.',
-            'Thumbnail Styling**: Custom settings for thumbnail position, dimensions, borders, and color overlays.',
-            'Box Model Controls**: Full management of Margin, Padding, Border, and Border Radius.',
-            'Advanced Typography**: Comprehensive styling for fonts, sizes, and text behavior.',
-            'Interactive Color States**: Set specific colors for both standard and hover states.',
-            'Animation Timing**: Granular control over animation duration and start delays.',
-            'Clickable CTA Buttons**: Add custom button labels and URLs directly into slide content.',
-            'Smart Link Behavior**: Option to open button links in a new browser tab automatically.',
-            'Advanced Carousel Styles**: Create unique carousels with ticker, grid, and 3D effects.'
-
-        ],
-
-        startButton: {
+        deleteDataOnUninstall,
+        uninstallNonce,
+        startButton: {          // ← new — drives the primary CTA button in the hero card
             label: 'Start Now',
-            url: `wp-admin/post-new.php?post_type=bsb`
+            url: `${adminUrl}post-new.php?post_type=bsb`
         }
     }
 }
@@ -152,7 +53,7 @@ export const demoInfo = {
     allInOneLink: 'https://bplugins.com/products/b-slider/#demos',
     demos: [
         {
-            icon: '',
+            icon: gridIcon,
             title: 'Image Slider',
             children: [
                 {
@@ -233,7 +134,7 @@ export const demoInfo = {
             ]
         },
         {
-            icon: '',
+            icon: masonryIcon,
             title: 'Posts Slider',
             children: [
                 {
@@ -289,7 +190,7 @@ export const demoInfo = {
             ]
         },
         {
-            icon: '',
+            icon: sliderIcon,
             title: 'WooCommerce Slider',
             children: [{
                 title: 'Default Layout',
@@ -344,7 +245,7 @@ export const demoInfo = {
             ]
         },
         {
-            icon: '',
+            icon: tickerIcon,
             title: 'Video Slider',
             children: [
                 {
@@ -413,3 +314,201 @@ export const pricingInfo = {
         selected: 3, // choose from licenses item
     }
 }
+
+
+export const welcomeInfo = (adminUrl) => ({
+    keywords: ['Image', 'Audio', 'Video', 'Content', 'Iframe', 'PDF', 'HTML', 'Vimeo'],
+    keywordsLabel: 'Select Media Type',
+    gettingStarted: {
+        tabs: [
+            {
+                key: 'gutenberg',
+                label: 'Gutenberg',
+                icon: gutenbergTabIcon,
+                steps: [
+                    {
+                        num: 1,
+                        title: 'Add the B Slider Block',
+                        body: 'Open the block editor on any post or page. Click the <strong>+</strong> icon in the top-left corner or type <strong>/b slider</strong> to find and insert the B Slider block.',
+                        link: { url: `${adminUrl}/post-new.php`, label: 'Open Editor' }
+                    },
+                    {
+                        num: 2,
+                        title: 'Select Source Type',
+                        body: 'Choose your preferred source type below (<strong>image</strong>, <strong>posts</strong>, <strong>woocommerce</strong>, <strong>video</strong>) to configure your slider.'
+                    },
+                    {
+                        num: 3,
+                        title: 'Select Layout Type',
+                        body: 'Choose your preferred layout type below (<strong>slider</strong>, <strong>carousel</strong>, <strong>grid</strong>, <strong>thumbnails</strong>) to configure your slider.'
+                    },
+                    {
+                        num: 4,
+                        title: 'Publish',
+                        body: 'Once everything is configured, click Publish. Make sure you have entered the <strong>Title</strong>, <strong>Description</strong>, <strong>Button Text</strong>, and <strong>Button URL</strong>.'
+                    }
+                ]
+            },
+            {
+                key: 'shortcode',
+                label: 'ShortCode',
+                icon: shortcodeTabIcon,
+                steps: [
+                    {
+                        num: 1,
+                        title: 'Open ShortCode Generator',
+                        body: 'Go to <strong>B Slider &rsaquo; ShortCode Generator</strong> in your WordPress admin and click <strong>Add New ShortCode</strong>.',
+                        link: { url: `${adminUrl}edit.php?post_type=bsb`, label: 'ShortCode Generator' }
+                    },
+                    {
+                        num: 2,
+                        title: 'Select Source Type',
+                        body: 'Choose your preferred source type below (image, posts, woocommerce, video) to configure your slider.'
+                    },
+                    {
+                        num: 3,
+                        title: 'Select Layout Type',
+                        body: 'Choose your preferred layout type below (slider, carousel, grid, thumbnails) to configure your slider.'
+                    },
+                    {
+                        num: 4,
+                        title: 'Publish & Copy the Shortcode',
+                        body: 'Publish the post. Return to the ShortCode Generator list — the shortcode <code>[bsb-slider id=POST_ID]</code> is shown in the list table. Click it to copy to clipboard.'
+                    },
+                    {
+                        num: 5,
+                        title: 'Paste Anywhere',
+                        body: 'Paste the copied shortcode (e.g. <code>[bsb-slider id=2400]</code>) into any post, page, widget area, or block using the <strong>Shortcode</strong> block.'
+                    }
+                ]
+            },
+            {
+                key: 'elementor',
+                label: 'Elementor',
+                icon: elementorTabIcon,
+                steps: [
+                    {
+                        num: 1,
+                        title: 'Create a ShortCode',
+                        body: 'Go to <strong>B Slider &rsaquo; ShortCode Generator</strong>, click <strong>Add New ShortCode</strong>, configure your layout and query, then publish. Note the shortcode from the list table.',
+                        link: { url: `${adminUrl}edit.php?post_type=bsb`, label: 'ShortCode Generator' }
+                    },
+                    {
+                        num: 2,
+                        title: 'Add a Shortcode Widget',
+                        body: 'Open the Elementor editor on any page. Search for the <strong>Shortcode</strong> widget and drag it to your desired location on the canvas.'
+                    },
+                    {
+                        num: 3,
+                        title: 'Enter & Preview',
+                        body: 'Type <code>[bsb-slider id=2400]</code> into the widget\'s Shortcode field (replace <em>YOUR_ID</em> with your actual post ID) and click <strong>Preview</strong> to see the posts rendered live.'
+                    }
+                ]
+            },
+            {
+                key: 'php',
+                label: 'Theme / PHP',
+                icon: phpTabIcon,
+                steps: [
+                    {
+                        num: 1,
+                        title: 'Create a ShortCode',
+                        body: 'Go to <strong>B Slider Block &rsaquo; ShortCode Generator</strong>, click <strong>Add New ShortCode</strong>, configure your layout and query, then publish. Note the post ID shown in the list table.',
+                        link: { url: `${adminUrl}edit.php?post_type=bsb`, label: 'ShortCode Generator' }
+                    },
+                    {
+                        num: 2,
+                        title: 'Open Your Template',
+                        body: 'Open the theme template file where you want to display the posts block — for example <code>single.php</code>, <code>page.php</code>, or a custom template part.'
+                    },
+                    {
+                        num: 3,
+                        title: 'Render via do_shortcode',
+                        body: 'Add <code>&lt;?php echo do_shortcode(\'[bsb-slider id=YOUR_ID]\'); ?&gt;</code> in your template (replace <em>YOUR_ID</em> with your actual post ID) to render the block on the front end.'
+                    }
+                ]
+            }
+        ]
+    },
+    changelogs: [
+        {
+            version: '2.0.10 - 5 April 2026',
+            type: 'new',
+            list: [
+                '<strong>New</strong> Added a new modern dashboard.',
+            ]
+        },
+        {
+            version: '2.0.9 - 14 Mar 2026',
+            type: 'new',
+            list: [
+                '<strong>New</strong> The free plugin now supports shortcodes.',
+            ]
+        },
+        {
+            version: '2.0.8 - 22 Jan, 2026',
+            type: 'update',
+            list: [
+                '<strong>Update</strong> There were some minor issues with the title and the query, but I have resolved them.',
+            ]
+        },
+        {
+            version: '2.0.7 - 18 Jan, 2026',
+            type: 'update',
+            list: [
+                '<strong>Update</strong> Patchstack ( Cross Site Scripting) problem solved;',
+            ]
+        },
+        {
+            version: '2.0.3 - 18 Sept, 2025',
+            type: 'update',
+            list: [
+                '<strong>Update</strong> Solved the image max-width and margin;',
+            ]
+        },
+        {
+            version: '2.0.2 - 23 Aug, 2025',
+            type: 'update',
+            list: [
+                '<strong>Update</strong> Resolved the conflict between Modula Image Gallery and bSlider;',
+            ]
+        },
+        {
+            version: '2.0.1 - 12 Aug, 2025',
+            type: 'update',
+            list: [
+                '<strong>Update</strong> Resolved all security vulnerabilities identified by Wordfence;',
+            ]
+        },
+        {
+            version: '2.0.0 - 9 Aug, 2025',
+            type: 'update',
+            list: [
+                '<strong>Update</strong> Fixed missing authorization check that allowed authenticated users (admin) to install arbitrary plugins;',
+            ]
+        }
+
+    ],
+    changelogsLimit: 6,
+    changelogsReadMoreLabel: 'View More Changelogs',
+    proFeatures: [
+        'Advanced Carousel Styles: Create unique carousels with ticker, grid, and 3D effects.',
+        'Creative Effects: Use coverflow and card-style transitions for modern visual appeal.',
+        'Buttons in Content: Add clickable buttons inside slides for CTAs and product links.',
+        'Advanced Animations: Control timing, delay, and duration for text and button animations.',
+        'Custom Image Indicators: Replace default indicators with images for a more branded look.',
+        'Multiple Arrow Icons: Select from different arrow styles to fit your design.',
+        'Flexible Content Positioning: Place content anywhere within each slide for more control.',
+        'Drag-and-Drop Reordering: Organize slides easily by dragging and dropping items.',
+        'Mouse Controls: Navigate with the mouse wheel, dragging, or grab the cursor for better usability.',
+        'Arrow Follow Mouse: Enable arrows that follow mouse movement for dynamic navigation.',
+        'Responsive Slider Height: Adjust slider height per device for better responsiveness.',
+        'Advanced Post Controls: Set posts per page, change order, exclude/include posts, or skip current post.',
+        'WooCommerce Advanced Options: Apply the same filters and display controls to products.',
+        'Full Video Controls: Unlock rewind, fast forward, progress bar, time display, mute, volume, PIP, AirPlay, download, and full screen.',
+        'Grid Pagination: Add pagination with options for load more or numbered pages, aligned left, right, or center.',
+        'Pagination Styling: Customize buttons with typography, colors, padding, and borders.',
+        'Enhanced Thumbnails: Control navigation arrows, overlays, cursor options, and direction for thumbnails.',
+        'Multiple Layouts: Switch between slider, carousel, grid, or thumbnails for flexible presentations.',
+    ],
+})
