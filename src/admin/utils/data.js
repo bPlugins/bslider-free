@@ -317,8 +317,8 @@ export const pricingInfo = {
 
 
 export const welcomeInfo = (adminUrl) => ({
-    keywords: ['Image', 'Audio', 'Video', 'Content', 'Iframe', 'PDF', 'HTML', 'Vimeo'],
-    keywordsLabel: 'Select Media Type',
+    keywords: ['Image', 'Post', 'WooCommerce', 'Video'],
+    keywordsLabel: 'Select Source Type',
     gettingStarted: {
         tabs: [
             {
