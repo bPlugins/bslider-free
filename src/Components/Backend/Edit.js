@@ -14,11 +14,13 @@ import { filterNaN, filterObject, filterPassword, wordCount } from '../../utils/
 import SelectSource from './Source/SelectSource';
 import Default from '../Common/Layouts/Default';
 import ClipBoard from './ClipBoard';
+import useIframeAssetSync from '../../../../bpl-tools/hooks/useIframeAssetSync';
 
 const Edit = (props) => {
 
 	const { attributes, setAttributes, clientId, totalPosts, posts, allCategories, selectBlock, CPTType, currentPostId } = props;
 
+	useIframeAssetSync(['bsb-slider-style-css', 'bsb-slider-editor-style-css', 'bsb-slider-editor-script-js']);
 	useEffect(() => { clientId && setAttributes({ cId: clientId.substring(0, 10) }); }, [clientId]);
 	const [activeIndex, setActiveIndex] = useState(0);
 
