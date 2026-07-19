@@ -20,7 +20,7 @@ const Edit = (props) => {
 
 	const { attributes, setAttributes, clientId, totalPosts, posts, allCategories, selectBlock, CPTType, currentPostId } = props;
 
-	useIframeAssetSync(['bsb-slider-style-css', 'bsb-slider-editor-style-css', 'bsb-slider-editor-script-js']);
+	useIframeAssetSync(['bsb-slider-style-css', 'bootstrap-css', 'bsb-slider-editor-style-css', 'bsb-slider-editor-script-js', 'bootstrap-js']);
 	useEffect(() => { clientId && setAttributes({ cId: clientId.substring(0, 10) }); }, [clientId]);
 	const [activeIndex, setActiveIndex] = useState(0);
 
