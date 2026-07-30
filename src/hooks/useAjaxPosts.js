@@ -7,11 +7,13 @@ const useAjaxPosts = (nonce, attributes, pageNumber) => {
 
     const { post_type, selectedTaxonomies = {}, selectedCategories, selectedTags, per_page, orderby, order, offset, include, exclude, isExcludeCurrent, isExcerptFromContent, excerptLength } = postsQuery;
 
-    const queryAttr = { post_type, selectedTaxonomies, selectedCategories, selectedTags, per_page, orderby, order, offset, include, exclude, isExcludeCurrent, isExcerptFromContent, excerptLength };
+    // Spread first, so the ACF picker and slot keys reach Posts::acfFieldsToFetch without this list
+    // having to name each of them, while the destructured defaults above still win.
+    const queryAttr = { ...postsQuery, post_type, selectedTaxonomies, selectedCategories, selectedTags, per_page, orderby, order, offset, include, exclude, isExcludeCurrent, isExcerptFromContent, excerptLength };
 
     const { data = null, refetch, isLoading } = useWPajax('bsbPosts', { _wpnonce: nonce, queryAttr, pageNumber });
     const [posts, setPosts] = useState([]);
-    console
+
     useEffect(() => {
         if (pageNumber) {
             refetch({ pageNumber });

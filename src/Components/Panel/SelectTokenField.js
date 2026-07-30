@@ -128,14 +128,18 @@ const SelectTokenField = ({ multiple = true, defaultValue, value, onChange = () 
                                         }`}
                                     onClick={() => {
                                         if (multiple) {
-                                            if (defaultWithValue) {
-                                                onChange([...defaultWithValue, option.value]);
-                                            } else {
-                                                onChange([option.value]);
-                                            }
-                                            if (defaultWithValue?.includes(option.value)) {
+                                            const selected = defaultWithValue || [];
+
+                                            /* A second click on a listed option takes it out again.
+                                               It used to append the same value a second time, which
+                                               left the caller holding a duplicate: two identical
+                                               tokens, and for anything keyed on the value — panels,
+                                               settings — two entries claiming to be one. */
+                                            if (selected.includes(option.value)) {
+                                                onChange(selected.filter((val) => val !== option.value));
                                                 setToggle(true);
                                             } else {
+                                                onChange([...selected, option.value]);
                                                 setToggle(false);
                                             }
                                         } else {

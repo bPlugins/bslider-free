@@ -7,10 +7,390 @@
         text-decoration: none;
     }
 
+    /**
+     * The placeholder a query with no results falls back to.
+     *
+     * It carries no colours of its own. A block drops into a theme whose background it cannot know,
+     * and a fixed palette is wrong against half of them — the light card that reads well on a white
+     * page turns into a bright slab on a dark one. So the frame is mixed out of `currentColor`,
+     * which the theme has already set to something legible against its own background, and it
+     * follows a light or dark theme without being told which it is in.
+     *
+     * `color-mix` is stated second on purpose: the plain `rgba` above it is what older browsers
+     * keep, a neutral grey that holds up either way, and only browsers that understand the mix take
+     * the adaptive one.
+     */
     .bsbNoPosts {
-        color: red;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        box-sizing: border-box;
+        width: 100%;
+        min-height: 220px;
+        margin: 0;
+        padding: 40px 24px;
+        border: 1px dashed rgba(125, 135, 150, 0.4);
+        border-radius: 12px;
+        background: rgba(125, 135, 150, 0.06);
         text-align: center;
-        font-size: 20px;
+
+        /**
+         * The adaptive colours, behind a support test rather than stated twice.
+         *
+         * Declaring a fallback and an override back to back is the usual way, but cssnano folds
+         * `border` and `border-color` back into one shorthand and keeps only the last — which threw
+         * the fallback away and left older browsers with no border at all. It will not fold across
+         * an `@supports`, so the two stay separate through the build.
+         */
+        @supports (border-color: color-mix(in srgb, currentColor 22%, transparent)) {
+            border-color: color-mix(in srgb, currentColor 22%, transparent);
+            background: color-mix(in srgb, currentColor 4%, transparent);
+        }
+    }
+
+    .bsbNoPostsIcon {
+        display: flex;
+        margin-bottom: 14px;
+        opacity: 0.45;
+    }
+
+    /* `color: inherit` over the theme's own heading colour, which is the one point here that has to
+       stay fully legible. */
+    .bsbNoPostsTitle {
+        margin: 0 0 6px;
+        padding: 0;
+        color: inherit;
+        font-size: 17px;
+        font-weight: 600;
+        line-height: 1.4;
+    }
+
+    /* Held to a readable measure — the editor hint is a full sentence, and across a wide slider it
+       would otherwise run as one long line. */
+    .bsbNoPostsText {
+        max-width: 46ch;
+        margin: 0;
+        padding: 0;
+        font-size: 13px;
+        line-height: 1.6;
+        opacity: 0.7;
+    }
+
+    /**
+     * The ACF layer over one slide.
+     *
+     * Covers the whole item so a field can be anchored to any of its nine points. It takes no
+     * pointer events of its own — otherwise this invisible sheet would sit on top of the slide and
+     * swallow every click meant for the caption or the button underneath.
+     */
+    .bsb-acf-layer {
+        position: absolute;
+        inset: 0;
+        z-index: 3;
+        pointer-events: none;
+    }
+
+    .bsb-acf-fields {
+        position: absolute;
+        display: flex;
+        gap: 8px;
+        max-width: calc(100% - 24px);
+
+        /* Fields on one anchor read as a list, so they stack rather than run off the side. */
+        flex-direction: column;
+
+        /* Given back, so a linked field stays clickable through the layer above. */
+        pointer-events: auto;
+
+        .bsb-acf-section-label {
+            font-size: 0.75em;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #186cf5;
+            background: #eff6ff;
+            padding: 2px 8px;
+            border-radius: 4px;
+            border: 1px solid #bfdbfe;
+            margin-right: 2px;
+        }
+
+        /**
+         * A field floats over the image now, so it carries its own contrast — the old flat tint
+         * borrowed the caption's background and became unreadable the moment it left the caption.
+         *
+         * `position: relative` is what the per-field offset moves against; with no offset set both
+         * `left` and `top` stay unset and the field sits exactly on its anchor.
+         */
+        .bsb-acf-item {
+            position: relative;
+            font-size: 0.85em;
+            padding: 4px 10px;
+            background: rgba(0, 0, 0, 0.65);
+            color: #fff;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            max-width: 100%;
+
+            .bsb-acf-label {
+                font-weight: 600;
+                opacity: 0.85;
+            }
+
+            .bsb-acf-value {
+                opacity: 0.95;
+            }
+        }
+
+        .bsb-acf-icon {
+            font-style: normal;
+            line-height: 1;
+        }
+
+        .bsb-acf-affix {
+            opacity: 0.9;
+        }
+
+        /**
+         * The presets, listed in AcfFields.js as `DISPLAY_PRESETS`.
+         *
+         * Every one of them is the pill above with a different fill — none changes the markup, so a
+         * new preset is a mixin here, a line in that list, and nothing in the renderer. They are all
+         * built to hold their contrast over a photograph, which is the one thing a field cannot
+         * choose: `chips`, `rows` and `ribbon` carry their own dark fill, `card` inverts to a pale
+         * one, and `outline` and `plain` lean on a border and a shadow instead.
+         *
+         * Each is written once as a mixin and then used twice — for the set, and for a single field
+         * overriding it — because the two must not drift apart. And each states every property the
+         * others touch, even where that repeats the base pill: a field's preset has to be able to
+         * undo whatever the set's preset did to it, and a property left out is one the group's
+         * choice keeps showing through.
+         */
+
+        /* The base pill, and what every other preset is measured against. */
+        @mixin acf-chips {
+            padding: 4px 10px;
+            border: 0;
+            border-radius: 999px;
+            background: rgba(0, 0, 0, 0.65);
+            color: #fff;
+            box-shadow: none;
+            text-shadow: none;
+            font-weight: inherit;
+        }
+
+        /* Inverted: a pale card with dark text, for slides whose subject is dark. */
+        @mixin acf-card {
+            padding: 4px 10px;
+            border: 0;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.94);
+            color: #1c1c1c;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+            text-shadow: none;
+            font-weight: inherit;
+
+            .bsb-acf-label {
+                opacity: 1;
+                color: #555;
+            }
+        }
+
+        /* Just an edge. The shadow is what keeps the border itself off a light image. */
+        @mixin acf-outline {
+            padding: 4px 10px;
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            border-radius: 999px;
+            background: rgba(0, 0, 0, 0.18);
+            color: #fff;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+            text-shadow: none;
+            font-weight: inherit;
+        }
+
+        /* No fill at all, so the value reads as part of the slide. The shadow is doing all the
+           work here — without it this preset is unreadable the moment the image goes pale. */
+        @mixin acf-plain {
+            padding: 0;
+            border: 0;
+            border-radius: 0;
+            background: none;
+            color: #fff;
+            box-shadow: none;
+            text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9), 0 0 2px rgba(0, 0, 0, 0.7);
+            font-weight: 600;
+        }
+
+        /* A tab held against an accent bar, squared off on the side the bar is on. */
+        @mixin acf-ribbon {
+            padding: 4px 10px 4px 8px;
+            border: 0;
+            border-left: 3px solid #186cf5;
+            border-radius: 0 4px 4px 0;
+            background: rgba(0, 0, 0, 0.72);
+            color: #fff;
+            box-shadow: none;
+            text-shadow: none;
+            font-weight: inherit;
+        }
+
+        /* Anchored right, the bar belongs on the right — otherwise it points off the slide. */
+        @mixin acf-ribbon-right {
+            padding-left: 10px;
+            padding-right: 8px;
+            border-left: 0;
+            border-right: 3px solid #186cf5;
+            border-radius: 4px 0 0 4px;
+        }
+
+        /**
+         * The set's choice, on the group.
+         *
+         * `chips` needs no rule of its own here — it is the base look, and a field that picks it
+         * back out of another set-wide preset is served by the item-level rule further down.
+         */
+        &--rows {
+            /* The one preset whose difference is in the grouping: the fields run together into a
+               single panel, so the group takes the background and the fields inside it lose theirs. */
+            gap: 2px;
+            padding: 6px 10px;
+            border-radius: 6px;
+            background: rgba(0, 0, 0, 0.6);
+
+            .bsb-acf-item {
+                background: none;
+                padding: 0;
+                border-radius: 0;
+            }
+        }
+
+        &--card .bsb-acf-item {
+            @include acf-card;
+        }
+
+        &--outline .bsb-acf-item {
+            @include acf-outline;
+        }
+
+        &--plain .bsb-acf-item {
+            @include acf-plain;
+        }
+
+        &--ribbon .bsb-acf-item {
+            @include acf-ribbon;
+        }
+
+        &.bsb-acf-at--top-right,
+        &.bsb-acf-at--middle-right,
+        &.bsb-acf-at--bottom-right {
+
+            &.bsb-acf-fields--ribbon .bsb-acf-item {
+                @include acf-ribbon-right;
+            }
+        }
+
+        /**
+         * One field's own choice, on the item.
+         *
+         * Stated after the group's rules and at the same specificity — one class here, one on the
+         * ancestor, against the group's modifier plus `.bsb-acf-item` — so source order is what
+         * settles it and no `!important` is needed on either side.
+         */
+        .bsb-acf-item--chips {
+            @include acf-chips;
+        }
+
+        .bsb-acf-item--card {
+            @include acf-card;
+        }
+
+        .bsb-acf-item--outline {
+            @include acf-outline;
+        }
+
+        .bsb-acf-item--plain {
+            @include acf-plain;
+        }
+
+        .bsb-acf-item--ribbon {
+            @include acf-ribbon;
+        }
+
+        &.bsb-acf-at--top-right,
+        &.bsb-acf-at--middle-right,
+        &.bsb-acf-at--bottom-right {
+
+            .bsb-acf-item--ribbon {
+                @include acf-ribbon-right;
+            }
+        }
+
+        /**
+         * The nine anchors.
+         *
+         * Each edge is held by its own inset so a field never touches the slide border, and the
+         * centre ones are pulled back by half their own size — `left: 50%` alone would line their
+         * left edge up with the middle, not their centre.
+         *
+         * `align-items` follows the horizontal side: fields stacked on a right hand anchor grow
+         * leftwards, so their right edges stay in line with each other.
+         */
+        $inset: 12px;
+
+        &.bsb-acf-at--top-left,
+        &.bsb-acf-at--top-center,
+        &.bsb-acf-at--top-right {
+            top: $inset;
+        }
+
+        &.bsb-acf-at--bottom-left,
+        &.bsb-acf-at--bottom-center,
+        &.bsb-acf-at--bottom-right {
+            bottom: $inset;
+        }
+
+        &.bsb-acf-at--middle-left,
+        &.bsb-acf-at--middle-right {
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        &.bsb-acf-at--top-left,
+        &.bsb-acf-at--middle-left,
+        &.bsb-acf-at--bottom-left {
+            left: $inset;
+            align-items: flex-start;
+        }
+
+        &.bsb-acf-at--top-right,
+        &.bsb-acf-at--middle-right,
+        &.bsb-acf-at--bottom-right {
+            right: $inset;
+            align-items: flex-end;
+        }
+
+        &.bsb-acf-at--top-center,
+        &.bsb-acf-at--bottom-center {
+            left: 50%;
+            align-items: center;
+            transform: translateX(-50%);
+        }
+
+        /* Centred on both axes, so it is listed on its own rather than combining two transforms. */
+        &.bsb-acf-at--middle-center {
+            top: 50%;
+            left: 50%;
+            align-items: center;
+            transform: translate(-50%, -50%);
+        }
+    }
+
+    /* The containing block for the ACF layer. Grid items set this themselves further down. */
+    .item {
+        position: relative;
     }
 
     .apbLoading {

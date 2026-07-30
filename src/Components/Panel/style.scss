@@ -1,21 +1,22 @@
 .bPl-token-field-main-wrapper .bPl-single-token-field-wrapper {
-    width: fit-content;
+    width: 100%;
     position: relative;
+    font-family: var(--bsb-font);
 
     .bPl-token-field-dropdown-wrapper {
         position: absolute;
         left: 0;
         right: 0;
-        background: #fff;
-        padding: 5px 5px;
-        border: 1px solid #B3B3B3;
-        border-top: none;
-        border-radius: 0px 0px 5px 5px;
-        box-shadow: 0px 1px 6px #E5E5E5;
+        background: var(--bsb-surface);
+        padding: 6px;
+        border: 1px solid var(--bsb-line-strong);
+        border-radius: var(--bsb-radius);
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.08);
         overflow-x: hidden;
         overflow-y: auto;
-        max-height: 240px;
-        z-index: 9999;
+        max-height: 200px;
+        z-index: 99999;
+        margin-top: 3px;
 
         .bPl-token-field-dropdown-list {
             list-style: none;
@@ -23,57 +24,62 @@
             padding: 0;
 
             li {
-                color: #444;
+                color: var(--bsb-text);
                 cursor: pointer;
-                /* background:linear-gradient(#5C3BC7 20%, #422C8D 50%, #422C8D 52%, #5C3BC7 100%); */
-                padding: 5px 5px;
-                margin-bottom: 2px;
-                font-size: 14px;
-            }
+                padding: 5px 8px;
+                margin-bottom: 1px;
+                font-size: 11px;
+                font-weight: 500;
+                border-radius: var(--bsb-radius-sm);
+                transition: all 0.15s ease;
 
-            li:hover:not(.multipleActiveItem) {
-                color: #fff;
-                background: linear-gradient(#5C3BC7 20%,
-                        #422C8D 50%,
-                        #422C8D 52%,
-                        #5C3BC7 100%);
+                &:hover:not(.multipleActiveItem) {
+                    color: var(--bsb-surface);
+                    background: var(--bsb-primary);
+                }
             }
 
             .activeItemInList {
-                color: #fff;
-                background: linear-gradient(#5C3BC7 20%,
-                        #422C8D 50%,
-                        #422C8D 52%,
-                        #5C3BC7 100%);
+                color: var(--bsb-surface);
+                background: var(--bsb-primary);
+                font-weight: 600;
             }
 
             .multipleActiveItem {
-                color: #ccc;
+                color: var(--bsb-faint);
+                background: var(--bsb-surface-soft);
+                cursor: not-allowed;
             }
         }
     }
 
     .bPl-single-token-field {
-        width: fit-content;
+        width: 100%;
         display: flex;
         align-items: center;
+        justify-content: space-between;
         gap: 5px;
         cursor: pointer;
-        background: linear-gradient(#fff 20%, #F6F6F6 50%, #eee 52%, #F4F4F4 100%);
-        padding: 5px 10px;
-        border-radius: 5px;
-        /* border: 1px solid #E5E5E5; */
-        border: 1px solid #B3B3B3;
+        background: var(--bsb-surface);
+        padding: 8px 12px;
+        border-radius: var(--bsb-radius);
+        border: 1.5px solid var(--bsb-line-strong);
+        transition: all 0.2s ease;
+
+        &:hover {
+            border-color: var(--bsb-primary);
+        }
 
         .bPl-token-field-value {
-            color: #ADADAD;
-            font-size: 14px;
+            color: var(--bsb-text);
+            font-size: 13px;
+            font-weight: 500;
         }
 
         .bPl-xMark-icon,
         .bPl-arrow-icon {
-            fill: #ADADAD;
-            transition: all 0.2s ease-in-out;
+            fill: var(--bsb-muted);
+            transition: all 0.15s ease;
             display: flex;
 
             svg {
@@ -81,48 +87,66 @@
             }
 
             &:hover {
-                fill: #000;
+                fill: var(--bsb-text);
             }
         }
     }
 
     .activeField {
-        border-bottom: none;
-        border-radius: 5px 5px 0px 0px;
-        background-image: linear-gradient(#eee 20%, #fff 80%);
+        border-color: var(--bsb-primary);
+        box-shadow: var(--bsb-ring);
     }
 
     .bPl-token-multiple-filed-wrapper {
+        width: 100%;
+
+        /**
+         * The box is wrapped in a `<label>` so clicking anywhere in it focuses the search input.
+         * That label carries no styling of its own, so it stayed inline and shrank to fit the
+         * tokens inside it: Categories and Tags sat at the width of `Select an option` while a
+         * field with several tokens happened to fill the row and looked correct.
+         */
+        > label {
+            display: block;
+            width: 100%;
+        }
+
+        /* Kept to a single row's height — the panel is long enough already, and the box still grows
+           on its own once the tokens wrap. */
         .bPl-token-multiple-filed-wrapper-item {
             display: flex;
             flex-wrap: wrap;
             align-items: center;
-            gap: 5px;
-            border: 1px solid #ccc;
-            padding: 8px 10px;
+            align-content: flex-start;
+            gap: 4px;
+            background: var(--bsb-surface);
+            border: 1px solid var(--bsb-line-strong);
+            border-radius: var(--bsb-radius-sm);
+            padding: 3px 6px;
             position: relative;
-            height: 30px;
-            height: auto;
-            /* padding-top: 6px; */
-            overflow: hidden;
+            min-height: 28px;
+            box-sizing: border-box;
+            transition: all 0.2s ease;
 
-            &:focus {
-                border-color: #4527A4;
+            &:hover {
+                border-color: var(--bsb-primary);
             }
 
             .bPl-multiple-search {
                 border: none;
                 outline: none;
-                min-width: 80px;
+                min-width: 50px;
                 width: unset;
                 flex: 1;
-                padding: 0 5px;
+                padding: 0 2px;
                 margin: 0;
-                min-height: 16px;
-                height: 16px;
+                min-height: 20px;
+                font-size: 11px;
+                color: var(--bsb-text);
+                background: transparent;
 
                 &:focus {
-                    border: 1px solid #eee;
+                    border: none;
                     outline: none !important;
                     box-shadow: none;
                 }
@@ -130,35 +154,37 @@
 
             .bPl-multiple-token-field {
                 width: fit-content;
-                display: flex;
+                display: inline-flex;
                 align-items: center;
-                gap: 5px;
-                cursor: pointer;
-                background: linear-gradient(#fff 20%,
-                        #F6F6F6 50%,
-                        #eee 52%,
-                        #F4F4F4 100%);
-                padding: 2px 5px;
-                border-radius: 3px;
-                border: 1px solid #B3B3B3;
-                height: 16px;
+                gap: 3px;
+                cursor: default;
+                background: var(--bsb-primary-soft);
+                padding: 1px 6px;
+                border-radius: var(--bsb-radius-pill);
+                border: 1px solid var(--bsb-primary-line);
+                transition: all 0.15s ease;
 
                 .bPl-multiple-token-field-value {
-                    color: #252525;
-                    font-size: 13px;
+                    color: var(--bsb-primary-dark);
+                    font-size: 10px;
+                    font-weight: 600;
                 }
 
                 .bPl-xMark-icon {
-                    fill: #ADADAD;
-                    transition: all 0.2s ease-in-out;
+                    fill: var(--bsb-primary);
+                    transition: all 0.15s ease;
                     display: flex;
+                    cursor: pointer;
 
+                    /* The markup hard-codes 14px on the svg, so the height comes back down here. */
                     svg {
                         margin: 0;
+                        height: 9px;
                     }
 
                     &:hover {
-                        fill: #000;
+                        fill: var(--bsb-primary-dark);
+                        transform: scale(1.1);
                     }
                 }
             }
@@ -166,17 +192,19 @@
             .bPl-empty-token-field {
                 position: absolute;
                 inset: 0;
-                color: #A3A3A3;
-                background: linear-gradient(#eee 1%, #fff 15%);
+                color: var(--bsb-faint);
+                background: transparent;
                 display: flex;
                 align-items: center;
-                padding-left: 10px;
+                padding-left: 8px;
+                font-size: 11px;
+                pointer-events: none;
             }
         }
 
         .focusItem {
-            border-color: #4527A4;
-            box-shadow: 0px 0px 2px #6B59A5;
+            border-color: var(--bsb-primary);
+            box-shadow: var(--bsb-ring);
         }
     }
 }

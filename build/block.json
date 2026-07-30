@@ -43,7 +43,25 @@
         "excerptLength": 25,
         "paginationCurrentPage": 1,
         "fImgSize": "full",
-        "metaDateFormat": "M j, Y"
+        "metaDateFormat": "M j, Y",
+        "selectedAcfFields": [],
+        "acfFieldSettings": {},
+        "acfDisplayStyle": "chips",
+        "imageField": "",
+        "imageSource": "post",
+        "imageOverrides": {},
+        "titleField": "",
+        "titleSource": "post",
+        "titleOverrides": {},
+        "descField": "",
+        "descSource": "post",
+        "descOverrides": {},
+        "buttonTextField": "",
+        "buttonTextSource": "post",
+        "buttonTextOverrides": {},
+        "buttonLinkField": "",
+        "buttonLinkSource": "post",
+        "buttonLinkOverrides": {}
       }
     },
     "woocommerceQuery": {
@@ -58,6 +76,7 @@
     "button": {
       "type": "object",
       "default": {
+        "isVisible": true,
         "text": "Learn More"
       }
     },

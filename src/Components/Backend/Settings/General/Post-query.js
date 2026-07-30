@@ -1,66 +1,103 @@
-import { __ } from '@wordpress/i18n';
-import { PanelBody, RangeControl, ToggleControl, PanelRow, SelectControl, __experimentalNumberControl as NumberControl } from "@wordpress/components";
-import { Label, Notice } from '../../../../../../bpl-tools/Components';
-import { filterSelected } from '../../../../utils/functions';
+import { __, sprintf } from '@wordpress/i18n';
+import { RangeControl, SelectControl, __experimentalNumberControl as NumberControl, ToggleControl } from "@wordpress/components";
+import { PanelBody } from '../../../Panel/AccordionPanel';
+import { Label } from '../../../../../../bpl-tools/Components';
+import { filterSelected, postTypeTaxonomies } from '../../../../utils/functions';
 import SelectTokenField from '../../../Panel/SelectTokenField';
+import ProNotice from '../../../Panel/ProNotice';
+import { PRO_FEATURES } from '../../../../utils/pro-features';
 import { postsOrders, postsOrdersBy } from '../../../../utils/options';
 
-
+/** Everything ACF lives in its own `ACF Integration` panel — see AcfConfigure. */
 const PostQuery = ({ updateObject, attributes, getTaxonomy }) => {
 
     const { postsQuery, sourceType } = attributes;
-    const { selectedTags, selectedCategories, per_page, orderby, order, offset, isExcerptFromContent, excerptLength } = postsQuery;
-    console.log(postsQuery);
+    const { selectedTags, selectedCategories, per_page, orderby, order, offset, isExcerptFromContent, excerptLength, post_type = 'post' } = postsQuery;
 
+    // Which taxonomies to offer follows the post type being queried, not the source tile — the same
+    // pairing the block's own query does, so both read it off `postTypeTaxonomies`.
+    const { catTaxSlug, tagTaxSlug } = postTypeTaxonomies(post_type, sourceType);
 
+    const categoriesList = getTaxonomy(catTaxSlug) || [];
+    const tagsList = getTaxonomy(tagTaxSlug) || [];
 
-    return <PanelBody className='bPlPanelBody' title={__(`${sourceType === 'posts' ? 'Post' : 'Product'} Query`, 'b-slider')} initialOpen={false}>
-        {
-            sourceType === 'posts' && <>
-                {getTaxonomy('category')?.length ? <>
-                    <Label className='mt10 mb0'>{__('Select Categories:', 'b-slider')}</Label>
-                    <SelectTokenField
-                        value={filterSelected(getTaxonomy('category'), selectedCategories).map(cat => cat.toString())}
-                        onChange={val => updateObject("postsQuery", "selectedCategories", val.map(cat => parseInt(cat)))}
-                        options={getTaxonomy('category').map(cat => ({ label: cat.name, value: cat.id.toString() }))}
-                    /></> : null
-                }
+    /** Every label in the panel names what is being queried; `woo` is the only one that is not posts. */
+    const itemLabel = 'posts' === sourceType ? __('Post', 'b-slider') : __('Product', 'b-slider');
 
-                <Label className="mt10 mb0">{__('Select Tags:', 'b-slider')}</Label>
+    return (
+        <PanelBody className='bPlPanelBody' title={sprintf(__('%s Query', 'b-slider'), itemLabel)} initialOpen={false}>
+            <div className="mb20">
+                <Label className='mb5'>{sourceType === 'woo' ? __('Select Product Categories:', 'b-slider') : __('Select Categories:', 'b-slider')}</Label>
                 <SelectTokenField
-                    className='mt20'
-                    label={__('Select Tags:', 'b-slider')}
-                    value={filterSelected(getTaxonomy('post_tag'), selectedTags)?.map(tag => tag.toString())}
+                    value={filterSelected(categoriesList, selectedCategories).map(cat => cat.toString())}
+                    onChange={val => updateObject("postsQuery", "selectedCategories", val.map(cat => parseInt(cat)))}
+                    options={categoriesList.map(cat => ({ label: cat.name, value: cat.id.toString() }))}
+                />
+            </div>
+
+            <div className="mb20">
+                <Label className="mb5">{sourceType === 'woo' ? __('Select Product Tags:', 'b-slider') : __('Select Tags:', 'b-slider')}</Label>
+                <SelectTokenField
+                    value={filterSelected(tagsList, selectedTags)?.map(tag => tag.toString())}
                     onChange={val => updateObject("postsQuery", "selectedTags", val.map(tag => parseInt(tag)))}
-                    options={getTaxonomy('post_tag')?.map(tag => ({ label: tag.name, value: tag.id.toString() }))} />
-            </>
-        }
+                    options={tagsList?.map(tag => ({ label: tag.name, value: tag.id.toString() }))}
+                />
+            </div>
 
-        <Label>{__(`${sourceType === 'posts' ? 'Post' : 'Product'} Per Page:`, 'slider')}</Label>
-        <RangeControl value={per_page} onChange={val => updateObject("postsQuery", "per_page", val)} min={-1} max={36} step={1} />
-        <small>{__('To show all posts set -1', 'b-slider')}</small>
+            {/* The label goes through RangeControl rather than a `Label` above it, the way the
+                sliders elsewhere in this plugin do it. BaseControl then owns the whole field — label
+                on its own line, slider and number box sharing the row under it. */}
+            <div className="mb20">
+                <RangeControl
+                    __nextHasNoMarginBottom
+                    label={sprintf(__('%s Per Page:', 'b-slider'), itemLabel)}
+                    value={per_page}
+                    onChange={val => updateObject("postsQuery", "per_page", val)}
+                    min={-1}
+                    max={36}
+                    step={1}
+                />
+                <small className="bsb_field_hint">{__('Set -1 to show every post.', 'b-slider')}</small>
+            </div>
 
-        <PanelRow className='mt20'>
-            <Label className=''>{__(`${sourceType === 'posts' ? 'Post' : 'Product'} Order By:`, 'slider')}</Label>
-            <SelectControl value={orderby} onChange={val => updateObject("postsQuery", "orderby", val)} options={postsOrdersBy} />
-        </PanelRow>
+            <div className="mb20">
+                <Label className='mb10'>{sprintf(__('%s Order By:', 'b-slider'), itemLabel)}</Label>
+                <SelectControl value={orderby} onChange={val => updateObject("postsQuery", "orderby", val)} options={postsOrdersBy} />
+            </div>
 
-        <PanelRow className='mt20'>
-            <Label className=''>{__(`${sourceType === 'posts' ? 'Post' : 'Product'} Order:`, 'slider')}</Label>
-            <SelectControl value={order} onChange={val => updateObject("postsQuery", "order", val)} options={postsOrders} />
-        </PanelRow>
+            <div className="mb20">
+                <Label className='mb10'>{sprintf(__('%s Order:', 'b-slider'), itemLabel)}</Label>
+                <SelectControl value={order} onChange={val => updateObject("postsQuery", "order", val)} options={postsOrders} />
+            </div>
 
-        <NumberControl className='mt20' label={__(`${sourceType === 'posts' ? 'Post' : 'Product'} Offset:`, 'slider')} labelPosition='left' value={offset} onChange={val => updateObject("postsQuery", "offset", parseInt(val))} min={0} />
-        <small>{__('`Post Offset` will not work if `Post Per Page` is -1', 'b-slider')}</small>
+            <div className="mb20">
+                <Label className='mb10'>{sprintf(__('%s Offset:', 'b-slider'), itemLabel)}</Label>
+                {/* An emptied field parses to NaN, which would wipe the attribute. */}
+                <NumberControl value={offset} onChange={val => updateObject("postsQuery", "offset", parseInt(val, 10) || 0)} min={0} />
+                <small className="bsb_field_hint">{__('Skips the first N posts. Ignored when `Per Page` is -1.', 'b-slider')}</small>
+            </div>
 
-        <ToggleControl className='mt15' label={__('Show Excerpt from Content', 'b-slider')} checked={isExcerptFromContent} onChange={val => updateObject("postsQuery", "isExcerptFromContent", val)} />
+            <div className="mb20">
+                <ToggleControl label={__('Show Excerpt from Content', 'b-slider')} checked={isExcerptFromContent} onChange={val => updateObject("postsQuery", "isExcerptFromContent", val)} />
+            </div>
 
-        {/* <Label className='mt15'>{__('Excerpt Length:', 'b-slider')}</Label> */}
-        <Label className='mt15'>{__('Content Length:', 'b-slider')}</Label>
-        <RangeControl value={excerptLength} onChange={val => updateObject("postsQuery", "excerptLength", val)} min={-1} max={120} step={1} />
-        {/* <small>{__(`Set -1 to show all the ${isExcerptFromContent ? 'content' : 'excerpt'}`, 'b-slider')}</small> */}
+            <div className="mb20">
+                <RangeControl
+                    __nextHasNoMarginBottom
+                    label={__('Content Length:', 'b-slider')}
+                    value={excerptLength}
+                    onChange={val => updateObject("postsQuery", "excerptLength", val)}
+                    min={-1}
+                    max={120}
+                    step={1}
+                />
+            </div>
 
-        <Notice status='premium' isIcon={true}>{__('Include, Exclude, Current Post settings are available in the Premium version.', 'b-slider')}</Notice>
-    </PanelBody >
-}
+            {/* Pro fills this stretch of the panel with Include, Exclude and Exclude Current. Naming
+                them is what the notice is for, rather than drawing three controls that do nothing. */}
+            <ProNotice features={PRO_FEATURES.postQuery} />
+        </PanelBody>
+    );
+};
+
 export default PostQuery;

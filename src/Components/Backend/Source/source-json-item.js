@@ -1,26 +1,28 @@
 import { image, video, woo, wordpress } from '../../../utils/icons';
 
-
 export const sourceItem = [
     {
         sourceType: "image",
         icon: image,
-        title: "Image Slider"
+        title: "Custom Images",
+        desc: "Upload or select custom images"
     },
-
     {
-        sourceType: "posts",
+        sourceType: "post_types",
         icon: wordpress,
-        title: "Posts Slider"
+        title: "Post Types",
+        desc: "Posts, Pages, WooCommerce & CPTs"
     },
     {
         sourceType: "woo",
         icon: woo,
-        title: "WooCommerce Slider"
+        title: "WooCommerce",
+        desc: "Products, prices & categories"
     },
     {
         sourceType: "video",
         icon: video,
-        title: "Video Slider"
+        title: "Video Slider",
+        desc: "Self-hosted, YouTube & Vimeo"
     },
-]
+];

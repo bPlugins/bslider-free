@@ -1,3 +1,47 @@
+/**
+ * Design tokens for the block editor UI.
+ *
+ * The editor styles had grown three separate palettes — navy `#000080` buttons, purple `#4527a4`
+ * badges and the newer slate/blue system — so the same control looked different depending on
+ * which panel it was in. Everything below now resolves to these, and nothing else.
+ */
+:root {
+    --bsb-primary: #186cf5;
+    --bsb-primary-dark: #1256c9;
+    --bsb-primary-soft: #eff6ff;
+    --bsb-primary-line: #bfdbfe;
+    --bsb-accent: #ff7a00;
+    --bsb-warning: #9a3412;
+    --bsb-warning-soft: #fff7ed;
+    --bsb-danger: #dc2626;
+    --bsb-danger-soft: #fef2f2;
+    --bsb-danger-line: #fecaca;
+
+    --bsb-ink: #0f172a;
+    --bsb-text: #1e293b;
+    --bsb-text-soft: #475569;
+    --bsb-muted: #64748b;
+    --bsb-faint: #94a3b8;
+
+    --bsb-surface: #ffffff;
+    --bsb-surface-soft: #f8fafc;
+    --bsb-line: #e2e8f0;
+    --bsb-line-strong: #cbd5e1;
+
+    --bsb-radius-sm: 6px;
+    --bsb-radius: 8px;
+    --bsb-radius-lg: 14px;
+    --bsb-radius-pill: 999px;
+
+    --bsb-shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06);
+    --bsb-shadow-lg: 0 12px 28px rgba(15, 23, 42, 0.12);
+    --bsb-shadow-primary: 0 4px 12px rgba(24, 108, 245, 0.22);
+    --bsb-ring: 0 0 0 3px rgba(24, 108, 245, 0.15);
+
+    --bsb-ease: cubic-bezier(0.4, 0, 0.2, 1);
+    --bsb-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
 svg#bsbSlider {
     fill: none;
 }
@@ -27,21 +71,40 @@ svg#bsbSlider {
     }
 
     .bsbImageUpload {
-        font-size: 16px;
-        border-radius: 3px;
-        background-color: #4527a4;
-        color: #fff;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
         margin-top: 5px;
+        padding: 8px 16px;
+        border: none;
+        border-radius: var(--bsb-radius-sm);
+        background: var(--bsb-primary);
+        color: var(--bsb-surface);
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s var(--bsb-ease), box-shadow 0.2s var(--bsb-ease);
+
+        &:hover {
+            background: var(--bsb-primary-dark);
+            box-shadow: var(--bsb-shadow-primary);
+        }
+
+        &:focus-visible {
+            outline: none;
+            box-shadow: var(--bsb-ring);
+        }
     }
 
     .components-button-group {
-        border-radius: 3px;
+        border-radius: var(--bsb-radius-sm);
+        overflow: hidden;
 
         button.is-primary {
-            background: #000080 !important;
+            background: var(--bsb-primary) !important;
 
             &:hover {
-                background: #002fa7 !important;
+                background: var(--bsb-primary-dark) !important;
             }
         }
     }
@@ -66,33 +129,47 @@ svg#bsbSlider {
 
 .wp-block-bsb-slider {
     .bsb_content_type {
-        border: 1px solid #ddd;
-        padding: 10px;
-        border-radius: 3px;
+        padding: 16px;
+        border: 1px solid var(--bsb-line);
+        border-radius: var(--bsb-radius-lg);
+        background: var(--bsb-surface);
+        box-shadow: var(--bsb-shadow-sm);
 
         h2 {
-            font-size: 16px;
-            font-weight: 500;
-            color: #000000c7;
-            margin: 0;
+            margin: 0 0 12px;
             padding: 0;
-            margin-bottom: 10px;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--bsb-ink);
+            letter-spacing: -0.2px;
         }
 
         .content_type_area {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
 
             button {
-                font-size: 16px;
-                font-weight: 400;
-                color: #000000ba;
-                background: #fff;
-                border: 1px solid #ddd;
-                border-radius: 3px;
-                padding: 3px 5px;
+                padding: 8px 16px;
+                border: 1px solid var(--bsb-line-strong);
+                border-radius: var(--bsb-radius-sm);
+                background: var(--bsb-surface);
+                font-size: 13px;
+                font-weight: 600;
+                color: var(--bsb-text);
                 cursor: pointer;
+                transition: all 0.2s var(--bsb-ease);
+
+                &:hover {
+                    border-color: var(--bsb-primary);
+                    background: var(--bsb-primary-soft);
+                    color: var(--bsb-primary);
+                }
+
+                &:focus-visible {
+                    outline: none;
+                    box-shadow: var(--bsb-ring);
+                }
             }
         }
     }
@@ -112,26 +189,35 @@ svg#bsbSlider {
         margin-bottom: 30px;
 
         p {
-            font-size: 18px;
+            font-size: 15px;
             font-weight: 500;
+            color: var(--bsb-muted);
         }
 
         button {
-            border: none;
-            background: rgb(69, 39, 164);
-            color: rgb(255, 255, 255);
-            width: 100%;
             display: flex;
             justify-content: center;
-            font-size: 15px;
-            padding: 10px;
-            border-radius: 5px;
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: var(--bsb-radius);
+            background: var(--bsb-primary);
+            color: var(--bsb-surface);
+            font-size: 14px;
+            font-weight: 600;
             cursor: pointer;
-            transition: 0.3s;
+            transition: background 0.2s var(--bsb-ease), box-shadow 0.2s var(--bsb-ease), transform 0.2s var(--bsb-ease);
 
+            /* The old hover repeated the resting colours, so the button read as disabled. */
             &:hover {
-                background: rgb(69, 39, 164);
-                color: rgb(255, 255, 255);
+                background: var(--bsb-primary-dark);
+                box-shadow: var(--bsb-shadow-primary);
+                transform: translateY(-1px);
+            }
+
+            &:focus-visible {
+                outline: none;
+                box-shadow: var(--bsb-ring);
             }
         }
     }
@@ -144,15 +230,11 @@ svg#bsbSlider {
         margin-top: 0px !important;
     }
 
-    svg {
-        // fill: none;
-    }
-
     button.is-primary {
-        background: #000080 !important;
+        background: var(--bsb-primary) !important;
 
         &:hover {
-            background: #002fa7 !important;
+            background: var(--bsb-primary-dark) !important;
         }
     }
 
@@ -170,12 +252,30 @@ svg#bsbSlider {
     }
 
     .warning {
+        display: block;
+        margin-top: 8px;
+        padding: 8px 10px;
+        border-left: 3px solid var(--bsb-accent);
+        border-radius: 0 var(--bsb-radius-sm) var(--bsb-radius-sm) 0;
+        background: var(--bsb-warning-soft);
         font-size: 12px;
-        font-weight: 400;
+        font-weight: 500;
+        line-height: 1.5;
+        color: var(--bsb-warning);
     }
 }
 
+/**
+ * Button groups wrap instead of overflowing.
+ *
+ * The inspector is a fixed, narrow column and these groups hold text labels, so a group that is
+ * one button too wide — or a translation longer than the English — would otherwise push past the
+ * panel edge or squash its buttons. Wrapping keeps them readable at any width.
+ */
 .bPlBtnGroup {
+    display: flex;
+    flex-wrap: wrap;
+
     button {
         svg {
             margin-right: 0px !important;
@@ -183,64 +283,696 @@ svg#bsbSlider {
     }
 }
 
-.noticePatter {
-    text-align: center;
-    padding: 5px 5px;
-    background: red;
-    color: #fff;
-    margin-top: 13px !important;
-    margin-bottom: 8p
-}
+.bsb_panel_source_layout {
+    .bsb_panel_grid_selector {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 6px;
+        margin-top: 5px;
+        margin-bottom: 10px;
 
-.bsbPatters {
-    position: relative;
-    margin-bottom: 5px;
-
-    img {}
-
-    .overlyButton {
-        position: absolute;
-        top: 0;
-        left: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 100%;
-        height: 100%;
-        opacity: 0;
-        transition: 0.3s;
-        background-color: #1e1b1b94;
-
-        button {
-            border: none;
-            font-size: 12px;
-            border-radius: 2px;
-            padding: 4px 15px;
-            font-weight: 500;
-            text-transform: uppercase;
+        .bsb_panel_tile_btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 6px 4px;
+            background: var(--bsb-surface);
+            border: 1px solid var(--bsb-line);
+            border-radius: 7px;
             cursor: pointer;
-            transition: 0.3s;
+            transition: all 0.2s var(--bsb-ease);
+            outline: none;
+            box-shadow: var(--bsb-shadow-sm);
+
+            .bsb_tile_icon {
+                margin-bottom: 2px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+
+                svg {
+                    width: 15px;
+                    height: 15px;
+                    fill: var(--bsb-muted);
+                    transition: fill 0.2s ease;
+                }
+            }
+
+            .bsb_tile_label {
+                font-size: 10px;
+                font-weight: 600;
+                line-height: 1.3;
+                color: var(--bsb-text-soft);
+                transition: color 0.2s ease;
+            }
 
             &:hover {
-                color: #fff;
-                background-color: #007cba;
-                transition: 0.3s;
+                border-color: var(--bsb-primary);
+                background: var(--bsb-surface-soft);
+                transform: translateY(-1px);
+                box-shadow: var(--bsb-shadow-primary);
 
+                .bsb_tile_icon svg {
+                    fill: var(--bsb-primary);
+                }
+
+                .bsb_tile_label {
+                    color: var(--bsb-primary);
+                }
+            }
+
+            &.is-active {
+                background: linear-gradient(135deg, var(--bsb-primary) 0%, var(--bsb-primary-dark) 100%);
+                border-color: var(--bsb-primary);
+                box-shadow: var(--bsb-shadow-primary);
+
+                .bsb_tile_icon svg {
+                    fill: var(--bsb-surface);
+                }
+
+                .bsb_tile_label {
+                    color: var(--bsb-surface);
+                    font-weight: 700;
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Inspector field styling.
+ *
+ * Every panel field gets the same shape: heading on top with a rule running out to the panel
+ * edge, full width control below, hint last. The heading can come from four different places
+ * depending on which component rendered it, so all four selectors are treated as one.
+ */
+.bPlPanelBody {
+
+    .bPlLabel,
+    .components-base-control__label,
+    .components-form-token-field__label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 10px !important;
+        padding-bottom: 0;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--bsb-text);
+        text-transform: none;
+
+        &::after {
+            content: '';
+            flex: 1 1 auto;
+            min-width: 12px;
+            height: 1px;
+            background: var(--bsb-line);
+        }
+    }
+
+    /**
+     * Labels that sit beside their control instead of above it. A trailing rule would either
+     * have nowhere to go or shove the control out of the row, so they only take the typography.
+     *
+     * `.components-input-control__label` covers NumberControl and friends, which this plugin
+     * almost always renders with `labelPosition='left'`.
+     */
+    .components-input-control__label {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--bsb-text);
+        text-transform: none;
+    }
+
+    .components-panel__row .bPlLabel::after,
+    .components-range-control .components-base-control__label::after,
+    .components-toggle-control .components-base-control__label::after,
+    .components-checkbox-control .components-base-control__label::after,
+    .components-radio-control .components-base-control__label::after {
+        content: none;
+    }
+
+    /* The Pro badge is right aligned by default, which would eat the space the rule needs. */
+    .labelPro {
+        margin-left: 0;
+        flex: 0 0 auto;
+    }
+
+    /* Spacing comes from the `mb*` wrapper on each field, not from the control itself. */
+    .components-base-control,
+    .components-range-control {
+        width: 100%;
+        margin-bottom: 0;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    input[type="url"],
+    textarea,
+    select,
+    .components-input-control__backdrop {
+        border-radius: 6px;
+        border-color: var(--bsb-line-strong);
+    }
+
+    input[type="text"],
+    input[type="number"],
+    input[type="url"],
+    textarea,
+    select {
+        background: var(--bsb-surface);
+        font-size: 12px;
+        color: var(--bsb-text);
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+        &:focus {
+            border-color: var(--bsb-primary);
+            box-shadow: var(--bsb-ring);
+            outline: none;
+        }
+    }
+
+    /* Left aligned labels pack several controls into a row, so those inputs stay compact. */
+    select,
+    .components-base-control input[type="text"],
+    .components-base-control input[type="number"] {
+        min-height: 34px;
+    }
+
+    /**
+     * Make the slider take the row.
+     *
+     * RangeControl lays itself out as a flex row whose track area grows into whatever the number box
+     * leaves. Here that area was collapsing to nothing: the bar had no width to be drawn in, so all
+     * that showed was the thumb parked against the number box, with the whole row bunched up on the
+     * left and the rest of the panel empty.
+     *
+     * Nothing in this stylesheet asks for that, and RangeControl's own rules carry the specificity of
+     * a single generated class — easily lost. So rather than chase which layer wins, the geometry it
+     * intends is simply restated here, where it holds.
+     */
+    .components-range-control__root {
+        display: flex;
+        width: 100%;
+    }
+
+    .components-range-control__wrapper {
+        flex: 1 1 0;
+        min-width: 0;
+
+        // The bar and thumb are positioned absolutely, so the row needs a height of its own.
+        min-height: 30px;
+    }
+
+    /**
+     * The number beside a slider is a readout as much as an input, so give it some weight.
+     *
+     * RangeControl separates it from the track with `space(4)` — 16px — on top of the 64px the box
+     * itself takes. In a 280px sidebar that is room the track cannot spare, so the gap is pulled in.
+     * `!important` only because RangeControl sets that margin with one of its own.
+     *
+     * `display` and `width` are restated because this box is itself a `BaseControl`, so the
+     * `width: 100%` above lands on it too — at two classes it outranks the single generated class
+     * RangeControl sizes the box with. The box then took the whole row, the track collapsed to
+     * nothing beside it, and the input that does the dragging went with it: the slider was neither
+     * visible nor draggable.
+     */
+    .components-range-control__number {
+        display: inline-block;
+        width: auto;
+        flex: 0 0 auto;
+        margin-left: 12px !important;
+
+        input {
+            font-weight: 600;
+            text-align: center;
+        }
+    }
+
+    /**
+     * A slider's bar. The thumb is deliberately not here: it used to be styled through
+     * `.components-range-control__thumb`, a class WordPress no longer renders, so that rule sat dead
+     * and the thumb took whatever loaded last. It is left to bpl-tools so one stylesheet owns it.
+     */
+    .components-range-control__wrapper {
+
+        .components-range-control__track {
+            background: var(--bsb-primary);
+        }
+
+        /**
+         * The bar itself, thickened from the 4px RangeControl ships with.
+         *
+         * Next to a 36px number box and a 14px thumb, a 4px line reads as a scratch rather than
+         * something to drag — the control looked broken more than it looked small.
+         *
+         * The rail — the unfilled part — carries no class of its own, so it can only be reached as
+         * "the spans in here that are not the thumb or the tooltip". That also catches the track, so
+         * both halves of the bar stay the same height, which is what we want anyway. `margin-top`
+         * keeps it centred: RangeControl offsets it by half of its own 4px inside a 30px row, and
+         * growing the bar without re-centring it would leave the whole thing sitting low.
+         */
+        > span:not(.components-range-control__thumb-wrapper):not(.components-range-control__tooltip) {
+            height: 6px;
+            margin-top: 12px;
+        }
+    }
+
+    /* Free users get a dimmed control plus the upsell, so keep it visibly inert. */
+    .bplProIdentifier input[type="text"] {
+        background: var(--bsb-surface-soft);
+    }
+
+    /**
+     * A field heading that also carries the device switch.
+     *
+     * The label keeps its rule, so these read as the same heading as every other field rather than
+     * as a row of their own — the switch simply sits at the end of it. `PanelRow`'s `min-height`
+     * goes, since the row is a heading now and not a control.
+     */
+    .bsb_device_row {
+        align-items: center;
+        min-height: 0;
+        margin-bottom: 8px;
+
+        .bPlLabel {
+            flex: 1 1 auto;
+            margin-bottom: 0 !important;
+        }
+
+        /* The rule stops short of the switch instead of being suppressed as in other rows. */
+        .bPlLabel::after {
+            content: '';
+            margin-right: 4px;
+        }
+    }
+
+    .bsb_field_hint,
+    .bsb_acf_hint {
+        display: block;
+        margin-top: 8px;
+        padding: 6px 8px;
+        border-left: 2px solid var(--bsb-line-strong);
+        border-radius: 0 4px 4px 0;
+        background: var(--bsb-surface-soft);
+        font-size: 11px;
+        line-height: 1.5;
+        color: var(--bsb-muted);
+        font-style: normal;
+    }
+
+    /* How many items are overridden, beside the `Per Item` heading in a field's panel. */
+    .bsb_override_count {
+        margin-left: 6px;
+        padding: 1px 6px;
+        border-radius: var(--bsb-radius-pill);
+        background: var(--bsb-primary-soft);
+        border: 1px solid var(--bsb-primary-line);
+        color: var(--bsb-primary);
+        font-size: 10px;
+        font-weight: 700;
+    }
+
+    /**
+     * Where a field sits on the slide, as a 3×3 grid shaped like the slide itself.
+     *
+     * The radio inputs are hidden rather than removed, so the group is still a real radio group to
+     * the keyboard and to a screen reader; the visible cell is the label around each one.
+     */
+    .bsb_anchor_picker {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 3px;
+        padding: 3px;
+        width: 96px;
+        aspect-ratio: 16 / 10;
+        border: 1px solid var(--bsb-line-strong);
+        border-radius: var(--bsb-radius-sm);
+        background: var(--bsb-surface);
+
+        .bsb_anchor_cell {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 3px;
+            background: var(--bsb-surface-soft);
+            cursor: pointer;
+            transition: background 0.15s var(--bsb-ease);
+
+            &:hover {
+                background: var(--bsb-primary-soft);
+            }
+
+            /* A dot marks the cell, so an empty grid still reads as nine choices. */
+            &::after {
+                content: '';
+                width: 4px;
+                height: 4px;
+                border-radius: 50%;
+                background: var(--bsb-line-strong);
+            }
+
+            &.is-active {
+                background: var(--bsb-primary);
+
+                &::after {
+                    background: var(--bsb-surface);
+                }
+            }
+
+            input {
+                position: absolute;
+                width: 1px;
+                height: 1px;
+                margin: 0;
+                opacity: 0;
+                pointer-events: none;
+            }
+
+            &:focus-within {
+                box-shadow: var(--bsb-ring);
             }
         }
     }
 
-    &:hover .overlyButton {
-        opacity: 1;
-        transition: 0.3s;
+    /**
+     * The field style presets, as a sample of each.
+     *
+     * Every sample sits on the same dark tile, because that is the background these presets are
+     * built for — drawn on the sidebar's white they would all look like plain text, and the pale
+     * ones like nothing at all. Two rows of sample text so `rows`, whose difference is in how
+     * fields sit together rather than in the fill, has something to show.
+     *
+     * The samples are styled here rather than by borrowing style.scss's own rules: those hang off
+     * `.wp-block-bsb-slider` and position the group absolutely inside a slide, neither of which
+     * this picker can give them.
+     */
+    .bsb_preset_picker {
+        display: grid;
+
+        /* Two across, not three. At a third of a 280px sidebar the sample is 80px wide and the
+           difference between a filled pill, an outlined one and a pale one is lost — which leaves
+           six tiles that all look the same and a name to read, the select this replaced. */
+        grid-template-columns: repeat(2, 1fr);
+        gap: 6px;
+
+        .bsb_preset {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            padding: 4px;
+            border: 1px solid var(--bsb-line-strong);
+            border-radius: var(--bsb-radius-sm);
+            background: var(--bsb-surface);
+            cursor: pointer;
+            transition: border-color 0.15s var(--bsb-ease), box-shadow 0.15s var(--bsb-ease);
+
+            &:hover {
+                border-color: var(--bsb-primary-line);
+            }
+
+            &.is-active {
+                border-color: var(--bsb-primary);
+                box-shadow: 0 0 0 1px var(--bsb-primary);
+            }
+
+            &:focus-within {
+                box-shadow: var(--bsb-ring);
+            }
+
+            input {
+                position: absolute;
+                width: 1px;
+                height: 1px;
+                margin: 0;
+                opacity: 0;
+                pointer-events: none;
+            }
+        }
+
+        .bsb_preset_name {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--bsb-muted);
+            line-height: 1;
+        }
+
+        .bsb_preset {
+            &.is-active .bsb_preset_name {
+                color: var(--bsb-primary);
+            }
+        }
+
+        /* The tile. The samples inside are the presets, at the size the tile allows. */
+        .bsb_preset_sample {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: flex-end;
+            gap: 3px;
+            width: 100%;
+            height: 46px;
+            padding: 5px;
+            border-radius: 3px;
+            background: linear-gradient(135deg, #6b7280, #374151);
+            font-size: 9px;
+            line-height: 1;
+
+            > span {
+                padding: 2px 5px;
+                border-radius: 999px;
+                background: rgba(0, 0, 0, 0.65);
+                color: #fff;
+            }
+
+            /**
+             * Following the set, in a field's own picker. It cannot show a look — which look it is
+             * depends on the set — so it shows none, and says so by drawing the sample text as the
+             * placeholder it is rather than as a field.
+             */
+            &--default > span {
+                background: none;
+                padding: 1px 0;
+                color: rgba(255, 255, 255, 0.55);
+                font-style: italic;
+            }
+
+            /* Each preset's own look, kept in the same order as style.scss so the two read together. */
+            /* One panel holding both fields, which is the whole point of this preset. */
+            &--rows {
+                gap: 0;
+                align-items: stretch;
+
+                > span {
+                    padding: 2px 5px;
+                    border-radius: 0;
+                    background: rgba(0, 0, 0, 0.6);
+                }
+
+                > span:first-child {
+                    border-radius: 4px 4px 0 0;
+                    padding-top: 4px;
+                }
+
+                > span:last-child {
+                    border-radius: 0 0 4px 4px;
+                    padding-bottom: 4px;
+                }
+            }
+
+            &--card > span {
+                background: rgba(255, 255, 255, 0.94);
+                color: #1c1c1c;
+                border-radius: 4px;
+            }
+
+            &--outline > span {
+                background: rgba(0, 0, 0, 0.18);
+                border: 1px solid rgba(255, 255, 255, 0.8);
+                padding: 1px 4px;
+            }
+
+            &--plain > span {
+                background: none;
+                padding: 1px 0;
+                font-weight: 700;
+                text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
+            }
+
+            &--ribbon > span {
+                border-left: 3px solid #186cf5;
+                border-radius: 0 4px 4px 0;
+                background: rgba(0, 0, 0, 0.72);
+            }
+        }
+    }
+
+    /* Two nudges on one row: they are a pair, and the panel is too narrow to stack everything. */
+    .bsb_acf_offsets {
+        display: flex;
+        gap: 8px;
+
+        .components-base-control {
+            flex: 1 1 0;
+            min-width: 0;
+        }
+    }
+
+    /**
+     * The per-item exceptions inside a field's panel.
+     *
+     * The query can return dozens of posts, so the list scrolls instead of burying everything below
+     * it. One select per row now that the list belongs to a single field, so the post title gets
+     * the room it needs and the select only has to fit `Default — Featured`.
+     */
+    .bsb_acf_overrides {
+
+        .bsb_acf_override_list {
+            max-height: 260px;
+            overflow-y: auto;
+            border: 1px solid var(--bsb-line);
+            border-radius: var(--bsb-radius);
+            background: var(--bsb-surface);
+        }
+
+        .bsb_acf_override_row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 8px;
+
+            + .bsb_acf_override_row {
+                border-top: 1px solid var(--bsb-line);
+            }
+        }
+
+        .bsb_acf_override_title {
+            flex: 1 1 auto;
+            min-width: 0;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            font-size: 11px;
+            color: var(--bsb-text);
+        }
+
+        .bsb_acf_override_row .components-base-control {
+            flex: 0 0 108px;
+            width: 108px;
+        }
+
+        .bsb_acf_override_row select {
+            min-height: 26px;
+            font-size: 11px;
+        }
+    }
+
+    /**
+     * One gap for the whole ACF area, inside the panels and between them.
+     *
+     * The blocks here come from three components that each used to space themselves — an `mt20` on
+     * the settings wrapper, an `mb15` under the display style, an `mt10` on every slot select — so
+     * every seam in the sidebar was a different size. The value is stated once, below.
+     *
+     * It has to be a flex `gap` and not a margin: `.bPlPanelBody` carries `margin-top: 0 !important`
+     * from bpl-tools, and the panels now take that class for their open state colour.
+     */
+    $acf-gap: 12px;
+
+    .bsb_acf_sections,
+    .bsb_acf_field_settings {
+        display: flex;
+        flex-direction: column;
+        gap: $acf-gap;
+    }
+
+    /* Only the outer one takes a margin, to clear the field picker above it. The inner one is a flex
+       item of the outer, so a margin there would land on top of the gap and make that seam double. */
+    .bsb_acf_sections {
+        margin-top: $acf-gap;
+    }
+
+    /**
+     * The ACF sections are WordPress `PanelBody`s nested inside this one, left to look like every
+     * other panel in the sidebar — no padding, type or arrow of our own.
+     *
+     * The rules below are not panel styling. `.bPlPanelBody` zeroes the margin every control ships
+     * with, because fields there are spaced by their own `mb*` wrapper; the controls in these panels
+     * have no such wrapper, so the gap has to come back — at the same size as the gap outside. And
+     * SelectControl leaves the `select` to size itself, which otherwise leaves one field full width
+     * and the next stopping a third of the way across.
+     */
+    .bsb_acf_field_roles,
+    .bsb_acf_field_panel {
+        border-radius: var(--bsb-radius-sm);
+
+        /* The title bleeds to the panel edges on a negative margin once open, so it has to be
+           clipped for the rounded corners to survive. */
+        overflow: hidden;
+
+        /**
+         * Closed, a nested panel had only WordPress's grey hairline, which is invisible against the
+         * panel it sits inside — nothing said these rows could be opened. So it takes the same
+         * accent as the open state, just the soft end of it: at rest a tinted header inside a light
+         * blue outline, and on open bpl-tools' solid primary border and stronger fill take over.
+         */
+        &:not(.is-opened) {
+            border: 1px solid var(--bsb-primary-line);
+
+            > .components-panel__body-title {
+                background: var(--bsb-primary-soft);
+                color: var(--bsb-primary);
+            }
+        }
+
+        &.is-opened > *:not(.components-panel__body-title) {
+            margin-bottom: $acf-gap;
+
+            &:last-child {
+                margin-bottom: 0;
+            }
+        }
+
+        select,
+        input[type="text"] {
+            width: 100%;
+            background: var(--bsb-surface);
+        }
+    }
+
+    /* A hint is spaced by the gap like everything else, so its own top margin would double it. */
+    .bsb_acf_sections .bsb_field_hint,
+    .bsb_acf_sections .bsb_acf_hint {
+        margin-top: 0;
     }
 }
 
+.bsb_post_type_select {
+    .components-base-control {
+        margin-bottom: 0;
+    }
+
+    select {
+        width: 100%;
+    }
+}
+
+/* One badge definition for the whole editor; panels only adjust its placement. */
 .labelPro {
-    padding: 0px 5px;
-    border-radius: 5px;
-    color: #fff;
-    background-color: #4527a4;
+    display: inline-block;
+    padding: 1px 6px;
+    border-radius: 4px;
+    background: var(--bsb-primary);
+    color: var(--bsb-surface);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    line-height: 1.6;
 }
 
 .bsbProModal {
@@ -259,70 +991,92 @@ svg#bsbSlider {
 
     .proList {
 
-
         .title {
-            font-size: 17px;
-            margin: 0px 0;
-            margin-top: 0px;
-            font-weight: 600;
-            color: #333;
-            border-bottom: 2px solid #eee;
-            padding-bottom: 5px;
-            margin-top: 10px;
+            margin: 10px 0 0;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--bsb-line);
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--bsb-ink);
+            letter-spacing: -0.2px;
         }
 
         .list {
-            margin: 10px 0;
-            padding-left: 20px; // normal indent for list
+            margin: 12px 0;
+            padding-left: 0;
 
+            /* Bullets swapped for check marks: this is a feature list, not prose. */
             .feature {
-                list-style: disc; // default bullet
-                font-size: 15px;
-                font-weight: 400;
-                color: #444;
-                margin: 1px 0;
+                position: relative;
+                list-style: none;
+                margin: 0;
+                padding: 5px 0 5px 26px;
+                font-size: 13px;
+                font-weight: 500;
                 line-height: 1.6;
+                color: var(--bsb-text);
+
+                &::before {
+                    content: '';
+                    position: absolute;
+                    left: 0;
+                    top: 9px;
+                    width: 16px;
+                    height: 16px;
+                    border-radius: var(--bsb-radius-pill);
+                    background: var(--bsb-primary-soft) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23186cf5' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E") center / 10px 10px no-repeat;
+                }
             }
         }
     }
 
     .bsbProFeature {
         text-align: left;
-        margin-top: 10px;
+        margin-top: 16px;
 
         .upgradeBtn {
-            font-size: 16px;
-            font-weight: 500;
-            text-decoration: none;
+            position: relative;
+            z-index: 0;
             display: inline-flex;
             align-items: center;
             gap: 10px;
-            position: relative;
+            overflow: hidden;
             padding: 12px 28px;
             border: none;
-            border-radius: 0.5em;
+            border-radius: var(--bsb-radius);
             outline: 0;
-            z-index: 0;
+            background: var(--bsb-primary);
+            color: var(--bsb-surface);
+            font-size: 15px;
+            font-weight: 600;
+            text-decoration: none;
             cursor: pointer;
-            overflow: hidden;
-            transition: all 0.5s ease-in-out;
-            background: #146EF5;
-            color: #fff;
+            box-shadow: var(--bsb-shadow-primary);
+            transition: box-shadow 0.3s var(--bsb-ease), transform 0.3s var(--bsb-ease);
 
             &::before {
-                background: #070127;
                 content: "";
-                width: 0;
-                height: 100%;
                 position: absolute;
                 left: 0;
                 top: 0;
                 z-index: -1;
-                transition: all 0.5s ease-in-out;
+                width: 0;
+                height: 100%;
+                background: var(--bsb-ink);
+                transition: width 0.4s var(--bsb-ease);
             }
 
-            &:hover::before {
-                width: 100%;
+            &:hover {
+                transform: translateY(-1px);
+                box-shadow: var(--bsb-shadow-lg);
+
+                &::before {
+                    width: 100%;
+                }
+            }
+
+            &:focus-visible {
+                box-shadow: var(--bsb-ring);
             }
         }
 
@@ -334,84 +1088,182 @@ svg#bsbSlider {
 }
 
 .bsb_main_parent {
-    box-shadow: 0px 0px 1px 1px #146EF5;
-    border-radius: 3px;
-    padding: 15px 15px;
+    background: var(--bsb-surface);
+    border: 1.5px solid var(--bsb-line);
+    border-radius: 16px;
+    padding: 30px 24px;
+    box-shadow: var(--bsb-shadow-lg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    margin: 20px 0;
 
-    .bsb_backBtn {
-        font-size: 14px;
-        font-weight: 500;
-        padding: 3px 6px;
-        border: 1px solid #146EF5;
-        border-radius: 3px;
-        color: #146EF5;
-        background: #fff;
-        font-family: Roboto;
-        cursor: pointer;
+    .bsb_wizard_header_row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 16px;
     }
 
-    h2 {
-        margin: 0;
-        padding: 0;
-        margin-top: 5px;
-        font-size: 20px;
-        font-weight: 500;
-        color: #146EF5;
-        margin-bottom: 15px;
-        font-family: Roboto;
+    .bsb_step_badge {
+        display: inline-block;
+        background: var(--bsb-primary-soft);
+        color: var(--bsb-primary);
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        padding: 4px 12px;
+        border-radius: 20px;
+        border: 1px solid var(--bsb-primary-line);
+    }
+
+    .bsb_backBtn {
+        font-size: 13px;
+        font-weight: 600;
+        padding: 7px 14px;
+        border: 1.5px solid var(--bsb-primary);
+        border-radius: 8px;
+        color: var(--bsb-primary);
+        background: var(--bsb-surface);
+        cursor: pointer;
+        transition: all 0.2s ease;
+
+        &:hover {
+            background: var(--bsb-primary);
+            color: var(--bsb-surface);
+            border-color: var(--bsb-primary);
+            transform: translateX(-2px);
+            box-shadow: var(--bsb-shadow-primary);
+        }
+    }
+
+    .bsb_wizard_header {
+        margin-bottom: 24px;
+
+        h2 {
+            margin: 0;
+            padding: 0;
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--bsb-ink);
+            letter-spacing: -0.3px;
+        }
+
+        .bsb_wizard_subtitle {
+            margin: 6px 0 0 0;
+            font-size: 13px;
+            color: var(--bsb-muted);
+            font-weight: 400;
+        }
     }
 
     .bsb_parent_area {
-        margin-bottom: 15px;
         display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        column-gap: 20px;
+        grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+        gap: 16px;
+        margin-bottom: 10px;
 
         .single_lay {
             position: relative;
-            border: 1px solid #146EF5;
+            background: var(--bsb-surface);
+            border: 1.5px solid var(--bsb-line);
             display: flex;
             flex-direction: column;
             align-items: center;
-            border-radius: 3px;
-            padding: 10px;
+            border-radius: 14px;
+            padding: 22px 14px;
             cursor: pointer;
+            transition: all 0.25s var(--bsb-ease);
+            box-shadow: var(--bsb-shadow-sm);
 
-            .title {
-                color: #146EF5;
-                font-size: 17px;
-                font-weight: 400;
-                font-weight: 500;
-                font-family: Roboto;
-                text-align: center;
+            .icon_wrapper {
+                width: 60px;
+                height: 60px;
+                border-radius: 14px;
+                background: var(--bsb-primary-soft);
+                border: 1px solid var(--bsb-primary-line);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin-bottom: 14px;
+                transition: all 0.25s ease;
+
+                .icon svg {
+                    fill: var(--bsb-primary);
+                    width: 28px;
+                    height: 28px;
+                    transition: all 0.25s ease;
+                }
             }
 
-            .icon {
+            .title {
+                color: var(--bsb-ink);
+                font-size: 14px;
+                font-weight: 600;
+                text-align: center;
+                margin-bottom: 4px;
+                transition: color 0.2s ease;
+            }
 
-                svg {
-                    fill: #146EF5;
+            .desc {
+                color: var(--bsb-muted);
+                font-size: 11px;
+                text-align: center;
+                line-height: 1.35;
+                font-weight: 400;
+                margin-bottom: 12px;
+            }
+
+            .bsb_card_hover_btn {
+                margin-top: auto;
+                font-size: 11px;
+                font-weight: 700;
+                color: var(--bsb-primary);
+                opacity: 0.8;
+                transition: all 0.2s ease;
+            }
+
+            &:hover {
+                transform: translateY(-4px);
+                border-color: var(--bsb-primary);
+                box-shadow: var(--bsb-shadow-lg);
+
+                .icon_wrapper {
+                    background: var(--bsb-primary);
+                    border-color: var(--bsb-primary);
+
+                    .icon svg {
+                        fill: var(--bsb-surface);
+                        transform: scale(1.08);
+                    }
+                }
+
+                .title {
+                    color: var(--bsb-primary);
+                }
+
+                .bsb_card_hover_btn {
+                    opacity: 1;
+                    color: var(--bsb-accent);
+                    transform: translateX(2px);
                 }
             }
 
             .pro {
                 position: absolute;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
+                top: 10px;
+                right: 10px;
 
                 p {
                     margin: 0;
-                    font-size: 12px;
-                    font-weight: 500;
-                    background: #000;
-                    padding: 1px 10px;
-                    color: #fff;
-                    border-radius: 14px;
-
+                    font-size: 10px;
+                    font-weight: 700;
+                    background: var(--bsb-accent);
+                    padding: 2px 8px;
+                    color: var(--bsb-surface);
+                    border-radius: 12px;
+                    text-transform: uppercase;
+                    letter-spacing: 0.5px;
+                    box-shadow: 0 2px 6px rgba(255, 122, 0, 0.3);
                 }
             }
         }
@@ -421,12 +1273,31 @@ svg#bsbSlider {
 
 .bsbNotice {
     display: flex;
+    align-items: flex-start;
+    gap: 8px;
     margin-bottom: 10px;
+    padding: 10px 12px;
+    border: 1px solid var(--bsb-primary-line);
+    border-radius: var(--bsb-radius);
+    background: var(--bsb-primary-soft);
 
-    .icon {}
+    .icon {
+        flex: 0 0 auto;
+        display: flex;
+        align-items: center;
+        line-height: 0;
+
+        svg {
+            width: 16px;
+            height: 16px;
+            fill: var(--bsb-primary);
+        }
+    }
 
     p {
-        margin-bottom: 0px;
-        font-size: 13px;
+        margin: 0;
+        font-size: 12px;
+        line-height: 1.55;
+        color: var(--bsb-text);
     }
 }

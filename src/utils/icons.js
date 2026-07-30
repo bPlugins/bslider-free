@@ -1,5 +1,20 @@
 
 
+/**
+ * The empty slider drawn for a query that returned nothing.
+ *
+ * A slide frame with the two neighbours a carousel would have shown beside it, faded back. Stroked
+ * in `currentColor` so the surrounding text colour carries it — the block lands in themes whose
+ * background it cannot know.
+ */
+export const emptySliderIcon = <svg xmlns="http://www.w3.org/2000/svg" width="52" height="52" viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">
+	<rect x="2.5" y="15" width="6" height="18" rx="2" opacity="0.4" />
+	<rect x="39.5" y="15" width="6" height="18" rx="2" opacity="0.4" />
+	<rect x="12.5" y="9.5" width="23" height="29" rx="3.5" />
+	<circle cx="19.5" cy="19" r="2.25" />
+	<path d="M14 32.5 20.5 26l4.5 4.5 3.5-3 5.5 5" />
+</svg>;
+
 export const noticeIcon = <svg xmlns="http://www.w3.org/2000/svg" fill="#000000" width="20px" height="20px" viewBox="0 0 36 36">
 	<path d="M18,21.32a1.3,1.3,0,0,0,1.3-1.3V14a1.3,1.3,0,1,0-2.6,0v6A1.3,1.3,0,0,0,18,21.32Z"></path><circle cx="17.95" cy="24.27" r="1.5"></circle><path d="M30.33,25.54,20.59,7.6a3,3,0,0,0-5.27,0L5.57,25.54A3,3,0,0,0,8.21,30H27.69a3,3,0,0,0,2.64-4.43Zm-1.78,1.94a1,1,0,0,1-.86.49H8.21a1,1,0,0,1-.88-1.48L17.07,8.55a1,1,0,0,1,1.76,0l9.74,17.94A1,1,0,0,1,28.55,27.48Z"></path>
 	<rect x="0" y="0" width="36" height="36" fillOpacity="0" /></svg>;

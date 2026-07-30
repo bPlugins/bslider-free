@@ -2,6 +2,7 @@ import { createElement } from 'react';
 import { useState, useEffect } from 'react';
 import useAjaxPosts from '../../hooks/useAjaxPosts';
 import Excerpt from '../Common/Layouts/grid/Excerpt';
+import AcfFields, { resolveSlideImage, resolveButtonLink, resolveButtonText, resolveTitle } from '../Common/single-item/AcfFields';
 import Pagination from '../Common/Layouts/grid/Pagination/Pagination';
 
 const PostsGridFront = ({ attributes, firstPosts, totalPosts, nonce }) => {
@@ -12,8 +13,8 @@ const PostsGridFront = ({ attributes, firstPosts, totalPosts, nonce }) => {
 
     const { posts: ajaxPosts, isLoading: isAPLoading } = useAjaxPosts(nonce, attributes, pageNumber);
 
-    const { text } = button;
-    const btnLabel = text;
+    // Older blocks have no `isVisible` key, so only an explicit `false` hides the button.
+    const btnLabel = button?.isVisible !== false ? button?.text : '';
 
     const { desktop, tablet, mobile } = columns;
     const dpPosts = (Array.isArray(posts) && posts?.length) ? posts : [];
@@ -33,10 +34,14 @@ const PostsGridFront = ({ attributes, firstPosts, totalPosts, nonce }) => {
         <div className={`grid bsbCarousel columns-${desktop} columns-tablet-${tablet} columns-mobile-${mobile}`}>
             {
                 shownPosts?.map((post, index) => {
-                    const { thumbnail, title: postTitle, link } = post;
+                    const { thumbnail } = post;
+                    const postTitle = resolveTitle(post, attributes);
+                    const slideImg = resolveSlideImage(post, attributes, thumbnail);
+                    // Resolved per post, since an ACF field gives each one its own label.
+                    const itemBtnLabel = btnLabel ? resolveButtonText(post, attributes, btnLabel) : '';
                     return <div key={index} className={`item ${index === 0 ? 'active' : ''} `}>
                         <div className="img">
-                            {thumbnail?.url && <> <img src={thumbnail.url} className="d-block w-100 " /></>}
+                            {slideImg?.url && <> <img src={slideImg.url} className="d-block w-100 " /></>}
                         </div>
 
                         <div className={'content-area'}>
@@ -47,13 +52,16 @@ const PostsGridFront = ({ attributes, firstPosts, totalPosts, nonce }) => {
 
                                 <Excerpt attributes={attributes} post={post} />
 
-                                {btnLabel && <>
+                                {itemBtnLabel && <>
                                     <div className={`carousel-button`}>
-                                        <a href={link} rel="noreferrer" dangerouslySetInnerHTML={{ __html: btnLabel }} />
+                                        <a href={resolveButtonLink(post, attributes)} rel="noreferrer" dangerouslySetInnerHTML={{ __html: itemBtnLabel }} />
                                     </div>
                                 </>}
                             </div>
                         </div>
+
+                        {/* Last, so the ACF layer paints over the image and caption. */}
+                        <AcfFields post={post} attributes={attributes} />
                     </div>
                 })
             }

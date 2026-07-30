@@ -15,21 +15,20 @@ const Grid = ({ attributes, commonDeProps }) => {
     const [items, setItems] = useState([]);
 
     const [currentPage, setCurrentPage] = useState(1);
-    const [visibleCount, setVisibleCount] = useState(parseInt(per_page));
+    const [visibleCount, setVisibleCount] = useState(parseInt(per_page) > 0 ? parseInt(per_page) : 0);
     const [loading, setLoading] = useState(false);
 
     const videoRefs = useRef([]);
     const hiddenVideoRefs = useRef([]);
-    const perPage = parseInt(per_page);
+    // `-1` (or anything below 1) means show every item, so the page size becomes the full set.
+    const perPage = parseInt(per_page) > 0 ? parseInt(per_page) : (items?.length || 0);
 
     useEffect(() => {
         setItems(sliders);
     }, [sliders]);
 
     useEffect(() => {
-        if (paginationType === 'loadMore') {
-            setVisibleCount(perPage);
-        }
+        setVisibleCount(perPage);
     }, [perPage, paginationType, items?.length]);
 
     const paginatedItems = () => {
@@ -38,7 +37,7 @@ const Grid = ({ attributes, commonDeProps }) => {
             return items?.slice(start, start + perPage);
 
         } else {
-            return items?.slice(0, visibleCount);
+            return items?.slice(0, visibleCount > 0 ? visibleCount : perPage);
         }
     };
 
@@ -51,7 +50,7 @@ const Grid = ({ attributes, commonDeProps }) => {
         bsb_lightbox_config(clientId, attributes);
     }, [clientId, videoConf]);
 
-    const totalPages = Math.ceil(items?.length / perPage);
+    const totalPages = perPage > 0 ? Math.ceil(items?.length / perPage) : 1;
 
     // Load More
     const handleLoadMore = () => {

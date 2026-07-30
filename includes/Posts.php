@@ -52,7 +52,78 @@ if(!class_exists( __NAMESPACE__ . '\Posts' )){
             return apply_filters( 'b_slider_posts_excerpt_filter', $plainText, $content );
         }
 
-        static function arrangedPosts( $posts, $post_type='post', $fImgSize = 'full', $metaDateFormat = 'M j, Y', $isExcerptFromContent=true, $excerptLength = 25 ) {
+        /** Query keys naming an ACF field that fills one of the item's built-in slots. */
+        const ACF_ROLE_KEYS = [ 'imageField', 'buttonTextField', 'buttonLinkField', 'titleField', 'descField' ];
+
+        /**
+         * How many picked fields a slider displays. Mirrored in AcfFields.js as
+         * `FREE_ACF_FIELD_LIMIT`, which is what the editor caps its own preview by.
+         *
+         * The cap covers the picker only. Fields assigned to the image, title, description or
+         * button slot are a separate setting and are not counted against it.
+         */
+        const FREE_ACF_FIELD_LIMIT = 3;
+
+        /**
+         * The ACF fields to pull for each post: the ones picked for display, plus any field
+         * assigned to the image, title, description or button slot.
+         *
+         * Slot fields are fetched even when they are not on display, otherwise the user would
+         * have to also list them under "Select ACF Fields" just to make the slot resolve — and
+         * image fields are never listed there at all.
+         *
+         * This is where the limit is enforced for real: every path that renders a slider comes
+         * through here, so a selection carried over from Pro — or written straight into the block
+         * markup — still comes back trimmed. The editor applies the same cap, but only so the
+         * preview agrees with the site; it is not what holds the line.
+         */
+        static function acfFieldsToFetch( $postsQuery = [] ) {
+            $fields = $postsQuery['selectedAcfFields'] ?? [];
+            $fields = is_array( $fields ) ? array_values( $fields ) : [];
+            $fields = array_slice( $fields, 0, self::FREE_ACF_FIELD_LIMIT );
+
+            foreach ( self::ACF_ROLE_KEYS as $key ) {
+                $name = trim( (string) ( $postsQuery[ $key ] ?? '' ) );
+
+                if ( '' !== $name && ! in_array( $name, $fields, true ) ) {
+                    $fields[] = $name;
+                }
+            }
+
+            return $fields;
+        }
+
+        /**
+         * The IDs among `$terms` that really are terms of `$taxonomy` on `$post_type`.
+         *
+         * `selectedCategories` and `selectedTags` are one pair of keys shared by every post type, so
+         * a slider moved from Posts over to products or a CPT still carries whatever was picked for
+         * the old one. Those IDs belong to `category` and `post_tag`: a `tax_query` built from them
+         * matches nothing, and naming a taxonomy the post type does not even have makes WP_Query
+         * put `0 = 1` in the SQL and return no rows at all. Either way a slider that worked before
+         * an update would come back empty, so terms that cannot apply are dropped and the filter
+         * disappears with them.
+         *
+         * An unknown post type filters by nothing, which is what this query has always done for a
+         * slider saved without one.
+         */
+        static function termsOfTaxonomy( $terms, $taxonomy, $post_type ) {
+            if ( empty( $terms ) || ! is_array( $terms ) || ! taxonomy_exists( $taxonomy ) ) {
+                return [];
+            }
+
+            if ( ! $post_type || ! is_object_in_taxonomy( $post_type, $taxonomy ) ) {
+                return [];
+            }
+
+            return array_values( array_filter( array_map( 'intval', $terms ), function( $id ) use ( $taxonomy ) {
+                $term = get_term( $id );
+
+                return $term && ! is_wp_error( $term ) && $taxonomy === $term->taxonomy;
+            } ) );
+        }
+
+        static function arrangedPosts( $posts, $post_type='post', $fImgSize = 'full', $metaDateFormat = 'M j, Y', $isExcerptFromContent=true, $excerptLength = 25, $selectedAcfFields = [] ) {
         
             $arranged = [];
             $excerptLength = (int) $excerptLength;
@@ -114,6 +185,9 @@ if(!class_exists( __NAMESPACE__ . '\Posts' )){
                         'space' => get_the_category_list( ' ', '', $id )
                     ],
                     'taxonomies' => $taxonomies,
+                    'acf_fields' => class_exists( __NAMESPACE__ . '\AcfFields' )
+                        ? AcfFields::get_fields_for_post( $selectedAcfFields, $id )
+                        : [],
                     'readTime' => [
                         'min' => floor( $contentWords / 200 ),
                         'sec' => floor( $contentWords % 200 / ( 200 / 60 ) )
@@ -127,13 +201,16 @@ if(!class_exists( __NAMESPACE__ . '\Posts' )){
 
         static function query( $attributes ){
             $postsQuery           = $attributes['postsQuery'] ?? [];
-            $post_type            = $attributes['post_type'] ?? 'post';
-            $per_page             = $attributes['per_page'] ?? 10;
-            $orderby              = $attributes['orderby'] ?? 'date';
-            $order                = $attributes['order'] ?? 'DESC';
-            $offset               = $attributes['offset'] ?? 0;
-            $isExcludeCurrent     = $attributes['isExcludeCurrent'] ?? false;
-            $include              = $attributes['include'] ?? [];
+            // Every post query setting lives inside the `postsQuery` object attribute,
+            // the top level keys are only kept as a fallback for older saved blocks.
+            $post_type            = $postsQuery['post_type'] ?? $attributes['post_type'] ?? 'post';
+            $per_page             = (int) ( $postsQuery['per_page'] ?? $attributes['per_page'] ?? 10 );
+            $orderby              = $postsQuery['orderby'] ?? $attributes['orderby'] ?? 'date';
+            $order                = $postsQuery['order'] ?? $attributes['order'] ?? 'DESC';
+            $offset               = (int) ( $postsQuery['offset'] ?? $attributes['offset'] ?? 0 );
+            $isExcludeCurrent     = $postsQuery['isExcludeCurrent'] ?? $attributes['isExcludeCurrent'] ?? false;
+            $isExcludeCurrent     = filter_var( $isExcludeCurrent, FILTER_VALIDATE_BOOLEAN );
+            $include              = $postsQuery['include'] ?? $attributes['include'] ?? [];
 
             $selectedTaxonomies   = $postsQuery['selectedTaxonomies'] ?? [];
             $selectedCategories   = $postsQuery['selectedCategories'] ?? [];
@@ -149,10 +226,33 @@ if(!class_exists( __NAMESPACE__ . '\Posts' )){
                 }
             }
 
-            $defaultPostQuery = 'post' === $post_type ? [
-                'category__in'	=> $selectedCategories,
-                'tag__in'		=> $postsQuery['selectedTags'] ?? []
-            ] : [];
+            $defaultPostQuery = [];
+            if ( 'post' === $post_type ) {
+                $defaultPostQuery = [
+                    'category__in'	=> $selectedCategories,
+                    'tag__in'		=> $postsQuery['selectedTags'] ?? []
+                ];
+            } else {
+                // Products and custom post types keep their terms in the same two keys, so they go
+                // through `tax_query` against whichever taxonomy the post type actually uses.
+                $taxFilters = [
+                    ( 'product' === $post_type ? 'product_cat' : 'category' ) => $selectedCategories,
+                    ( 'product' === $post_type ? 'product_tag' : 'post_tag' ) => $postsQuery['selectedTags'] ?? []
+                ];
+
+                foreach ( $taxFilters as $taxonomy => $terms ) {
+                    $terms = self::termsOfTaxonomy( $terms, $taxonomy, $post_type );
+
+                    if ( ! empty( $terms ) ) {
+                        // `$termsQuery` already opens with `relation => AND`, so appending is enough.
+                        $termsQuery[] = [
+                            'taxonomy' => $taxonomy,
+                            'field'    => 'term_id',
+                            'terms'    => $terms,
+                        ];
+                    }
+                }
+            }
 
             $postsInclude = self::filterNaN( $include ?? [] );
             $post__in = !empty( $postsInclude ) ? [ 'post__in' => $postsInclude ] : [];
@@ -172,21 +272,34 @@ if(!class_exists( __NAMESPACE__ . '\Posts' )){
                 'post_status'		=> 'publish'
             ], $post__in, $defaultPostQuery );
 
+            // `-1` means show all posts. WP_Query ignores `offset` while `nopaging` is on.
+            if ( $per_page < 0 ) {
+                $query['posts_per_page'] = -1;
+                $query['nopaging']       = true;
+                unset( $query['offset'] );
+            }
+
             return $query;
         }
 
         static function getPosts( $attributes = [], $pageNumber = 1 ){
             $postsQuery           = $attributes['postsQuery'] ?? [];
-            $post_type            = $attributes['post_type'] ?? 'post';
-            $per_page             = $postsQuery['per_page'] ?? $attributes['per_page'] ?? 10;
-            $offset               = $postsQuery['offset'] ?? $attributes['offset'] ?? 0;
+            $post_type            = $postsQuery['post_type'] ?? $attributes['post_type'] ?? 'post';
+            $per_page             = (int) ( $postsQuery['per_page'] ?? $attributes['per_page'] ?? 10 );
+            $offset               = (int) ( $postsQuery['offset'] ?? $attributes['offset'] ?? 0 );
             $fImgSize             = $postsQuery['fImgSize'] ?? $attributes['fImgSize'] ?? 'full';
             $metaDateFormat       = $postsQuery['metaDateFormat'] ?? $attributes['metaDateFormat'] ?? 'M j, Y';
             $isExcerptFromContent = $postsQuery['isExcerptFromContent'] ?? $attributes['isExcerptFromContent'] ?? true;
             $excerptLength        = $postsQuery['excerptLength'] ?? $attributes['excerptLength'] ?? 25;
             $isExcludeCurrent     = $postsQuery['isExcludeCurrent'] ?? $attributes['isExcludeCurrent'] ?? false;
             $isExcludeCurrent     = $isExcludeCurrent || 'true' === $isExcludeCurrent;
-            $newArgs = wp_parse_args( [ 'offset' => ( $per_page * ( $pageNumber - 1 ) ) + $offset ], self::query( $attributes ) );
+            $newArgs = self::query( $attributes );
+
+            // Paging only makes sense with a positive per page value, `-1` returns every post.
+            if ( $per_page > 0 ) {
+                $newArgs['offset'] = ( $per_page * ( $pageNumber - 1 ) ) + $offset;
+            }
+
             $posts = self::arrangedPosts(
                 get_posts( $newArgs ),
                 $post_type,
@@ -194,7 +307,8 @@ if(!class_exists( __NAMESPACE__ . '\Posts' )){
                 $metaDateFormat,
                 // $isExcerptFromContent || 'true' === $isExcerptFromContent,
                 $isExcerptFromContent,
-                $excerptLength
+                $excerptLength,
+                self::acfFieldsToFetch( $postsQuery )
             );
 
 

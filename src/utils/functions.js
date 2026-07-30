@@ -1,11 +1,54 @@
 
+import { produce } from 'immer';
+
 const $ = jQuery;
 
 export const adminUrl = () => {
     return window.location.origin + '/wp-admin/edit.php?post_type=bsb&page=b-slider#/pricing';
 }
 
+/** Where every `Premium` card sends people to see the feature working. */
+export const DEMO_URL = 'https://bplugins.com/products/b-slider/#demos';
+
 export const getBoxValue = object => Object.values(object).join(" ");
+
+/** Sources that draw their slides from a query rather than from the `Slides` panel. */
+export const isPostSource = sourceType => 'posts' === sourceType || 'woo' === sourceType;
+
+/** The plain one-slide-at-a-time slider — everything the grid, carousel and thumbnails layouts are not. */
+export const isDefaultLayout = layoutType => !['carousel', 'grid', 'thumbnails'].includes(layoutType);
+
+/**
+ * The post type a slider queries and the taxonomies that go with it.
+ *
+ * `post_type` is what the query really runs against; `sourceType` only says whether the result is
+ * rendered as products or as posts, and a slider saved before the post type dropdown existed has
+ * nothing but that. Products keep their terms in `product_cat`/`product_tag`, so the pair has to
+ * follow the post type rather than the source tile.
+ */
+export const postTypeTaxonomies = (postType, sourceType) => {
+    const targetPostType = postType || ('woo' === sourceType ? 'product' : 'post');
+
+    return {
+        targetPostType,
+        catTaxSlug: 'product' === targetPostType ? 'product_cat' : 'category',
+        tagTaxSlug: 'product' === targetPostType ? 'product_tag' : 'post_tag',
+    };
+};
+
+/**
+ * One item of an attribute array with a single key replaced, leaving the rest untouched.
+ *
+ * `childType` reaches one level further in, for the items that keep a value inside an object of
+ * their own.
+ */
+export const updateArrayItem = (list, index, type, val, childType = false) => produce(list, draft => {
+    if (childType) {
+        draft[index][type][childType] = val;
+    } else {
+        draft[index][type] = val;
+    }
+});
 
 
 export const strToIntArr = str => str?.trim().split(',').map(id => id ? parseInt(id) : id);

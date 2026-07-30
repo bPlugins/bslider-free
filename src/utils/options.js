@@ -52,6 +52,24 @@ export const sourceTypeOpt = [
     { label: 'Video', value: 'video', icon: video(24, 24) }
 ]
 
+/**
+ * The Plyr control buttons the free build can toggle, in the order they are shown.
+ *
+ * Keyed by the name Plyr itself uses, which is also the key stored in `videoConf.controls` — the
+ * hyphenated ones are why the panel used to write each toggle out by hand.
+ */
+export const videoControlOpt = [
+    { key: 'play-large', label: __('Play Large', 'b-slider') },
+    { key: 'restart', label: __('Restart', 'b-slider') },
+    { key: 'rewind', label: __('Rewind', 'b-slider') },
+    { key: 'play', label: __('Play', 'b-slider') },
+    { key: 'fast-forward', label: __('Fast Forward', 'b-slider') },
+    { key: 'progress', label: __('Progress', 'b-slider') },
+    { key: 'current-time', label: __('Current Time', 'b-slider') },
+    { key: 'duration', label: __('Duration', 'b-slider') },
+    { key: 'mute', label: __('Mute', 'b-slider') },
+];
+
 export const thumbnailsPositionOpt = [
     { label: __('Bottom', 'b-slider'), value: 'bottom' },
     { label: __('Top', 'b-slider'), value: 'top' },

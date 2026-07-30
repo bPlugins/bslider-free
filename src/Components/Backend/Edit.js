@@ -4,17 +4,23 @@ const { dateI18n } = wp.date;
 import { useBlockProps } from '@wordpress/block-editor';
 import { useEffect, useState } from '@wordpress/element';
 
-import { produce } from 'immer';
+import apiFetch from '@wordpress/api-fetch';
 import Settings from './Settings/Settings';
 
 import Style from '../Common/Style';
 import Layout from '../Common/Layouts/Layout';
 import PostsGridBack from './PostsGridBack';
-import { filterNaN, filterObject, filterPassword, wordCount } from '../../utils/functions';
+import { filterNaN, filterObject, filterPassword, filterSelected, postTypeTaxonomies, updateArrayItem, wordCount } from '../../utils/functions';
+import { allowedAcfFields, FIELD_ROLES } from '../Common/single-item/AcfFields';
 import SelectSource from './Source/SelectSource';
 import Default from '../Common/Layouts/Default';
 import ClipBoard from './ClipBoard';
 import useIframeAssetSync from '../../../../bpl-tools/hooks/useIframeAssetSync';
+// The sidebar markup leans on bpl-tools' `mt*`/`mb*` spacing classes, which live here.
+import '../../../../bpl-tools/Components/style.scss';
+
+/** The `rest_base` of the two core taxonomies, which does not match their slug. */
+const CORE_TAX_REST_BASE = { category: 'categories', post_tag: 'tags' };
 
 const Edit = (props) => {
 
@@ -29,17 +35,44 @@ const Edit = (props) => {
 	}, [attributes.grid.paginationType]);
 
 	const [carousel, setCarousel] = useState(null);
-	const { sliders, layoutType } = attributes;
+	const [acfValuesMap, setAcfValuesMap] = useState({});
+	const { sliders, layoutType, postsQuery } = attributes;
+
+	// Capped the same way Posts::acfFieldsToFetch caps it, so the preview shows what the site shows.
+	const selectedAcfFields = allowedAcfFields(postsQuery?.selectedAcfFields || [], false);
+
+	// Mirrors Posts::acfFieldsToFetch — slot fields are pulled even when not displayed. Read off
+	// FIELD_ROLES rather than written out, so a slot added there cannot be missed here.
+	const acfFieldsToFetch = Object.values(FIELD_ROLES)
+		.map(role => postsQuery?.[role.field])
+		.filter(name => name && !selectedAcfFields.includes(name))
+		.reduce((list, name) => list.includes(name) ? list : [...list, name], [...selectedAcfFields]);
+
+	/**
+	 * ACF values are resolved server-side rather than read off the REST payload: that payload
+	 * carries no field types, so formatting it here could not match what the front end prints.
+	 */
+	useEffect(() => {
+		if (acfFieldsToFetch.length > 0 && Array.isArray(posts) && posts.length > 0) {
+			apiFetch({ path: `/bsb/v1/post-acf-values?post_ids=${posts.map(p => p.id).join(',')}&fields=${acfFieldsToFetch.join(',')}` })
+				.then(res => {
+					if (res && typeof res === 'object') {
+						setAcfValuesMap(res);
+					}
+				})
+				.catch(() => { });
+		} else {
+			setAcfValuesMap({});
+		}
+	}, [JSON.stringify(acfFieldsToFetch), JSON.stringify(posts?.map(p => p.id))]);
+
+	const formattedPosts = posts?.map(p => ({
+		...p,
+		acf_fields: (acfValuesMap && acfValuesMap[p.id]) ? acfValuesMap[p.id] : p.acf_fields
+	}));
 
 	const updateSlider = (type, index, val, childType = false) => {
-		const newSlider = produce(sliders, draft => {
-			if (childType) {
-				draft[index][type][childType] = val;
-			} else {
-				draft[index][type] = val;
-			}
-		});
-		setAttributes({ sliders: newSlider });
+		setAttributes({ sliders: updateArrayItem(sliders, index, type, val, childType) });
 	}
 
 	//  Add Slider
@@ -101,10 +134,10 @@ const Edit = (props) => {
 	}, [activeIndex]);
 
 	const commonDeProps = { clientId, activeIndex, carousel, setCarousel, updateSlider, isBackEnd: true };
-	const settingsProps = { clientId, attributes, setAttributes, updateSlider, addSlider, removeSlider, duplicateSlider, activeIndex, setActiveIndex, allCategories, multipleAttrChange, updateObject };
+	const settingsProps = { clientId, attributes, setAttributes, updateSlider, addSlider, removeSlider, duplicateSlider, activeIndex, setActiveIndex, allCategories, multipleAttrChange, updateObject, queriedPosts: formattedPosts };
 
 	const isOld = !layoutType && sliders[0]?.img?.url !== 'https://templates.bplugins.com/wp-content/uploads/2025/02/n-39.jpg';
-	const LayoutEl = <Layout {...{ attributes, firstPosts: posts, products: posts, totalPosts, setAttributes, commonDeProps, PostsGrid: PostsGridBack, updateObject }} />;
+	const LayoutEl = <Layout {...{ attributes, firstPosts: formattedPosts, products: formattedPosts, totalPosts, setAttributes, commonDeProps, PostsGrid: PostsGridBack, updateObject }} />;
 
 	const shortcode = `[bsb-slider id=${currentPostId}]`;
 
@@ -116,13 +149,13 @@ const Edit = (props) => {
 
 					{isOld ? <>
 						<Settings {...settingsProps} />
-						<Style {...{ attributes, clientId, postsCount: posts?.length, products: posts }} />
-						<Default {...{ attributes, firstPosts: posts, commonDeProps, products: posts }} />
+						<Style {...{ attributes, clientId, postsCount: formattedPosts?.length, products: formattedPosts }} />
+						<Default {...{ attributes, firstPosts: formattedPosts, commonDeProps, products: formattedPosts }} />
 					</> : <>
 						{!layoutType ?
 							<SelectSource {...{ attributes, setAttributes, updateObject }} /> : <>
 								<Settings {...settingsProps} />
-								<Style {...{ attributes, clientId, postsCount: posts?.length, products: posts }} />
+								<Style {...{ attributes, clientId, postsCount: formattedPosts?.length, products: formattedPosts }} />
 								{LayoutEl}
 							</>}
 					</>}
@@ -154,9 +187,49 @@ export default compose(
 		const { post_type, selectedTaxonomies = {}, selectedCategories = [], selectedTags = [], per_page, orderby, order, offset, include, exclude, isExcludeCurrent, paginationCurrentPage, fImgSize = 'full', metaDateFormat = 'M j, Y' } = postsQuery;
 		const { paginationType } = grid;
 
+		const { targetPostType, catTaxSlug, tagTaxSlug } = postTypeTaxonomies(post_type, attributes.sourceType);
+
+		const allTaxonomies = getTaxonomies({ per_page: -1 });
+		const getTaxonomy = slug => getEntityRecords('taxonomy', slug, { per_page: -1 });
+
+		/**
+		 * The REST parameter a taxonomy filter goes under.
+		 *
+		 * A taxonomy answers to its `rest_base`, which for the core two is `categories` and `tags`
+		 * rather than `category` and `post_tag`. REST drops parameters it does not recognise without
+		 * complaining, so naming one wrong does not fail — it quietly returns every post, and the
+		 * editor ends up showing more than the front end does.
+		 *
+		 * The core two are also written out above, so the very first render — before the taxonomy
+		 * list has arrived — already filters instead of briefly showing everything.
+		 */
+		const restKeyOf = slug => allTaxonomies?.find(tax => tax.slug === slug)?.rest_base
+			|| CORE_TAX_REST_BASE[slug]
+			|| slug;
+
+		/**
+		 * The terms a filter is built from, mirroring Posts::termsOfTaxonomy on the front end.
+		 *
+		 * A `post` slider passes its terms straight through, the way it always has. Anything else
+		 * keeps only the terms the taxonomy really holds: `selectedCategories` and `selectedTags` are
+		 * one pair of keys shared by every post type, so a slider moved over to products or a CPT
+		 * still carries what was picked for the old one, and querying with those matches nothing. A
+		 * slider saved without a post type filters by nothing, as the front end has always done.
+		 */
+		const termsFor = (slug, selected = []) => {
+			if ('post' === post_type) {
+				return selected;
+			}
+
+			return post_type ? filterSelected(getTaxonomy(slug), selected) || [] : [];
+		};
+
 		// Query Filter
-		const catsFilter = 'post' === post_type ? { categories: selectedCategories } : {};
-		const tagsFilter = 'post' === post_type ? { tags: selectedTags } : {};
+		const catTerms = termsFor(catTaxSlug, selectedCategories);
+		const tagTerms = termsFor(tagTaxSlug, selectedTags);
+
+		const catsFilter = catTerms?.length ? { [restKeyOf(catTaxSlug)]: catTerms } : {};
+		const tagsFilter = tagTerms?.length ? { [restKeyOf(tagTaxSlug)]: tagTerms } : {};
 
 		const filterTaxonomies = Object.assign({},
 			selectedTaxonomies?.category ? { categories: selectedTaxonomies['category'] } : {},
@@ -180,16 +253,17 @@ export default compose(
 			status: 'publish'
 		}
 
-		const filteredPosts = filterPassword(getEntityRecords('postType', post_type, { ...query, per_page: -1, _embed: true }), 'false');
+		const filteredPosts = filterPassword(getEntityRecords('postType', targetPostType, { ...query, per_page: -1, _embed: true }), 'false');
 		const allPosts = Array.isArray(filteredPosts) ? filteredPosts : []
 
-		const paginationShowStart = per_page * (paginationCurrentPage - 1);
-		const paginationShowEnd = paginationShowStart + per_page;
+		// `-1` (or anything below 1) means show every post, so the page size becomes the full set.
+		const pageSize = parseInt(per_page) > 0 ? parseInt(per_page) : allPosts?.length;
+		const paginationShowStart = pageSize * (paginationCurrentPage - 1);
+		const paginationShowEnd = paginationShowStart + pageSize;
 		const paginationPosts = allPosts?.slice(paginationShowStart, paginationShowEnd);
 		const loadMorePosts = allPosts?.slice(0, paginationShowEnd)
 
 		// Arranged Posts
-		const getTaxonomy = slug => getEntityRecords('taxonomy', slug, { per_page: -1 });
 		const imageBySize = (id, size) => {
 			const media = getMedia(id);
 			const mediaUrl = media?.media_details?.sizes?.[size]?.source_url || media?.source_url;
@@ -197,7 +271,7 @@ export default compose(
 		};
 
 		const commentsById = id => getComments({ per_page: -1 })?.filter(({ post }) => id === post);
-		const taxOfPostType = getTaxonomies({ per_page: -1 })?.filter(tax => tax.types.includes(post_type) && tax.slug !== 'category')?.map(({ name, slug, rest_base }) => ({ name, slug, rest_base }));
+		const taxOfPostType = allTaxonomies?.filter(tax => tax.types.includes(post_type) && tax.slug !== 'category')?.map(({ name, slug, rest_base }) => ({ name, slug, rest_base }));
 
 		const arrangedPosts = (posts) => {
 			return posts?.map(post => {
@@ -249,7 +323,7 @@ export default compose(
 			})
 		}
 
-		const posts = per_page > 0 || 'none' !== paginationType ? ('pagination' === paginationType ? paginationPosts : loadMorePosts) : filterPassword(getEntityRecords('postType', post_type, query), 'false') || [];
+		const posts = per_page > 0 || 'none' !== paginationType ? ('pagination' === paginationType ? paginationPosts : loadMorePosts) : filterPassword(getEntityRecords('postType', targetPostType, query), 'false') || [];
 
 		return {
 			totalPosts: Array.isArray(allPosts) ? allPosts?.length : 0,

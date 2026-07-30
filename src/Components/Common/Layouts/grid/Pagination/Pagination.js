@@ -9,12 +9,20 @@ const Pagination = ({ attributes, totalCount, onChange, isLoading }) => {
     const [currentPage, setCurrentPage] = useState(1);
     const { paginationType } = grid;
 
+    // `-1` (or anything below 1) means show every post, so there is nothing left to paginate.
+    const pageSize = parseInt(per_page) > 0 ? parseInt(per_page) : (totalCount || 1);
+
     const paginationRange = usePagination({
         currentPage,
         totalCount,
-        pageSize: per_page,
+        pageSize,
         siblingCount: 1
     });
+
+    // Load More option change
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [paginationType]);
 
     if (currentPage === 0 || paginationRange?.length < 2) {
         return null;
@@ -25,11 +33,6 @@ const Pagination = ({ attributes, totalCount, onChange, isLoading }) => {
         onChange(pageNumber);
         setCurrentPage(pageNumber);
     }
-
-    // Load More option change 
-    useEffect(() => {
-        setCurrentPage(1);
-    }, [paginationType]);
 
     return paginationType === 'pagination' ? <div className={`pagination button_area`}>
         <button className={`pagination__button ${currentPage === 1 ? 'disabled' : ''}`} onClick={() => setPageNumber(currentPage - 1)}>Prev</button>
@@ -45,12 +48,12 @@ const Pagination = ({ attributes, totalCount, onChange, isLoading }) => {
         <button className={`pagination__button ${currentPage === lastPage ? 'disabled' : ''}`}
             onClick={() => setPageNumber(currentPage + 1)}
         >Next</button>
-    </div> : (paginationType === 'loadMore' && (currentPage * per_page < totalCount)) ? <div className="load-more button_area">
+    </div> : (paginationType === 'loadMore' && (currentPage * pageSize < totalCount)) ? <div className="load-more button_area">
         <button className="load_more_btn" onClick={() => setPageNumber(currentPage + 1)}>
             {isLoading ? <span className="loader" aria-label="Loading">
                 {loaderIcon}
             </span> : <>
-                Load More ({totalCount - currentPage * per_page})
+                Load More ({totalCount - currentPage * pageSize})
             </>}
         </button>
     </div> : null;

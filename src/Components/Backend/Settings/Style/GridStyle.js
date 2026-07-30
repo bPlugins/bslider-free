@@ -1,5 +1,6 @@
 import { __ } from '@wordpress/i18n';
-import { PanelBody, __experimentalBoxControl as BoxControl, __experimentalBorderControl as BorderControl } from "@wordpress/components";
+import { __experimentalBoxControl as BoxControl, __experimentalBorderControl as BorderControl } from "@wordpress/components";
+import { PanelBody } from '../../../Panel/AccordionPanel';
 import { ColorsControl, Typography } from '../../../../../../bpl-tools/Components';
 import { emUnit, pxUnit } from '../../../../utils/options';
 
@@ -10,7 +11,7 @@ const GridStyle = ({ attributes, multipleAttrChange }) => {
     const { typo, colors, hovColors, border, padding, radius } = loadMoreBtn;
 
     return (
-        paginationType !== 'none' && <PanelBody title={`${paginationType === 'pagination' ? 'Pagination' : 'Load More'} Button`} initialOpen={false}>
+        paginationType !== 'none' && <PanelBody className='bPlPanelBody' title={`${paginationType === 'pagination' ? 'Pagination' : 'Load More'} Button`} initialOpen={false}>
             <Typography className="mt20" label={__('Typography:', 'b-slider')} value={typo} onChange={(val) => multipleAttrChange('grid', 'loadMoreBtn', 'typo', val)} defaults={{ fontSize: 14 }} />
 
             <ColorsControl className='' label={__('Colors', 'b-slider')} value={colors} onChange={(val) => multipleAttrChange('grid', 'loadMoreBtn', 'colors', val)} defaults={{ color: '#fff', bg: '#ff3b5c' }} />
