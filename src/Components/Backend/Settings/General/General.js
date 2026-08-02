@@ -1,31 +1,31 @@
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { useState } from '@wordpress/element';
 import { SelectControl, TextControl, ToggleControl } from "@wordpress/components";
 import { PanelBody } from '../../../Panel/AccordionPanel';
+
 import { withSelect } from '@wordpress/data';
 import { HelpPanel, Label } from '../../../../../../bpl-tools/Components';
-import ProNotice from '../../../Panel/ProNotice';
-import { PRO_FEATURES } from '../../../../utils/pro-features';
+
 
 import MainItem from '../MainItem';
+import ProPostTypesPromo from '../../ProPostTypesPromo';
+import { isPostTypeLocked } from '../../../../utils/functions';
 import DefaultGeneral from './DefaultGeneral';
+import GridGeneral from '../GridGeneral';
 import ThumbnailsGeneral from './ThumbnailsGeneral';
 import { selectLayoutOpt, sourceTypeOpt } from '../../../../utils/options';
 import PostQuery from './Post-query';
 import AcfConfigure from './AcfConfigure';
 import VideoGeneral from './VideoGeneral';
-import GridGeneral from '../GridGeneral';
-import { AdvertiseCard } from '../../../../../../bpl-tools/ProControls';
-import { adminUrl, isPostSource as isQueriedSource } from '../../../../utils/functions';
 
-const General = ({ attributes, setAttributes, activeIndex, setActiveIndex, updateObject, multipleAttrChange, getTaxonomy, postTypes, queriedPosts }) => {
+const General = ({ attributes, setAttributes, activeIndex, setActiveIndex, updateObject, multipleAttrChange, getTaxonomy, premiumProps, postTypes, queriedPosts }) => {
 
     const [device, setDevice] = useState('desktop');
     const [gapDevice, setGapDevice] = useState('desktop');
     const { layoutType, sourceType, button, postsQuery } = attributes;
-    const itemsProps = { attributes, setAttributes, arrKey: 'sliders', activeIndex, setActiveIndex };
+    const itemsProps = { attributes, setAttributes, arrKey: 'sliders', activeIndex, setActiveIndex, premiumProps };
 
-    const isPostSource = isQueriedSource(sourceType);
+    const isPostSource = sourceType === 'posts' || sourceType === 'woo';
     const currentPostType = postsQuery?.post_type || (sourceType === 'woo' ? 'product' : 'post');
 
     const handleSourceSelect = (val) => {
@@ -45,17 +45,38 @@ const General = ({ attributes, setAttributes, activeIndex, setActiveIndex, updat
     // The dropdown drives both attributes: `post_type` is the real query target, while
     // `sourceType` only distinguishes WooCommerce rendering from plain post rendering.
     const handlePostTypeSelect = (val) => {
+        if (postTypes?.find(pt => pt.value === val)?.locked) {
+            return;
+        }
+
         updateObject('postsQuery', 'post_type', val);
         setAttributes({ sourceType: val === 'product' ? 'woo' : 'posts' });
     };
 
-    const commonProps = { attributes, setAttributes, updateObject };
+    // Custom post types are hidden from the dropdown in the free version; the promo component
+    // below tells the user they exist and how to unlock them.
+    const lockedPostTypes = postTypes?.filter(pt => pt.locked) || [];
+    const postTypeOptions = postTypes
+        ?.filter(pt => !pt.locked)
+        ?.map(({ label, value }) => ({ value, label }));
+
+    // If the saved post type is locked (e.g. Pro licence lapsed), the dropdown has no
+    // matching option. Fall back to 'post' so the control renders correctly.
+    const isCurrentLocked = lockedPostTypes.some(pt => pt.value === currentPostType);
+    const dropdownValue = isCurrentLocked ? 'post' : currentPostType;
+
+    const commonProps = {
+        attributes,
+        setAttributes,
+        premiumProps,
+        updateObject
+    }
 
     return <>
         <HelpPanel slug="b-slider" docsLink="https://bplugins.com/docs/b-slider" />
 
-        <PanelBody className='bPlPanelBody bsb_panel_source_layout' title={__('Source & Layout', 'b-slider')} initialOpen={true}>
-            <Label className="mt10 mb5">{__('Source Type', 'b-slider')}</Label>
+        <PanelBody className='bPlPanelBody bsb_panel_source_layout' title={__('Source & Layout', 'slider')} initialOpen={true}>
+            <Label className="mt10 mb5">{__('Source Type', 'slider')}</Label>
             <div className="bsb_panel_grid_selector">
                 {sourceTypeOpt.map((opt) => (
                     <button
@@ -72,12 +93,20 @@ const General = ({ attributes, setAttributes, activeIndex, setActiveIndex, updat
 
             {isPostSource && postTypes?.length > 0 && (
                 <div className="bsb_post_type_select">
-                    <Label className="mt15 mb5">{__('Post Type', 'b-slider')}</Label>
-                    <SelectControl value={currentPostType} onChange={handlePostTypeSelect} options={postTypes} />
+                    <Label className="mt15 mb5">{__('Post Type', 'slider')}</Label>
+                    <SelectControl value={dropdownValue} onChange={handlePostTypeSelect} options={postTypeOptions} />
                 </div>
             )}
 
-            <Label className="mt15 mb5">{__('Select Layout', 'b-slider')}</Label>
+            {/*
+              * Not tied to the post source: an image slider is exactly where someone has yet to
+              * learn their custom post types could be sliding too. The component itself decides
+              * whether there is anything to say — it names the locked types when the site has
+              * any, and stays quiet only on a Pro licence.
+              */}
+            <ProPostTypesPromo lockedTypes={lockedPostTypes} variant="compact" />
+
+            <Label className="mt15 mb5">{__('Select Layout', 'slider')}</Label>
             <div className="bsb_panel_grid_selector">
                 {selectLayoutOpt.map((opt) => (
                     <button
@@ -93,11 +122,9 @@ const General = ({ attributes, setAttributes, activeIndex, setActiveIndex, updat
             </div>
         </PanelBody>
 
-        {!isPostSource &&
-            <PanelBody className='bPlPanelBody' title={__('Slides', 'b-slider')} initialOpen={false}>
+        {(sourceType !== "posts" && sourceType !== "woo") &&
+            <PanelBody className='bPlPanelBody' title={__('Slides', 'slider')} initialOpen={false}>
                 <MainItem itemsProps={itemsProps} />
-
-                <ProNotice features={PRO_FEATURES.slides} />
             </PanelBody>}
 
         {isPostSource && <PostQuery {...commonProps} getTaxonomy={getTaxonomy} />}
@@ -111,14 +138,12 @@ const General = ({ attributes, setAttributes, activeIndex, setActiveIndex, updat
         {layoutType === "thumbnails" && <ThumbnailsGeneral {...commonProps} multipleAttrChange={multipleAttrChange} />}
         {sourceType === "video" && <VideoGeneral {...commonProps} />}
 
-        {isPostSource && <PanelBody className='bPlPanelBody' title={__('Button', 'b-slider')} initialOpen={false}>
+        {(sourceType == "posts" || sourceType == "woo") && <PanelBody className='bPlPanelBody' title={__('Button', 'slider')} initialOpen={false}>
             {/* Older blocks have no `isVisible` key, so only an explicit `false` hides the button. */}
-            <ToggleControl label={__('Show Button', 'b-slider')} checked={button?.isVisible !== false} onChange={val => updateObject('button', 'isVisible', val)} />
+            <ToggleControl label={__('Show Button', 'slider')} checked={button?.isVisible !== false} onChange={val => updateObject('button', 'isVisible', val)} />
 
-            {button?.isVisible !== false && <TextControl label={__('Text', 'b-slider')} value={button?.text} onChange={val => updateObject('button', 'text', val)} />}
+            {button?.isVisible !== false && <TextControl label={__('Text', 'slider')} value={button?.text} onChange={val => updateObject('button', 'text', val)} />}
         </PanelBody>}
-
-        <AdvertiseCard planLink={adminUrl()} />
     </>
 }
 
@@ -133,9 +158,7 @@ export default withSelect((select, { attributes }) => {
     return {
         device: getDeviceType()?.toLowerCase(),
 
-        // `bsb` is the plugin's own slider post type — querying sliders inside a slider is not a
-        // content source anyone means to pick.
-        postTypes: getPostTypes({ per_page: -1 })?.filter(p => !['apb', 'attachment', 'nav_menu_item', 'bsb'].includes(p.slug) && !p.slug.startsWith('wp_'))?.map(({ name, slug }) => ({ label: name, value: slug })),
+        postTypes: getPostTypes({ per_page: -1 })?.filter(p => !['apb', 'attachment', 'nav_menu_item', 'bsb'].includes(p.slug) && !p.slug.startsWith('wp_'))?.map(({ name, slug }) => ({ label: name, value: slug, locked: isPostTypeLocked(slug) })),
 
         currentPostType: getCurrentPostType(),
 

@@ -97,3 +97,12 @@ export const horizontalLine = <svg xmlns='http://www.w3.org/2000/svg' width={24}
 	<path d='M357,204H0v-51h357V204z' />
 </svg>;
 
+
+export const lock = (width = 24, height = 24) => <svg xmlns='http://www.w3.org/2000/svg' width={width} height={height} viewBox='0 0 24 24'>
+	<path d='M12 2a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5zm0 2a3 3 0 0 1 3 3v3H9V7a3 3 0 0 1 3-3zm0 10a1.75 1.75 0 0 1 .75 3.33V19a.75.75 0 0 1-1.5 0v-1.67A1.75 1.75 0 0 1 12 14z' />
+</svg>;
+
+export const crown = (width = 24, height = 24) => <svg xmlns='http://www.w3.org/2000/svg' width={width} height={height} viewBox='0 0 24 24'>
+	<path d='M3 8.5a1.5 1.5 0 1 1 1.94 1.43l1.5 4.07h11.12l1.5-4.07A1.5 1.5 0 1 1 21 8.5a1.5 1.5 0 0 1-.86 1.35l-1.9 8.4a1 1 0 0 1-.98.75H6.74a1 1 0 0 1-.98-.75l-1.9-8.4A1.5 1.5 0 0 1 3 8.5zM12 4a1.75 1.75 0 0 1 1.4 2.8L12 12.2 10.6 6.8A1.75 1.75 0 0 1 12 4z' />
+</svg>;
+

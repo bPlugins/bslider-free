@@ -7,6 +7,15 @@ export const adminUrl = () => {
     return window.location.origin + '/wp-admin/edit.php?post_type=bsb&page=b-slider#/pricing';
 }
 
+/** Whether the Pro code is licensed. */
+export const isProActive = () => typeof bsbpipecheck !== 'undefined' && Boolean(bsbpipecheck);
+
+/** The post types a slider can query without a Pro licence. */
+export const FREE_POST_TYPES = ['post', 'page', 'product'];
+
+/** Whether this post type is Pro-only for the current licence. */
+export const isPostTypeLocked = slug => !isProActive() && !FREE_POST_TYPES.includes(slug);
+
 /** Where every `Premium` card sends people to see the feature working. */
 export const DEMO_URL = 'https://bplugins.com/products/b-slider/#demos';
 
