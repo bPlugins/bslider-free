@@ -76,6 +76,13 @@ if(!class_exists( __NAMESPACE__ . '\Posts' )){
             return in_array( $post_type, self::freePostTypes(), true );
         }
 
+        /** Whether `$post_type` is one the site means the public to see at all. */
+        static function isPostTypePublic( $post_type ) {
+            $object = get_post_type_object( $post_type );
+
+            return $object && ! empty( $object->public );
+        }
+
         /**
          * How many picked fields a slider displays. Mirrored in AcfFields.js as
          * `FREE_ACF_FIELD_LIMIT`, which is what the editor caps its own preview by.
@@ -98,20 +105,37 @@ if(!class_exists( __NAMESPACE__ . '\Posts' )){
          * markup — still comes back trimmed. The editor applies the same cap, but only so the
          * preview agrees with the site; it is not what holds the line.
          */
-        static function acfFieldsToFetch( $postsQuery = [] ) {
+        static function acfFieldsToFetch( $postsQuery = [], $post_type = null ) {
+            $post_type = $post_type ?: ( $postsQuery['post_type'] ?? 'post' );
+
             $fields = $postsQuery['selectedAcfFields'] ?? [];
             $fields = is_array( $fields ) ? array_values( $fields ) : [];
+
+            // Names come in with the request and go out to `get_post_meta()`, so they are filtered
+            // down to the fields ACF registered for this post type before anything else is done
+            // with them — see AcfFields::allowedFieldNames(). Filtering first also means a stale
+            // name left in a saved slider costs the user none of their three free slots.
+            $fields = self::allowedAcfFields( $fields, $post_type );
             $fields = array_slice( $fields, 0, self::FREE_ACF_FIELD_LIMIT );
 
             foreach ( self::ACF_ROLE_KEYS as $key ) {
                 $name = trim( (string) ( $postsQuery[ $key ] ?? '' ) );
 
-                if ( '' !== $name && ! in_array( $name, $fields, true ) ) {
+                if ( '' !== $name && ! in_array( $name, $fields, true ) && ! empty( self::allowedAcfFields( [ $name ], $post_type ) ) ) {
                     $fields[] = $name;
                 }
             }
 
             return $fields;
+        }
+
+        /** `$fields` with anything this post type has no registered ACF field for dropped. */
+        static function allowedAcfFields( $fields, $post_type ) {
+            if ( ! class_exists( __NAMESPACE__ . '\AcfFields' ) ) {
+                return [];
+            }
+
+            return AcfFields::allowedFields( $fields, $post_type );
         }
 
         /**
@@ -168,9 +192,16 @@ if(!class_exists( __NAMESPACE__ . '\Posts' )){
                     $links = '';
                     foreach( $terms as $index => $t ){
                         $link = get_term_link( $t->slug, $slug );
+                        // A term whose taxonomy has no permalinks comes back as an error object.
+                        $link = is_wp_error( $link ) ? '' : $link;
                         $terms[$index]->link = $link;
-        
-                        $links .= "<a href='$link' rel='$slug'>$t->name</a>";
+
+                        $links .= sprintf(
+                            "<a href='%s' rel='%s'>%s</a>",
+                            esc_url( $link ),
+                            esc_attr( $slug ),
+                            esc_html( $t->name )
+                        );
                     };
                     $taxonomies[$slug] = $links;
                 }
@@ -226,6 +257,13 @@ if(!class_exists( __NAMESPACE__ . '\Posts' )){
             // the top level keys are only kept as a fallback for older saved blocks.
             $post_type            = $postsQuery['post_type'] ?? $attributes['post_type'] ?? 'post';
             if ( $post_type && ! self::isPostTypeAllowed( $post_type ) ) {
+                $post_type = 'post';
+            }
+            // A separate question from the licence one above: whether the public was ever meant to
+            // see this post type. The AJAX route is open to logged out visitors and takes its post
+            // type from the request, so a Pro licence must not turn that into a way to read an
+            // internal post type that happens to hold published rows.
+            if ( ! self::isPostTypePublic( $post_type ) ) {
                 $post_type = 'post';
             }
             $per_page             = (int) ( $postsQuery['per_page'] ?? $attributes['per_page'] ?? 10 );
@@ -332,7 +370,9 @@ if(!class_exists( __NAMESPACE__ . '\Posts' )){
                 // $isExcerptFromContent || 'true' === $isExcerptFromContent,
                 $isExcerptFromContent,
                 $excerptLength,
-                self::acfFieldsToFetch( $postsQuery )
+                // `query()` has the last word on which post type is really queried, so the allow
+                // list is built from that rather than from what the request asked for.
+                self::acfFieldsToFetch( $postsQuery, $newArgs['post_type'] )
             );
 
 
