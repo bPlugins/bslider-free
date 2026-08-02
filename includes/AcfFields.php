@@ -71,7 +71,7 @@ class AcfFields {
      * to the names ACF really registered for this post type, that journey can only reach the
      * fields the editor itself offered; left open, it reads any meta on the post.
      *
-     * `bsb_allowed_acf_fields` is the way in for sites that register meta outside ACF and want it
+     * `b_slider_allowed_acf_fields` is the way in for sites that register meta outside ACF and want it
      * on a slide anyway: naming a key there is a deliberate act by the site owner, which is the
      * part a request cannot supply.
      */
@@ -89,7 +89,7 @@ class AcfFields {
              * @param string[] $names     Field names registered with ACF for this post type.
              * @param string   $post_type The post type being queried.
              */
-            $names = apply_filters( 'bsb_allowed_acf_fields', $names, $post_type );
+            $names = apply_filters( 'b_slider_allowed_acf_fields', $names, $post_type );
             $names = is_array( $names ) ? array_map( 'strval', $names ) : [];
 
             $cache[ $post_type ] = array_flip( $names );
@@ -303,8 +303,8 @@ class AcfFields {
                 break;
 
             case 'true_false':
-                $on  = ! empty( $acfObj['ui_on_text'] ) ? $acfObj['ui_on_text'] : __( 'Yes', 'slider' );
-                $off = ! empty( $acfObj['ui_off_text'] ) ? $acfObj['ui_off_text'] : __( 'No', 'slider' );
+                $on  = ! empty( $acfObj['ui_on_text'] ) ? $acfObj['ui_on_text'] : __( 'Yes', 'b-slider' );
+                $off = ! empty( $acfObj['ui_off_text'] ) ? $acfObj['ui_off_text'] : __( 'No', 'b-slider' );
                 $out['value'] = ( $raw && '0' !== $raw ) ? $on : $off;
                 break;
 

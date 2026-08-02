@@ -60,9 +60,9 @@ if(!class_exists( __NAMESPACE__ . '\Posts' )){
          */
         const FREE_POST_TYPES = [ 'post', 'page', 'product' ];
 
-        /** The free list, after `bsb_free_post_types` has had a say. */
+        /** The free list, after `b_slider_free_post_types` has had a say. */
         static function freePostTypes() {
-            $types = apply_filters( 'bsb_free_post_types', self::FREE_POST_TYPES );
+            $types = apply_filters( 'b_slider_free_post_types', self::FREE_POST_TYPES );
 
             return is_array( $types ) ? $types : self::FREE_POST_TYPES;
         }

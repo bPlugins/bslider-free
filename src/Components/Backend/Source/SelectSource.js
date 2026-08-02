@@ -45,7 +45,7 @@ const SelectSource = (props) => {
         }
     };
 
-    // `locked` comes off the REST route, which knows about the `bsb_free_post_types` filter;
+    // `locked` comes off the REST route, which knows about the `b_slider_free_post_types` filter;
     // the local check only covers the offline fallback list, which carries no flag.
     const isLocked = (pt) => (undefined === pt.locked ? isPostTypeLocked(pt.value) : Boolean(pt.locked));
     const lockedPostTypes = fetchedPostTypes.filter(isLocked);
