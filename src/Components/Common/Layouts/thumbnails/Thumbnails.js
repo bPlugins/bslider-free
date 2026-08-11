@@ -22,7 +22,7 @@ const Thumbnails = ({ attributes, firstPosts, commonDeProps }) => {
     const nextRef = useRef(null);
 
     const { sourceType, sliders, carousel, arrow, arrowStyle, columns, columnGap, thumbnails, videoConf } = attributes;
-    const { clientId, activeIndex, isBackEnd } = commonDeProps;
+    const { clientId, activeIndex, isBackEnd, isSelected = false } = commonDeProps;
 
     useEffect(() => {
         if (isBackEnd && swiperRef.current) {
@@ -120,7 +120,7 @@ const Thumbnails = ({ attributes, firstPosts, commonDeProps }) => {
                         case 'posts':
                             return firstPosts?.map((post, index) => <SwiperSlide key={index}>
                                 <PostItem {...{
-                                    attributes, post, index, classNames: {
+                                    attributes, post, index, isBackEnd, isSelected, classNames: {
                                         contentArea: 'content-area'
                                     }
                                 }} />
@@ -128,7 +128,7 @@ const Thumbnails = ({ attributes, firstPosts, commonDeProps }) => {
                         case 'woo':
                             return firstPosts?.map((product, index) => <SwiperSlide key={index}>
                                 <WooItem {...{
-                                    attributes, product, index, classNames: {
+                                    attributes, product, index, isBackEnd, isSelected, classNames: {
                                         contentArea: 'content-area'
                                     }
                                 }} />

@@ -1,6 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import { SelectControl, TextControl, ToggleControl } from '@wordpress/components';
 import { PanelBody } from '../../../Panel/AccordionPanel';
+import { TipText } from '../../../Panel/TipField';
 import { Label } from '../../../../../../bpl-tools/Components';
 import { FIELD_PRESETS, FIELD_ROLES, anchorOf, isMediaField, rendersAsCaption, sourceOf } from '../../../Common/single-item/AcfFields';
 import AnchorPicker from './AnchorPicker';
@@ -96,11 +97,11 @@ const AcfFieldPanel = ({
                 onChange={val => onFieldChange(field.value, { showLabel: val })}
             />
 
-            <TextControl
+            <TipText
                 label={__('Icon:', 'b-slider')}
                 value={cfg.icon || ''}
                 onChange={val => onFieldChange(field.value, { icon: val })}
-                help={__('An emoji or character shown before the value, e.g. 📍', 'b-slider')}
+                tip={__('An emoji or character shown before the value, e.g. 📍', 'b-slider')}
             />
 
             <TextControl

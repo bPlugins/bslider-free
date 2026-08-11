@@ -1630,3 +1630,280 @@ svg#bsbSlider {
         color: var(--bsb-text);
     }
 }
+
+/**
+ * The "watch this" link inside a notice — see `ACF_VIDEO` in AcfConfigure.
+ *
+ * On its own line under the sentence it belongs to, because a link folded into the middle of a paragraph in
+ * a 280px column is a link nobody sees. The play mark sits with the words rather than in front of them, so
+ * the two read as one thing to click.
+ */
+.bsbNoticeVideo {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 8px;
+    color: var(--bsb-primary, #186cf5);
+    font-weight: 600;
+    text-decoration: none;
+
+    svg {
+        width: 16px;
+        height: 16px;
+        flex: 0 0 auto;
+    }
+
+    &:hover,
+    &:focus-visible {
+        text-decoration: underline;
+    }
+}
+
+/**
+ * The help mark, and the bubble it opens — see `HelpTip`.
+ *
+ * The bubble is a sibling of the mark rather than a child, so hovering the mark cannot be interrupted by
+ * the bubble appearing under the cursor. Both live in a wrapper that is `position: relative`, which is
+ * what the bubble is placed against.
+ */
+.bsbHelpTip {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    vertical-align: middle;
+    margin-left: 4px;
+    /* Above the fields around it, so a bubble is never clipped behind the next control. */
+    z-index: 5;
+}
+
+.bsbHelpTipMark {
+    display: grid;
+    place-items: center;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    color: var(--bsb-muted, #6b7280);
+    cursor: help;
+    transition: color 0.15s ease, background 0.15s ease;
+
+    svg {
+        width: 15px;
+        height: 15px;
+        display: block;
+    }
+
+    &:hover,
+    &:focus-visible {
+        color: var(--bsb-primary, #186cf5);
+        background: var(--bsb-primary-soft, #eff6ff);
+        outline: none;
+    }
+}
+
+/**
+ * The words themselves.
+ *
+ * `visibility` alongside the opacity, not opacity alone: a transparent bubble still takes the cursor, and
+ * an invisible sheet over the field below it would swallow clicks meant for that field.
+ *
+ * **Below the mark, not above it.** Above was the first choice and it clipped: the sidebar is a scrolling
+ * column, and a field near the top of it had its bubble drawn past the top edge — measured at 56px above
+ * the viewport. Below, the space it needs is the space the panel already has more of.
+ *
+ * Pulled back inside the panel with `right: -6px`, and capped to less than the sidebar's own 280px — the
+ * column scrolls vertically, so anything wider than it risks being cut off horizontally. `ch` as well as
+ * pixels, so the line length stays readable however wide a translation runs.
+ */
+.bsbHelpTipBubble {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: -6px;
+    width: max-content;
+    max-width: min(34ch, 220px);
+    padding: 5px 8px;
+    border-radius: 7px;
+    /* A hair of light at the top edge, which is what keeps a dark bubble from reading as a hole in the
+       panel. The shadow does the lifting; this does the rounding. */
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: #1f2937;
+    color: #f3f4f6;
+    /**
+     * Its own typography, because a mark can sit inside a label and a label is not set like prose.
+     *
+     * WordPress styles a `BaseControl` label small, bold and uppercase — and the bubble, being inside it,
+     * inherited all three: the tip came out shouting in capitals. Everything a label sets is set back
+     * here, so a tip reads the same wherever it is dropped.
+     */
+    font-size: 11px;
+    font-weight: 400;
+    font-style: normal;
+    letter-spacing: normal;
+    text-transform: none;
+    line-height: 1.45;
+    text-align: left;
+    white-space: normal;
+    /* Breaks the line where a sentence would rather break, instead of leaving one word on its own. */
+    text-wrap: pretty;
+    box-shadow: 0 10px 28px rgba(15, 23, 42, 0.35);
+    opacity: 0;
+    visibility: hidden;
+    /* The lift on opening and the sideways nudge that keeps it inside its panel are two axes of one
+       property — see `place()` in HelpTip for where the shift comes from. */
+    translate: var(--bsb-tip-shift, 0) -4px;
+    transition: opacity 0.16s ease, translate 0.16s ease, visibility 0.16s ease;
+    pointer-events: none;
+
+    /* The tail, pointing back up at the mark it belongs to. */
+    &::after {
+        content: '';
+        position: absolute;
+        bottom: 100%;
+        right: 10px;
+        border: 5px solid transparent;
+        border-bottom-color: #1f2937;
+    }
+}
+
+.bsbHelpTip:hover .bsbHelpTipBubble,
+.bsbHelpTipMark:focus-visible + .bsbHelpTipBubble {
+    opacity: 1;
+    visibility: visible;
+    translate: var(--bsb-tip-shift, 0) 0;
+}
+
+/**
+ * A field with a mark beside it.
+ *
+ * A row, so the mark sits with the label rather than under the control. The control keeps its own width
+ * and the mark takes what is left, and the row carries the margin the control would have had — otherwise
+ * the two would be spaced apart by the control's own bottom margin.
+ */
+.bsbTipRow {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+
+    .components-base-control {
+        margin-bottom: 0;
+    }
+
+    .components-toggle-control .components-base-control__field {
+        margin-bottom: 0;
+    }
+}
+
+/**
+ * The word on a panel header that says this part is new — see the `badge` prop on `PanelBody`.
+ *
+ * Inline with the title rather than pinned to the right of the header: the header already has the
+ * chevron over there, and a badge beside it would read as a second control. Next to the words it reads
+ * as what it is, a note about the words.
+ *
+ * `em`, so it keeps its proportion to the title if the editor's font size changes under it.
+ */
+.bsbPanelBadge {
+    display: inline-block;
+    margin-left: 8px;
+    padding: 1px 7px;
+    border-radius: 999px;
+    background: var(--bsb-accent, #ff7a00);
+    color: #fff;
+    font-size: 0.72em;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    line-height: 1.6;
+    text-transform: uppercase;
+    vertical-align: middle;
+    /* The header is a button, so the title inherits its cursor. The badge is not the thing being
+       pressed, but it is inside it — so it says nothing about pressing either way. */
+    pointer-events: none;
+}
+
+/**
+ * A heading over a run of fields inside a settings panel — see `FieldGroup`.
+ *
+ * A panel with eight controls in it is eight controls in a column, and a column says nothing about
+ * which of them belong together. Without a break the reader has to work that out from the labels
+ * alone.
+ *
+ * The rule runs *beside* the label rather than above it. A rule above sits between two fields and
+ * belongs to neither — it reads as much like the end of what is above as the start of what is below.
+ * On the same line as the words there is nothing to misread, it costs a row instead of a row plus a
+ * margin, and it leaves a natural place at the far end for a tag.
+ */
+.bsb_field_group {
+    /* Generous above, tight below: the gap is what says which fields the heading belongs to. */
+    margin: 24px 0 10px;
+
+    /* The first one opens the panel, under a title bar that has drawn its own line. `is-first` rather
+       than `:first-child`, because `PanelBody` renders its own `<h2>` before any child — so the group
+       is never actually the first one. */
+    &.is-first {
+        margin-top: 6px;
+    }
+}
+
+.bsb_field_group_head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.bsb_field_group_title {
+    flex: none;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--bsb-text-soft);
+}
+
+/* Takes whatever width the label and the tag leave. Decoration only — it is why the heading reads as
+   a section marker and not as another field label. */
+.bsb_field_group_rule {
+    flex: 1;
+    height: 1px;
+    min-width: 12px;
+    background: var(--bsb-line);
+}
+
+/* One word, and only where it says something. Tagging every group "optional" would say no more than
+   tagging none of them — it is here to mark the run that can be skipped entirely. The muted pair
+   rather than the primary one, because blue is how these panels mark what must be filled in and
+   "optional" is the opposite claim. */
+.bsb_field_group_tag {
+    flex: none;
+    padding: 1px 7px;
+    border-radius: var(--bsb-radius-pill);
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--bsb-muted);
+    background: var(--bsb-surface-soft);
+    border: 1px solid var(--bsb-line);
+}
+
+/**
+ * What the fields under the heading are for.
+ *
+ * Its own block under the head row rather than anything inside it: this is a sentence, and a sentence
+ * in a flex row either squashes the label or is squashed by it. Full width, sentence case, wrapping —
+ * the plain opposite of the tag beside it, which is why the two never read as the same thing.
+ *
+ * Quieter than the field `help` text below it, on purpose. This describes a group; that describes one
+ * control. If the two carried the same weight the panel would read as one long paragraph.
+ */
+.bsb_field_group_hint {
+    margin: 6px 0 0;
+    font-size: 11px;
+    line-height: 1.5;
+    color: var(--bsb-muted);
+}
+
+/* The badges panel and the per-badge panels inside it sit square, so the run of them reads as one
+   list rather than as a stack of separate cards. */
+.bsb_social_badges_panel,
+.bsb_social_badges_panel .bsb_acf_field_panel {
+    border-radius: 0 !important;
+}

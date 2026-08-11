@@ -24,7 +24,9 @@ const CORE_TAX_REST_BASE = { category: 'categories', post_tag: 'tags' };
 
 const Edit = (props) => {
 
-	const { attributes, setAttributes, clientId, totalPosts, posts, allCategories, selectBlock, CPTType, currentPostId } = props;
+	// `isSelected` comes from WordPress, and a linked slide picture waits for it: the first click on an
+	// unselected slider is how the block is selected, so the link must not take it — see the hook.
+	const { attributes, setAttributes, clientId, isSelected, totalPosts, posts, allCategories, selectBlock, CPTType, currentPostId } = props;
 
 	useIframeAssetSync(['bsb-slider-style-css', 'bootstrap-css', 'bsb-slider-editor-style-css', 'bsb-slider-editor-script-js', 'bootstrap-js']);
 	useEffect(() => { clientId && setAttributes({ cId: clientId.substring(0, 10) }); }, [clientId]);
@@ -133,7 +135,7 @@ const Edit = (props) => {
 		carousel?.to(activeIndex || 0);
 	}, [activeIndex]);
 
-	const commonDeProps = { clientId, activeIndex, carousel, setCarousel, updateSlider, isBackEnd: true };
+	const commonDeProps = { clientId, activeIndex, carousel, setCarousel, updateSlider, isBackEnd: true, isSelected };
 	const settingsProps = { clientId, attributes, setAttributes, updateSlider, addSlider, removeSlider, duplicateSlider, activeIndex, setActiveIndex, allCategories, multipleAttrChange, updateObject, queriedPosts: formattedPosts };
 
 	const isOld = !layoutType && sliders[0]?.img?.url !== 'https://templates.bplugins.com/wp-content/uploads/2025/02/n-39.jpg';

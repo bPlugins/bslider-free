@@ -4,3 +4,16 @@ dist/*
 !dist/*.php
 node_modules
 languages
+
+# Build output
+build/
+*.map
+
+# OS files
+.DS_Store
+
+# Release artifacts
+*.zip
+
+# Duplicate plugin copy at repo root
+/b-slider/

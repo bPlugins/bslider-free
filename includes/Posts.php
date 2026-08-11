@@ -5,31 +5,43 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 if(!class_exists( __NAMESPACE__ . '\Posts' )){
     class Posts{
+        /**
+         * Sanitise a request array in place, leaving its shape alone.
+         *
+         * Returns `false` for anything that is not an array, so a caller handing this a scalar
+         * straight off a request has to say what it wants done about that — see `PostsAjax`.
+         */
         static function sanitize_array($array){
             if( !is_array( $array ) ) {
                 return false;
             }
 
             foreach( $array as $key => $value ) {
-                if( strpos( $key, 'secret_key' ) !== false && strlen( $value ) == 32 ) {
-                    $value = sanitize_text_field( str_replace( '<', '&lt;', $value ) ); 
-                    $value = sanitize_text_field( $value );
-                    $array[$key] = str_replace( ['&lt;', '&gt;', '&amp;'], [ '<', '>', '&'], $value );
+                if( is_array( $value ) ) {
+                    $array[$key] = self::sanitize_array( $value );
                 }else {
-                    if( is_array( $value ) ) {
-                        $array[$key] = self::sanitize_array( $value );
-                    }else {
-                        $array[$key] =$value == 'true' ? true : ( $value == 'false' ? false :  sanitize_text_field( $value ) );
-                    }
+                    $array[$key] =$value == 'true' ? true : ( $value == 'false' ? false :  sanitize_text_field( $value ) );
                 }
             }
             return $array;
         }
 
+        /**
+         * The numeric IDs in `$array`, as integers.
+         *
+         * Everything reaching this comes from a request, where a key the editor writes as a list can
+         * arrive as a scalar just as easily — so a non-array is no IDs rather than a `TypeError` out
+         * of `array_filter()`. The values become `int` here because that is what they are used as:
+         * `post__in` and `post__not_in` are ID lists, and a numeric string is only an ID by luck.
+         */
         static function filterNaN( $array ) {
-            return array_filter( $array, function( $id ) {
+            if ( ! is_array( $array ) ) {
+                return [];
+            }
+
+            return array_values( array_map( 'intval', array_filter( $array, function( $id ) {
                 return $id && is_numeric( $id );
-            });
+            } ) ) );
         }
 
         static function wordCount( $content ) {
@@ -274,12 +286,23 @@ if(!class_exists( __NAMESPACE__ . '\Posts' )){
             $isExcludeCurrent     = filter_var( $isExcludeCurrent, FILTER_VALIDATE_BOOLEAN );
             $include              = $postsQuery['include'] ?? $attributes['include'] ?? [];
 
+            // Both of these arrive with the request on the AJAX route, where nothing guarantees the
+            // shape the editor saves them in: a key written as a list of term IDs can come back as a
+            // bare string, and `count()` or `array_filter()` on that is a fatal error rather than an
+            // empty filter. They are pinned to the shape the query needs before anything reads them.
             $selectedTaxonomies   = $postsQuery['selectedTaxonomies'] ?? [];
-            $selectedCategories   = $postsQuery['selectedCategories'] ?? [];
+            $selectedTaxonomies   = is_array( $selectedTaxonomies ) ? $selectedTaxonomies : [];
+            $selectedCategories   = self::filterNaN( $postsQuery['selectedCategories'] ?? [] );
+            $selectedTags         = self::filterNaN( $postsQuery['selectedTags'] ?? [] );
 
             $termsQuery = ['relation' => 'AND'];
             foreach ( $selectedTaxonomies as $taxonomy => $terms ){
-                if( count( $terms ) ){
+                // Held to terms that really are terms of this taxonomy on this post type, the same way
+                // the product and CPT branch below does it — the taxonomy name and the IDs both come
+                // from the request, and a slider is only ever meant to filter by what it was given.
+                $terms = self::termsOfTaxonomy( $terms, (string) $taxonomy, $post_type );
+
+                if( ! empty( $terms ) ){
                     $termsQuery[] = [
                         'taxonomy'	=> $taxonomy,
                         'field'		=> 'term_id',
@@ -292,14 +315,14 @@ if(!class_exists( __NAMESPACE__ . '\Posts' )){
             if ( 'post' === $post_type ) {
                 $defaultPostQuery = [
                     'category__in'	=> $selectedCategories,
-                    'tag__in'		=> $postsQuery['selectedTags'] ?? []
+                    'tag__in'		=> $selectedTags
                 ];
             } else {
                 // Products and custom post types keep their terms in the same two keys, so they go
                 // through `tax_query` against whichever taxonomy the post type actually uses.
                 $taxFilters = [
                     ( 'product' === $post_type ? 'product_cat' : 'category' ) => $selectedCategories,
-                    ( 'product' === $post_type ? 'product_tag' : 'post_tag' ) => $postsQuery['selectedTags'] ?? []
+                    ( 'product' === $post_type ? 'product_tag' : 'post_tag' ) => $selectedTags
                 ];
 
                 foreach ( $taxFilters as $taxonomy => $terms ) {

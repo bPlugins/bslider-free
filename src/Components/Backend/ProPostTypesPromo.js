@@ -21,12 +21,12 @@ const namesOf = (lockedTypes) => {
     const names = lockedTypes.map(pt => pt.label).filter(Boolean);
 
     if (names.length <= 2) {
-        return names.join(__(' and ', 'slider'));
+        return names.join(__(' and ', 'b-slider'));
     }
 
     return sprintf(
         /* translators: 1: two post type names, 2: how many further post types are locked */
-        __('%1$s, and %2$d more', 'slider'),
+        __('%1$s, and %2$d more', 'b-slider'),
         names.slice(0, 2).join(', '),
         names.length - 2
     );
@@ -45,7 +45,7 @@ const ProPostTypesPromo = ({ lockedTypes = [], variant = 'full' }) => {
     const upgradeBtn = (
         <a className="bsb_pro_promo_btn" href={adminUrl()} target="_blank" rel="noreferrer">
             {crown(14, 14)}
-            <span>{__('Unlock with Pro', 'slider')}</span>
+            <span>{__('Unlock with Pro', 'b-slider')}</span>
         </a>
     );
 
@@ -59,10 +59,10 @@ const ProPostTypesPromo = ({ lockedTypes = [], variant = 'full' }) => {
                         {hasLocked
                             ? sprintf(
                                 /* translators: %d: how many custom post types are Pro only */
-                                _n('%d custom post type is Pro only.', '%d custom post types are Pro only.', count, 'slider'),
+                                _n('%d custom post type is Pro only.', '%d custom post types are Pro only.', count, 'b-slider'),
                                 count
                             )
-                            : __('Custom post types are Pro only.', 'slider')}
+                            : __('Custom post types are Pro only.', 'b-slider')}
                     </p>
                 </div>
 
@@ -84,7 +84,7 @@ const ProPostTypesPromo = ({ lockedTypes = [], variant = 'full' }) => {
                         </div>
 
                         <div className="bsb_pro_promo_editor_copy">
-                            <span className="bsb_pro_promo_badge">{__('Pro Feature', 'slider')}</span>
+                            <span className="bsb_pro_promo_badge">{__('Pro Feature', 'b-slider')}</span>
 
                             <h4 className="bsb_pro_promo_title">
                                 {hasLocked
@@ -94,34 +94,34 @@ const ProPostTypesPromo = ({ lockedTypes = [], variant = 'full' }) => {
                                             '%d Custom Post Type Available in Pro',
                                             '%d Custom Post Types Available in Pro',
                                             count,
-                                            'slider'
+                                            'b-slider'
                                         ),
                                         count
                                     )
-                                    : __('Custom Post Types Available in Pro', 'slider')}
+                                    : __('Custom Post Types Available in Pro', 'b-slider')}
                             </h4>
 
                             <p className="bsb_pro_promo_text">
                                 {hasLocked
                                     ? sprintf(
                                         /* translators: %s: names of the locked post types */
-                                        __('Unlock %s and every custom post type you create — with advanced filtering, ACF field support, and more.', 'slider'),
+                                        __('Unlock %s and every custom post type you create — with advanced filtering, ACF field support, and more.', 'b-slider'),
                                         namesOf(lockedTypes)
                                     )
-                                    : __('Unlock every custom post type you create — with advanced filtering, ACF field support, and more.', 'slider')}
+                                    : __('Unlock every custom post type you create — with advanced filtering, ACF field support, and more.', 'b-slider')}
                             </p>
 
                             <ul className="bsb_pro_promo_perks">
-                                <li>{__('All custom post types', 'slider')}</li>
-                                <li>{__('ACF field mapping', 'slider')}</li>
-                                <li>{__('Advanced query filters', 'slider')}</li>
+                                <li>{__('All custom post types', 'b-slider')}</li>
+                                <li>{__('ACF field mapping', 'b-slider')}</li>
+                                <li>{__('Advanced query filters', 'b-slider')}</li>
                             </ul>
                         </div>
                     </div>
 
                     <a className="bsb_pro_promo_btn bsb_pro_promo_editor_btn" href={adminUrl()} target="_blank" rel="noreferrer">
                         {crown(16, 16)}
-                        <span>{__('Upgrade to Pro', 'slider')}</span>
+                        <span>{__('Upgrade to Pro', 'b-slider')}</span>
                     </a>
                 </div>
             </div>
@@ -133,24 +133,24 @@ const ProPostTypesPromo = ({ lockedTypes = [], variant = 'full' }) => {
             <div className="bsb_pro_promo_icon">{lock(20, 20)}</div>
 
             <div className="bsb_pro_promo_body">
-                <span className="bsb_pro_promo_badge">{__('Pro Feature', 'slider')}</span>
+                <span className="bsb_pro_promo_badge">{__('Pro Feature', 'b-slider')}</span>
 
-                <h4 className="bsb_pro_promo_title">{__('Slide your custom post types', 'slider')}</h4>
+                <h4 className="bsb_pro_promo_title">{__('Slide your custom post types', 'b-slider')}</h4>
 
                 <p className="bsb_pro_promo_text">
                     {hasLocked
                         ? sprintf(
                             /* translators: %s: names of the locked post types, e.g. "Portfolio, Testimonial, and 2 more" */
-                            __('Standard post types (Posts, Pages, Products) are free. Pro unlocks custom post types like %s.', 'slider'),
+                            __('Standard post types (Posts, Pages, Products) are free. Pro unlocks custom post types like %s.', 'b-slider'),
                             namesOf(lockedTypes)
                         )
-                        : __('Standard post types (Posts, Pages, Products) are free. Pro unlocks every custom post type you register.', 'slider')}
+                        : __('Standard post types (Posts, Pages, Products) are free. Pro unlocks every custom post type you register.', 'b-slider')}
                 </p>
 
                 <ul className="bsb_pro_promo_perks">
-                    <li>{__('All custom post types', 'slider')}</li>
-                    <li>{__('ACF field mapping', 'slider')}</li>
-                    <li>{__('Include & exclude posts', 'slider')}</li>
+                    <li>{__('All custom post types', 'b-slider')}</li>
+                    <li>{__('ACF field mapping', 'b-slider')}</li>
+                    <li>{__('Include & exclude posts', 'b-slider')}</li>
                 </ul>
             </div>
 

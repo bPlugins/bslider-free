@@ -16,6 +16,15 @@ import AcfFieldSettings from './AcfFieldSettings';
  * someone following a tutorial finds the setting missing with no way to tell whether the plugin is
  * broken, ACF is absent, or their fields simply do not reach this post type. So it says which.
  */
+/**
+ * The walkthrough offered when there is nothing to pick yet.
+ *
+ * Kept as one constant so the address is changed in a single place, and read as "is there a video?" at the
+ * point of use — left empty, nothing is rendered at all. A link that goes nowhere is worse than no link:
+ * somebody stuck on the ACF step clicks it, lands on nothing, and now has two problems.
+ */
+const ACF_VIDEO = 'https://www.youtube.com/watch?v=Pj7veTzHbQk';
+
 const AcfConfigure = ({ attributes, setAttributes, updateObject, queriedPosts = [] }) => {
     const { postsQuery, sourceType } = attributes;
     const { post_type = 'post', selectedAcfFields = [], acfFieldSettings = {}, acfDisplayStyle = 'chips' } = postsQuery;
@@ -178,8 +187,36 @@ const AcfConfigure = ({ attributes, setAttributes, updateObject, queriedPosts = 
 
     const emptyMessage = emptyReason();
 
-    return <PanelBody className="bPlPanelBody" title={__('ACF Integration', 'b-slider')} initialOpen={false}>
-        {emptyMessage && <Notice>{emptyMessage}</Notice>}
+    return <PanelBody
+        className="bPlPanelBody"
+        title={__('ACF Integration', 'b-slider')}
+        /* Newly arrived, and easy to walk past on a panel list this long — see the `badge` prop. */
+        badge={__('New', 'b-slider')}
+        initialOpen={false}
+    >
+        {emptyMessage && <Notice>
+            {emptyMessage}
+
+            {/**
+              * The way out of the notice, not more of the notice.
+              *
+              * It says what the video shows and how long it takes, so the decision to click is made before
+              * clicking rather than after. `target="_blank"` because the reader is mid-setup in the editor —
+              * navigating away would cost them the post they are editing.
+              */}
+            {!!ACF_VIDEO && <a
+                className='bsbNoticeVideo'
+                href={ACF_VIDEO}
+                target='_blank'
+                rel='noopener noreferrer'
+            >
+                <svg viewBox='0 0 24 24' aria-hidden='true' focusable='false'>
+                    <circle cx='12' cy='12' r='10' fill='none' stroke='currentColor' strokeWidth='1.6' />
+                    <path d='M10 8.5l6 3.5-6 3.5z' fill='currentColor' />
+                </svg>
+                {__('See how it works (2 min)', 'b-slider')}
+            </a>}
+        </Notice>}
 
         {acfOptions.length > 0 && <>
             <Label className="mb5">{__('Select ACF Fields:', 'b-slider')}</Label>

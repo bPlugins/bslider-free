@@ -25,8 +25,8 @@ const SelectSource = (props) => {
             })
             .catch(() => {
                 setFetchedPostTypes([
-                    { label: __('Posts', 'slider'), value: 'post', locked: false },
-                    { label: __('Pages', 'slider'), value: 'page', locked: false }
+                    { label: __('Posts', 'b-slider'), value: 'post', locked: false },
+                    { label: __('Pages', 'b-slider'), value: 'page', locked: false }
                 ]);
             });
     }, []);
@@ -66,14 +66,14 @@ const SelectSource = (props) => {
             <div className="bsb_main_parent">
                 <div className="bsb_wizard_header_row">
                     <button className="bsb_backBtn" onClick={() => setIsPostTypesView(false)}>
-                        &larr; {__('Back to Main Sources', 'slider')}
+                        &larr; {__('Back to Main Sources', 'b-slider')}
                     </button>
-                    <span className="bsb_step_badge">{__('Step 1.5 of 2', 'slider')}</span>
+                    <span className="bsb_step_badge">{__('Step 1.5 of 2', 'b-slider')}</span>
                 </div>
 
                 <div className="bsb_wizard_header">
-                    <h2>{__('Select Post Type', 'slider')}</h2>
-                    <p className="bsb_wizard_subtitle">{__('Choose which post type content you want to fetch and display in your slider', 'slider')}</p>
+                    <h2>{__('Select Post Type', 'b-slider')}</h2>
+                    <p className="bsb_wizard_subtitle">{__('Choose which post type content you want to fetch and display in your slider', 'b-slider')}</p>
                 </div>
 
                 <div className="bsb_parent_area source_grid">
@@ -93,12 +93,12 @@ const SelectSource = (props) => {
                                     <div className="desc">
                                         {sprintf(
                                             /* translators: %s: post type name, e.g. Pages */
-                                            __('Query all %s posts', 'slider'),
+                                            __('Query all %s posts', 'b-slider'),
                                             pt.label
                                         )}
                                     </div>
                                     <div className="bsb_card_hover_btn">
-                                        <span>{__('Select Layout', 'slider')} &rarr;</span>
+                                        <span>{__('Select Layout', 'b-slider')} &rarr;</span>
                                     </div>
                                 </div>
                             );
@@ -108,10 +108,10 @@ const SelectSource = (props) => {
                             <div className="icon_wrapper">
                                 <div className="icon">{wordpress(28, 28)}</div>
                             </div>
-                            <div className="title">{__('Posts', 'slider')}</div>
-                            <div className="desc">{__('WordPress blog posts', 'slider')}</div>
+                            <div className="title">{__('Posts', 'b-slider')}</div>
+                            <div className="desc">{__('WordPress blog posts', 'b-slider')}</div>
                             <div className="bsb_card_hover_btn">
-                                <span>{__('Select Layout', 'slider')} &rarr;</span>
+                                <span>{__('Select Layout', 'b-slider')} &rarr;</span>
                             </div>
                         </div>
                     )}
@@ -127,12 +127,12 @@ const SelectSource = (props) => {
             {!sourceType ? (
                 <div className="bsb_main_parent">
                     <div className="bsb_wizard_header_row">
-                        <span className="bsb_step_badge">{__('Step 1 of 2', 'slider')}</span>
+                        <span className="bsb_step_badge">{__('Step 1 of 2', 'b-slider')}</span>
                     </div>
 
                     <div className="bsb_wizard_header">
-                        <h2>{__('Choose Content Source', 'slider')}</h2>
-                        <p className="bsb_wizard_subtitle">{__('Select the type of content you want to display in your slider', 'slider')}</p>
+                        <h2>{__('Choose Content Source', 'b-slider')}</h2>
+                        <p className="bsb_wizard_subtitle">{__('Select the type of content you want to display in your slider', 'b-slider')}</p>
                     </div>
 
                     <div className="bsb_parent_area source_grid">
@@ -144,7 +144,7 @@ const SelectSource = (props) => {
                                 <div className="title">{item?.title}</div>
                                 {item?.desc && <div className="desc">{item.desc}</div>}
                                 <div className="bsb_card_hover_btn">
-                                    <span>{item.sourceType === 'post_types' ? __('Browse Post Types', 'slider') : __('Select Source', 'slider')} &rarr;</span>
+                                    <span>{item.sourceType === 'post_types' ? __('Browse Post Types', 'b-slider') : __('Select Source', 'b-slider')} &rarr;</span>
                                 </div>
                             </div>
                         ))}

@@ -1,33 +1,53 @@
 import { createElement } from 'react';
 import Excerpt from '../Layouts/grid/Excerpt';
 import AcfFields, { resolveSlideImage, resolveButtonLink, resolveButtonText, resolveTitle } from './AcfFields';
+import LinkedPicture from './LinkedPicture';
 
 const WooItem = (props) => {
-    const { attributes, product, index, classNames = {} } = props;
-    const { button } = attributes;
+    const { attributes, product, index, isBackEnd = false, isSelected = false, classNames = {} } = props;
+    const { title, desc, button, image } = attributes;
     const { thumbnail } = product || {};
-    // Older blocks have no `isVisible` key, so only an explicit `false` hides the button.
+    // Older blocks have no `isVisible` key, so only an explicit `false` hides any of the three.
     const btnLabel = button?.isVisible !== false ? resolveButtonText(product, attributes, button?.text) : '';
+    const showTitle = title?.isVisible !== false;
+    const showDesc = desc?.isVisible !== false;
     const slideImg = resolveSlideImage(product, attributes, thumbnail);
     const btnLink = resolveButtonLink(product, attributes);
     const wooTitle = resolveTitle(product, attributes);
 
-    return <div className={`item ${index === 0 ? 'active' : ''} ${classNames.item || ''}`}>
+    /**
+     * The whole picture as the link to the product — the same answer `PostItem` gives, for the same
+     * reason: with the button hidden a product slide had nothing on it a click could reach. `btnLink`
+     * rather than the product URL directly, so the picture and the button cannot lead to two places.
+     */
+    const imageHref = btnLink || '';
+
+    return <div className={`item ${index === 0 ? 'active' : ''} ${imageHref ? 'is-linked' : ''} ${classNames.item || ''}`}>
         <div className="img">
-            {slideImg?.url && <><img src={slideImg?.url} className="d-block w-100" /></>}
+            {slideImg?.url && <LinkedPicture
+                href={imageHref}
+                linkTarget={image?.linkTarget}
+                /* The picture carries no `alt`, so without this the link would have no accessible name. */
+                label={String(wooTitle || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim() || imageHref}
+                isBackEnd={isBackEnd}
+                isSelected={isSelected}
+            >
+                <img src={slideImg?.url} className="d-block w-100" />
+            </LinkedPicture>}
         </div>
 
         <div className={classNames.contentArea || 'content-area'}>
             <div className={`captionContent ${classNames.captionContent || ''}`}>
-                {wooTitle && createElement("h5", {
+                {showTitle && wooTitle && createElement("h5", {
                     className: `bsbTitle ${classNames.title || ''}`, dangerouslySetInnerHTML: { __html: wooTitle }
                 }, null)}
 
-                <Excerpt attributes={attributes} post={product} classNames={classNames} />
+                {showDesc && <Excerpt attributes={attributes} post={product} classNames={classNames} />}
 
                 {btnLabel && <>
                     <div className={`carousel-button ${classNames.btn || ''}`}>
-                        <a href={btnLink} rel="noreferrer" dangerouslySetInnerHTML={{ __html: btnLabel }} />
+                        {/* The same switch the picture follows — see `Open in a new tab` in the panel. */}
+                        <a href={btnLink} rel={'_blank' === image?.linkTarget ? 'noopener noreferrer' : 'noreferrer'} target={image?.linkTarget || undefined} dangerouslySetInnerHTML={{ __html: btnLabel }} />
                     </div>
                 </>}
             </div>

@@ -4,18 +4,23 @@ import { useState } from 'react';
 import Pagination from '../Common/Layouts/grid/Pagination/Pagination';
 import Excerpt from '../Common/Layouts/grid/Excerpt';
 import AcfFields, { resolveSlideImage, resolveButtonLink, resolveButtonText, resolveTitle } from '../Common/single-item/AcfFields';
+import LinkedPicture from '../Common/single-item/LinkedPicture';
 
-const PostsGridBack = ({ attributes, firstPosts, totalPosts, updateObject }) => {
+const PostsGridBack = ({ attributes, firstPosts, totalPosts, updateObject, commonDeProps = {} }) => {
 
     const [posts, setPosts] = useState(firstPosts);
     const [pageNumber, setPageNumber] = useState(1);
-    const { columns, button, postsQuery, grid } = attributes;
+    const { columns, button, title, desc, postsQuery, grid, image } = attributes;
+    // What tells a linked picture that the first click belongs to the editor — see LinkedPicture.
+    const { isSelected = false } = commonDeProps;
     const { per_page } = postsQuery;
     const [loadMore, setLoadMore] = useState(firstPosts);
     const { paginationType } = grid;
 
-    // Older blocks have no `isVisible` key, so only an explicit `false` hides the button.
+    // Older blocks have no `isVisible` key, so only an explicit `false` hides any of the three.
     const btnLabel = button?.isVisible !== false ? button?.text : '';
+    const showTitle = title?.isVisible !== false;
+    const showDesc = desc?.isVisible !== false;
 
     const { desktop, tablet, mobile } = columns;
     const dpPosts = (Array.isArray(posts) && posts?.length) ? posts : [];
@@ -36,23 +41,29 @@ const PostsGridBack = ({ attributes, firstPosts, totalPosts, updateObject }) => 
                     const slideImg = resolveSlideImage(post, attributes, thumbnail);
                     // Resolved per post, since an ACF field gives each one its own label.
                     const itemBtnLabel = btnLabel ? resolveButtonText(post, attributes, btnLabel) : '';
-                    return <div key={index} className={`item ${index === 0 ? 'active' : ''} `}>
+                    // Mirrors PostItem: the whole picture is the link wherever the button points,
+                    // and `LinkedPicture` renders the bare `<img>` when there is no link to make.
+                    const imageHref = resolveButtonLink(post, attributes) || '';
+                    return <div key={index} className={`item ${index === 0 ? 'active' : ''} ${imageHref ? 'is-linked' : ''} `}>
                         <div className="img">
-                            {slideImg?.url && <><img src={slideImg.url} className="d-block w-100" /></>}
+                            {slideImg?.url && <LinkedPicture href={imageHref} linkTarget={image?.linkTarget} label={String(postTitle || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim() || imageHref} isBackEnd isSelected={isSelected}>
+                                <img src={slideImg.url} className="d-block w-100" />
+                            </LinkedPicture>}
                         </div>
 
                         <div className={'content-area'}>
                             <div className={`captionContent`}>
 
-                                {postTitle && createElement('h5', {
+                                {showTitle && postTitle && createElement('h5', {
                                     className: `bsbTitle`, dangerouslySetInnerHTML: { __html: postTitle }
                                 }, null)}
 
-                                <Excerpt attributes={attributes} post={post} />
+                                {showDesc && <Excerpt attributes={attributes} post={post} />}
 
                                 {itemBtnLabel && <>
                                     <div className={`carousel-button`}>
-                                        <a href={resolveButtonLink(post, attributes)} rel="noreferrer" dangerouslySetInnerHTML={{ __html: itemBtnLabel }} />
+                                        {/* The same switch the picture follows. */}
+                                        <a href={resolveButtonLink(post, attributes)} rel={'_blank' === image?.linkTarget ? 'noopener noreferrer' : 'noreferrer'} target={image?.linkTarget || undefined} dangerouslySetInnerHTML={{ __html: itemBtnLabel }} />
                                     </div>
                                 </>}
                             </div>

@@ -3,8 +3,13 @@ import { createElement } from 'react';
 const ImageItem = (props) => {
 
     const { attributes, slide, index, classNames = {} } = props;
-    const { titleFCaption } = attributes;
+    const { titleFCaption, title, desc: descOptions } = attributes;
 
+    // The same two switches the post source reads, so "hide the captions" means the same thing whatever
+    // a slider is built from. Only an explicit `false` hides anything: a slider saved before these keys
+    // existed has neither of them, and a missing key has to keep meaning "shown".
+    const showTitle = title?.isVisible !== false;
+    const showDesc = descOptions?.isVisible !== false;
 
     const { img, title: slideTitle, desc, altText } = slide || {};
 
@@ -21,11 +26,11 @@ const ImageItem = (props) => {
 
         <div className={classNames.contentArea || 'content-area'}>
             <div className={`captionContent ${classNames.captionContent || ''}`}>
-                {(slideTitle || img?.caption || img?.title) && createElement('h5', {
+                {showTitle && (slideTitle || img?.caption || img?.title) && createElement('h5', {
                     className: `bsbTitle ${classNames.title || ''}`, dangerouslySetInnerHTML: { __html: titleCheck }
                 }, null)}
 
-                {desc && <>
+                {showDesc && desc && <>
                     <p className={classNames.desc || ''} dangerouslySetInnerHTML={{ __html: desc }} />
                 </>}
             </div>

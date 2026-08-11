@@ -41,8 +41,29 @@ export const AccordionGroup = ({ open, children }) => {
     return <AccordionContext.Provider value={group}>{children}</AccordionContext.Provider>;
 };
 
-export const PanelBody = ({ initialOpen, onToggle, opened, panelId, ...props }) => {
+export const PanelBody = ({ initialOpen, onToggle, opened, panelId, badge, ...props }) => {
     const group = useContext(AccordionContext);
+
+    /**
+     * A word on the panel's own header — `badge="New"` and nothing else at the call site.
+     *
+     * Composed here rather than at each call site, so a panel that wants one does not have to build a
+     * fragment and remember the class. It goes *into* the title because that is the only part of a
+     * `PanelBody` header a caller can reach: WordPress builds the row, the chevron and the button, and
+     * anything placed outside the title would land outside the header altogether.
+     *
+     * The badge is not read out as part of the panel's name — `aria-hidden`, because "Slide Content New"
+     * is not what the panel is called, and a screen reader announcing it would be describing our
+     * release notes rather than the setting.
+     */
+    const title = badge
+        ? <>
+            {props.title}
+            <span className='bsbPanelBadge' aria-hidden='true'>{badge}</span>
+        </>
+        : props.title;
+
+    props = { ...props, title };
 
     /**
      * What the group holds on to. A `panelId` is only needed by panels something outside the group

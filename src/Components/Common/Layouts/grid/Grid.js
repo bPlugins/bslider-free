@@ -7,7 +7,7 @@ import { loaderIcon, placeholderImg, play } from '../../../../utils/icons';
 
 const Grid = ({ attributes, commonDeProps }) => {
     const { sliders, columns, grid, sourceType, postsQuery, videoConf, layoutType } = attributes;
-    const { clientId, isBackEnd } = commonDeProps;
+    const { clientId, isBackEnd, isSelected = false } = commonDeProps;
     const { isPopup, icon } = videoConf;
     const { per_page } = postsQuery;
     const { desktop, tablet, mobile } = columns;
@@ -81,14 +81,14 @@ const Grid = ({ attributes, commonDeProps }) => {
                             }} />);
                         case 'posts':
                             return paginatedItems()?.map((post, index) => <PostItem key={index} {...{
-                                attributes, post, index, classNames: {
+                                attributes, post, index, isBackEnd, isSelected, classNames: {
                                     contentArea: 'content-area'
                                 }
                             }} />);
 
                         case 'woo':
                             return paginatedItems()?.map((product, index) => <WooItem key={index} {...{
-                                attributes, product, index, classNames: {
+                                attributes, product, index, isBackEnd, isSelected, classNames: {
                                     contentArea: 'content-area'
                                 }
                             }} />);

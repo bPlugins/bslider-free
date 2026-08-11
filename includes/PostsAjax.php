@@ -13,6 +13,15 @@ if(!class_exists( __NAMESPACE__ . '\PostsAjax' )){
          */
         const MAX_PER_PAGE = 100;
 
+        /**
+         * The nonce action for this route, shared with `render.php`, which mints the token.
+         *
+         * Named for this plugin rather than the generic `wp_ajax` it used to be: a nonce is only
+         * meaningful as a pair of an action and a user, and an action every plugin on the site might
+         * pick is one any of them can satisfy on our behalf.
+         */
+        const NONCE_ACTION = 'bsb_posts';
+
         public function __construct(){
             add_action( 'wp_ajax_bsbPosts', [$this, 'bsbPosts'] );
             add_action( 'wp_ajax_nopriv_bsbPosts', [$this, 'bsbPosts'] );
@@ -34,11 +43,15 @@ if(!class_exists( __NAMESPACE__ . '\PostsAjax' )){
         public function bsbPosts(){
             $nonce = isset( $_POST['_wpnonce'] ) ? sanitize_text_field( wp_unslash( $_POST['_wpnonce'] ) ) : '';
 
-            if( !wp_verify_nonce( $nonce, 'wp_ajax' )){
+            if( !wp_verify_nonce( $nonce, self::NONCE_ACTION )){
                 wp_send_json_error( 'Invalid Request' );
             }
 
+            // `sanitize_array()` answers `false` for anything that is not an array, and `queryAttr`
+            // is whatever the request said it was — so a scalar there means no query settings rather
+            // than a `false` handed on to code that goes looking for keys in it.
             $postsQuery = isset( $_POST['queryAttr'] ) ? Posts::sanitize_array( map_deep( wp_unslash( $_POST['queryAttr'] ), 'sanitize_text_field' ) ) : [];
+            $postsQuery = is_array( $postsQuery ) ? $postsQuery : [];
             $pageNumber = isset( $_POST['pageNumber'] ) ? (int) sanitize_text_field( wp_unslash( $_POST['pageNumber'] ) ) : 1;
             $pageNumber = max( 1, $pageNumber );
 

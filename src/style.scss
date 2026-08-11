@@ -8,6 +8,65 @@
     }
 
     /**
+     * A slide whose whole picture is the link — `Open in a new tab` sits under it in the Slide Content
+     * panel, and the link itself is unconditional. See `LinkedPicture`.
+     *
+     * The caption is not a strip under the slide, it is a panel laid over it: `.carousel-caption` is
+     * absolutely positioned across the middle 70% and `.content-area` across the whole of it. So
+     * without this the link would look broken in exactly the way it was meant to fix — the caption
+     * covers the whole slide, so only the button would answer a click and the picture around it would
+     * not, which is the complaint the link exists to answer.
+     *
+     * The same shape of answer `.bsb-acf-layer` already uses: the layer stops taking clicks, and
+     * whatever inside it is genuinely meant to be clicked takes them back.
+     *
+     * The class is not written on a slide that has no link to protect, so a slider with none keeps its
+     * caption exactly as interactive as it always was.
+     */
+    .item.is-linked {
+
+        /**
+         * The overlay tint, which is the thing that was really in the way.
+         *
+         * `Style.js` lays `.item:after` across the whole slide to paint the overlay colour. A
+         * pseudo-element is not an element, so hit-testing credits it to whatever it belongs to —
+         * every click on a slide arrives with `.item` as its target, never the anchor inside it.
+         *
+         * Nothing is lost by making it transparent to clicks: it paints a colour and that is all.
+         */
+        &::after {
+            pointer-events: none;
+        }
+
+        .carousel-caption,
+        .content-area {
+            pointer-events: none;
+        }
+
+        .carousel-caption a,
+        .carousel-caption button,
+        .content-area a,
+        .content-area button {
+            pointer-events: auto;
+        }
+    }
+
+    /**
+     * The anchor that wraps a slide's picture — see `LinkedPicture`.
+     *
+     * It sits inside `.img` rather than around it, because the picture is sized by `.item > .img img`
+     * and a wrapper outside that box takes it out of the rule's reach.
+     */
+    .bsbSlideLink {
+        display: block;
+        position: relative;
+        /* The picture inside is sized in percentages, so this has to be a real height rather than the
+           `auto` an inline-level anchor would take. */
+        height: 100%;
+        cursor: pointer;
+    }
+
+    /**
      * The placeholder a query with no results falls back to.
      *
      * It carries no colours of its own. A block drops into a theme whose background it cannot know,

@@ -7,7 +7,7 @@ import WooItem from '../single-item/WooItem';
 import CheckPopUp from '../video/Common/CheckPopUP';
 
 const Default = ({ attributes, firstPosts, products, commonDeProps }) => {
-    const { clientId, carousel, setCarousel, isBackEnd = false } = commonDeProps;
+    const { clientId, carousel, setCarousel, isBackEnd = false, isSelected = false } = commonDeProps;
     const { sourceType, sliders, position, videoConf, layoutType } = attributes;
 
     const videoRefs = useRef([]);
@@ -37,12 +37,12 @@ const Default = ({ attributes, firstPosts, products, commonDeProps }) => {
                 switch (sourceType) {
                     case 'posts':
                         return firstPosts?.map((post, index) => <PostItem key={index} {...{
-                            attributes, post, index, classNames: classProps
+                            attributes, post, index, isBackEnd, isSelected, classNames: classProps
                         }} />)
 
                     case 'woo':
                         return firstPosts?.map((product, index) => <WooItem key={index} {...{
-                            attributes, product, index, classNames: classProps
+                            attributes, product, index, isBackEnd, isSelected, classNames: classProps
                         }} />)
 
                     case 'video':

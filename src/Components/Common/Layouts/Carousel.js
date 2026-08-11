@@ -26,7 +26,7 @@ const Carousel = (props) => {
     const { sourceType, sliders, columns, carousel, columnGap, arrow, arrowStyle, videoConf, indicator } = attributes;
     const { loop, isAutoPlay, autoPlayDelay, mousewheel, effect, carouselStyle, grabCursor, reverseDirection, caroDirection, pagination } = carousel;
 
-    const { clientId, activeIndex, isBackEnd } = commonDeProps;
+    const { clientId, activeIndex, isBackEnd, isSelected = false } = commonDeProps;
 
     useEffect(() => {
         if (isBackEnd && swiperRef.current) {
@@ -155,7 +155,7 @@ const Carousel = (props) => {
                         case 'posts':
                             return firstPosts?.map((post, index) => <SwiperSlide className={carouselStyle} key={index}>
                                 <PostItem {...{
-                                    attributes, post, index, classNames: {
+                                    attributes, post, index, isBackEnd, isSelected, classNames: {
                                         contentArea: 'content-area'
                                     }
                                 }} />
@@ -164,7 +164,7 @@ const Carousel = (props) => {
                         case 'woo':
                             return products?.map((product, index) => <SwiperSlide className={carouselStyle} key={index}>
                                 <WooItem {...{
-                                    attributes, product, index, classNames: {
+                                    attributes, product, index, isBackEnd, isSelected, classNames: {
                                         contentArea: 'content-area'
                                     }
                                 }} />

@@ -35,7 +35,7 @@ call_user_func( function( $attributes ) {
         <?php echo wp_kses_post( get_block_wrapper_attributes() ); ?>
         id='bsbCarousel-<?php echo esc_attr( isset( $attributes['cId'] ) ? $attributes['cId'] : '' ); ?>'
         data-attributes='<?php echo esc_attr( wp_json_encode( $attributes ) ); ?>'
-        data-nonce='<?php echo esc_attr( wp_json_encode( wp_create_nonce( 'wp_ajax' ) ) ); ?>'
+        data-nonce='<?php echo esc_attr( wp_json_encode( wp_create_nonce( \B_SLIDER\PostsAjax::NONCE_ACTION ) ) ); ?>'
         <?php // The pagination total: IDs only, since nothing but the count is wanted. ?>
         data-totalposts='<?php echo esc_attr( count( get_posts( array_merge( $query, [ 'posts_per_page' => -1, 'fields' => 'ids' ] ) ) ) ); ?>'
     >

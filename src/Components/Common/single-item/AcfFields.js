@@ -7,6 +7,7 @@
  * field's own icon, label and affix settings.
  */
 
+import { __ } from '@wordpress/i18n';
 import { sanitizeHref } from '../../../utils/functions';
 
 const MEDIA_TYPES = ['image', 'gallery'];
@@ -324,12 +325,17 @@ const AcfItem = ({ acf, cfg, anim = {} }) => {
     // A field's own preset, when it has one. The group already carries the set's, and style.scss
     // states this one after it, so the field's choice is what shows.
     const preset = fieldPresetOf(cfg);
-    const classes = `bsb-acf-item ${preset ? `bsb-acf-item--${preset}` : ''} ${className}`;
+    /* `--badge` so the Badge style can reach these and nothing else: an ACF field shares this markup and
+       has its own panel, and one set of colours claiming both would be a setting bleeding into a feature
+       nobody was editing. See `badgeCSS` in Style. */
+    const classes = `bsb-acf-item ${acf?.isBadge ? 'bsb-acf-item--badge' : ''} ${preset ? `bsb-acf-item--${preset}` : ''} ${className}`;
 
+    // Through `sanitizeHref` for the same reason the button link is: a url, link or email field
+    // is typed into freely, and `javascript:` goes in as easily as an address does.
     if (LINK_TYPES.includes(acf.type) && acf.url) {
         return <div className={classes} style={itemStyle}>
             <Label acf={acf} cfg={cfg} />
-            <a className="bsb-acf-value" href={acf.url} rel="noreferrer"><Value acf={acf} cfg={cfg} /></a>
+            <a className="bsb-acf-value" href={sanitizeHref(acf.url)} rel="noreferrer"><Value acf={acf} cfg={cfg} /></a>
         </div>;
     }
 
@@ -345,6 +351,88 @@ const AcfItem = ({ acf, cfg, anim = {} }) => {
  * `classNames` only arrives from the carousel layout, so grid renderers pass nothing and their
  * ACF fields stay static — which matches the rest of a grid, where nothing animates.
  */
+/**
+ * When the badges arrive, and how.
+ *
+ * **The problem this fixes.** A badge had no animation of its own: it borrowed the one belonging to
+ * whatever the caption puts at its anchor — `ANCHOR_ANIMATION` above — and with it that element's delay.
+ * So a badge anchored at the top inherited the title's `delay: 0` and was on screen before anything else,
+ * while the button it was meant to follow arrived a second and a half later. Nothing looked staged; the
+ * badges looked like they had escaped.
+ *
+ * **`afterButton` reads the caption rather than assuming it.** It waits for whichever of the title, the
+ * description and the button *finishes* last — `delay + duration`, taken across all three — so it stays
+ * correct when somebody reorders them or slows one down. Assuming the button is last would be right today
+ * and wrong the moment its delay is edited.
+ *
+ * `stagger` then spaces the badges among themselves, so three of them cascade instead of landing as a
+ * block. `custom` hands the timing over.
+ *
+ * Only where the caption animates at all: `classNames` arrives from the carousel layouts and not from the
+ * grids, and a grid animates nothing.
+ */
+export const badgeAnimation = (attributes, classNames) => {
+    const { effect, duration, start, delay, stagger } = attributes?.badgeAnimation || {};
+
+    if (!classNames || !effect) {
+        return () => ({});
+    }
+
+    const step = Number.isFinite(Number(stagger)) ? Number(stagger) : 0.12;
+
+    const ends = ['title', 'desc', 'btn'].map(part => {
+        const animation = attributes?.[`${part}Animation`] || {};
+
+        // Read through `Number.isFinite`, because 0 is a real answer for both — a part with no delay and
+        // no motion still finishes at 0, and `||` would replace that with a default.
+        const at = Number.isFinite(Number(animation.delay)) ? Number(animation.delay) : 0;
+        const runs = Number.isFinite(Number(animation.duration)) ? Number(animation.duration) : 0.7;
+
+        return animation.effect ? at + runs : 0;
+    });
+
+    /**
+     * Two answers: after the content, or at a number somebody chose.
+     *
+     * Anything that is not `custom` waits for the content, so a slider saved with an older value lands on
+     * the default instead of on nothing.
+     */
+    const base = 'custom' === start
+        ? (Number.isFinite(Number(delay)) ? Number(delay) : 0)
+        : Math.max(0, ...ends);
+
+    /**
+     * A caption revealed on hover is driven by transitions, not keyframes — so here the badge hands over
+     * its delay and nothing else.
+     *
+     * **Why the class has to go in that mode.** A keyframe animation runs once, when its element appears,
+     * and `.animate__animated` holds it on its last frame afterwards. On a hover-revealed caption that
+     * meant the first hover animated and every hover after it showed the badges already in place. The
+     * rules that replace it live in `Style` — see `layerMotionCSS` — and they need the per-badge stagger,
+     * which only this function knows. `--bsb-item-delay` is how it gets there.
+     *
+     * Everywhere else the keyframes are still right: the slide appears once and so does the badge.
+     */
+    const onHover = 'hover' === attributes?.caption?.display;
+
+    return idx => {
+        // Rounded so float drift does not put `0.78000000000000003s` in the markup.
+        const at = `${Math.round((base + idx * step) * 1000) / 1000}s`;
+
+        if (onHover) {
+            return { style: { '--bsb-item-delay': at } };
+        }
+
+        return {
+            className: `animate__animated animate__${effect}`,
+            style: {
+                animationDelay: at,
+                ...(Number.isFinite(Number(duration)) ? { animationDuration: `${Number(duration)}s` } : {})
+            }
+        };
+    };
+};
+
 const anchorAnimation = (anchor, attributes, classNames) => {
     const source = ANCHOR_ANIMATION[anchor.split('-')[0]];
     const className = classNames?.[source];
@@ -355,14 +443,26 @@ const anchorAnimation = (anchor, attributes, classNames) => {
 
     const { delay = 0, duration } = attributes?.[`${source}Animation`] || {};
 
-    return idx => ({
-        className,
-        style: {
-            // Rounded so float drift does not put `0.78000000000000003s` in the markup.
-            animationDelay: `${Math.round(((Number(delay) || 0) + idx * STAGGER) * 1000) / 1000}s`,
-            ...(duration ? { animationDuration: `${duration}s` } : {})
+    /* The same reason the badges hand their delay over instead of a class — see `badgeAnimation`. An ACF
+       field sits on the same layer and had the same one-shot keyframes. */
+    const onHover = 'hover' === attributes?.caption?.display;
+
+    return idx => {
+        // Rounded so float drift does not put `0.78000000000000003s` in the markup.
+        const at = `${Math.round(((Number(delay) || 0) + idx * STAGGER) * 1000) / 1000}s`;
+
+        if (onHover) {
+            return { style: { '--bsb-item-delay': at } };
         }
-    });
+
+        return {
+            className,
+            style: {
+                animationDelay: at,
+                ...(duration ? { animationDuration: `${duration}s` } : {})
+            }
+        };
+    };
 };
 
 /**
@@ -373,15 +473,45 @@ const anchorAnimation = (anchor, attributes, classNames) => {
  * the fields themselves take them back, so a linked field is still clickable.
  */
 const AcfFields = ({ post, attributes, classNames }) => {
-    const fields = post?.acf_fields;
+    const { layoutType, postsQuery } = attributes || {};
+    const selectedBadges = postsQuery?.selectedBadges || [];
+
+    /**
+     * The date and author badges, added to whatever ACF fields the post already has.
+     *
+     * They join the ACF layer rather than opening a second overlay: two layers over one slide would
+     * anchor independently, and a date in the bottom-left corner would sit underneath or on top of an
+     * ACF field in the same corner depending on nothing a user could see.
+     */
+    const badgesFrom = (chosen, into) => {
+        if (chosen.includes('date') && post?.date) {
+            into['date'] = { name: 'date', label: __('Date', 'b-slider'), type: 'text', value: post.date, isBadge: true };
+        }
+
+        if (chosen.includes('author') && post?.author?.name) {
+            into['author'] = { name: 'author', label: __('Author', 'b-slider'), type: 'text', value: post.author.name, isBadge: true };
+        }
+
+        return into;
+    };
+
+    // The ACF fields first, so a badge wins a name collision — a site with a field actually
+    // called `date` would otherwise have its badge silently replaced by the field.
+    const fields = badgesFrom(selectedBadges, { ...(post?.acf_fields || {}) });
 
     if (!fields || Object.keys(fields).length === 0) {
         return null;
     }
 
-    const { layoutType, postsQuery } = attributes || {};
-    const settings = postsQuery?.acfFieldSettings || {};
-    const style = presetOf(postsQuery?.acfDisplayStyle);
+    // The badges' own settings sit on top of the ACF ones, matching which of the two wins a name
+    // collision above.
+    const settings = { ...(postsQuery?.acfFieldSettings || {}), ...(postsQuery?.badgeSettings || {}) };
+    // A slider with no ACF fields at all is showing badges and nothing else, so the badge style is
+    // the one to fall back on. With both present the ACF setting keeps the layer it already had,
+    // and a badge that wants to differ says so with its own preset.
+    const style = presetOf(Object.keys(post?.acf_fields || {}).length
+        ? postsQuery?.acfDisplayStyle
+        : postsQuery?.badgeDisplayStyle);
 
     // Pick order, which is the order Posts.php returns them in.
     const placeable = Object.values(fields).filter(acf => rendersAsCaption(acf?.name, acf?.type, postsQuery));
@@ -397,13 +527,30 @@ const AcfFields = ({ post, attributes, classNames }) => {
     return <div className="bsb-acf-layer">
         {used.map(({ anchor, items }) => {
             const animOf = anchorAnimation(anchor, attributes, classNames);
+            const badgeAnimOf = badgeAnimation(attributes, classNames);
+
+            /**
+             * Badges are counted among themselves.
+             *
+             * The stagger is what makes three badges cascade, and it has to count 0, 1, 2 across the
+             * badges on this anchor — not across every field on it. An ACF field sitting between two
+             * badges would otherwise leave a gap in the cascade that nothing on screen explains.
+             */
+            let badgeIndex = -1;
 
             return <div
                 key={anchor}
                 className={`bsb-acf-fields bsb-acf-fields--${layoutType || 'default'} bsb-acf-fields--${style} bsb-acf-at--${anchor}`}
             >
                 {items.map((acf, idx) => (
-                    <AcfItem key={acf?.name || idx} acf={acf} cfg={settingsOf(acf, settings)} anim={animOf(idx)} />
+                    <AcfItem
+                        key={acf?.name || idx}
+                        acf={acf}
+                        cfg={settingsOf(acf, settings)}
+                        /* A badge follows the Badge Animation settings; an ACF field keeps the caption
+                           part's own timing, which is what its own panel is written against. */
+                        anim={acf?.isBadge ? badgeAnimOf(++badgeIndex) : animOf(idx)}
+                    />
                 ))}
             </div>;
         })}
