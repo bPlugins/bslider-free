@@ -1,4 +1,4 @@
-import { gridIcon, masonryIcon, sliderIcon, tickerIcon } from '../../utils/icons';
+import { grid as gridIcon, carousel as masonryIcon, slider as sliderIcon, carousel as tickerIcon } from '../../utils/icons';
 import { elementorTabIcon, gutenbergTabIcon, phpTabIcon, shortcodeTabIcon } from './icons';
 
 
@@ -511,4 +511,9 @@ export const welcomeInfo = (adminUrl) => ({
         'Enhanced Thumbnails: Control navigation arrows, overlays, cursor options, and direction for thumbnails.',
         'Multiple Layouts: Switch between slider, carousel, grid, or thumbnails for flexible presentations.',
     ],
-})
+});
+
+export const settingsInfo = {
+	ajaxAction: 'bsbSaveUninstallOption',
+	cleanupItems: []
+};

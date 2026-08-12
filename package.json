@@ -17,7 +17,7 @@
 		"i18n": "npm run i18n-pot && npm run i18n-json && npm run i18n-mo",
 		"plugin-zip": "wp-scripts plugin-zip",
 		"find-ds": "find . -name '.DS_Store' -delete",
-		"zip": "npm run build && npm run i18n && npm run find-ds && rm -f b-slider.zip && zip -r b-slider.zip b-slider.php custom-post.php index.php includes assets build languages vendor readme.txt -x '*.DS_Store' '*.map'"
+		"zip": "npm run build && npm run i18n && npm run find-ds && rm -f b-slider.zip && cd .. && zip -r b-slider/b-slider.zip b-slider/b-slider.php b-slider/custom-post.php b-slider/index.php b-slider/includes b-slider/assets b-slider/build b-slider/languages b-slider/vendor b-slider/readme.txt -x '*/.DS_Store' '*/.map'"
 	},
 	"dependencies": {
 		"@fancyapps/ui": "^5.0.33",
