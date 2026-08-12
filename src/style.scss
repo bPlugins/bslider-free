@@ -230,6 +230,47 @@
         .bsb-acf-icon {
             font-style: normal;
             line-height: 1;
+
+            /* Held to the badge's own type size, and kept from being squeezed by the pill's flex
+               row — the icon is one character, and it has no business growing or shrinking. */
+            font-size: 1em;
+            display: inline-flex;
+            align-items: center;
+            flex: 0 0 auto;
+        }
+
+        /**
+         * An image standing in for a character in a badge.
+         *
+         * **Why one appears at all.** The Icon, Prefix and Suffix boxes take an emoji, and on the
+         * front end WordPress's emoji script watches the page and swaps an emoji it thinks the
+         * browser cannot draw for `<img class="emoji">`. The block editor's canvas does not run that
+         * script, so this only ever happened on the front end — which is exactly where it was
+         * reported.
+         *
+         * **Why it came out enormous.** Every image inside a slide is the slide's picture as far as
+         * `.bsbCarousel .item img` below is concerned: `width: 100% !important; height: 100%`. The
+         * swapped-in emoji is inside the slide, so it was stretched to fill it.
+         *
+         * Written with `img.emoji` alongside the bare `img` to outweigh that rule — it is one class
+         * heavier, and both carry `!important`, so specificity is what decides it. `1em` is the size
+         * WordPress gives the image itself, so this restores what the emoji would have looked like
+         * had it never been replaced.
+         */
+        .bsb-acf-item img,
+        .bsb-acf-item img.emoji {
+            width: 1em !important;
+            height: 1em !important;
+            max-width: 1em !important;
+            min-width: 0 !important;
+            margin: 0 0.07em !important;
+            padding: 0 !important;
+            display: inline-block !important;
+            object-fit: contain !important;
+            vertical-align: -0.1em;
+            border: 0;
+            border-radius: 0;
+            box-shadow: none;
         }
 
         .bsb-acf-affix {

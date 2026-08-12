@@ -2,6 +2,7 @@ import { createElement } from 'react';
 import Excerpt from '../Layouts/grid/Excerpt';
 import AcfFields, { resolveSlideImage, resolveButtonLink, resolveButtonText, resolveTitle } from './AcfFields';
 import LinkedPicture from './LinkedPicture';
+import SlideLink from './SlideLink';
 
 const WooItem = (props) => {
     const { attributes, product, index, isBackEnd = false, isSelected = false, classNames = {} } = props;
@@ -27,11 +28,13 @@ const WooItem = (props) => {
     const accessibleLabel = String(wooTitle || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim() || imageHref;
 
     return <div className={`item ${index === 0 ? 'active' : ''} ${imageHref ? 'is-linked' : ''} ${classNames.item || ''}`}>
-        {imageHref && !slideImg?.url && <a
+        {imageHref && !slideImg?.url && <SlideLink
             className='bsbSlideOverlay'
             href={imageHref}
-            target={image?.linkTarget || undefined}
+            linkTarget={image?.linkTarget}
             rel={'_blank' === image?.linkTarget ? 'noopener noreferrer' : undefined}
+            isBackEnd={isBackEnd}
+            isSelected={isSelected}
             aria-hidden='true'
             tabIndex='-1'
         />}
@@ -59,14 +62,14 @@ const WooItem = (props) => {
                 {btnLabel && <>
                     <div className={`carousel-button ${classNames.btn || ''}`}>
                         {/* The same switch the picture follows — see `Open in a new tab` in the panel. */}
-                        <a href={btnLink} rel={'_blank' === image?.linkTarget ? 'noopener noreferrer' : 'noreferrer'} target={image?.linkTarget || undefined} dangerouslySetInnerHTML={{ __html: btnLabel }} />
+                        <SlideLink href={btnLink} linkTarget={image?.linkTarget} isBackEnd={isBackEnd} isSelected={isSelected} dangerouslySetInnerHTML={{ __html: btnLabel }} />
                     </div>
                 </>}
             </div>
         </div>
 
         {/* Last, so the ACF layer paints over the image and caption rather than under them. */}
-        <AcfFields post={product} attributes={attributes} classNames={classNames} />
+        <AcfFields post={product} attributes={attributes} classNames={classNames} isBackEnd={isBackEnd} isSelected={isSelected} />
     </div>
 }
 export default WooItem;

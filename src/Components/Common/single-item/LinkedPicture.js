@@ -1,4 +1,4 @@
-import useEditorPictureLink from '../../../hooks/useEditorPictureLink';
+import useEditorLink from '../../../hooks/useEditorLink';
 
 /**
  * A slide picture that is itself the link — the `Clicking the picture` setting.
@@ -24,7 +24,7 @@ import useEditorPictureLink from '../../../hooks/useEditorPictureLink';
 const LinkedPicture = ({ href, linkTarget, label = '', isBackEnd = false, isSelected = false, children }) => {
     /* Called before the early return, because a hook cannot be skipped on some renders and not others.
        It costs one ref on a slide that has no link. */
-    const editorLink = useEditorPictureLink({ isBackEnd, isSelected, linkTarget });
+    const editorLink = useEditorLink({ isBackEnd, isSelected, linkTarget, href });
 
     // A fragment rather than `children` bare: a caller passing two nodes would otherwise have this
     // component return an array, which React asks for keys on.

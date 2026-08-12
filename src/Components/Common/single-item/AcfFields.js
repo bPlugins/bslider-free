@@ -9,6 +9,7 @@
 
 import { __ } from '@wordpress/i18n';
 import { sanitizeHref } from '../../../utils/functions';
+import SlideLink from './SlideLink';
 
 const MEDIA_TYPES = ['image', 'gallery'];
 const LINK_TYPES = ['link', 'url', 'email'];
@@ -318,7 +319,7 @@ const offsetStyle = cfg => {
     };
 };
 
-const AcfItem = ({ acf, cfg, anim = {} }) => {
+const AcfItem = ({ acf, cfg, anim = {}, isBackEnd = false, isSelected = false }) => {
     const { className = '', style } = anim;
     const itemStyle = { ...offsetStyle(cfg), ...style };
 
@@ -335,7 +336,10 @@ const AcfItem = ({ acf, cfg, anim = {} }) => {
     if (LINK_TYPES.includes(acf.type) && acf.url) {
         return <div className={classes} style={itemStyle}>
             <Label acf={acf} cfg={cfg} />
-            <a className="bsb-acf-value" href={sanitizeHref(acf.url)} rel="noreferrer"><Value acf={acf} cfg={cfg} /></a>
+            {/* `SlideLink` rather than a bare anchor so this follows the editor's click rule with the
+                rest of the slide — a field link sitting over the picture would otherwise still throw
+                the canvas away on a first click. See `useEditorLink`. */}
+            <SlideLink className="bsb-acf-value" href={sanitizeHref(acf.url)} isBackEnd={isBackEnd} isSelected={isSelected}><Value acf={acf} cfg={cfg} /></SlideLink>
         </div>;
     }
 
@@ -472,7 +476,7 @@ const anchorAnimation = (anchor, attributes, classNames) => {
  * The overlay ignores pointer events so it cannot swallow a click meant for the slide beneath —
  * the fields themselves take them back, so a linked field is still clickable.
  */
-const AcfFields = ({ post, attributes, classNames }) => {
+const AcfFields = ({ post, attributes, classNames, isBackEnd = false, isSelected = false }) => {
     const { layoutType, postsQuery } = attributes || {};
     const selectedBadges = postsQuery?.selectedBadges || [];
 
@@ -547,6 +551,8 @@ const AcfFields = ({ post, attributes, classNames }) => {
                         key={acf?.name || idx}
                         acf={acf}
                         cfg={settingsOf(acf, settings)}
+                        isBackEnd={isBackEnd}
+                        isSelected={isSelected}
                         /* A badge follows the Badge Animation settings; an ACF field keeps the caption
                            part's own timing, which is what its own panel is written against. */
                         anim={acf?.isBadge ? badgeAnimOf(++badgeIndex) : animOf(idx)}

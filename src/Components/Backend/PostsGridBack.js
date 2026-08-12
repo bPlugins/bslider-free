@@ -5,13 +5,14 @@ import Pagination from '../Common/Layouts/grid/Pagination/Pagination';
 import Excerpt from '../Common/Layouts/grid/Excerpt';
 import AcfFields, { resolveSlideImage, resolveButtonLink, resolveButtonText, resolveTitle } from '../Common/single-item/AcfFields';
 import LinkedPicture from '../Common/single-item/LinkedPicture';
+import SlideLink from '../Common/single-item/SlideLink';
 
 const PostsGridBack = ({ attributes, firstPosts, totalPosts, updateObject, commonDeProps = {} }) => {
 
     const [posts, setPosts] = useState(firstPosts);
     const [pageNumber, setPageNumber] = useState(1);
     const { columns, button, title, desc, postsQuery, grid, image } = attributes;
-    // What tells a linked picture that the first click belongs to the editor — see LinkedPicture.
+    // What tells every link on a slide that the first click belongs to the editor — see useEditorLink.
     const { isSelected = false } = commonDeProps;
     const { per_page } = postsQuery;
     const [loadMore, setLoadMore] = useState(firstPosts);
@@ -63,14 +64,14 @@ const PostsGridBack = ({ attributes, firstPosts, totalPosts, updateObject, commo
                                 {itemBtnLabel && <>
                                     <div className={`carousel-button`}>
                                         {/* The same switch the picture follows. */}
-                                        <a href={resolveButtonLink(post, attributes)} rel={'_blank' === image?.linkTarget ? 'noopener noreferrer' : 'noreferrer'} target={image?.linkTarget || undefined} dangerouslySetInnerHTML={{ __html: itemBtnLabel }} />
+                                        <SlideLink href={imageHref} linkTarget={image?.linkTarget} isBackEnd isSelected={isSelected} dangerouslySetInnerHTML={{ __html: itemBtnLabel }} />
                                     </div>
                                 </>}
                             </div>
                         </div>
 
                         {/* Last, so the ACF layer paints over the image and caption. */}
-                        <AcfFields post={post} attributes={attributes} />
+                        <AcfFields post={post} attributes={attributes} isBackEnd isSelected={isSelected} />
                     </div>
                 })
             }
