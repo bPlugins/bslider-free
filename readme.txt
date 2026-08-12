@@ -1,4 +1,4 @@
-=== bSlider – Create Responsive Image, Post, Product, and Video Sliders ===
+=== bSlider – Build Sliders That Bring Your Content to Life ===
 Contributors: bplugins, abuhayat, btechnologies, farazi1, freemius
 Donate link: https://www.buymeacoffee.com/abuhayat
 Tags: block, carousel, slider, bootstrap, Gutenberg block
@@ -63,8 +63,11 @@ You can use bSlider for product showcases, portfolios, testimonials, or hero sec
 - **Picture Hover Effects**: Zoom in, zoom out, or hold the picture grey until a visitor points at it.
 - **Linked Slide Pictures**: The whole picture links wherever the button points, with one switch to open both in a new tab.
 - **Post Badges**: Print the publish date and the author name over a slide, each with its own icon, prefix, suffix, corner, offset and look.
+- **WooCommerce Product Price Badge**: Display product prices (regular and sale) as a badge on WooCommerce product slides, with an option to show only the sale price.
+- **WooCommerce Sale Badge**: Show a "Sale!" badge or the exact discount percentage (e.g. −25%) on products that are on sale.
 - **Badge Animation**: Choose the effect, let the badges follow the caption or set your own delay, and space them so several cascade.
 - **Badge Styling**: One set of typography and colours for every badge on the slider.
+- **Selective Hover Controls**: When content is shown on hover, choose exactly which parts appear — title, description, button, date, author, price or sale — independently.
 
 === bSlider Pro – Unlock Premium Features ===
 [bSlider Pro](https://bplugins.com/products/b-slider/pricing/) gives you more design power and control. Add advanced effects, flexible layouts, and interactive options to create engaging, professional sliders.
@@ -260,10 +263,13 @@ Please report security bugs found in the source code of the bSlider plugin throu
 = 2.0.18 - 11 August, 2026 =
 * New: Slide Content panel — one place to show or hide a slide's title, description and button, and to set the button label;
 * New: Show the slide content on hover only, so the picture stands on its own until it is pointed at;
+* New: Selective hover controls — when content appears on hover, pick which parts show (title, description, button, date, author, price, sale) independently;
 * New: Content background choice — tint the whole picture, fade the colour in behind the text, or use none;
 * New: Picture on hover — zoom in, zoom out, or grey until pointed at;
 * New: A slide's picture is now a link to the post or product wherever the button points, with an option to open both in a new tab;
 * New: Post Badges panel — show the publish date and the author name as badges over a slide, each with its own icon, prefix, suffix, corner, offset and style preset;
+* New: WooCommerce Product Price badge — display product prices (regular and sale) with a toggle to show only the sale price;
+* New: WooCommerce Sale badge — show "Sale!" text or the exact discount percentage (e.g. −25%) on products that are on sale;
 * New: Badge animation — pick the effect, let the badges follow the caption or set your own delay, and space them apart so several cascade;
 * New: Badges section on the Style tab for the typography and colours every badge shares;
 * Fix: Advanced Custom Fields link, url and email fields are now sanitised before they are used as a link;
@@ -475,7 +481,7 @@ Please report security bugs found in the source code of the bSlider plugin throu
 == Upgrade Notice ==
 
 = 2.0.18 - 11 August, 2026 =
-* Adds the Slide Content panel, date and author badges, linked slide pictures, and fixes badge animation on hover.
+* Adds slide content panel, WooCommerce price and sale badges, selective hover controls, linked slide pictures, and fixes badge animation on hover.
 
 = 2.0.17 - 02 August, 2026 =
 * Adds Advanced Custom Fields and Custom Post Type sliders, free shows three ACF fields per slide.

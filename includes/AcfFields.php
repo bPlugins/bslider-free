@@ -34,6 +34,69 @@ class AcfFields {
             'callback' => [ $this, 'get_post_acf_values' ],
             'permission_callback' => [ __CLASS__, 'can_edit' ]
         ] );
+
+        register_rest_field( 'product', 'price', [
+            'get_callback' => function( $object ) {
+                if ( function_exists( 'wc_get_product' ) ) {
+                    $product = wc_get_product( $object['id'] );
+                    if ( $product ) {
+                        $price_html = $product->get_price_html();
+                        $price_html = preg_replace( '/<span class="screen-reader-text">.*?<\/span>/is', '', $price_html );
+                        return html_entity_decode( $price_html, ENT_QUOTES, 'UTF-8' );
+                    }
+                }
+                return '';
+            },
+            'schema' => null,
+        ] );
+
+        register_rest_field( 'product', 'sale', [
+            'get_callback' => function( $object ) {
+                if ( function_exists( 'wc_get_product' ) ) {
+                    $product = wc_get_product( $object['id'] );
+                    return ($product && $product->is_on_sale()) ? __( 'Sale!', 'b-slider' ) : '';
+                }
+                return '';
+            },
+            'schema' => null,
+        ] );
+
+        register_rest_field( 'product', 'sale_percent', [
+            'get_callback' => function( $object ) {
+                if ( function_exists( 'wc_get_product' ) ) {
+                    $product = wc_get_product( $object['id'] );
+                    if ( $product && $product->is_on_sale() ) {
+                        if ( $product->is_type( 'simple' ) || $product->is_type( 'external' ) ) {
+                            $regular_price = (float) $product->get_regular_price();
+                            $sale_price = (float) $product->get_sale_price();
+                            if ( $regular_price > 0 && $sale_price > 0 ) {
+                                $percentage = round( ( ( $regular_price - $sale_price ) / $regular_price ) * 100 );
+                                return '-' . $percentage . '%';
+                            }
+                        } else if ( $product->is_type( 'variable' ) ) {
+                            $prices = $product->get_variation_prices();
+                            $max_percentage = 0;
+                            foreach ( $prices['price'] as $key => $var_price ) {
+                                $regular_price = (float) $prices['regular_price'][$key];
+                                $sale_price = (float) $prices['sale_price'][$key];
+                                if ( $regular_price > 0 && $sale_price > 0 && $regular_price > $sale_price ) {
+                                    $p = round( ( ( $regular_price - $sale_price ) / $regular_price ) * 100 );
+                                    if ( $p > $max_percentage ) {
+                                        $max_percentage = $p;
+                                    }
+                                }
+                            }
+                            if ( $max_percentage > 0 ) {
+                                return '-' . $max_percentage . '%';
+                            }
+                        }
+                        return __( 'Sale!', 'b-slider' );
+                    }
+                }
+                return '';
+            },
+            'schema' => null,
+        ] );
     }
 
     public static function can_edit() {

@@ -227,9 +227,55 @@ if(!class_exists( __NAMESPACE__ . '\Posts' )){
                 ];
 
                 // $contentOrExcerptArr = [ 'content' => $post->post_content];
-        
+                $price = '';
+                $sale = '';
+                $sale_percent = '';
+                if ( isset( $post->post_type ) && 'product' === $post->post_type && function_exists( 'wc_get_product' ) ) {
+                    $product = wc_get_product( $id );
+                    if ( $product ) {
+                        $price_html = $product->get_price_html();
+                        $price_html = preg_replace( '/<span class="screen-reader-text">.*?<\/span>/is', '', $price_html );
+                        $price = html_entity_decode( $price_html, ENT_QUOTES, 'UTF-8' );
+                        
+                        if ( $product->is_on_sale() ) {
+                            $sale = __( 'Sale!', 'b-slider' );
+                            if ( $product->is_type( 'simple' ) || $product->is_type( 'external' ) ) {
+                                $regular_price = (float) $product->get_regular_price();
+                                $sale_price = (float) $product->get_sale_price();
+                                if ( $regular_price > 0 && $sale_price > 0 ) {
+                                    $percentage = round( ( ( $regular_price - $sale_price ) / $regular_price ) * 100 );
+                                    $sale_percent = '-' . $percentage . '%';
+                                }
+                            } else if ( $product->is_type( 'variable' ) ) {
+                                $prices = $product->get_variation_prices();
+                                $max_percentage = 0;
+                                foreach ( $prices['price'] as $key => $var_price ) {
+                                    $regular_price = (float) $prices['regular_price'][$key];
+                                    $sale_price = (float) $prices['sale_price'][$key];
+                                    if ( $regular_price > 0 && $sale_price > 0 && $regular_price > $sale_price ) {
+                                        $p = round( ( ( $regular_price - $sale_price ) / $regular_price ) * 100 );
+                                        if ( $p > $max_percentage ) {
+                                            $max_percentage = $p;
+                                        }
+                                    }
+                                }
+                                if ( $max_percentage > 0 ) {
+                                    $sale_percent = '-' . $max_percentage . '%';
+                                }
+                            }
+                            if ( empty( $sale_percent ) ) {
+                                $sale_percent = __( 'Sale!', 'b-slider' );
+                            }
+                        }
+                    }
+                }
+
+
                 $arranged[] = array_merge( [
                     'id' => $id,
+                    'price' => $price,
+                    'sale' => $sale,
+                    'sale_percent' => $sale_percent,
                     'link' => get_permalink( $post ),
                     'name' => isset( $post->post_name ) ? sanitize_text_field($post->post_name) : '',
                     'thumbnail' => $thumbnail,

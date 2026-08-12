@@ -3,7 +3,7 @@ import { getTypoCSS, getColorsCSS } from '../../../../bpl-tools/utils/getCSS';
 import arrows from '../../utils/arrows';
 
 const Style = ({ attributes, clientId, postsCount, products }) => {
-	const { badgeStyle = {}, sliders, slideInnerGap, slideInnerGapDevice, titleTypo, titleColor, descTypo, descColor, titleMargin, descMargin, arrow, arrowStyle, indicator, SliderOverly, height, sliderHeight, borderRadius, arrowWidth, deviceArrowWidth, arrowHeight, deviceArrowHeight, arrowRadius, btnColors, btnHovColors, btnPadding, btnBorder, btnRadius, direction, columnGap, rowGap, grid, arrowBorder, thumbnails, sourceType, carousel, caption, image } = attributes;
+	const { badgeStyle = {}, sliders, slideInnerGap, slideInnerGapDevice, titleTypo, titleColor, descTypo, descColor, titleMargin, descMargin, arrow, arrowStyle, indicator, SliderOverly, height, sliderHeight, borderRadius, arrowWidth, deviceArrowWidth, arrowHeight, deviceArrowHeight, arrowRadius, btnColors, btnHovColors, btnPadding, btnBorder, btnRadius, direction, columnGap, rowGap, grid, arrowBorder, thumbnails, sourceType, carousel, caption, image, title, desc, button, postsQuery, layoutType } = attributes;
 	const { loadMoreBtn } = grid;
 	const { overly, height: thumbnailsHeight, width: thumbnailsWidth, active } = thumbnails;
 	const { carouselStyle } = carousel;
@@ -75,12 +75,16 @@ const Style = ({ attributes, clientId, postsCount, products }) => {
 	 * exist at all — the grid, thumbnail and carousel layouts have never animated the caption's parts.
 	 * Their captions still reveal as a whole, through `overlaid`.
 	 */
-	const captionParts = [
-		// [selector, resting state, delay] — the resting state is the animate.css effect's own first frame.
-		['.carousel-caption .bsbTitle', 'opacity: 0; translate: -100% 0;', 0],
-		['.carousel-caption p.animate__animated', 'opacity: 0; translate: 100% 0;', 0.7],
-		['.carousel-caption .carousel-button', 'opacity: 0; scale: 0.3;', 1.4],
-	];
+	const captionParts = [];
+	if (caption?.hoverTitle !== false) {
+		captionParts.push(['.carousel-caption .bsbTitle', 'opacity: 0; translate: -100% 0;', 0]);
+	}
+	if (caption?.hoverDesc !== false) {
+		captionParts.push(['.carousel-caption p.animate__animated', 'opacity: 0; translate: 100% 0;', 0.7]);
+	}
+	if (caption?.hoverBtn !== false) {
+		captionParts.push(['.carousel-caption .carousel-button', 'opacity: 0; scale: 0.3;', 1.4]);
+	}
 
 	const hoverMotionCSS = captionParts.map(([selector, resting, delay]) => `		/* At rest, and the way back: no delay, so the caption leaves as soon as the pointer does. */
 		#bsbCarousel-${clientId} .item ${selector} {
@@ -145,34 +149,82 @@ const Style = ({ attributes, clientId, postsCount, products }) => {
 		? Number(attributes.badgeAnimation.duration)
 		: 0.6;
 
-	const layerMotionCSS = `		/* At rest, and the way back: no delay, so they leave as soon as the pointer does. */
-		#bsbCarousel-${clientId} .item .bsb-acf-item {
+	const isPostSource = sourceType === 'posts' || sourceType === 'woo';
+
+	const selectedAcfFields = postsQuery?.selectedAcfFields || [];
+	const acfFieldSettings = postsQuery?.acfFieldSettings || {};
+
+	// Create a unique set of all possible active ACF field names
+	const activeFieldNames = new Set([
+		...selectedAcfFields,
+		...Object.keys(acfFieldSettings)
+	]);
+
+	let hasAlwaysVisibleAcf = false;
+	const hoverAcfSelectors = [];
+
+	activeFieldNames.forEach(fieldName => {
+		const fieldCfg = acfFieldSettings[fieldName] || {};
+		if (fieldCfg.hoverOnly !== false) {
+			hoverAcfSelectors.push(`#bsbCarousel-${clientId} .item .bsb-acf-field-${fieldName}`);
+		} else {
+			hasAlwaysVisibleAcf = true;
+		}
+	});
+
+	if (sourceType === 'posts' && caption?.hoverDate !== false) {
+		hoverAcfSelectors.push(`#bsbCarousel-${clientId} .item .bsb-acf-field-date`);
+	}
+	if (sourceType === 'posts' && caption?.hoverAuthor !== false) {
+		hoverAcfSelectors.push(`#bsbCarousel-${clientId} .item .bsb-acf-field-author`);
+	}
+	if (sourceType === 'woo' && caption?.hoverPrice !== false) {
+		hoverAcfSelectors.push(`#bsbCarousel-${clientId} .item .bsb-acf-field-price`);
+	}
+	if (sourceType === 'woo' && caption?.hoverSale !== false) {
+		hoverAcfSelectors.push(`#bsbCarousel-${clientId} .item .bsb-acf-field-sale`);
+	}
+
+	const hasAlwaysVisibleField = 
+		(title?.isVisible !== false && caption?.hoverTitle === false) ||
+		(desc?.isVisible !== false && caption?.hoverDesc === false) ||
+		(isPostSource && button?.isVisible !== false && caption?.hoverBtn === false) ||
+		(sourceType === 'posts' && postsQuery?.selectedBadges?.includes('date') && caption?.hoverDate === false) ||
+		(sourceType === 'posts' && postsQuery?.selectedBadges?.includes('author') && caption?.hoverAuthor === false) ||
+		(sourceType === 'woo' && postsQuery?.selectedBadges?.includes('price') && caption?.hoverPrice === false) ||
+		(sourceType === 'woo' && postsQuery?.selectedBadges?.includes('sale') && caption?.hoverSale === false) ||
+		hasAlwaysVisibleAcf;
+
+	const layerMotionCSS = hoverAcfSelectors.length === 0 ? '' : `		/* At rest, and the way back: no delay, so they leave as soon as the pointer does. */
+		${hoverAcfSelectors.join(',\n\t\t')} {
 			animation: none;
 			${restingFrom[badgeEffect] || 'opacity: 0;'}
 			transition: opacity ${badgeDuration}s ease, translate ${badgeDuration}s ease, scale ${badgeDuration}s ease;
 		}
 
-		#bsbCarousel-${clientId} .item:hover .bsb-acf-item,
-		#bsbCarousel-${clientId} .item:focus-within .bsb-acf-item {
+		${hoverAcfSelectors.map(sel => sel.replace(' .item ', ' .item:hover ')).join(',\n\t\t')},
+		${hoverAcfSelectors.map(sel => sel.replace(' .item ', ' .item:focus-within ')).join(',\n\t\t')} {
 			opacity: 1;
 			translate: none;
 			scale: none;
 			transition-delay: var(--bsb-item-delay, 0s);
 		}`;
 
-	/**
-	 * The caption, shown always, on hover, or not at all.
-	 *
-	 * The hover rules sit inside `@media (hover: hover)` and that is not a nicety — it is the whole
-	 * difference between a design choice and a bug report. A phone has no pointer, so `:hover` there
-	 * either never fires or sticks after a tap; without the guard, every visitor on a phone would get
-	 * a slider whose titles and buttons they can never see. Inside the guard, a touch device simply
-	 * keeps the caption, which is the right answer and needs no second setting.
-	 */
-	const captionCSS = !hasCaption ? '' : 'hidden' === caption?.display
-		? `${overlaid.join(',\n\t')} { display: none; }`
-		: 'hover' === caption?.display
-			? `@media (hover: hover) and (pointer: fine) {
+	const hoverIndividualSelectors = [];
+	if (caption?.hoverTitle !== false) {
+		hoverIndividualSelectors.push(`#bsbCarousel-${clientId} .item .bsbTitle`);
+	}
+	if (caption?.hoverDesc !== false) {
+		hoverIndividualSelectors.push(
+			`#bsbCarousel-${clientId} .item .content-area p`,
+			`#bsbCarousel-${clientId} .item .carousel-caption p`
+		);
+	}
+	if (caption?.hoverBtn !== false) {
+		hoverIndividualSelectors.push(`#bsbCarousel-${clientId} .item .carousel-button`);
+	}
+
+	const parentHidingCSS = hasAlwaysVisibleField ? '' : `
 		${overlaid.join(',\n\t\t')} {
 			opacity: 0;
 			transition: opacity .35s ease;
@@ -192,19 +244,49 @@ const Style = ({ attributes, clientId, postsCount, products }) => {
 		#bsbCarousel-${clientId} .item:hover::after,
 		#bsbCarousel-${clientId} .item:focus-within::after {
 			opacity: 1;
+		}`;
+
+	const isDefaultLayout = !layoutType || 'default' === layoutType;
+	const individualHoverCSS = (isDefaultLayout || hoverIndividualSelectors.length === 0) ? '' : `
+		${hoverIndividualSelectors.join(',\n\t\t')} {
+			opacity: 0;
+			transition: opacity .35s ease;
 		}
 
-${hoverMotionCSS}
+		${hoverIndividualSelectors.map(sel => sel.replace(' .item ', ' .item:hover ')).join(',\n\t\t')},
+		${hoverIndividualSelectors.map(sel => sel.replace(' .item ', ' .item:focus-within ')).join(',\n\t\t')} {
+			opacity: 1;
+		}`;
 
+	const reducedSelectors = [
+		...overlaid,
+		...captionParts.map(([selector]) => `#bsbCarousel-${clientId} .item ${selector}`),
+		`#bsbCarousel-${clientId} .item .bsb-acf-item`
+	];
+
+	/**
+	 * The caption, shown always, on hover, or not at all.
+	 *
+	 * The hover rules sit inside `@media (hover: hover)` and that is not a nicety — it is the whole
+	 * difference between a design choice and a bug report. A phone has no pointer, so `:hover` there
+	 * either never fires or sticks after a tap; without the guard, every visitor on a phone would get
+	 * a slider whose titles and buttons they can never see. Inside the guard, a touch device simply
+	 * keeps the caption, which is the right answer and needs no second setting.
+	 */
+	const captionCSS = !hasCaption ? '' : 'hidden' === caption?.display
+		? `${overlaid.join(',\n\t')} { display: none; }`
+		: 'hover' === caption?.display
+			? `@media (hover: hover) and (pointer: fine) {
+${parentHidingCSS}
+${individualHoverCSS}
+${hoverMotionCSS}
 ${layerMotionCSS}
 	}
 
 	/* Somebody who has asked their system for less movement gets the fade and none of the travel —
 	   the caption as a whole, the title, description and button inside it, and the badges over it. */
 	@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: reduce) {
-		${overlaid.join(',\n\t\t')},
-		${captionParts.map(([selector]) => `#bsbCarousel-${clientId} .item ${selector}`).join(',\n\t\t')},
-		#bsbCarousel-${clientId} .item .bsb-acf-item {
+		${reducedSelectors.join(',\n\t\t')} {
 			translate: none;
 			scale: none;
 			transition: opacity .2s ease;
@@ -352,6 +434,10 @@ ${layerMotionCSS}
 	${badgeItem} {
 		color: ${bStyle.colors.color};
 		background: ${bStyle.colors.bg};
+	}
+
+	#bsbCarousel-${clientId} .item .bsb-acf-field-price del {
+		${postsQuery?.badgeSettings?.price?.showSaleOnly === true ? 'display: none !important;' : ''}
 	}`;
 
 	return <style dangerouslySetInnerHTML={{

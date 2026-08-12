@@ -224,6 +224,17 @@
 
             .bsb-acf-value {
                 opacity: 0.95;
+
+                del {
+                    text-decoration: line-through;
+                    opacity: 0.6;
+                    margin-right: 6px;
+                }
+
+                ins {
+                    text-decoration: none;
+                    font-weight: bold;
+                }
             }
         }
 

@@ -21,8 +21,16 @@ import PresetPicker from './PresetPicker';
  * the ACF ones in `postsQuery`, and `AcfFields` merges the two sets.
  */
 const PostBadges = ({ attributes, updateObject }) => {
-    const { postsQuery, badgeAnimation } = attributes || {};
+    const { postsQuery, badgeAnimation, sourceType } = attributes || {};
     const { selectedBadges = [], badgeSettings = {}, badgeDisplayStyle = 'chips' } = postsQuery || {};
+
+    const allowedBadges = sourceType === 'woo' ? ['price', 'sale'] : ['date', 'author'];
+    const activeBadges = selectedBadges.filter(badgeKey => allowedBadges.includes(badgeKey));
+    const inactiveBadges = selectedBadges.filter(badgeKey => !allowedBadges.includes(badgeKey));
+
+    const handleBadgesChange = (newActive) => {
+        updateObject('postsQuery', 'selectedBadges', [...newActive, ...inactiveBadges]);
+    };
 
     const setBadgeSetting = (badgeKey, key, val) => {
         updateObject('postsQuery', 'badgeSettings', {
@@ -45,23 +53,33 @@ const PostBadges = ({ attributes, updateObject }) => {
             <div className="mb15">
                 <Label className="mb5">{__('Select Badges to Display:', 'b-slider')}</Label>
                 <SelectTokenField
-                    value={selectedBadges}
-                    onChange={val => updateObject('postsQuery', 'selectedBadges', val)}
-                    options={[
+                    value={activeBadges}
+                    onChange={handleBadgesChange}
+                    options={sourceType === 'woo' ? [
+                        { label: __('Product Price', 'b-slider'), value: 'price' },
+                        { label: __('Sale Badge', 'b-slider'), value: 'sale' }
+                    ] : [
                         { label: __('Publish Date', 'b-slider'), value: 'date' },
                         { label: __('Author Name', 'b-slider'), value: 'author' }
                     ]}
                 />
                 <small className="bsb_field_hint">
-                    {__('Search or select metadata like "Publish Date" or "Author Name" to display them as customizable badges on top of your slides.', 'b-slider')}
+                    {sourceType === 'woo' 
+                        ? __('Search or select metadata like "Product Price" or "Sale Badge" to display them as customizable badges on top of your slides.', 'b-slider')
+                        : __('Search or select metadata like "Publish Date" or "Author Name" to display them as customizable badges on top of your slides.', 'b-slider')}
                 </small>
             </div>
 
-            {selectedBadges.length > 0 && (
+            {activeBadges.length > 0 && (
                 <div className="bsb_acf_sections">
                     <AccordionGroup>
-                        {selectedBadges.map(badgeKey => {
-                            const badgeLabel = badgeKey === 'date' ? __('Publish Date', 'b-slider') : __('Author Name', 'b-slider');
+                        {activeBadges.map(badgeKey => {
+                            const badgeLabel = {
+                                date: __('Publish Date', 'b-slider'),
+                                author: __('Author Name', 'b-slider'),
+                                price: __('Product Price', 'b-slider'),
+                                sale: __('Sale Badge', 'b-slider')
+                            }[badgeKey] || badgeKey;
                             const cfg = badgeSettings[badgeKey] || {};
                             const anchor = cfg.anchor || 'bottom-left';
 
@@ -129,7 +147,25 @@ const PostBadges = ({ attributes, updateObject }) => {
                                         {__('A plain number is px. Any CSS length works, e.g. 12px, -1em or 2rem.', 'b-slider')}
                                     </small>
 
-                                    <div>
+                                    {badgeKey === 'sale' && (
+                                        <ToggleControl
+                                            className='mt15'
+                                            label={__('Show Discount Percentage', 'b-slider')}
+                                            checked={cfg.showPercentage === true}
+                                            onChange={val => setBadgeSetting(badgeKey, 'showPercentage', val)}
+                                        />
+                                    )}
+
+                                    {badgeKey === 'price' && (
+                                        <ToggleControl
+                                            className='mt15'
+                                            label={__('Show Sale Price Only', 'b-slider')}
+                                            checked={cfg.showSaleOnly === true}
+                                            onChange={val => setBadgeSetting(badgeKey, 'showSaleOnly', val)}
+                                        />
+                                    )}
+
+                                    <div className="mt15">
                                         <Label className="mb10">{__('Style:', 'b-slider')}</Label>
                                         <PresetPicker
                                             name={`bsbPostBadgePreset-${badgeKey}`}
@@ -160,7 +196,7 @@ const PostBadges = ({ attributes, updateObject }) => {
               * Only worth asking once a badge has been chosen: a panel with nothing selected has nothing
               * to time. `badgeAnimation` in `AcfFields` is where these three land.
               */}
-            {!!selectedBadges?.length && <>
+            {!!activeBadges?.length && <>
                 <FieldGroup title={__('Animation', 'b-slider')} />
 
                 <SelectControl

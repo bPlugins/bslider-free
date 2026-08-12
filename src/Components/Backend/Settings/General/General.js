@@ -230,6 +230,74 @@ const General = ({ attributes, setAttributes, activeIndex, setActiveIndex, updat
                 </HelpTip>
             </div>
 
+            {'hover' === caption?.display && (
+                <div className="bsb-hover-fields-settings" style={{ paddingLeft: '15px', borderLeft: '2px solid #e2e8f0', marginTop: '10px' }}>
+                    <Label className="mb10 mt10">{__('Enable hover for:', 'b-slider')}</Label>
+
+                    {title?.isVisible !== false && (
+                        <ToggleControl
+                            className={gap}
+                            label={__('Title', 'b-slider')}
+                            checked={caption?.hoverTitle !== false}
+                            onChange={val => updateObject('caption', 'hoverTitle', val)}
+                        />
+                    )}
+
+                    {desc?.isVisible !== false && (
+                        <ToggleControl
+                            className={gap}
+                            label={__('Description', 'b-slider')}
+                            checked={caption?.hoverDesc !== false}
+                            onChange={val => updateObject('caption', 'hoverDesc', val)}
+                        />
+                    )}
+
+                    {isPostSource && button?.isVisible !== false && (
+                        <ToggleControl
+                            className={gap}
+                            label={__('Button', 'b-slider')}
+                            checked={caption?.hoverBtn !== false}
+                            onChange={val => updateObject('caption', 'hoverBtn', val)}
+                        />
+                    )}
+
+                    {'posts' === sourceType && (
+                        <ToggleControl
+                            className={gap}
+                            label={__('Post Date', 'b-slider')}
+                            checked={caption?.hoverDate !== false}
+                            onChange={val => updateObject('caption', 'hoverDate', val)}
+                        />
+                    )}
+
+                    {'posts' === sourceType && (
+                        <ToggleControl
+                            className={gap}
+                            label={__('Post Author', 'b-slider')}
+                            checked={caption?.hoverAuthor !== false}
+                            onChange={val => updateObject('caption', 'hoverAuthor', val)}
+                        />
+                    )}
+
+                    {'woo' === sourceType && (
+                        <>
+                            <ToggleControl
+                                className={gap}
+                                label={__('Product Price', 'b-slider')}
+                                checked={caption?.hoverPrice !== false}
+                                onChange={val => updateObject('caption', 'hoverPrice', val)}
+                            />
+                            <ToggleControl
+                                className={gap}
+                                label={__('Sale Badge', 'b-slider')}
+                                checked={caption?.hoverSale !== false}
+                                onChange={val => updateObject('caption', 'hoverSale', val)}
+                            />
+                        </>
+                    )}
+                </div>
+            )}
+
             <SelectControl
                 className={gap}
                 /* The three option labels already say what each one does, so the tip is left with the one

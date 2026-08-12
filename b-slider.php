@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name: bSlider – Create Responsive Image, Post, Product, and Video Sliders
+ * Plugin Name: bSlider – Build Sliders That Bring Your Content to Life
  * Plugin URI: http://bplugins.com
  * Description: Simple slider with bootstrap.
  * Version: 2.0.18

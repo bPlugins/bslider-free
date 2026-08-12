@@ -277,7 +277,7 @@ export default compose(
 
 		const arrangedPosts = (posts) => {
 			return posts?.map(post => {
-				const { id, link, slug: name, featured_media, title, excerpt, author, categories, content, date, date_gmt, modified, modified_gmt, comment_status, status } = post;
+				const { id, link, slug: name, featured_media, title, excerpt, author, categories, content, date, date_gmt, modified, modified_gmt, comment_status, status, price, sale, sale_percent } = post;
 				const thumbnail = imageBySize(featured_media, fImgSize);
 				const taxonomies = {};
 				taxOfPostType?.map(t => {
@@ -320,7 +320,10 @@ export default compose(
 						min: Math.floor(wordCount(plainContent) / 200),
 						sec: Math.floor((wordCount(plainContent) % 200) / (200 / 60))
 					},
-					status
+					status,
+					price,
+					sale,
+					sale_percent
 				};
 			})
 		}

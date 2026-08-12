@@ -269,16 +269,29 @@ export const resolveSlideImage = (post, attributes, thumbnail) => {
     return asImage(post?.acf_fields?.[postsQuery[FIELD_ROLES.image.field]]) || thumbnail;
 };
 
-const Value = ({ acf, cfg }) => <>
-    {cfg.prefix && <span className="bsb-acf-affix">{cfg.prefix}</span>}
-    {acf.value}
-    {cfg.suffix && <span className="bsb-acf-affix">{cfg.suffix}</span>}
-</>;
+const Value = ({ acf, cfg }) => {
+    const hasHTML = acf.value && /<[a-z][\s\S]*>/i.test(String(acf.value));
 
-const Label = ({ acf, cfg }) => <>
-    {cfg.icon && <span className="bsb-acf-icon">{cfg.icon}</span>}
-    {false !== cfg.showLabel && <strong className="bsb-acf-label">{acf.label}: </strong>}
-</>;
+    return <>
+        {cfg.prefix && <span className="bsb-acf-affix">{cfg.prefix}</span>}
+        {hasHTML ? (
+            <span className="bsb-acf-html-value" dangerouslySetInnerHTML={{ __html: acf.value }} />
+        ) : (
+            acf.value
+        )}
+        {cfg.suffix && <span className="bsb-acf-affix">{cfg.suffix}</span>}
+    </>;
+};
+
+const Label = ({ acf, cfg }) => {
+    const showLabelDefault = acf.name !== 'sale' && acf.name !== 'price';
+    const showLabel = cfg.showLabel !== undefined ? cfg.showLabel : showLabelDefault;
+
+    return <>
+        {cfg.icon && <span className="bsb-acf-icon">{cfg.icon}</span>}
+        {showLabel && <strong className="bsb-acf-label">{acf.label}: </strong>}
+    </>;
+};
 
 /**
  * A typed offset as a CSS length.
@@ -329,7 +342,7 @@ const AcfItem = ({ acf, cfg, anim = {}, isBackEnd = false, isSelected = false })
     /* `--badge` so the Badge style can reach these and nothing else: an ACF field shares this markup and
        has its own panel, and one set of colours claiming both would be a setting bleeding into a feature
        nobody was editing. See `badgeCSS` in Style. */
-    const classes = `bsb-acf-item ${acf?.isBadge ? 'bsb-acf-item--badge' : ''} ${preset ? `bsb-acf-item--${preset}` : ''} ${className}`;
+    const classes = `bsb-acf-item bsb-acf-field-${acf?.name || ''} ${acf?.isBadge ? 'bsb-acf-item--badge' : ''} ${preset ? `bsb-acf-item--${preset}` : ''} ${className}`;
 
     // Through `sanitizeHref` for the same reason the button link is: a url, link or email field
     // is typed into freely, and `javascript:` goes in as easily as an address does.
@@ -477,7 +490,7 @@ const anchorAnimation = (anchor, attributes, classNames) => {
  * the fields themselves take them back, so a linked field is still clickable.
  */
 const AcfFields = ({ post, attributes, classNames, isBackEnd = false, isSelected = false }) => {
-    const { layoutType, postsQuery } = attributes || {};
+    const { layoutType, postsQuery, sourceType } = attributes || {};
     const selectedBadges = postsQuery?.selectedBadges || [];
 
     /**
@@ -488,12 +501,24 @@ const AcfFields = ({ post, attributes, classNames, isBackEnd = false, isSelected
      * ACF field in the same corner depending on nothing a user could see.
      */
     const badgesFrom = (chosen, into) => {
-        if (chosen.includes('date') && post?.date) {
+        const isWoo = 'woo' === sourceType;
+
+        if (!isWoo && chosen.includes('date') && post?.date) {
             into['date'] = { name: 'date', label: __('Date', 'b-slider'), type: 'text', value: post.date, isBadge: true };
         }
 
-        if (chosen.includes('author') && post?.author?.name) {
+        if (!isWoo && chosen.includes('author') && post?.author?.name) {
             into['author'] = { name: 'author', label: __('Author', 'b-slider'), type: 'text', value: post.author.name, isBadge: true };
+        }
+
+        if (isWoo && chosen.includes('price') && post?.price) {
+            into['price'] = { name: 'price', label: __('Price', 'b-slider'), type: 'text', value: post.price, isBadge: true };
+        }
+
+        if (isWoo && chosen.includes('sale') && post?.sale) {
+            const showPercentage = postsQuery?.badgeSettings?.sale?.showPercentage === true;
+            const value = showPercentage && post?.sale_percent ? post.sale_percent : post.sale;
+            into['sale'] = { name: 'sale', label: __('Sale', 'b-slider'), type: 'text', value, isBadge: true };
         }
 
         return into;

@@ -26,7 +26,7 @@ import AcfFieldSettings from './AcfFieldSettings';
 const ACF_VIDEO = 'https://www.youtube.com/watch?v=Pj7veTzHbQk';
 
 const AcfConfigure = ({ attributes, setAttributes, updateObject, queriedPosts = [] }) => {
-    const { postsQuery, sourceType } = attributes;
+    const { postsQuery, sourceType, caption } = attributes;
     const { post_type = 'post', selectedAcfFields = [], acfFieldSettings = {}, acfDisplayStyle = 'chips' } = postsQuery;
 
     // `null` until the request answers, so the panel says nothing rather than guessing wrong.
@@ -272,6 +272,7 @@ const AcfConfigure = ({ attributes, setAttributes, updateObject, queriedPosts = 
                     onFieldChange={setFieldSetting}
                     onRoleChange={setFieldRole}
                     onStyleChange={setDisplayStyle}
+                    caption={caption}
                 />
             </AccordionGroup>
         </div>}

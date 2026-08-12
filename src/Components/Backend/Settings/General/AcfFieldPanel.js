@@ -36,7 +36,7 @@ const OVERRIDE_OPTIONS = (fallbackLabel, source) => {
 
 const AcfFieldPanel = ({
     field, postsQuery = {}, queriedPosts = [], fallbackLabel, everyItemLabel,
-    onFieldChange, onRoleChange
+    onFieldChange, onRoleChange, caption
 }) => {
     const cfg = postsQuery?.acfFieldSettings?.[field.value] || {};
     const roleKey = roleKeyOf(field.value, postsQuery);
@@ -96,6 +96,15 @@ const AcfFieldPanel = ({
                 checked={false !== cfg.showLabel}
                 onChange={val => onFieldChange(field.value, { showLabel: val })}
             />
+
+            {caption?.display === 'hover' && (
+                <ToggleControl
+                    className="mt15"
+                    label={__('Show on hover only', 'b-slider')}
+                    checked={cfg.hoverOnly !== false}
+                    onChange={val => onFieldChange(field.value, { hoverOnly: val })}
+                />
+            )}
 
             <TipText
                 label={__('Icon:', 'b-slider')}
