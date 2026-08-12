@@ -67,6 +67,29 @@
     }
 
     /**
+     * A full-slide clickable anchor for slides that have no image.
+     *
+     * `.bsbSlideLink` inside `.img` handles the image case — the image gives it a real height and
+     * the click area covers it naturally. But when there is no image `.img` is empty and zero-height,
+     * so that anchor has no surface to click.
+     *
+     * This overlay sits in the same stacking context as the slide, stretched across the whole item
+     * with `inset: 0`. It stays below the caption (z-index lower than the caption's own context)
+     * so the button and any caption links still take their own clicks back through
+     * `pointer-events: auto` — see `.item.is-linked` above.
+     *
+     * `aria-hidden` and `tabIndex="-1"` are set on the element in JSX: the button below already
+     * names and reaches the destination, so a second keyboard stop and screen-reader announcement
+     * would only repeat it.
+     */
+    .bsbSlideOverlay {
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+        cursor: pointer;
+    }
+
+    /**
      * The placeholder a query with no results falls back to.
      *
      * It carries no colours of its own. A block drops into a theme whose background it cannot know,

@@ -19,16 +19,28 @@ const WooItem = (props) => {
      * The whole picture as the link to the product — the same answer `PostItem` gives, for the same
      * reason: with the button hidden a product slide had nothing on it a click could reach. `btnLink`
      * rather than the product URL directly, so the picture and the button cannot lead to two places.
+     *
+     * When there is no image the picture anchor has zero height, so a full-slide overlay anchor
+     * covers the item instead — see the same pattern in `PostItem`.
      */
     const imageHref = btnLink || '';
+    const accessibleLabel = String(wooTitle || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim() || imageHref;
 
     return <div className={`item ${index === 0 ? 'active' : ''} ${imageHref ? 'is-linked' : ''} ${classNames.item || ''}`}>
+        {imageHref && !slideImg?.url && <a
+            className='bsbSlideOverlay'
+            href={imageHref}
+            target={image?.linkTarget || undefined}
+            rel={'_blank' === image?.linkTarget ? 'noopener noreferrer' : undefined}
+            aria-hidden='true'
+            tabIndex='-1'
+        />}
         <div className="img">
             {slideImg?.url && <LinkedPicture
                 href={imageHref}
                 linkTarget={image?.linkTarget}
                 /* The picture carries no `alt`, so without this the link would have no accessible name. */
-                label={String(wooTitle || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim() || imageHref}
+                label={accessibleLabel}
                 isBackEnd={isBackEnd}
                 isSelected={isSelected}
             >

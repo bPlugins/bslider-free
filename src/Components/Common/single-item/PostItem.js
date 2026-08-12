@@ -24,19 +24,33 @@ const PostItem = (props) => {
      * clicks back. `btnLink` rather than the permalink directly, so the picture and the button can never
      * lead to two different places.
      *
-     * The anchor goes inside `.img` and not around it — the slide picture is sized by `.item > .img img`,
-     * and a wrapper outside would put it beyond that rule's reach.
+     * When there is no image the picture anchor has zero height and cannot be clicked — so a full-slide
+     * overlay anchor (`bsbSlideOverlay`) covers the whole item instead. It sits below the caption in
+     * z-order, so the button and any links inside the caption still take their own clicks.
      */
     const imageHref = btnLink || '';
+    const accessibleLabel = String(postTitle || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim() || imageHref;
 
     return <div className={`item ${index === 0 ? 'active' : ''} ${imageHref ? 'is-linked' : ''} ${classNames.item || ''}`}>
+        {/* Overlay anchor — only when there is a link but no image to carry it. The picture anchor
+            handles the image case; this one handles the no-image case so the whole slide is still
+            reachable without a visible image. Hidden from assistive technology because the button
+            below already names the destination. */}
+        {imageHref && !slideImg?.url && <a
+            className='bsbSlideOverlay'
+            href={imageHref}
+            target={image?.linkTarget || undefined}
+            rel={'_blank' === image?.linkTarget ? 'noopener noreferrer' : undefined}
+            aria-hidden='true'
+            tabIndex='-1'
+        />}
         <div className="img">
             {slideImg?.url && <LinkedPicture
                 href={imageHref}
                 linkTarget={image?.linkTarget}
                 /* The picture here carries no `alt`, so without this the link would have no accessible
                    name — an image inside a link is what names that link, and there is none to read. */
-                label={String(postTitle || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim() || imageHref}
+                label={accessibleLabel}
                 isBackEnd={isBackEnd}
                 isSelected={isSelected}
             >
