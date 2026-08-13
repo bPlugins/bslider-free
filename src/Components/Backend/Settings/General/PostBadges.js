@@ -21,7 +21,7 @@ import PresetPicker from './PresetPicker';
  * the ACF ones in `postsQuery`, and `AcfFields` merges the two sets.
  */
 const PostBadges = ({ attributes, updateObject }) => {
-    const { postsQuery, badgeAnimation, sourceType } = attributes || {};
+    const { postsQuery, badgeAnimation, sourceType, caption } = attributes || {};
     const { selectedBadges = [], badgeSettings = {}, badgeDisplayStyle = 'chips' } = postsQuery || {};
 
     const allowedBadges = sourceType === 'woo' ? ['price', 'sale'] : ['date', 'author'];
@@ -95,6 +95,15 @@ const PostBadges = ({ attributes, updateObject }) => {
                                         checked={false !== cfg.showLabel}
                                         onChange={val => setBadgeSetting(badgeKey, 'showLabel', val)}
                                     />
+
+                                    {caption?.display === 'hover' && (
+                                        <ToggleControl
+                                            className="mt15"
+                                            label={__('Show on hover only', 'b-slider')}
+                                            checked={cfg.hoverOnly !== false}
+                                            onChange={val => setBadgeSetting(badgeKey, 'hoverOnly', val)}
+                                        />
+                                    )}
 
                                     <TextControl
                                         label={__('Icon:', 'b-slider')}

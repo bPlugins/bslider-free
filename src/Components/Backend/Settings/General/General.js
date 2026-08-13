@@ -261,40 +261,6 @@ const General = ({ attributes, setAttributes, activeIndex, setActiveIndex, updat
                         />
                     )}
 
-                    {'posts' === sourceType && (
-                        <ToggleControl
-                            className={gap}
-                            label={__('Post Date', 'b-slider')}
-                            checked={caption?.hoverDate !== false}
-                            onChange={val => updateObject('caption', 'hoverDate', val)}
-                        />
-                    )}
-
-                    {'posts' === sourceType && (
-                        <ToggleControl
-                            className={gap}
-                            label={__('Post Author', 'b-slider')}
-                            checked={caption?.hoverAuthor !== false}
-                            onChange={val => updateObject('caption', 'hoverAuthor', val)}
-                        />
-                    )}
-
-                    {'woo' === sourceType && (
-                        <>
-                            <ToggleControl
-                                className={gap}
-                                label={__('Product Price', 'b-slider')}
-                                checked={caption?.hoverPrice !== false}
-                                onChange={val => updateObject('caption', 'hoverPrice', val)}
-                            />
-                            <ToggleControl
-                                className={gap}
-                                label={__('Sale Badge', 'b-slider')}
-                                checked={caption?.hoverSale !== false}
-                                onChange={val => updateObject('caption', 'hoverSale', val)}
-                            />
-                        </>
-                    )}
                 </div>
             )}
 

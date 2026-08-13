@@ -153,6 +153,7 @@ const Style = ({ attributes, clientId, postsCount, products }) => {
 
 	const selectedAcfFields = postsQuery?.selectedAcfFields || [];
 	const acfFieldSettings = postsQuery?.acfFieldSettings || {};
+	const badgeSettings = postsQuery?.badgeSettings || {};
 
 	// Create a unique set of all possible active ACF field names
 	const activeFieldNames = new Set([
@@ -172,16 +173,16 @@ const Style = ({ attributes, clientId, postsCount, products }) => {
 		}
 	});
 
-	if (sourceType === 'posts' && caption?.hoverDate !== false) {
+	if (sourceType === 'posts' && badgeSettings?.date?.hoverOnly !== false) {
 		hoverAcfSelectors.push(`#bsbCarousel-${clientId} .item .bsb-acf-field-date`);
 	}
-	if (sourceType === 'posts' && caption?.hoverAuthor !== false) {
+	if (sourceType === 'posts' && badgeSettings?.author?.hoverOnly !== false) {
 		hoverAcfSelectors.push(`#bsbCarousel-${clientId} .item .bsb-acf-field-author`);
 	}
-	if (sourceType === 'woo' && caption?.hoverPrice !== false) {
+	if (sourceType === 'woo' && badgeSettings?.price?.hoverOnly !== false) {
 		hoverAcfSelectors.push(`#bsbCarousel-${clientId} .item .bsb-acf-field-price`);
 	}
-	if (sourceType === 'woo' && caption?.hoverSale !== false) {
+	if (sourceType === 'woo' && badgeSettings?.sale?.hoverOnly !== false) {
 		hoverAcfSelectors.push(`#bsbCarousel-${clientId} .item .bsb-acf-field-sale`);
 	}
 
@@ -189,10 +190,10 @@ const Style = ({ attributes, clientId, postsCount, products }) => {
 		(title?.isVisible !== false && caption?.hoverTitle === false) ||
 		(desc?.isVisible !== false && caption?.hoverDesc === false) ||
 		(isPostSource && button?.isVisible !== false && caption?.hoverBtn === false) ||
-		(sourceType === 'posts' && postsQuery?.selectedBadges?.includes('date') && caption?.hoverDate === false) ||
-		(sourceType === 'posts' && postsQuery?.selectedBadges?.includes('author') && caption?.hoverAuthor === false) ||
-		(sourceType === 'woo' && postsQuery?.selectedBadges?.includes('price') && caption?.hoverPrice === false) ||
-		(sourceType === 'woo' && postsQuery?.selectedBadges?.includes('sale') && caption?.hoverSale === false) ||
+		(sourceType === 'posts' && postsQuery?.selectedBadges?.includes('date') && badgeSettings?.date?.hoverOnly === false) ||
+		(sourceType === 'posts' && postsQuery?.selectedBadges?.includes('author') && badgeSettings?.author?.hoverOnly === false) ||
+		(sourceType === 'woo' && postsQuery?.selectedBadges?.includes('price') && badgeSettings?.price?.hoverOnly === false) ||
+		(sourceType === 'woo' && postsQuery?.selectedBadges?.includes('sale') && badgeSettings?.sale?.hoverOnly === false) ||
 		hasAlwaysVisibleAcf;
 
 	const layerMotionCSS = hoverAcfSelectors.length === 0 ? '' : `		/* At rest, and the way back: no delay, so they leave as soon as the pointer does. */
