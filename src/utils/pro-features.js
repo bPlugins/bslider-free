@@ -23,6 +23,18 @@ export const PRO_FEATURES = {
 	title: [__('Custom HTML wrapper tags (e.g., h1-h6)', 'b-slider')],
 
 	/**
+	 * The icon beside an ACF field or a badge.
+	 *
+	 * Free takes a typed character — an emoji is still the quickest answer for many fields, and a
+	 * slider using one goes on working either way. What is Premium is the library of ready icons,
+	 * which writes into the same `icon` setting: it saves the icon's own markup, so nothing has to
+	 * be enqueued on the front end and the icon travels with the slider.
+	 *
+	 * Named once and used by both panels, because it is one feature seen from two places.
+	 */
+	iconLibrary: [__('Icon Library', 'b-slider')],
+
+	/**
 	 * Carousel `Controls` panel. `Direction` and `Show Arrow/Navigation` are deliberately absent:
 	 * this panel draws both of them for free, and the notice it inherited from `Controls` used to
 	 * claim otherwise right underneath the working controls.

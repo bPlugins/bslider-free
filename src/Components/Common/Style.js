@@ -173,16 +173,27 @@ const Style = ({ attributes, clientId, postsCount, products }) => {
 		}
 	});
 
-	if (sourceType === 'posts' && badgeSettings?.date?.hoverOnly !== false) {
+	/**
+	 * Only for badges actually chosen.
+	 *
+	 * A badge's element carries `bsb-acf-field-<name>` and the four names — date, author, price,
+	 * sale — are ordinary words a site may well have used for an ACF field, so these selectors match
+	 * such a field too. Emitted for a badge that is not on the slide, the rule has nothing of its
+	 * own to style and quietly takes the field instead, hiding it until the pointer arrives however
+	 * its own panel was set.
+	 */
+	const badgeOn = name => !!postsQuery?.selectedBadges?.includes(name);
+
+	if (sourceType === 'posts' && badgeOn('date') && badgeSettings?.date?.hoverOnly !== false) {
 		hoverAcfSelectors.push(`#bsbCarousel-${clientId} .item .bsb-acf-field-date`);
 	}
-	if (sourceType === 'posts' && badgeSettings?.author?.hoverOnly !== false) {
+	if (sourceType === 'posts' && badgeOn('author') && badgeSettings?.author?.hoverOnly !== false) {
 		hoverAcfSelectors.push(`#bsbCarousel-${clientId} .item .bsb-acf-field-author`);
 	}
-	if (sourceType === 'woo' && badgeSettings?.price?.hoverOnly !== false) {
+	if (sourceType === 'woo' && badgeOn('price') && badgeSettings?.price?.hoverOnly !== false) {
 		hoverAcfSelectors.push(`#bsbCarousel-${clientId} .item .bsb-acf-field-price`);
 	}
-	if (sourceType === 'woo' && badgeSettings?.sale?.hoverOnly !== false) {
+	if (sourceType === 'woo' && badgeOn('sale') && badgeSettings?.sale?.hoverOnly !== false) {
 		hoverAcfSelectors.push(`#bsbCarousel-${clientId} .item .bsb-acf-field-sale`);
 	}
 
@@ -396,16 +407,16 @@ ${layerMotionCSS}
 	}`;
 
 	/**
-	 * The badges' own look: one set of values for every badge on the slider.
+	 * The overlay's look: one set of values for everything drawn on it.
 	 *
-	 * **Only `--badge`.** An ACF field is drawn by the same component and wears the same `.bsb-acf-item`,
-	 * so a rule written against that class would restyle a feature the user was not editing. The class is
-	 * added in `AcfFields` for exactly this.
+	 * **Both badges and ACF fields.** It used to name `.bsb-acf-item--badge` so a badge colour could not
+	 * reach a feature nobody was editing. In practice the two are the same row of chips over the same
+	 * slide — a date badge beside a price field — and styling half of them was not caution, it was a
+	 * slider with two typefaces on one line and no second panel to fix it with. So the rule names
+	 * `.bsb-acf-item`, which both wear. The `--badge` class stays for anything that really is badge-only.
 	 *
 	 * Written after the preset rules in `style.scss` and with the slider's id in front of them, so a
-	 * chosen colour beats the preset's own — which is what "the user picked this" has to mean. The
-	 * background is left out when it is empty rather than written as `none`, so a preset that draws no chip
-	 * keeps its own answer.
+	 * chosen colour beats the preset's own — which is what "the user picked this" has to mean.
 	 */
 	const bStyle = {
 		typo: {
@@ -426,15 +437,25 @@ ${layerMotionCSS}
 		}
 	};
 
-	const badgeItem = `#bsbCarousel-${clientId} .bsb-acf-item--badge`;
+	const badgeItem = `#bsbCarousel-${clientId} .bsb-acf-item`;
 
+	/**
+	 * The colours are written only once one has been picked.
+	 *
+	 * They used to be written every time, defaults and all, which at this selector's specificity
+	 * meant the chip's own preset never got a say: an outline or plain field was painted back to the
+	 * filled black chip it was chosen instead of. Harmless while this rule reached badges only,
+	 * since a badge and the default preset agree — but the rule reaches ACF fields now, and those
+	 * are where the presets are actually used. `style.scss` already carries the same default look,
+	 * so nothing changes for a slider that never chose a colour.
+	 */
 	const badgeCSS = `
 	${getTypoCSS('', bStyle.typo)?.googleFontLink || ''}
 	${getTypoCSS(badgeItem, bStyle.typo)?.styles || ''}
 
 	${badgeItem} {
-		color: ${bStyle.colors.color};
-		background: ${bStyle.colors.bg};
+		${badgeStyle?.colors?.color ? `color: ${badgeStyle.colors.color};` : ''}
+		${badgeStyle?.colors?.bg ? `background: ${badgeStyle.colors.bg};` : ''}
 	}
 
 	#bsbCarousel-${clientId} .item .bsb-acf-field-price del {

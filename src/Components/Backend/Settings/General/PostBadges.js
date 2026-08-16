@@ -7,6 +7,8 @@ import FieldGroup from '../../../Panel/FieldGroup';
 import { contentAniOption } from '../../../../utils/options';
 import AnchorPicker from './AnchorPicker';
 import PresetPicker from './PresetPicker';
+import ProNotice from '../../../Panel/ProNotice';
+import { PRO_FEATURES } from '../../../../utils/pro-features';
 
 /**
  * The date and the author, drawn over the slide as badges.
@@ -261,6 +263,11 @@ const PostBadges = ({ attributes, updateObject }) => {
                     />
                 </>}
             </>}
+
+            {/* Below the whole panel, not inside each badge's section — the icon field is in every
+                one of them, and a slider showing a date and an author would print the sentence
+                twice. Only once a badge is chosen, since that is when the icon field exists. */}
+            {activeBadges.length > 0 && <ProNotice className='mt10' features={PRO_FEATURES.iconLibrary} />}
         </PanelBody>
     );
 };

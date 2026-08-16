@@ -5,6 +5,8 @@ import { AccordionGroup, PanelBody } from '../../../Panel/AccordionPanel';
 import { Label } from '../../../../../../bpl-tools/Components';
 import { FIELD_ROLES, FREE_ACF_FIELD_LIMIT } from '../../../Common/single-item/AcfFields';
 import Notice from '../../Notice';
+import ProNotice from '../../../Panel/ProNotice';
+import { PRO_FEATURES } from '../../../../utils/pro-features';
 import SelectTokenField from '../../../Panel/SelectTokenField';
 import AcfFieldRoles, { ACF_ROLES_PANEL } from './AcfFieldRoles';
 import AcfFieldSettings from './AcfFieldSettings';
@@ -276,6 +278,12 @@ const AcfConfigure = ({ attributes, setAttributes, updateObject, queriedPosts = 
                 />
             </AccordionGroup>
         </div>}
+
+        {/* At the foot of the panel rather than inside each field's own, which is where the icon
+            field actually is: a slider with five fields would otherwise carry five copies of the
+            same sentence, each behind a different accordion. Only once there are fields to put an
+            icon on — the notice is about a control that is not on screen until then. */}
+        {acfOptions.length > 0 && hasAcfInPlay && <ProNotice className='mt10' features={PRO_FEATURES.iconLibrary} />}
     </PanelBody>
 }
 export default AcfConfigure;

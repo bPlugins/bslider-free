@@ -3,14 +3,15 @@ import { PanelBody } from '../../../Panel/AccordionPanel';
 import { ColorsControl, Typography } from '../../../../../../bpl-tools/Components';
 
 /**
- * How every badge on the slider looks — one set of values, not one per badge.
+ * How everything on the slide's overlay looks — one set of values, not one per chip.
  *
- * The per-badge panel already answers what a badge *is*: which corner it sits in, its icon, whether its
+ * The per-item panels already answer what each one *is*: which corner it sits in, its icon, whether its
  * label shows. This answers what they all look like, which is a different question and a shorter one —
  * nobody wants to set a font size four times because they picked four badges.
  *
- * Only offered where badges have been chosen, and it reaches only badges: an ACF field wears the same
- * markup and has its own settings, so the CSS names `.bsb-acf-item--badge` — see `badgeCSS` in `Style`.
+ * It reaches ACF fields as well as badges. They are the same chips on the same layer, often side by
+ * side, so styling only half of them produced one line with two typefaces on it and no panel to
+ * reconcile them — see `badgeCSS` in `Style`, which names `.bsb-acf-item` for both.
  */
 const BadgeStyle = ({ attributes, setAttributes }) => {
     const { badgeStyle = {} } = attributes;
@@ -20,9 +21,9 @@ const BadgeStyle = ({ attributes, setAttributes }) => {
     return (
         <PanelBody
             className='bPlPanelBody'
-            title={__('Badges', 'b-slider')}
-            /* Only appears once badges are chosen, so it is easy to miss that styling them is possible
-               at all — worth pointing at until it stops being news. */
+            title={__('Badges & ACF Fields', 'b-slider')}
+            /* Only appears once there is something on the overlay, so it is easy to miss that styling
+               it is possible at all — worth pointing at until it stops being news. */
             badge={__('New', 'b-slider')}
             initialOpen={false}
         >

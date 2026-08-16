@@ -532,9 +532,28 @@ const AcfFields = ({ post, attributes, classNames, isBackEnd = false, isSelected
         return null;
     }
 
-    // The badges' own settings sit on top of the ACF ones, matching which of the two wins a name
-    // collision above.
-    const settings = { ...(postsQuery?.acfFieldSettings || {}), ...(postsQuery?.badgeSettings || {}) };
+    /**
+     * The badges' own settings sit on top of the ACF ones, matching which of the two wins a name
+     * collision above — but only for the badges actually on this slide.
+     *
+     * `badgeSettings` is keyed by badge name, and the four names are ordinary words: a site with an
+     * ACF field called `price`, `date`, `author` or `sale` shares a key with one. Spreading the
+     * whole object replaced that field's settings wholesale — its anchor, icon, affixes and preset —
+     * with the badge's, and did so even where the badge is not rendered at all: `price` and `sale`
+     * only exist on a WooCommerce slider, yet a posts slider that had once been pointed at products
+     * still carried their settings, and an ACF `price` field could not be moved off the default
+     * corner. Nothing on screen suggested why, since the panel went on showing the position it had
+     * been given.
+     *
+     * So the override is narrowed to the badges that `badgesFrom` actually produced. A collision
+     * still resolves the badge's way when there really is a badge; otherwise the field keeps what
+     * it was given.
+     */
+    const badgeOverrides = Object.keys(fields)
+        .filter(name => fields[name]?.isBadge && (postsQuery?.badgeSettings || {})[name])
+        .reduce((into, name) => ({ ...into, [name]: postsQuery.badgeSettings[name] }), {});
+
+    const settings = { ...(postsQuery?.acfFieldSettings || {}), ...badgeOverrides };
     // A slider with no ACF fields at all is showing badges and nothing else, so the badge style is
     // the one to fall back on. With both present the ACF setting keeps the layer it already had,
     // and a badge that wants to differ says so with its own preset.

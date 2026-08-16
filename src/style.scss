@@ -182,8 +182,31 @@
         /* Fields on one anchor read as a list, so they stack rather than run off the side. */
         flex-direction: column;
 
-        /* Given back, so a linked field stays clickable through the layer above. */
-        pointer-events: auto;
+        /**
+         * Still transparent to clicks, like the layer it sits in.
+         *
+         * This used to take pointer events back for the whole group, which was more than a linked
+         * field needed and more than anything else here wanted. A field is placed freely and nudged
+         * further by its own offset, so it can be sent anywhere over the slide — over an arrow, most
+         * easily, since a negative Y offset is how you lift a field clear of the bottom edge and the
+         * arrows sit at the middle of both sides. Landing there, a plain text chip with nothing to
+         * click swallowed the arrow's click and the slider simply stopped advancing, with the arrow
+         * still drawn and still lighting up under the cursor.
+         *
+         * So it is granted below to the one thing that has a use for it.
+         */
+        pointer-events: none;
+
+        /**
+         * A linked field takes them back, and only over the anchor itself.
+         *
+         * `SlideLink` renders a real `<a>` — see the `LINK_TYPES` branch in `AcfFields` — so this is
+         * exactly the field that has somewhere to go, and the chip's padding around it stays as
+         * transparent as the rest of the layer.
+         */
+        a {
+            pointer-events: auto;
+        }
 
         .bsb-acf-section-label {
             font-size: 0.75em;
