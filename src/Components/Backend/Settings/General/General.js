@@ -1,4 +1,4 @@
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { useState } from '@wordpress/element';
 import { SelectControl, TextControl, ToggleControl } from "@wordpress/components";
 import { PanelBody } from '../../../Panel/AccordionPanel';
@@ -19,6 +19,8 @@ import PostQuery from './Post-query';
 import AcfConfigure from './AcfConfigure';
 import PostBadges from './PostBadges';
 import VideoGeneral from './VideoGeneral';
+import ProPanel from '../../../Panel/ProPanel';
+import { PRO_FEATURES } from '../../../../utils/pro-features';
 
 const General = ({ attributes, setAttributes, activeIndex, setActiveIndex, updateObject, multipleAttrChange, getTaxonomy, premiumProps, postTypes, queriedPosts }) => {
 
@@ -305,6 +307,7 @@ const General = ({ attributes, setAttributes, activeIndex, setActiveIndex, updat
             over the slide and a field landing where the caption already is is a thing you can only
             judge once you know what is under it. */}
         {isPostSource && <AcfConfigure {...commonProps} queriedPosts={queriedPosts} />}
+        {isPostSource && <ProPanel title={__('ACF Query', 'b-slider')} proTitle={__('Premium ACF Query', 'b-slider')} features={PRO_FEATURES.acfQuery} />}
 
         {/* The date and the author, drawn over the slide as badges. Both are on an arranged post
             already — see `badgesFrom` in AcfFields, which renders them onto the same layer the ACF

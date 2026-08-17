@@ -20,6 +20,7 @@ export const PRO_FEATURES = {
 	/* General tab */
 	slides: [__('Button label', 'b-slider'), __('Button Url', 'b-slider'), __('Open In New Tab', 'b-slider')],
 	postQuery: [__('Include', 'b-slider'), __('Exclude', 'b-slider'), __('Current Post', 'b-slider')],
+	acfQuery: [__('Sort by ACF Field', 'b-slider'), __('Filter by ACF Field', 'b-slider')],
 	title: [__('Custom HTML wrapper tags (e.g., h1-h6)', 'b-slider')],
 
 	/**
