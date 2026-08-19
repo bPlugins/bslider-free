@@ -40,8 +40,8 @@ const Edit = (props) => {
 	const [acfValuesMap, setAcfValuesMap] = useState({});
 	const { sliders, layoutType, postsQuery } = attributes;
 
-	// Capped the same way Posts::acfFieldsToFetch caps it, so the preview shows what the site shows.
-	const selectedAcfFields = allowedAcfFields(postsQuery?.selectedAcfFields || [], false);
+	// Filtered the same way Posts::acfFieldsToFetch filters it, so the preview shows what the site shows.
+	const selectedAcfFields = allowedAcfFields(postsQuery?.selectedAcfFields || []);
 
 	// Mirrors Posts::acfFieldsToFetch — slot fields are pulled even when not displayed. Read off
 	// FIELD_ROLES rather than written out, so a slot added there cannot be missed here.

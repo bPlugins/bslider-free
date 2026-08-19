@@ -1,9 +1,9 @@
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { useEffect, useState } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
 import { AccordionGroup, PanelBody } from '../../../Panel/AccordionPanel';
 import { Label } from '../../../../../../bpl-tools/Components';
-import { FIELD_ROLES, FREE_ACF_FIELD_LIMIT } from '../../../Common/single-item/AcfFields';
+import { FIELD_ROLES } from '../../../Common/single-item/AcfFields';
 import Notice from '../../Notice';
 import ProNotice from '../../../Panel/ProNotice';
 import { PRO_FEATURES } from '../../../../utils/pro-features';
@@ -125,14 +125,6 @@ const AcfConfigure = ({ attributes, setAttributes, updateObject, queriedPosts = 
      * has to land as well.
      */
     const setAcfFields = val => {
-        // Only growing past the limit is refused, and the notice under the picker has already said
-        // so — there is nothing to pop up here. Taking a field out is always allowed, so a slider
-        // carried over from Pro with more fields than this can still be brought back under the
-        // limit instead of being frozen with every control rejecting the click.
-        if (val.length > FREE_ACF_FIELD_LIMIT && val.length > selectedAcfFields.length) {
-            return;
-        }
-
         const removed = selectedAcfFields.filter(name => !val.includes(name));
 
         // One write: the selection and the slots it releases are the same change, and two calls
@@ -229,18 +221,15 @@ const AcfConfigure = ({ attributes, setAttributes, updateObject, queriedPosts = 
                 options={acfOptions}
             />
 
-            {/* Always on screen, not raised once a click has already been refused: picking the
-                fourth field simply does nothing, so the reason has to be readable before that
-                happens. The count is part of it — "three fields" on its own does not say how many
-                are left. */}
-            <Notice>
+            {/* No cap on the picker, so this only reports the count — and only once there is one to
+                report, rather than sitting under an empty picker saying "0 fields selected". */}
+            {selectedAcfFields.length > 0 && <Notice>
                 {sprintf(
-                    /* translators: 1: fields picked, 2: how many the free version displays. */
-                    __('Using %1$d of %2$d fields. bSlider Pro displays all of your ACF fields, the free version displays %2$d.', 'b-slider'),
-                    selectedAcfFields.length,
-                    FREE_ACF_FIELD_LIMIT
+                    /* translators: %d: number of ACF fields picked for display. */
+                    _n('%d field selected.', '%d fields selected.', selectedAcfFields.length, 'b-slider'),
+                    selectedAcfFields.length
                 )}
-            </Notice>
+            </Notice>}
         </>}
 
         {/* Nothing picked, nothing to configure — the picker stays on its own until the user puts a
