@@ -1,17 +1,13 @@
-import { __ } from '@wordpress/i18n';
 import { isProActive } from '../../utils/functions';
-import { Notice } from '../../../../bpl-tools/Components';
+import { PRO_FEATURES } from '../../utils/pro-features';
+import ProNotice from '../Panel/ProNotice';
 
 const ProLayoutsPromo = () => {
     if (isProActive()) {
         return null;
     }
 
-    return (
-        <Notice className="mt15" status="premium" isIcon={true}>
-            {__('Carousel, Grid, Thumbnails, and List layouts are available in the Premium version.', 'b-slider')}
-        </Notice>
-    );
+    return <ProNotice className='mt15' features={PRO_FEATURES.layouts} />;
 };
 
 export default ProLayoutsPromo;

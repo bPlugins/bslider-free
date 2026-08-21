@@ -26,7 +26,6 @@ export const PRO_FEATURES = {
 	 * earns its place when a panel needs a *sentence*; a locked control names itself.
 	 */
 	postQuery: [__('Include', 'b-slider'), __('Exclude', 'b-slider'), __('Current Post', 'b-slider')],
-	acfQuery: [__('Sort by ACF Field', 'b-slider'), __('Filter by ACF Field', 'b-slider')],
 	title: [__('Custom HTML wrapper tags (e.g., h1-h6)', 'b-slider')],
 
 	/**
@@ -82,9 +81,14 @@ export const PRO_FEATURES = {
 
 	/**
 	 * External feeds. The free build reads YouTube channels and videos, Instagram, RSS and JSON —
-	 * every reader ships. What is held back is either a whole panel (see the three keys below) or a
-	 * setting the server refuses without a licence: `SocialFeed::storesLocally()`, `cacheTtl()` and
-	 * `postProcessItems()` are where those are really enforced rather than merely hidden.
+	 * every reader ships. What is held back is either a whole panel or a setting the server refuses
+	 * without a licence: `SocialFeed::storesLocally()`, `cacheTtl()` and `postProcessItems()` are
+	 * where those are really enforced rather than merely hidden.
+	 *
+	 * A panel whose whole body is replaced by a card — ACF Query, Date & Time, Presets — has no key
+	 * here. Its card carries prose instead, which says what the feature is *for* ("prevent exceeding
+	 * API rate limits") where a list of control names cannot; keeping a list beside that prose would
+	 * be a second copy nothing reads. See `ProCard`.
 	 *
 	 * The feed panels name two or three controls each rather than a whole panel's worth, and used to
 	 * write that out as a finished sentence where it appeared. Thirteen of them, and the same control
@@ -95,12 +99,6 @@ export const PRO_FEATURES = {
 	 * `Controls` panel. They are all keys here now, so a control is named once.
 	 */
 	socialStore: [__('Store feed media on this site', 'b-slider'), __('Scheduled feed sync', 'b-slider')],
-	socialDateTime: [
-		__('Timezone conversion', 'b-slider'),
-		__('Date translation', 'b-slider'),
-		__('Custom date layouts', 'b-slider'),
-	],
-	feedPresets: [__('Ready-made feed preset library', 'b-slider')],
 
 	/**
 	 * Named separately because they are combined per feed type: every feed can cache, only YouTube
@@ -156,6 +154,53 @@ export const PRO_FEATURES = {
 		__('Colors', 'b-slider'),
 	],
 
+	/**
+	 * `PlayerGeneral`, group by group, in the order the panel draws them.
+	 *
+	 * Read through `proFeatureList` rather than `proFeatureSentence`: eleven sentences down one
+	 * sidebar is eleven repetitions of "available in the Premium version", so each of these is
+	 * printed as a caption beside the heading it belongs to. See that helper.
+	 *
+	 * `Show Player Controls` is named twice on purpose — YouTube's native player and Instagram's are
+	 * separate groups, each with its own line, and each has to name it.
+	 */
+	nativeYouTube: [__('Show Player Controls', 'b-slider'), __('Show Fullscreen Button', 'b-slider')],
+	nativeYouTubeCaptions: [__('Always Show Subtitles/Captions', 'b-slider')],
+	nativeYouTubePrivacy: [
+		__('Recommend Videos from Other Channels', 'b-slider'),
+		__('Lazy Load Video', 'b-slider'),
+	],
+	nativeInstagram: [__('Show Player Controls', 'b-slider'), __('Loop Video', 'b-slider')],
+	playerRepeat: [__('Repeat', 'b-slider')],
+	playerBehaviour: [
+		__('Click To Play', 'b-slider'),
+		__('Reset On End', 'b-slider'),
+		__('Remember Settings', 'b-slider'),
+	],
+	playerSpeed: [__('Playback Speed', 'b-slider')],
+	playerControlButtons: [__('Settings', 'b-slider'), __('Fullscreen buttons', 'b-slider')],
+	playerSpeedMenu: [__('Speed menu option', 'b-slider')],
+	/**
+	 * `Tooltip On The Progress Bar` is the control's own label. The line here read "progress
+	 * tooltips", which was a paraphrase and the only entry in this panel that was not the wording on
+	 * the control it points at — a reader looking for it in the Premium build would not find that
+	 * name. The other two are unchanged.
+	 */
+	playerExtras: [
+		__('Auto Hide Control', 'b-slider'),
+		__('Tooltip On The Progress Bar', 'b-slider'),
+		__('Keyboard While Focused', 'b-slider'),
+	],
+	playerGdpr: [__('Privacy-Enhanced Mode (GDPR)', 'b-slider')],
+
+	/** `ProLayoutsPromo` — the layouts `SelectLayout` draws locked. */
+	layouts: [
+		__('Carousel', 'b-slider'),
+		__('Grid', 'b-slider'),
+		__('Thumbnails', 'b-slider'),
+		__('List layouts', 'b-slider'),
+	],
+
 	/* Style tab */
 	sliderStyle: [__('Margin', 'b-slider')],
 	contentStyle: [__('Animation', 'b-slider'), __('Delay', 'b-slider'), __('Duration', 'b-slider')],
@@ -175,13 +220,27 @@ export const PRO_FEATURES = {
 };
 
 /**
+ * The names a panel is selling, deduped, whatever depth they arrive at.
+ *
+ * `flat(Infinity)` rather than `flat()`. A panel that composes its list per feed type nests one
+ * level deeper as soon as a branch contributes two keys instead of one — `SocialFiltering` does,
+ * for a YouTube channel — and a single-depth flatten leaves an array sitting among the strings.
+ * Nothing then throws: `join()` stringifies it and one name still reads correctly, so the fault
+ * shows up only later and indirectly. Two names in that array would print "b,c" with no space
+ * after the comma, `_n()` would count the array as one item and pick the wrong verb, and the
+ * `Set` would compare an array against a string and let a repeat through — the duplicate this
+ * file exists to remove.
+ */
+const proFeatureNames = (features = []) => [...new Set(features.flat(Infinity).filter(Boolean))];
+
+/**
  * The upsell sentence for a set of features, with repeats removed.
  *
  * Returns an empty string for an empty list so a panel that has nothing left to sell renders no
  * notice at all instead of a sentence naming nothing.
  */
 export const proFeatureSentence = (features = []) => {
-	const list = [...new Set(features.flat().filter(Boolean))];
+	const list = proFeatureNames(features);
 
 	if (!list.length) {
 		return '';
@@ -197,3 +256,15 @@ export const proFeatureSentence = (features = []) => {
 		list.join(', ')
 	);
 };
+
+/**
+ * The same names as a bare caption, for the places that read better without a sentence.
+ *
+ * `PlayerGeneral` locks eleven groups of controls. As sentences that is "available in the Premium
+ * version" printed eleven times down one 280px sidebar; as a short list beside the heading it
+ * belongs to, each one is read as a caption on that group. The panel had this already, written as a
+ * local component over hardcoded strings — this is the same output with the names coming from
+ * `PRO_FEATURES` like everything else, so a control crossing between free and Premium is still one
+ * edit in one file.
+ */
+export const proFeatureList = (features = []) => proFeatureNames(features).join(', ');

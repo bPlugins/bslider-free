@@ -2,8 +2,8 @@ import { __, sprintf } from '@wordpress/i18n';
 import { SelectControl } from '@wordpress/components';
 import { PanelBody } from '../../../Panel/AccordionPanel';
 import { Label } from '../../../../../../bpl-tools/Components';
-import { isProActive, adminUrl } from '../../../../utils/functions';
-import PremiumPanel from '../../../../../../bpl-tools/ProControls/PremiumPanel';
+import { isProActive } from '../../../../utils/functions';
+import ProCard from '../../../Panel/ProCard';
 import { PremiumBadge } from '../../../../../../bpl-tools/ProControls';
 import { postsOrders } from '../../../../utils/options';
 import useAcfFields from '../../../../hooks/useAcfFields';
@@ -173,11 +173,9 @@ const AcfQuery = ({ attributes, setAttributes, updateObject, premiumProps, queri
                     )}
                 </>
             ) : (
-                <PremiumPanel
+                <ProCard
                     title={__('ACF Query', 'b-slider')}
                     description={__('Sort and filter your slider posts by ACF field values. Set custom ordering, numeric or text sorting, and build advanced filter rules.', 'b-slider')}
-                    pricingUrl={adminUrl()}
-                    buttonLabel={__('Get Pro', 'b-slider')}
                 />
             )}
         </PanelBody>

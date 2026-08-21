@@ -7,6 +7,7 @@ import { BControlPro } from '../../../../../../bpl-tools/ProControls';
 import { ColorControl, Label, Notice } from '../../../../../../bpl-tools/Components';
 import { HTML5_ONLY, PLAYER_DEFAULTS, playerConf } from '../../../../utils/config';
 import { isProActive } from '../../../../utils/functions';
+import { PRO_FEATURES, proFeatureList } from '../../../../utils/pro-features';
 
 /**
  * The buttons Plyr can draw, in the order it draws them.
@@ -63,12 +64,21 @@ const RATIO_OPTIONS = [
  * Beside the group it belongs to, a short list is read as a caption on that group: three or four
  * names the reader can match to the heading directly above. Nothing is hidden that was not hidden
  * before; the same information is simply where it applies.
+ *
+ * That is why this is not `ProNotice`: a sentence per group is "available in the Premium version"
+ * eleven times down one sidebar, which is the paragraph this replaced. The names come from
+ * `PRO_FEATURES` all the same — `proFeatureList` is the caption form of `proFeatureSentence` — so a
+ * control moving between free and Premium is one edit in one file whichever form prints it.
  */
-const ProLine = ({ children }) => (
-    <Notice className="mt10" status="premium" isIcon={true}>
-        {children}
-    </Notice>
-);
+const ProLine = ({ features }) => {
+    const names = proFeatureList(features);
+
+    if (!names) {
+        return null;
+    }
+
+    return <Notice className="mt10" status="premium" isIcon={true}>{names}</Notice>;
+};
 
 /**
  * Plyr's settings, for whichever source is using Plyr.
@@ -192,7 +202,7 @@ const PlayerGeneral = ({ attributes, setAttributes, updateObject, premiumProps, 
                             />
                         </>
                     )}
-                    {!isPro && <ProLine>{__('Show Player Controls, Show Fullscreen Button', 'b-slider')}</ProLine>}
+                    {!isPro && <ProLine features={PRO_FEATURES.nativeYouTube} />}
                     <ToggleControl
                         className='mt15'
                         label={__('Enable Keyboard Shortcuts', 'b-slider')}
@@ -207,7 +217,7 @@ const PlayerGeneral = ({ attributes, setAttributes, updateObject, premiumProps, 
                             onChange={val => updateObject('socialQuery', 'ytCaptions', val)}
                         />
                     )}
-                    {!isPro && <ProLine>{__('Always Show Subtitles/Captions', 'b-slider')}</ProLine>}
+                    {!isPro && <ProLine features={PRO_FEATURES.nativeYouTubeCaptions} />}
                     <ToggleControl
                         className='mt15'
                         label={__('Privacy-Enhanced Mode', 'b-slider')}
@@ -237,7 +247,7 @@ const PlayerGeneral = ({ attributes, setAttributes, updateObject, premiumProps, 
                             />
                         </>
                     )}
-                    {!isPro && <ProLine>{__('Recommend Videos from Other Channels, Lazy Load Video', 'b-slider')}</ProLine>}
+                    {!isPro && <ProLine features={PRO_FEATURES.nativeYouTubePrivacy} />}
                 </PanelBody>
             ) : (
                 <PanelBody className='bPlPanelBody' title={__('Instagram Native Controls', 'b-slider')} badge={__('New', 'b-slider')} initialOpen={true}>
@@ -271,7 +281,7 @@ const PlayerGeneral = ({ attributes, setAttributes, updateObject, premiumProps, 
                             />
                         </>
                     )}
-                    {!isPro && <ProLine>{__('Show Player Controls, Loop Video', 'b-slider')}</ProLine>}
+                    {!isPro && <ProLine features={PRO_FEATURES.nativeInstagram} />}
                 </PanelBody>
             )
         );
@@ -292,7 +302,7 @@ const PlayerGeneral = ({ attributes, setAttributes, updateObject, premiumProps, 
             {isPro && (
                 <ToggleControl className='mt15' label={__('Repeat', 'b-slider')} checked={conf.repeat} onChange={val => set('repeat', val)} />
             )}
-            {!isPro && <ProLine>{__('Repeat', 'b-slider')}</ProLine>}
+            {!isPro && <ProLine features={PRO_FEATURES.playerRepeat} />}
 
             <ToggleControl className='mt15' label={__('Muted', 'b-slider')} checked={conf.muted} onChange={val => set('muted', val)} />
 
@@ -342,7 +352,7 @@ const PlayerGeneral = ({ attributes, setAttributes, updateObject, premiumProps, 
             {isPro && (
                 <TipToggle className='mt15' label={__('Remember Settings', 'b-slider')} checked={conf.rememberSettings} onChange={val => set('rememberSettings', val)} tip={__('Keeps the visitor’s volume and speed for the next video they play, in their own browser.', 'b-slider')} />
             )}
-            {!isPro && <ProLine>{__('Click To Play, Reset On End, Remember Settings', 'b-slider')}</ProLine>}
+            {!isPro && <ProLine features={PRO_FEATURES.playerBehaviour} />}
 
             <TipToggle className='mt15' label={__('Play Inline', 'b-slider')} checked={conf.playsinline} onChange={val => set('playsinline', val)} tip={__('Off sends iPhones to their own full-screen player as soon as playback starts.', 'b-slider')} />
 
@@ -407,7 +417,7 @@ const PlayerGeneral = ({ attributes, setAttributes, updateObject, premiumProps, 
                     </div>
                 </>
             )}
-            {!isPro && <ProLine>{__('Playback Speed', 'b-slider')}</ProLine>}
+            {!isPro && <ProLine features={PRO_FEATURES.playerSpeed} />}
 
             <FieldGroup title={__('The control bar', 'b-slider')} />
 
@@ -432,7 +442,7 @@ const PlayerGeneral = ({ attributes, setAttributes, updateObject, premiumProps, 
                 />)}
             {/* These three are filtered out of the list above rather than drawn locked, so without a
                 line here they would simply be absent with nothing to say why. */}
-            {!isPro && <ProLine>{__('Settings, Fullscreen buttons', 'b-slider')}</ProLine>}
+            {!isPro && <ProLine features={PRO_FEATURES.playerControlButtons} />}
 
             {/* The gear itself is the `settings` control above; this is what it opens. Worth saying so,
                 because an empty menu and a hidden gear look the same from the front. */}
@@ -448,7 +458,7 @@ const PlayerGeneral = ({ attributes, setAttributes, updateObject, premiumProps, 
                         onChange={val => updateChild('settingsMenu', key, val)}
                     />)}
             </div>
-            {!isPro && <ProLine>{__('Speed menu option', 'b-slider')}</ProLine>}
+            {!isPro && <ProLine features={PRO_FEATURES.playerSpeedMenu} />}
 
             <FieldGroup title={__('The interface', 'b-slider')} />
 
@@ -476,7 +486,7 @@ const PlayerGeneral = ({ attributes, setAttributes, updateObject, premiumProps, 
             {isPro && (
                 <TipToggle className='mt15' label={__('Keyboard While Focused', 'b-slider')} checked={conf.keyboardFocused} onChange={val => set('keyboardFocused', val)} tip={__('Space, arrows and the number keys work on the player the visitor has clicked into.', 'b-slider')} />
             )}
-            {!isPro && <ProLine>{__('Auto Hide Control, progress tooltips, Keyboard While Focused', 'b-slider')}</ProLine>}
+            {!isPro && <ProLine features={PRO_FEATURES.playerExtras} />}
 
             {/* Only for a YouTube feed, because these are parameters in YouTube's own embed URL and the video
                 source plays a file from this site. */}
@@ -486,7 +496,7 @@ const PlayerGeneral = ({ attributes, setAttributes, updateObject, premiumProps, 
                 {isPro && (
                     <TipToggle className='mt15' label={__('Privacy-Enhanced Mode', 'b-slider')} checked={conf.ytNoCookie} onChange={val => set('ytNoCookie', val)} tip={__('YouTube stores nothing about the visitor until they press play.', 'b-slider')} />
                 )}
-                {!isPro && <ProLine>{__('Privacy-Enhanced Mode (GDPR)', 'b-slider')}</ProLine>}
+                {!isPro && <ProLine features={PRO_FEATURES.playerGdpr} />}
 
                 <TipToggle className='mt15' label={__('Recommend Videos from Other Channels', 'b-slider')} checked={conf.ytRel} onChange={val => set('ytRel', val)} tip={__('If enabled, YouTube will suggest videos from other channels. If disabled, recommendations are limited to the same channel.', 'b-slider')} />
 

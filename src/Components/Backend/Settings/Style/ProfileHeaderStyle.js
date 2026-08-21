@@ -2,8 +2,8 @@ import { __ } from '@wordpress/i18n';
 import { produce } from 'immer';
 import { PanelBody } from '../../../Panel/AccordionPanel';
 import { ColorControl, ColorsControl, Typography } from '../../../../../../bpl-tools/Components';
-import { isProActive, adminUrl } from '../../../../utils/functions';
-import PremiumPanel from '../../../../../../bpl-tools/ProControls/PremiumPanel';
+import { isProActive } from '../../../../utils/functions';
+import ProCard from '../../../Panel/ProCard';
 import { PremiumBadge } from '../../../../../../bpl-tools/ProControls';
 
 /**
@@ -104,11 +104,9 @@ const ProfileHeaderStyle = ({ attributes, setAttributes, premiumProps }) => {
                         />
                     </>
                 ) : (
-                    <PremiumPanel
+                    <ProCard
                         title={__('Follow Button Style', 'b-slider')}
                         description={__('Customize the follow button alignment, typography, and colors to match your brand.', 'b-slider')}
-                        pricingUrl={adminUrl()}
-                        buttonLabel={__('Get Pro', 'b-slider')}
                     />
                 )}
             </PanelBody>

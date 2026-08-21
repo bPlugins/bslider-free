@@ -4,10 +4,10 @@ import { Button, SelectControl, Spinner, TextControl } from '@wordpress/componen
 import { AccordionGroup, PanelBody } from '../../../Panel/AccordionPanel';
 import { TipSelect, TipToggle, TipRange, TipText } from '../../../Panel/TipField';
 import { feedItem } from '../../Source/source-json-item';
-import { isProActive, adminUrl } from '../../../../utils/functions';
+import { isProActive } from '../../../../utils/functions';
 import ProNotice from '../../../Panel/ProNotice';
 import { PRO_FEATURES } from '../../../../utils/pro-features';
-import PremiumPanel from '../../../../../../bpl-tools/ProControls/PremiumPanel';
+import ProCard from '../../../Panel/ProCard';
 import { PremiumBadge } from '../../../../../../bpl-tools/ProControls';
 import useYouTubeKey from '../../../../hooks/useYouTubeKey';
 import useFeedChannels from '../../../../hooks/useFeedChannels';
@@ -654,11 +654,9 @@ const SocialGeneral = ({ attributes, setAttributes, updateObject, socialFeed }) 
                                 tip={__('How long a fetched feed is reused before it is read again.', 'b-slider')}
                             />
                         ) : (
-                            <PremiumPanel
+                            <ProCard
                                 title={__('Feed Cache Settings', 'b-slider')}
                                 description={__('Control feed cache time to optimize performance and prevent exceeding API rate limits.', 'b-slider')}
-                                pricingUrl={adminUrl()}
-                                buttonLabel={__('Get Pro', 'b-slider')}
                             />
                         )
                     )}
@@ -688,11 +686,9 @@ const SocialGeneral = ({ attributes, setAttributes, updateObject, socialFeed }) 
                             tip={__('Helps search engines read the feed.', 'b-slider')}
                         />
                     ) : (
-                        <PremiumPanel
+                        <ProCard
                             title={__('SEO Video Schema & Structured Data', 'b-slider')}
                             description={__('Add rich results (JSON-LD) structured data to help search engines understand your feed videos.', 'b-slider')}
-                            pricingUrl={adminUrl()}
-                            buttonLabel={__('Get Pro', 'b-slider')}
                         />
                     )}
                     </PanelBody>

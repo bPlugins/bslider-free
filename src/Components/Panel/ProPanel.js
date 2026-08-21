@@ -1,8 +1,9 @@
 /**
  * A panel whose whole contents are Premium — badge in the title, upsell card inside.
  *
- * The pricing and demo links used to be written out at each call site; they live in one place now,
- * and the description is composed from the same `PRO_FEATURES` lists the notices use.
+ * For a section that has no free half at all. Where a panel is drawn for both builds and only its
+ * body changes, the card alone is what is wanted: that is `ProCard`, which this is built from, so the
+ * pricing link is written once for both forms.
  *
  * @props title (required): (String) panel title, shown next to the badge
  * @props proTitle (optional): (String) heading inside the card; defaults to `Premium <title>`
@@ -13,17 +14,16 @@
 import { __, sprintf } from '@wordpress/i18n';
 
 import { PanelBody } from './AccordionPanel';
-import { PremiumBadge, PremiumPanel } from '../../../../bpl-tools/ProControls';
-import { adminUrl, DEMO_URL } from '../../utils/functions';
-import { proFeatureSentence } from '../../utils/pro-features';
+import ProCard from './ProCard';
+import { PremiumBadge } from '../../../../bpl-tools/ProControls';
+import { DEMO_URL } from '../../utils/functions';
 
 const ProPanel = ({ title, proTitle, features = [], initialOpen = false }) => {
 	/* `bPlPanelBody` carries the panel look — open border and title colour — like every other panel. */
 	return <PanelBody className='bPlPanelBody' title={<> {title}<PremiumBadge /></>} initialOpen={initialOpen}>
-		<PremiumPanel
+		<ProCard
 			title={proTitle || sprintf(__('Premium %s', 'b-slider'), title)}
-			description={proFeatureSentence(features)}
-			pricingUrl={adminUrl()}
+			features={features}
 			demoUrl={DEMO_URL}
 		/>
 	</PanelBody>;

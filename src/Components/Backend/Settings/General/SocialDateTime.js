@@ -2,8 +2,8 @@ import { __ } from '@wordpress/i18n';
 import { useState } from '@wordpress/element';
 import { PanelBody } from '../../../Panel/AccordionPanel';
 import { TipSelect, TipText, TipToggle, TipCombobox } from '../../../Panel/TipField';
-import { isProActive, adminUrl } from '../../../../utils/functions';
-import PremiumPanel from '../../../../../../bpl-tools/ProControls/PremiumPanel';
+import { isProActive } from '../../../../utils/functions';
+import ProCard from '../../../Panel/ProCard';
 import { PremiumBadge } from '../../../../../../bpl-tools/ProControls';
 
 /**
@@ -184,11 +184,9 @@ const SocialDateTime = ({ attributes, updateObject, premiumProps }) => {
                     )}
                 </>
             ) : (
-                <PremiumPanel
+                <ProCard
                     title={__('Date & Time Format', 'b-slider')}
                     description={__('Customize dates to match your site. Set timezone conversion, date translations, and choose custom layouts for displaying dates on slides.', 'b-slider')}
-                    pricingUrl={adminUrl()}
-                    buttonLabel={__('Get Pro', 'b-slider')}
                 />
             )}
         </PanelBody>

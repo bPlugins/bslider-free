@@ -1,8 +1,8 @@
 import { __ } from '@wordpress/i18n';
 import { PanelBody } from '../../../Panel/AccordionPanel';
-import { isProActive, adminUrl } from '../../../../utils/functions';
+import { isProActive } from '../../../../utils/functions';
 import { presetsFor, presetAttributes } from '../../../../utils/feedPresets';
-import PremiumPanel from '../../../../../../bpl-tools/ProControls/PremiumPanel';
+import ProCard from '../../../Panel/ProCard';
 import { PremiumBadge } from '../../../../../../bpl-tools/ProControls';
 
 /**
@@ -205,11 +205,9 @@ const FeedPresets = ({ attributes, setAttributes, premiumProps }) => {
                 })}
             </div>
         ) : (
-            <PremiumPanel
+            <ProCard
                 title={__('Feed Presets', 'b-slider')}
                 description={__('Choose from ready-made presets to quickly style your feed slider. Each preset sets the layout, header, colors, and badges in one click.', 'b-slider')}
-                pricingUrl={adminUrl()}
-                buttonLabel={__('Get Pro', 'b-slider')}
             />
         )}
     </PanelBody>;
