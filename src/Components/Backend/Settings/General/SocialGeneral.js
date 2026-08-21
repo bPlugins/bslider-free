@@ -5,7 +5,8 @@ import { AccordionGroup, PanelBody } from '../../../Panel/AccordionPanel';
 import { TipSelect, TipToggle, TipRange, TipText } from '../../../Panel/TipField';
 import { feedItem } from '../../Source/source-json-item';
 import { isProActive, adminUrl } from '../../../../utils/functions';
-import { Notice } from '../../../../../../bpl-tools/Components';
+import ProNotice from '../../../Panel/ProNotice';
+import { PRO_FEATURES } from '../../../../utils/pro-features';
 import PremiumPanel from '../../../../../../bpl-tools/ProControls/PremiumPanel';
 import { PremiumBadge } from '../../../../../../bpl-tools/ProControls';
 import useYouTubeKey from '../../../../hooks/useYouTubeKey';
@@ -703,21 +704,12 @@ const SocialGeneral = ({ attributes, setAttributes, updateObject, socialFeed }) 
             {__('This feed type is not available yet.', 'b-slider')}
         </p>}
 
-        {!isPro && feedType === 'youtube' && (
-            <Notice className="mt15" status="premium" isIcon={true}>
-                {__('YouTube Search, Channel Playlist, and Feed Cache Time are available in the Premium version.', 'b-slider')}
-            </Notice>
-        )}
-        {!isPro && feedType === 'instagram' && (
-            <Notice className="mt15" status="premium" isIcon={true}>
-                {__('Instagram Feed and Feed Cache Time are available in the Premium version.', 'b-slider')}
-            </Notice>
-        )}
-        {!isPro && (feedType === 'rss' || feedType === 'json') && (
-            <Notice className="mt15" status="premium" isIcon={true}>
-                {__('Feed Cache Time is available in the Premium version.', 'b-slider')}
-            </Notice>
-        )}
+        {/* Every feed type caches; only YouTube and Instagram add a source of their own. */}
+        {!isPro && <ProNotice className='mt15' features={[
+            PRO_FEATURES.feedCache,
+            'youtube' === feedType ? PRO_FEATURES.youtubeSource : [],
+            'instagram' === feedType ? PRO_FEATURES.instagramSource : []
+        ]} />}
     </PanelBody>
 
         {feedType === 'json' && hasAddress && (

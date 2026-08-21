@@ -6,7 +6,8 @@ import { MediaUpload } from '@wordpress/block-editor';
 import useFeedProfile from '../../../../hooks/useFeedProfile';
 import { fillButtonLabel, followLabel, profileLinkPlaceholder } from '../../../../utils/feedProfile';
 import { isProActive } from '../../../../utils/functions';
-import { Notice } from '../../../../../../bpl-tools/Components';
+import ProNotice from '../../../Panel/ProNotice';
+import { PRO_FEATURES } from '../../../../utils/pro-features';
 
 const SocialHeaderSettings = ({ attributes, setAttributes, updateObject, socialFeed, premiumProps }) => {
     const isPro = premiumProps?.isPremium ?? isProActive();
@@ -260,9 +261,7 @@ const SocialHeaderSettings = ({ attributes, setAttributes, updateObject, socialF
                     />}
 
                     {!isPro && (
-                        <Notice className="mt15" status="premium" isIcon={true}>
-                            {__('Header Style, Show Channel Stats, and Show Subscriber/Follower Count are available in the Premium version.', 'b-slider')}
-                        </Notice>
+                        <ProNotice className='mt15' features={PRO_FEATURES.feedHeader} />
                     )}
 
                     <div className={gap} style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
@@ -376,9 +375,7 @@ const SocialHeaderSettings = ({ attributes, setAttributes, updateObject, socialF
                     )}
 
                     {!isPro && (
-                        <Notice className="mt15" status="premium" isIcon={true}>
-                            {__('Follow Button Alignment, typography, and color options are available in the Premium version.', 'b-slider')}
-                        </Notice>
+                        <ProNotice className='mt15' features={PRO_FEATURES.feedFollowButton} />
                     )}
                 </>
             )}

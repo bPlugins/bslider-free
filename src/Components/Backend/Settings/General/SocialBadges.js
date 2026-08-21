@@ -1,7 +1,9 @@
 import { __ } from '@wordpress/i18n';
 import { PanelBody, AccordionGroup } from '../../../Panel/AccordionPanel';
 import { ToggleControl, TextControl, SelectControl, RangeControl } from '@wordpress/components';
-import { Label, IconLibrary, Notice } from '../../../../../../bpl-tools/Components';
+import { Label, IconLibrary } from '../../../../../../bpl-tools/Components';
+import ProNotice from '../../../Panel/ProNotice';
+import { PRO_FEATURES } from '../../../../utils/pro-features';
 import { isProActive } from '../../../../utils/functions';
 import SelectTokenField from '../../../Panel/SelectTokenField';
 import FieldGroup from '../../../Panel/FieldGroup';
@@ -165,9 +167,7 @@ const SocialBadges = ({ attributes, setAttributes, updateObject, premiumProps })
                                             />
                                         </>
                                     ) : (
-                                        <Notice className="mt15" status="premium" isIcon={true}>
-                                            {__('Badge icons are available in the Premium version.', 'b-slider')}
-                                        </Notice>
+                                        <ProNotice className='mt15' features={PRO_FEATURES.feedBadgeIcons} />
                                     )}
 
                                     <TextControl

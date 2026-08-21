@@ -4,7 +4,9 @@ import { MediaUpload } from '@wordpress/block-editor';
 import { PanelBody } from '../../../Panel/AccordionPanel';
 import FieldGroup from '../../../Panel/FieldGroup';
 import HelpTip from '../../../Panel/HelpTip';
-import { Label, Notice } from '../../../../../../bpl-tools/Components';
+import { Label } from '../../../../../../bpl-tools/Components';
+import ProNotice from '../../../Panel/ProNotice';
+import { PRO_FEATURES } from '../../../../utils/pro-features';
 import { isProActive } from '../../../../utils/functions';
 import { TipSelect, TipToggle, TipRange, TipText } from '../../../Panel/TipField';
 
@@ -391,9 +393,7 @@ const SocialSlides = ({ attributes, updateObject, premiumProps }) => {
                     )}
                 </>
             ) : (
-                <Notice className="mt15" status="premium" isIcon={true}>
-                    {__('Click behavior (What it does), Mini Player Position, and link target options are available in the Premium version.', 'b-slider')}
-                </Notice>
+                <ProNotice className='mt15' features={PRO_FEATURES.feedSlideLink} />
             )}
 
             {/* Only the feed types that have something to play. A YouTube item carries a video id and
@@ -440,9 +440,7 @@ const SocialSlides = ({ attributes, updateObject, premiumProps }) => {
                     )}
                 </>
             ) : (
-                <Notice className="mt15" status="premium" isIcon={true}>
-                    {__('Hover preview, quick action buttons, and position options are available in the Premium version.', 'b-slider')}
-                </Notice>
+                <ProNotice className='mt15' features={PRO_FEATURES.feedHover} />
             )}
 
             {['feed-hover-overlay-grid', 'feed-card-grid-solid'].includes(activePreset) && (
@@ -455,9 +453,7 @@ const SocialSlides = ({ attributes, updateObject, premiumProps }) => {
             )}
 
             {!isProActive() && feedType === 'youtube' && (
-                <Notice className="mt15" status="premium" isIcon={true}>
-                    {__('YouTube Thumbnail Quality is available in the Premium version.', 'b-slider')}
-                </Notice>
+                <ProNotice className='mt15' features={PRO_FEATURES.feedThumbQuality} />
             )}
 
         </PanelBody>

@@ -1,12 +1,12 @@
 import { __, sprintf } from '@wordpress/i18n';
-import { useEffect } from '@wordpress/element';
 import { PanelBody } from '../../../Panel/AccordionPanel';
 import { TipSelect, TipRange, TipText } from '../../../Panel/TipField';
 import { SelectControl, CheckboxControl } from '@wordpress/components';
 import useYouTubeKey from '../../../../hooks/useYouTubeKey';
 import useFeedChannels from '../../../../hooks/useFeedChannels';
 import { isProActive } from '../../../../utils/functions';
-import { Notice } from '../../../../../../bpl-tools/Components';
+import ProNotice from '../../../Panel/ProNotice';
+import { PRO_FEATURES } from '../../../../utils/pro-features';
 
 /**
  * Which of a channel's lists to read. Mirrors `YouTubeFeed::VIDEO_SETS`.
@@ -40,37 +40,22 @@ const videoSetOpt = [
    take things out of that set. Neither is given a heading — the order the fields sit in is the whole
    of it, and each one says what it does on its own label. */
 
-const SocialFiltering = ({ attributes, updateObject, premiumProps, setAttributes }) => {
+const SocialFiltering = ({ attributes, updateObject, premiumProps }) => {
     const { socialQuery } = attributes || {};
     const isPro = premiumProps?.isPremium ?? isProActive();
 
-    useEffect(() => {
-        if (!isPro) {
-            let needsUpdate = false;
-            const updatedQuery = { ...(socialQuery || {}) };
-
-            if (socialQuery?.feedAgeLimit !== 0) {
-                updatedQuery.feedAgeLimit = 0;
-                needsUpdate = true;
-            }
-
-            if (socialQuery?.keywordFilter && socialQuery.keywordFilter !== '') {
-                updatedQuery.keywordFilter = '';
-                needsUpdate = true;
-            }
-
-            if (socialQuery?.excludeKeywordFilter && socialQuery.excludeKeywordFilter !== '') {
-                updatedQuery.excludeKeywordFilter = '';
-                needsUpdate = true;
-            }
-
-            if (needsUpdate) {
-                setAttributes({
-                    socialQuery: updatedQuery
-                });
-            }
-        }
-    }, [isPro, socialQuery?.feedAgeLimit, socialQuery?.keywordFilter, socialQuery?.excludeKeywordFilter]);
+    /**
+     * The free build's answer to these three is the server's, not this panel's.
+     *
+     * An effect here used to blank `feedAgeLimit`, `keywordFilter` and `excludeKeywordFilter` on
+     * every render without a licence, so a feed configured under Premium lost its filters by being
+     * opened here and did not get them back when the licence returned — and the post was dirty from
+     * the moment the inspector drew.
+     *
+     * It was never what enforced them either: `SocialFeed::postProcessItems()` zeroes all three for
+     * a build without a licence, before a single item is matched. The fields above are hidden and the
+     * saved query is left as it is, which is the arrangement `PRO_ONLY` uses for the player.
+     */
     const {
         per_page = 12,
         keywordFilter = '',
@@ -364,21 +349,16 @@ const SocialFiltering = ({ attributes, updateObject, premiumProps, setAttributes
 
             {!isPro && (
                 <>
-                    {feedType === 'youtube' && ytQueryType === 'channel' && (
-                        <Notice className="mt20" status="premium" isIcon={true}>
-                            {__('Privacy Status Filter, How recent (timeframe filter), and Keyword Filters (Include/Exclude) are available in the Premium version.', 'b-slider')}
-                        </Notice>
-                    )}
-                    {feedType !== 'youtube' && feedType !== 'json' && (
-                        <Notice className="mt20" status="premium" isIcon={true}>
-                            {__('How recent (timeframe filter) and Keyword Filters (Include/Exclude) are available in the Premium version.', 'b-slider')}
-                        </Notice>
-                    )}
-                    {feedType === 'json' && (
-                        <Notice className="mt20" status="premium" isIcon={true}>
-                            {__('Keyword Filters (Include/Exclude) are available in the Premium version.', 'b-slider')}
-                        </Notice>
-                    )}
+                    {/* Keywords filter every feed; a timeframe all but JSON; privacy status only a
+                        YouTube channel. A YouTube feed that is not a channel search gets neither of
+                        the last two, which is why the notice is not simply always drawn. */}
+                    <ProNotice className='mt20' features={[
+                        PRO_FEATURES.feedKeywords,
+                        'json' !== feedType && 'youtube' !== feedType ? PRO_FEATURES.feedTimeframe : [],
+                        'youtube' === feedType && 'channel' === ytQueryType
+                            ? [PRO_FEATURES.feedPrivacy, PRO_FEATURES.feedTimeframe]
+                            : []
+                    ]} />
                 </>
             )}
         </PanelBody>
