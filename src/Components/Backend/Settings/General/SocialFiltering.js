@@ -1,5 +1,4 @@
 import { __, sprintf } from '@wordpress/i18n';
-import { useEffect } from '@wordpress/element';
 import { PanelBody } from '../../../Panel/AccordionPanel';
 import { TipSelect, TipRange } from '../../../Panel/TipField';
 import { SelectControl, CheckboxControl } from '@wordpress/components';
@@ -38,38 +37,17 @@ const videoSetOpt = [
    take things out of that set. Neither is given a heading — the order the fields sit in is the whole
    of it, and each one says what it does on its own label. */
 
-const SocialFiltering = ({ attributes, updateObject, setAttributes }) => {
+const SocialFiltering = ({ attributes, updateObject }) => {
     const { socialQuery } = attributes || {};
     /**
-     * Clear the Premium-only filters, so the panel and the feed agree.
+     * Nothing is written back to clear the Premium filters.
      *
-     * `SocialFeed::postProcessItems()` drops these three without a licence, so a block arriving from
-     * a licensed site would otherwise show a keyword filter in the panel while every item it excluded
-     * came back anyway.
+     * `SocialFeed::postProcessItems()` drops the keyword and age filters without a licence, so the
+     * feed already behaves as this build says it does — and the panel does not offer them. Writing
+     * them away as well would take a keyword a licensed block had been configured with and delete
+     * it, which renewing would not undo.
      */
-    useEffect(() => {
-        let needsUpdate = false;
-        const updatedQuery = { ...(socialQuery || {}) };
 
-        if (socialQuery?.feedAgeLimit !== 0) {
-            updatedQuery.feedAgeLimit = 0;
-            needsUpdate = true;
-        }
-
-        if (socialQuery?.keywordFilter && socialQuery.keywordFilter !== '') {
-            updatedQuery.keywordFilter = '';
-            needsUpdate = true;
-        }
-
-        if (socialQuery?.excludeKeywordFilter && socialQuery.excludeKeywordFilter !== '') {
-            updatedQuery.excludeKeywordFilter = '';
-            needsUpdate = true;
-        }
-
-        if (needsUpdate) {
-            setAttributes({ socialQuery: updatedQuery });
-        }
-    }, [socialQuery?.feedAgeLimit, socialQuery?.keywordFilter, socialQuery?.excludeKeywordFilter]);
     const {
         per_page = 12,
         keywordFilter = '',

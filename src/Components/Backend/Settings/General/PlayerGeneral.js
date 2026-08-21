@@ -1,6 +1,5 @@
 import { __ } from '@wordpress/i18n';
 import { CheckboxControl, SelectControl, ToggleControl } from '@wordpress/components';
-import { useEffect } from '@wordpress/element';
 import { PanelBody } from '../../../Panel/AccordionPanel';
 import FieldGroup from '../../../Panel/FieldGroup';
 import { TipToggle, TipRange } from '../../../Panel/TipField';
@@ -94,46 +93,18 @@ const PlayerGeneral = ({ attributes, setAttributes, updateObject, premiumProps, 
     const { controls, settingsMenu } = conf;
 
     /**
-     * Hold the Premium-only player settings at their free values.
+     * Nothing is written back to hold the Premium settings down.
      *
-     * A block built on a licensed site arrives with Repeat on and a Fullscreen button; the free
-     * player draws neither, so without this the panel would disagree with the page.
+     * The earlier version of this file ran an effect on mount that forced Repeat, Reset On End and
+     * the Fullscreen button to their free values. Two things were wrong with it: `videoConf` ships
+     * with `fullscreen: true`, so it fired for *every* video slider and marked a post dirty the
+     * moment its panel was opened — and it quietly rewrote a block that had been configured with a
+     * licence, so opening it here once cost settings that would not come back on renewal.
+     *
+     * The panel simply does not offer them, the way `VideoGeneral` does not offer the six Premium
+     * buttons: the controls are filtered out and a notice names them. What the free *player* honours
+     * is `plyrConfig`'s business, and it reads the same `HTML5_ONLY` list this panel does.
      */
-    useEffect(() => {
-            let updatedConf = {};
-            let hasChanges = false;
-
-            if (conf.repeat !== false) {
-                updatedConf.repeat = false;
-                hasChanges = true;
-            }
-            if (conf.clickToPlay !== true) {
-                updatedConf.clickToPlay = true;
-                hasChanges = true;
-            }
-            if (conf.resetOnEnd !== false) {
-                updatedConf.resetOnEnd = false;
-                hasChanges = true;
-            }
-
-            const currentControls = conf.controls || {};
-            if (currentControls.fullscreen !== false) {
-                updatedConf.controls = { ...currentControls, fullscreen: false };
-                hasChanges = true;
-            }
-
-            const currentSettingsMenu = conf.settingsMenu || {};
-            if (currentSettingsMenu.speed !== false) {
-                updatedConf.settingsMenu = { ...currentSettingsMenu, speed: false };
-                hasChanges = true;
-            }
-
-            if (hasChanges) {
-                setAttributes({
-                    videoConf: { ...videoConf, ...updatedConf }
-                });
-            }
-    }, [conf.repeat, conf.clickToPlay, conf.resetOnEnd, conf.controls?.fullscreen, conf.settingsMenu?.speed]);
 
     /** One key inside one of the two nested objects — `controls` and `settingsMenu`. */
     const updateChild = (child, key, val) => setAttributes({

@@ -1,5 +1,5 @@
 import { __, sprintf, _n } from '@wordpress/i18n';
-import { useState, useEffect } from '@wordpress/element';
+import { useState } from '@wordpress/element';
 import { Button, Spinner, TextControl } from '@wordpress/components';
 import { AccordionGroup, PanelBody } from '../../../Panel/AccordionPanel';
 import { TipSelect, TipText } from '../../../Panel/TipField';
@@ -87,39 +87,19 @@ const SocialGeneral = ({ attributes, setAttributes, updateObject, socialFeed }) 
     const isCustom = !channelId;
 
     /**
-     * Hold the Premium-only feed settings at their free values.
+     * Nothing is written back to hold the Premium settings down.
      *
-     * The server already refuses them — `SocialFeed::cacheTtl()` ignores a saved window without a
-     * licence, and `YouTubeFeed::items()` forces the query back to a plain channel read. This is the
-     * editor saying so, rather than leaving a block carrying settings that quietly do nothing.
+     * The server is where these are enforced and it does not need help: `SocialFeed::cacheTtl()`
+     * ignores a saved window without a licence, and `YouTubeFeed::items()` forces the query back to
+     * a plain channel read. The panel's part is simply not to offer them, which it does not.
      *
-     * A block built on a licensed site and opened here is the case that matters: it arrives with a
-     * search query and a two-hour cache, and without this it would look like it still had them.
+     * An effect here used to write them back on mount. It fired on every new feed slider, because
+     * `seoSchema` ships as `'video'` and this forced it to `'off'` — so opening the panel marked a
+     * clean post dirty. Worse, it cleared `ytQueryType` and `source` on a block that had been built
+     * with a licence: opening it here once destroyed the search term, and renewing did not bring it
+     * back. A free build may decline to honour a setting; it has no business deleting it.
      */
-    useEffect(() => {
-        let needsUpdate = false;
-        const updatedQuery = { ...(socialQuery || {}) };
 
-        if (socialQuery?.ytQueryType && socialQuery.ytQueryType !== 'channel') {
-            updatedQuery.ytQueryType = 'channel';
-            updatedQuery.source = '';
-            needsUpdate = true;
-        }
-
-        if (socialQuery?.cacheTime && socialQuery.cacheTime !== 21600) {
-            updatedQuery.cacheTime = 21600;
-            needsUpdate = true;
-        }
-
-        if (socialQuery?.seoSchema && socialQuery.seoSchema !== 'off') {
-            updatedQuery.seoSchema = 'off';
-            needsUpdate = true;
-        }
-
-        if (needsUpdate) {
-            setAttributes({ socialQuery: updatedQuery });
-        }
-    }, [socialQuery?.ytQueryType, socialQuery?.cacheTime, socialQuery?.seoSchema]);
 
     /**
      * Whether this service's address may live on the slider itself.
