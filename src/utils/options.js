@@ -1,7 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import arrow from './arrows';
 
-import { carousel, grid, image, post_thumbnails, slider, video, woo, wordpress } from './icons';
+import { carousel, grid, image, post_thumbnails, slider, socialFeed, video, woo, wordpress } from './icons';
 
 
 
@@ -49,8 +49,19 @@ export const sourceTypeOpt = [
     { label: 'Image', value: 'image', icon: image(24, 24) },
     { label: 'Posts', value: 'posts', icon: wordpress(24, 24) },
     { label: 'WooCommerce', value: 'woo', icon: woo(24, 24) },
-    { label: 'Video', value: 'video', icon: video(24, 24) }
+    { label: 'Video', value: 'video', icon: video(24, 24) },
+    { label: 'Social Feeds', value: 'social', icon: socialFeed(24, 24) }
 ]
+
+/**
+ * The layouts a slider may pick, given what it is reading.
+ *
+ * A feed gets Default and nothing else here — the other four are Premium, which `ProLayoutsPromo`
+ * says beside both pickers. Every other source keeps the full list it has always had.
+ */
+export const layoutsFor = sourceType => 'social' === sourceType
+    ? selectLayoutOpt.filter(opt => 'default' === opt.value)
+    : selectLayoutOpt
 
 /**
  * The Plyr control buttons the free build can toggle, in the order they are shown.

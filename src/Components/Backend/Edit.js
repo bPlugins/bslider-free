@@ -15,6 +15,7 @@ import { allowedAcfFields, FIELD_ROLES } from '../Common/single-item/AcfFields';
 import SelectSource from './Source/SelectSource';
 import Default from '../Common/Layouts/Default';
 import ClipBoard from './ClipBoard';
+import useSocialFeed from '../../hooks/useSocialFeed';
 import useIframeAssetSync from '../../../../bpl-tools/hooks/useIframeAssetSync';
 // The sidebar markup leans on bpl-tools' `mt*`/`mb*` spacing classes, which live here.
 import '../../../../bpl-tools/Components/style.scss';
@@ -136,10 +137,21 @@ const Edit = (props) => {
 	}, [activeIndex]);
 
 	const commonDeProps = { clientId, activeIndex, carousel, setCarousel, updateSlider, isBackEnd: true, isSelected };
-	const settingsProps = { clientId, attributes, setAttributes, updateSlider, addSlider, removeSlider, duplicateSlider, activeIndex, setActiveIndex, allCategories, multipleAttrChange, updateObject, queriedPosts: formattedPosts };
+	/**
+	 * An external feed has no entity records to select from, so it is fetched rather than queried.
+	 * What comes back is shaped like an arranged post, which is what lets the same layouts render it
+	 * — see the note in useSocialFeed.
+	 */
+	const socialFeed = useSocialFeed(attributes);
+	const isSocialSource = 'social' === attributes.sourceType;
+
+	const displayPosts = isSocialSource ? socialFeed.items : formattedPosts;
+	const displayTotal = isSocialSource ? (socialFeed.items?.length || 0) : totalPosts;
+
+	const settingsProps = { clientId, attributes, setAttributes, updateSlider, addSlider, removeSlider, duplicateSlider, activeIndex, setActiveIndex, allCategories, multipleAttrChange, updateObject, queriedPosts: displayPosts, socialFeed };
 
 	const isOld = !layoutType && sliders[0]?.img?.url !== 'https://templates.bplugins.com/wp-content/uploads/2025/02/n-39.jpg';
-	const LayoutEl = <Layout {...{ attributes, firstPosts: formattedPosts, products: formattedPosts, totalPosts, setAttributes, commonDeProps, PostsGrid: PostsGridBack, updateObject }} />;
+	const LayoutEl = <Layout {...{ attributes, firstPosts: displayPosts, products: displayPosts, totalPosts: displayTotal, setAttributes, commonDeProps, PostsGrid: PostsGridBack, updateObject, feedError: isSocialSource ? socialFeed.error : '', feedProfile: isSocialSource ? socialFeed.profile : null, feedLoading: isSocialSource && socialFeed.loading }} />;
 
 	const shortcode = `[bsb-slider id=${currentPostId}]`;
 
@@ -151,10 +163,10 @@ const Edit = (props) => {
 
 					{isOld ? <>
 						<Settings {...settingsProps} />
-						<Style {...{ attributes, clientId, postsCount: formattedPosts?.length, products: formattedPosts }} />
+						<Style {...{ attributes, clientId, postsCount: displayPosts?.length, products: displayPosts }} />
 						<Default {...{ attributes, firstPosts: formattedPosts, commonDeProps, products: formattedPosts }} />
 					</> : <>
-						{!layoutType ?
+						{(!layoutType || (attributes.sourceType === 'social' && !attributes.socialQuery?.feedType)) ?
 							<SelectSource {...{ attributes, setAttributes, updateObject }} /> : <>
 								<Settings {...settingsProps} />
 								<Style {...{ attributes, clientId, postsCount: formattedPosts?.length, products: formattedPosts }} />
@@ -172,7 +184,10 @@ export default compose(
 		const currentPostId = select('core/editor').getCurrentPostId();
 		const CPTType = select('core/editor').getCurrentPostType?.();
 
-		if (["", "image"].includes(attributes.sourceType)) {
+		// `social` joins these: its items come off an HTTP feed through useSocialFeed, so there is no
+		// post query to run and running one anyway would fetch every post on the site for a slider
+		// that shows none of them.
+		if (["", "image", "social"].includes(attributes.sourceType)) {
 
 			return {
 				totalPosts: 5 || '',

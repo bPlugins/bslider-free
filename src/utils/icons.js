@@ -106,3 +106,26 @@ export const crown = (width = 24, height = 24) => <svg xmlns='http://www.w3.org/
 	<path d='M3 8.5a1.5 1.5 0 1 1 1.94 1.43l1.5 4.07h11.12l1.5-4.07A1.5 1.5 0 1 1 21 8.5a1.5 1.5 0 0 1-.86 1.35l-1.9 8.4a1 1 0 0 1-.98.75H6.74a1 1 0 0 1-.98-.75l-1.9-8.4A1.5 1.5 0 0 1 3 8.5zM12 4a1.75 1.75 0 0 1 1.4 2.8L12 12.2 10.6 6.8A1.75 1.75 0 0 1 12 4z' />
 </svg>;
 
+export const socialFeed = (width = 24, height = 24) => <svg xmlns='http://www.w3.org/2000/svg' width={width} height={height} viewBox='0 0 24 24'>
+	<path d='M5 3a1 1 0 0 0 0 2 14 14 0 0 1 14 14 1 1 0 0 0 2 0A16 16 0 0 0 5 3zm0 5a1 1 0 0 0 0 2 9 9 0 0 1 9 9 1 1 0 0 0 2 0A11 11 0 0 0 5 8zm1.5 8.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5z' />
+</svg>;
+
+export const youtube = (width = 24, height = 24) => <svg xmlns='http://www.w3.org/2000/svg' width={width} height={height} viewBox='0 0 24 24'>
+	<path d='M21.58 7.19a2.5 2.5 0 0 0-1.76-1.77C18.25 5 12 5 12 5s-6.25 0-7.82.42A2.5 2.5 0 0 0 2.42 7.2C2 8.77 2 12 2 12s0 3.23.42 4.81a2.5 2.5 0 0 0 1.76 1.77C5.75 19 12 19 12 19s6.25 0 7.82-.42a2.5 2.5 0 0 0 1.76-1.77C22 15.23 22 12 22 12s0-3.23-.42-4.81zM10 15.5v-7l6 3.5-6 3.5z' />
+</svg>;
+
+/**
+ * The two badges a feed slide wears when the popup cannot play what is behind it.
+ *
+ * `currentColor` rather than a baked `fill`, unlike `play` above: these are drawn inside
+ * `.bsbFeedPlayIcon`, which already sets a colour, and a second variant of the badge should not need
+ * a second copy of the glyph to recolour it.
+ */
+export const instagram = <svg xmlns='http://www.w3.org/2000/svg' width='24px' height='24px' viewBox='0 0 24 24' fill='currentColor'>
+	<path d='M12 2c2.717 0 3.056.01 4.122.06 1.065.05 1.79.217 2.428.465.66.254 1.216.598 1.772 1.153a4.9 4.9 0 0 1 1.153 1.772c.247.637.415 1.363.465 2.428.047 1.066.06 1.405.06 4.122 0 2.717-.01 3.056-.06 4.122-.05 1.065-.218 1.79-.465 2.428a4.9 4.9 0 0 1-1.153 1.772 4.9 4.9 0 0 1-1.772 1.153c-.637.247-1.363.415-2.428.465-1.066.047-1.405.06-4.122.06-2.717 0-3.056-.01-4.122-.06-1.065-.05-1.79-.218-2.428-.465a4.9 4.9 0 0 1-1.772-1.153 4.9 4.9 0 0 1-1.153-1.772c-.248-.637-.415-1.363-.465-2.428C2.013 15.056 2 14.717 2 12c0-2.717.01-3.056.06-4.122.05-1.066.217-1.79.465-2.428a4.9 4.9 0 0 1 1.153-1.772A4.9 4.9 0 0 1 5.45 2.525c.638-.248 1.362-.415 2.428-.465C8.944 2.013 9.283 2 12 2zm0 5a5 5 0 1 0 0 10 5 5 0 0 0 0-10zm6.5-.25a1.25 1.25 0 1 0-2.5 0 1.25 1.25 0 0 0 2.5 0zM12 9a3 3 0 1 1 0 6 3 3 0 0 1 0-6z' />
+</svg>;
+
+/** The feed mark, for the button under a slider reading an RSS or Atom feed. */
+export const rss = <svg xmlns='http://www.w3.org/2000/svg' width='24px' height='24px' viewBox='0 0 24 24' fill='currentColor'>
+	<path d='M5 3c9.389 0 16 6.611 16 16h-3c0-7.732-5.268-13-13-13V3zm0 7c4.963 0 9 4.037 9 9h-3c0-3.309-2.691-6-6-6v-3zm2.5 6a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5z' />
+</svg>;

@@ -14,19 +14,29 @@ import { isPostTypeLocked } from '../../../../utils/functions';
 import DefaultGeneral from './DefaultGeneral';
 import GridGeneral from '../GridGeneral';
 import ThumbnailsGeneral from './ThumbnailsGeneral';
-import { selectLayoutOpt, sourceTypeOpt } from '../../../../utils/options';
+import { layoutsFor, sourceTypeOpt } from '../../../../utils/options';
 import PostQuery from './Post-query';
 import AcfConfigure from './AcfConfigure';
 import PostBadges from './PostBadges';
 import VideoGeneral from './VideoGeneral';
 import ProPanel from '../../../Panel/ProPanel';
+import ProLayoutsPromo from '../../ProLayoutsPromo';
 import { PRO_FEATURES } from '../../../../utils/pro-features';
+import PlayerGeneral from './PlayerGeneral';
+import SocialGeneral from './SocialGeneral';
+import SocialFiltering from './SocialFiltering';
+import SocialDateTime from './SocialDateTime';
+import SocialSlides from './SocialSlides';
+import SocialStore from './SocialStore';
+import SocialHeaderSettings from './SocialHeaderSettings';
+import FeedPresets from './FeedPresets';
+import { hasFeedProfile } from '../../../../utils/feedProfile';
 
-const General = ({ attributes, setAttributes, activeIndex, setActiveIndex, updateObject, multipleAttrChange, getTaxonomy, premiumProps, postTypes, queriedPosts }) => {
+const General = ({ attributes, setAttributes, activeIndex, setActiveIndex, updateObject, multipleAttrChange, getTaxonomy, premiumProps, postTypes, queriedPosts, socialFeed }) => {
 
     const [device, setDevice] = useState('desktop');
     const [gapDevice, setGapDevice] = useState('desktop');
-    const { layoutType, sourceType, title, desc, caption, image, button, postsQuery } = attributes;
+    const { layoutType, sourceType, title, desc, caption, image, button, postsQuery, socialQuery } = attributes;
     const itemsProps = { attributes, setAttributes, arrKey: 'sliders', activeIndex, setActiveIndex, premiumProps };
 
     /**
@@ -39,6 +49,17 @@ const General = ({ attributes, setAttributes, activeIndex, setActiveIndex, updat
     const gap = 'mt15';
 
     const isPostSource = sourceType === 'posts' || sourceType === 'woo';
+    const isFeedSource = sourceType === 'social';
+
+    /**
+     * Whether this feed has been told where to read from yet.
+     *
+     * Everything below the source panel is hidden until it has: a filter or a header setting for a
+     * feed with no address is a control for a slider that cannot draw anything.
+     */
+    const hasAddress = !isFeedSource
+        || !!(socialQuery?.channelId || socialQuery?.source || '').trim();
+    const currentFeedType = socialQuery?.feedType || 'youtube';
     /**
      * Which sources draw a caption over a picture at all.
      *
@@ -128,7 +149,7 @@ const General = ({ attributes, setAttributes, activeIndex, setActiveIndex, updat
 
             <Label className="mt15 mb5">{__('Select Layout', 'b-slider')}</Label>
             <div className="bsb_panel_grid_selector">
-                {selectLayoutOpt.map((opt) => (
+                {layoutsFor(sourceType).map((opt) => (
                     <button
                         key={opt.value}
                         type="button"
@@ -142,10 +163,20 @@ const General = ({ attributes, setAttributes, activeIndex, setActiveIndex, updat
             </div>
         </PanelBody>
 
-        {(sourceType !== "posts" && sourceType !== "woo") &&
+        {/* A feed has no hand-written slides to list, and its own Slides panel is `SocialSlides`
+            below — so this one is for the sources that really do carry a list. */}
+        {(sourceType !== "posts" && sourceType !== "woo" && !isFeedSource) &&
             <PanelBody className='bPlPanelBody' title={__('Slides', 'b-slider')} initialOpen={false}>
                 <MainItem itemsProps={itemsProps} />
             </PanelBody>}
+
+        {/* Which feed, and where to read it. Everything else about a feed hangs off the answer, so
+            this comes first and the rest waits on `hasAddress`. */}
+        {isFeedSource && <FeedPresets />}
+        {isFeedSource && <SocialGeneral {...commonProps} socialFeed={socialFeed} />}
+        {isFeedSource && hasAddress && currentFeedType !== 'youtube_video' && <SocialFiltering {...commonProps} />}
+        {isFeedSource && hasAddress && currentFeedType !== 'youtube_video' && <SocialStore />}
+        {isFeedSource && hasAddress && <SocialSlides {...commonProps} />}
 
         {isPostSource && <PostQuery {...commonProps} getTaxonomy={getTaxonomy} />}
 
@@ -312,12 +343,26 @@ const General = ({ attributes, setAttributes, activeIndex, setActiveIndex, updat
         {/* The date and the author, drawn over the slide as badges. Both are on an arranged post
             already — see `badgesFrom` in AcfFields, which renders them onto the same layer the ACF
             fields use, which is why this follows that panel. */}
-        {isPostSource && <PostBadges {...commonProps} />}
+        {(isPostSource || isFeedSource) && <PostBadges {...commonProps} />}
+
+        {isFeedSource && hasAddress && currentFeedType !== 'youtube_video' && <SocialDateTime />}
+
+        {/* Only for the services that have an account behind them to draw — see `hasFeedProfile`. */}
+        {isFeedSource && hasAddress && hasFeedProfile(currentFeedType)
+            && <SocialHeaderSettings {...commonProps} socialFeed={socialFeed} />}
 
         <DefaultGeneral {...commonProps} gapDevice={gapDevice} setGapDevice={setGapDevice} device={device} setDevice={setDevice} />
         {layoutType === "grid" && <GridGeneral {...commonProps} multipleAttrChange={multipleAttrChange} />}
         {layoutType === "thumbnails" && <ThumbnailsGeneral {...commonProps} multipleAttrChange={multipleAttrChange} />}
         {sourceType === "video" && <VideoGeneral {...commonProps} />}
+
+        {/* The feed's own player settings. Only where there is a video to play. */}
+        {isFeedSource && ['youtube', 'youtube_video'].includes(currentFeedType)
+            && <PlayerGeneral {...commonProps} isFeed />}
+
+        {/* Said once, at the end of the panel: a feed slider gets the Default layout here, and the
+            other four with a licence. `SelectLayout` says the same thing where the choice is made. */}
+        {isFeedSource && <ProLayoutsPromo />}
     </>
 }
 

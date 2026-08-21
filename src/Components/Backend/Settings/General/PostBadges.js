@@ -23,19 +23,33 @@ import { PRO_FEATURES } from '../../../../utils/pro-features';
  * the ACF ones in `postsQuery`, and `AcfFields` merges the two sets.
  */
 const PostBadges = ({ attributes, updateObject }) => {
-    const { postsQuery, badgeAnimation, sourceType, caption } = attributes || {};
-    const { selectedBadges = [], badgeSettings = {}, badgeDisplayStyle = 'chips' } = postsQuery || {};
+    const { postsQuery, socialQuery, badgeAnimation, sourceType, caption } = attributes || {};
+
+    /**
+     * Which saved object this panel reads and writes.
+     *
+     * The same three settings, kept beside the query they belong to: a feed slider's on
+     * `socialQuery`, a post or product slider's on `postsQuery`. Writing a feed slider's badges
+     * into `postsQuery` would work and would be a lie — nothing else about that slider is in
+     * there, and the first person to go looking would not find them.
+     */
+    const isFeed = 'social' === sourceType;
+    const queryKey = isFeed ? 'socialQuery' : 'postsQuery';
+    const query = (isFeed ? socialQuery : postsQuery) || {};
+
+    const { selectedBadges = [], badgeSettings = {}, badgeDisplayStyle = 'chips' } = query;
+    const { feedType = 'youtube' } = socialQuery || {};
 
     const allowedBadges = sourceType === 'woo' ? ['price', 'sale'] : ['date', 'author'];
     const activeBadges = selectedBadges.filter(badgeKey => allowedBadges.includes(badgeKey));
     const inactiveBadges = selectedBadges.filter(badgeKey => !allowedBadges.includes(badgeKey));
 
     const handleBadgesChange = (newActive) => {
-        updateObject('postsQuery', 'selectedBadges', [...newActive, ...inactiveBadges]);
+        updateObject(queryKey, 'selectedBadges', [...newActive, ...inactiveBadges]);
     };
 
     const setBadgeSetting = (badgeKey, key, val) => {
-        updateObject('postsQuery', 'badgeSettings', {
+        updateObject(queryKey, 'badgeSettings', {
             ...badgeSettings,
             [badgeKey]: {
                 ...badgeSettings?.[badgeKey],
@@ -47,8 +61,11 @@ const PostBadges = ({ attributes, updateObject }) => {
     return (
         <PanelBody
             className='bPlPanelBody bsb_social_badges_panel'
-            title={__('Post Badges', 'b-slider')}
-            /* Newly arrived, and easy to walk past on a panel list this long — see the `badge` prop. */
+            title={!isFeed
+                ? __('Post Badges', 'b-slider')
+                : (feedType === 'rss' || feedType === 'json') ? __('Feed Badges', 'b-slider') : __('Social Badges', 'b-slider')}
+            /* One badge for all three names this panel goes by — it is the same panel whichever source
+               is reading it. See the `badge` prop on `PanelBody`. */
             badge={__('New', 'b-slider')}
             initialOpen={false}
         >
@@ -195,7 +212,7 @@ const PostBadges = ({ attributes, updateObject }) => {
                         <Label className="mb10">{__('Default Badges Style:', 'b-slider')}</Label>
                         <PresetPicker
                             value={badgeDisplayStyle}
-                            onChange={val => updateObject('postsQuery', 'badgeDisplayStyle', val)}
+                            onChange={val => updateObject(queryKey, 'badgeDisplayStyle', val)}
                         />
                     </div>
                 </div>

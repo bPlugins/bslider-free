@@ -74,6 +74,53 @@ export const PRO_FEATURES = {
 		__('Fullscreen', 'b-slider'),
 	],
 
+	/**
+	 * External feeds. The free build reads YouTube channels, RSS and JSON; what is held back is
+	 * either a service of its own (Instagram) or a setting the server refuses without a licence —
+	 * see `SocialFeed::storesLocally()`, `cacheTtl()` and `postProcessItems()`, which is where
+	 * these are really enforced rather than merely hidden.
+	 */
+	socialFeedSource: [__('Instagram Feed', 'b-slider'), __('Feed Cache Time', 'b-slider')],
+	socialYouTube: [
+		__('YouTube Search', 'b-slider'),
+		__('Channel Playlists', 'b-slider'),
+		__('Thumbnail Quality', 'b-slider'),
+		__('Privacy Status Filter', 'b-slider'),
+	],
+	socialFiltering: [
+		__('Keyword Filters (Include/Exclude)', 'b-slider'),
+		__('How recent (timeframe filter)', 'b-slider'),
+	],
+	socialLayouts: [__('Carousel, Grid, Thumbnails and List layouts for feeds', 'b-slider')],
+	socialStore: [__('Store feed media on this site', 'b-slider'), __('Scheduled feed sync', 'b-slider')],
+	socialDateTime: [
+		__('Timezone conversion', 'b-slider'),
+		__('Date translation', 'b-slider'),
+		__('Custom date layouts', 'b-slider'),
+	],
+	feedPresets: [__('Ready-made feed presets', 'b-slider')],
+	socialHeader: [
+		__('Header Style', 'b-slider'),
+		__('Show Channel Stats', 'b-slider'),
+		__('Show Subscriber/Follower Count', 'b-slider'),
+		__('Follow Button Alignment, typography and colours', 'b-slider'),
+	],
+	socialSlides: [
+		__('Click behaviour (What it does)', 'b-slider'),
+		__('Mini Player Position', 'b-slider'),
+		__('Open links in a new tab', 'b-slider'),
+		__('Hover preview and quick actions', 'b-slider'),
+	],
+	socialPlayer: [
+		__('Show Player Controls', 'b-slider'),
+		__('Show Fullscreen Button', 'b-slider'),
+		__('Always Show Subtitles/Captions', 'b-slider'),
+		__('Recommend Videos from Other Channels', 'b-slider'),
+		__('Lazy Load Video', 'b-slider'),
+		__('Loop Video', 'b-slider'),
+	],
+	socialBadgeIcons: [__('Badge icons', 'b-slider')],
+
 	/* Style tab */
 	sliderStyle: [__('Margin', 'b-slider')],
 	contentStyle: [__('Animation', 'b-slider'), __('Delay', 'b-slider'), __('Duration', 'b-slider')],
