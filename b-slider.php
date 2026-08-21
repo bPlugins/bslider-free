@@ -70,15 +70,19 @@
     require_once plugin_dir_path(__FILE__) . '/includes/RestQuery.php';
 
     // The external feed readers. SocialFeed last: it constructs itself on include and drives the
-    // other three. Keeping a feed on this site, and reading an Instagram account, are Premium — the
-    // classes for both are absent here, and `SocialFeed::storesLocally()` answers false so nothing
-    // reaches for them.
+    // other four. Keeping a feed on this site is Premium — those classes are absent here, and
+    // `SocialFeed::storesLocally()` answers false so nothing reaches for them.
     require_once plugin_dir_path(__FILE__) . '/includes/FeedChannels.php';
     require_once plugin_dir_path(__FILE__) . '/includes/FeedSchema.php';
     require_once plugin_dir_path(__FILE__) . '/includes/YouTubeFeed.php';
     require_once plugin_dir_path(__FILE__) . '/includes/RssFeed.php';
     require_once plugin_dir_path(__FILE__) . '/includes/JsonFeed.php';
+    require_once plugin_dir_path(__FILE__) . '/includes/InstagramFeed.php';
     require_once plugin_dir_path(__FILE__) . '/includes/SocialFeed.php';
+
+    // Renewing Instagram tokens before they expire is a recurring event, and it is cleared on the
+    // way out — a deactivated plugin leaves nothing running behind it.
+    register_deactivation_hook(__FILE__, ['B_SLIDER\\InstagramFeed', 'unscheduleRefresh']);
 
 
     class B_Slider{

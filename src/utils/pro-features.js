@@ -75,23 +75,15 @@ export const PRO_FEATURES = {
 	],
 
 	/**
-	 * External feeds. The free build reads YouTube channels, RSS and JSON; what is held back is
-	 * either a service of its own (Instagram) or a setting the server refuses without a licence —
-	 * see `SocialFeed::storesLocally()`, `cacheTtl()` and `postProcessItems()`, which is where
-	 * these are really enforced rather than merely hidden.
+	 * External feeds. The free build reads YouTube channels and videos, Instagram, RSS and JSON —
+	 * every reader ships. What is held back is either a whole panel (see the three keys below) or a
+	 * setting the server refuses without a licence: `SocialFeed::storesLocally()`, `cacheTtl()` and
+	 * `postProcessItems()` are where those are really enforced rather than merely hidden.
+	 *
+	 * Only the keys a panel actually names are here. The rest of the feed upsells are written where
+	 * they appear, because each one names the two or three controls beside it rather than a whole
+	 * panel's worth — see the notices in `SocialGeneral`, `SocialSlides` and `SocialFiltering`.
 	 */
-	socialFeedSource: [__('Instagram Feed', 'b-slider'), __('Feed Cache Time', 'b-slider')],
-	socialYouTube: [
-		__('YouTube Search', 'b-slider'),
-		__('Channel Playlists', 'b-slider'),
-		__('Thumbnail Quality', 'b-slider'),
-		__('Privacy Status Filter', 'b-slider'),
-	],
-	socialFiltering: [
-		__('Keyword Filters (Include/Exclude)', 'b-slider'),
-		__('How recent (timeframe filter)', 'b-slider'),
-	],
-	socialLayouts: [__('Carousel, Grid, Thumbnails and List layouts for feeds', 'b-slider')],
 	socialStore: [__('Store feed media on this site', 'b-slider'), __('Scheduled feed sync', 'b-slider')],
 	socialDateTime: [
 		__('Timezone conversion', 'b-slider'),
@@ -99,27 +91,6 @@ export const PRO_FEATURES = {
 		__('Custom date layouts', 'b-slider'),
 	],
 	feedPresets: [__('Ready-made feed presets', 'b-slider')],
-	socialHeader: [
-		__('Header Style', 'b-slider'),
-		__('Show Channel Stats', 'b-slider'),
-		__('Show Subscriber/Follower Count', 'b-slider'),
-		__('Follow Button Alignment, typography and colours', 'b-slider'),
-	],
-	socialSlides: [
-		__('Click behaviour (What it does)', 'b-slider'),
-		__('Mini Player Position', 'b-slider'),
-		__('Open links in a new tab', 'b-slider'),
-		__('Hover preview and quick actions', 'b-slider'),
-	],
-	socialPlayer: [
-		__('Show Player Controls', 'b-slider'),
-		__('Show Fullscreen Button', 'b-slider'),
-		__('Always Show Subtitles/Captions', 'b-slider'),
-		__('Recommend Videos from Other Channels', 'b-slider'),
-		__('Lazy Load Video', 'b-slider'),
-		__('Loop Video', 'b-slider'),
-	],
-	socialBadgeIcons: [__('Badge icons', 'b-slider')],
 
 	/* Style tab */
 	sliderStyle: [__('Margin', 'b-slider')],

@@ -68,6 +68,10 @@ const NoPosts = ({ attributes, isEditor = false, feedError = '' }) => {
                     title: __('Pick a JSON endpoint to pull items from', 'b-slider'),
                     body: __('Paste an external JSON endpoint URL. The slider fills itself in and displays content from the API.', 'b-slider')
                 },
+                instagram: {
+                    title: __('Pick an Instagram account to pull posts from', 'b-slider'),
+                    body: __('Connect your Instagram account to pull posts. The slider fills itself in and keeps up as you publish new posts.', 'b-slider')
+                },
                 youtube_video: {
                     title: __('Paste a YouTube video URL', 'b-slider'),
                     body: __('One video, embedded as a single slide.', 'b-slider')
@@ -83,7 +87,9 @@ const NoPosts = ({ attributes, isEditor = false, feedError = '' }) => {
                 tone: 'setup',
                 ...copy,
                 // Only worth saying where somebody is setting a feed up for the first time.
-                hint: __('Feeds are saved once for the whole site, so every slider can pick them.', 'b-slider')
+                hint: 'instagram' === feedType
+                    ? __('Instagram connections are saved once for the whole site, so every slider can pick them.', 'b-slider')
+                    : __('Feeds are saved once for the whole site, so every slider can pick them.', 'b-slider')
             };
         }
 

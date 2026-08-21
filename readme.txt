@@ -51,6 +51,7 @@ You can use bSlider for product showcases, portfolios, testimonials, or hero sec
 - **Single YouTube Video**: Paste one video URL and show it as a slide, played in a lightbox.
 - **RSS Feed Slider**: Read any blog or news feed and turn its posts into slides, pictures and all.
 - **External JSON Slider**: Point the slider at a JSON endpoint or image CDN and map its fields to the slide.
+- **Instagram Feed**: Show posts from a connected Instagram account — photos, Reels and albums — with its picture and follower count, and a filter for which kinds to include.
 - **Saved Feed Library**: Save a channel or feed once for the whole site and pick it in any slider.
 - **Feed Profile Header**: Show the channel's picture, name, bio and subscriber count above the slides, read from the account itself and editable.
 - **Feed Badges**: Put the item's date or author over the slide, with an icon, a corner and a style preset.
@@ -113,7 +114,6 @@ You can use bSlider for product showcases, portfolios, testimonials, or hero sec
 - **ACF Query – Filter by Custom Field**: Show only the posts that match your rules, e.g. price is at least 2000, stock has "In stock", event date is after today. Build as many rules as you need and match all of them or any of them.
 - **Rules Built From Your Fields**: Each rule offers the comparisons that suit the field and, for dropdown, radio and checkbox fields, a list of that field's own choices — no typing values by hand and no guessing which comparison works.
 - **Badge & Field Icon Library**: Pick an icon for any badge or ACF field from Font Awesome, Bootstrap or Lucide instead of typing an emoji.
-- **Instagram Feed**: Show posts from a connected Instagram account, with its own picture and follower count.
 - **Feed Layouts**: Draw a feed as a Carousel, Grid, Thumbnails strip or a YouTube-style List with a player above it.
 - **Feed Presets**: Ready-made looks that set the layout, header, colours and badges for a feed in one click.
 - **Store Feeds On Your Site**: Import a feed's videos and pictures into your Media Library, so the page never waits on the service and keeps working if it goes down.
@@ -296,7 +296,8 @@ Please report security bugs found in the source code of the bSlider plugin throu
 == Changelog ==
 
 = 2.0.20 - 19 August, 2026 =
-* New: Social Feeds source — build a slider from a YouTube channel or playlist, a single YouTube video, any RSS or Atom feed, or an external JSON endpoint;
+* New: Social Feeds source — build a slider from a YouTube channel or playlist, a single YouTube video, an Instagram account, any RSS or Atom feed, or an external JSON endpoint;
+* New: Instagram feeds show photos, Reels and albums, with a filter for which of the three reach the slider, and the account's own token is renewed before it expires;
 * New: Saved feed library — save a channel, feed or endpoint once for the whole site and pick it in any slider, instead of pasting the address into each one;
 * New: JSON field mapping — tell the slider which keys in your endpoint hold the title, picture, link, excerpt, date and author;
 * New: Profile Header — show the channel's picture, name, bio and subscriber count above the slides, read from the account itself and editable field by field;
@@ -539,7 +540,7 @@ Please report security bugs found in the source code of the bSlider plugin throu
 == Upgrade Notice ==
 
 = 2.0.20 - 19 August, 2026 =
-* Adds the Social Feeds source — YouTube channels and videos, RSS and external JSON — with a saved feed library, a profile header and feed badges. Also removes the three-field cap on ACF fields. Note: a feed slider reads from the service you point it at; see External Services below.
+* Adds the Social Feeds source — YouTube channels and videos, Instagram, RSS and external JSON — with a saved feed library, a profile header and feed badges. Also removes the three-field cap on ACF fields. Note: a feed slider reads from the service you point it at; see External Services below.
 
 = 2.0.19 - 17 August, 2026 =
 * Adds the ACF Query Pro panel, extends badge styling to ACF fields, and fixes ACF fields named after a badge, fields blocking the navigation arrows, and preset colours being overridden.
@@ -737,6 +738,16 @@ Used when a slider's source is a YouTube channel, playlist or single video.
 * **Terms of Service:** https://www.youtube.com/t/terms — **Privacy Policy:** https://policies.google.com/privacy
 
 Thumbnail images are loaded from `https://i.ytimg.com` by your visitors' browsers, and a video plays from `https://www.youtube.com` when a visitor presses play. Turning on Privacy-Enhanced Mode plays it from `https://www.youtube-nocookie.com` instead.
+
+= Instagram =
+Used when a slider's source is an Instagram account.
+
+* **What is sent:** the access token you connect, so the account can be asked for its own posts and profile. No information about your visitors is sent. The token is stored on your site as an option and is never printed into the page — a slider using Instagram must name a saved connection rather than carry the token itself, which is why the one-off address option is not offered for it.
+* **When:** when you set the slider up in the editor, and when a page holding the slider is rendered and the cached copy has expired (every six hours). Requests are made by your server, not by your visitors' browsers. The token is also renewed on your site's schedule, and on the way past a feed read, in the fortnight before it would expire — otherwise it lapses and the slider stops.
+* **Endpoint:** `https://graph.instagram.com`
+* **Terms of Service:** https://www.instagram.com/legal/terms/ — **Privacy Policy:** https://privacycenter.instagram.com/policy
+
+Photos, Reel stills and album covers are loaded from Instagram's own CDN by your visitors' browsers.
 
 = RSS and Atom feeds =
 Used when a slider's source is an RSS feed.

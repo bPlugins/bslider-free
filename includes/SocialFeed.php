@@ -17,14 +17,8 @@ if ( ! class_exists( __NAMESPACE__ . '\SocialFeed' ) ) {
      */
     class SocialFeed {
 
-        /**
-         * The feed types a slider can be built from.
-         *
-         * Instagram is absent: it is Premium, and the reader that talks to the Graph API does not
-         * ship here. A block saved on a licensed site and opened on this one falls through to the
-         * unknown-type error rather than reaching for a class that is not present.
-         */
-        const FEED_TYPES = [ 'youtube', 'youtube_video', 'rss', 'json' ];
+        /** The feed types a slider can be built from. */
+        const FEED_TYPES = [ 'youtube', 'youtube_video', 'rss', 'json', 'instagram' ];
 
         /**
          * The feed types with an account, a channel or a publication standing behind them.
@@ -37,7 +31,7 @@ if ( ! class_exists( __NAMESPACE__ . '\SocialFeed' ) ) {
          * asked to make. `json` is out because an arbitrary JSON document describes no publisher —
          * there is nothing to read a name or a picture out of.
          */
-        const PROFILE_TYPES = [ 'youtube', 'rss' ];
+        const PROFILE_TYPES = [ 'instagram', 'youtube', 'rss' ];
 
         /** How long a fetched feed is kept, when nothing else says otherwise. */
         const CACHE_TTL = 6 * HOUR_IN_SECONDS;
@@ -377,6 +371,9 @@ if ( ! class_exists( __NAMESPACE__ . '\SocialFeed' ) ) {
                 'titleLength'          => $request->get_param( 'titleLength' ),
                 'keywordFilter'        => (string) $request->get_param( 'keywordFilter' ),
                 'excludeKeywordFilter' => (string) $request->get_param( 'excludeKeywordFilter' ),
+                'igAllowImage'         => ! $request->has_param( 'igAllowImage' ) || rest_sanitize_boolean( $request->get_param( 'igAllowImage' ) ),
+                'igAllowAlbum'         => ! $request->has_param( 'igAllowAlbum' ) || rest_sanitize_boolean( $request->get_param( 'igAllowAlbum' ) ),
+                'igAllowVideo'         => ! $request->has_param( 'igAllowVideo' ) || rest_sanitize_boolean( $request->get_param( 'igAllowVideo' ) ),
                 'feedOrderBy'          => (string) $request->get_param( 'feedOrderBy' ),
                 'feedOffset'           => $request->get_param( 'feedOffset' ),
                 'feedAgeLimit'         => $request->get_param( 'feedAgeLimit' ),
@@ -511,6 +508,9 @@ if ( ! class_exists( __NAMESPACE__ . '\SocialFeed' ) ) {
          */
         public static function readProfile( $feed_type, $source ) {
             switch ( $feed_type ) {
+                case 'instagram':
+                    return InstagramFeed::profile( $source );
+
                 case 'youtube':
                     return YouTubeFeed::profile( $source );
 
@@ -547,8 +547,11 @@ if ( ! class_exists( __NAMESPACE__ . '\SocialFeed' ) ) {
                 return [];
             }
 
-            // Every service reads the profile from the same address the feed itself is read from.
-            $source = $query['source'];
+            // Instagram's "source" is its token, and a saved channel may hold a fresher one than the
+            // block does. Every other service reads the same address the feed itself is read from.
+            $source = 'instagram' === $feed_type
+                ? InstagramFeed::tokenFor( $query['channelId'], $query['source'] )
+                : $query['source'];
 
             if ( '' === trim( (string) $source ) ) {
                 return [];
@@ -1113,6 +1116,23 @@ if ( ! class_exists( __NAMESPACE__ . '\SocialFeed' ) ) {
                         $query['rssTimezoneOffset'] ?? '',
                         $query['rssTranslateDate'] ?? ''
                     );
+                case 'instagram':
+                    // Renewed on the way past, when it is close enough to running out to be worth
+                    // it. This request is already going to Instagram, so the check costs nothing on
+                    // the page loads that are served from cache — and it means a token stays alive
+                    // on any site whose feed is actually being read, whether or not its WP-Cron has
+                    // fired this fortnight. See `InstagramFeed::tokenFor()`.
+                    return InstagramFeed::items(
+                        InstagramFeed::tokenFor( $query['channelId'], $query['source'] ),
+                        $query['per_page'],
+                        $query['metaDateFormat'],
+                        $query['excerptLength'],
+                        $query['defaultImageUrl'],
+                        $query['titleLength'],
+                        $query['igAllowImage'] ?? true,
+                        $query['igAllowAlbum'] ?? true,
+                        $query['igAllowVideo'] ?? true
+                    );
                 case 'json':
                     return JsonFeed::items(
                         $query['source'],
@@ -1152,16 +1172,16 @@ if ( ! class_exists( __NAMESPACE__ . '\SocialFeed' ) ) {
             $socialQuery = FeedChannels::resolve( $socialQuery );
 
             /**
-             * An unknown type stays unknown.
+             * An unknown type stays unknown; only an empty one gets a default.
              *
-             * It used to fall back to `youtube`, which is safe where every type has a reader — but
-             * Instagram is Premium and absent here, so a block built on a licensed site arrived with
-             * `feedType: 'instagram'` and had its *access token* renamed into a YouTube channel
-             * address and sent to YouTube. Left as it is, `fetchFresh()` matches no case and answers
-             * with the unknown-type error, which is the truth: this build cannot read that feed.
+             * Renaming whatever arrived into `youtube` is the wrong repair, because a feed's
+             * `source` means different things to different services — Instagram's is an access
+             * token — so a type this build does not know would have had its address handed to a
+             * service it was never meant for. Left as it is, `fetchFresh()` matches no case and
+             * answers with the unknown-type error, which is the truth.
              *
-             * Empty still becomes `youtube`, because that is a new block with nothing chosen yet
-             * rather than a block asking for something this build has not got.
+             * Empty still becomes `youtube`: that is a new block with nothing chosen yet, rather
+             * than one asking for a service that is not here.
              */
             $feed_type = self::str( $socialQuery, 'feedType' );
 
@@ -1197,6 +1217,11 @@ if ( ! class_exists( __NAMESPACE__ . '\SocialFeed' ) ) {
                 'titleLength'          => isset( $socialQuery['titleLength'] ) ? (int) $socialQuery['titleLength'] : -1,
                 'keywordFilter'        => isset( $socialQuery['keywordFilter'] ) ? sanitize_text_field( (string) $socialQuery['keywordFilter'] ) : '',
                 'excludeKeywordFilter' => isset( $socialQuery['excludeKeywordFilter'] ) ? sanitize_text_field( (string) $socialQuery['excludeKeywordFilter'] ) : '',
+                // Which kinds of Instagram post reach the slider. Absent means on, so a slider saved
+                // before these existed keeps showing everything it showed.
+                'igAllowImage'         => ! isset( $socialQuery['igAllowImage'] ) || (bool) $socialQuery['igAllowImage'],
+                'igAllowAlbum'         => ! isset( $socialQuery['igAllowAlbum'] ) || (bool) $socialQuery['igAllowAlbum'],
+                'igAllowVideo'         => ! isset( $socialQuery['igAllowVideo'] ) || (bool) $socialQuery['igAllowVideo'],
                 'feedOrderBy'          => isset( $socialQuery['feedOrderBy'] ) ? sanitize_text_field( (string) $socialQuery['feedOrderBy'] ) : 'date_desc',
                 'feedOffset'           => isset( $socialQuery['feedOffset'] ) ? (int) $socialQuery['feedOffset'] : 0,
                 'feedAgeLimit'         => isset( $socialQuery['feedAgeLimit'] ) ? (int) $socialQuery['feedAgeLimit'] : 0,
@@ -1424,6 +1449,10 @@ if ( ! class_exists( __NAMESPACE__ . '\SocialFeed' ) ) {
         public static function maxItems( $feed_type ) {
             if ( 'youtube' === $feed_type ) {
                 return YouTubeFeed::maxItems();
+            }
+
+            if ( 'instagram' === $feed_type ) {
+                return InstagramFeed::MAX_ITEMS;
             }
 
             // One video is the whole of that feed type.

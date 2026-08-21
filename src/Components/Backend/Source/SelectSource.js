@@ -14,10 +14,6 @@ import { adminUrl, isPostTypeLocked } from '../../../utils/functions';
  * furniture, and a card wearing "Pro" and "New" at once would stack them into each other.
  */
 const CardFlag = ({ item }) => {
-    if (item.pro) {
-        return <div className="bsb_card_flag is-pro"><p>{__('Pro', 'b-slider')}</p></div>;
-    }
-
     if (item.isNew) {
         return <div className="bsb_card_flag is-new"><p>{__('New', 'b-slider')}</p></div>;
     }
@@ -155,8 +151,8 @@ const SelectSource = (props) => {
                     {feedItem.map((item, index) => (
                         <div
                             key={index}
-                            className={`single_lay ${item.pro ? 'is-disabled' : ''}`}
-                            onClick={() => !item.pro && handleFeedSelect(item.feedType)}
+                            className={`single_lay ${item.available ? '' : 'is-disabled'}`}
+                            onClick={() => item.available && handleFeedSelect(item.feedType)}
                         >
                             <CardFlag item={item} />
 
@@ -167,9 +163,9 @@ const SelectSource = (props) => {
                             <div className="desc">{item.desc}</div>
                             <div className="bsb_card_hover_btn">
                                 <span>
-                                    {item.pro
-                                        ? __('Premium only', 'b-slider')
-                                        : <>{__('Select Layout', 'b-slider')} &rarr;</>}
+                                    {item.available
+                                        ? <>{__('Select Layout', 'b-slider')} &rarr;</>
+                                        : __('Coming soon', 'b-slider')}
                                 </span>
                             </div>
                         </div>

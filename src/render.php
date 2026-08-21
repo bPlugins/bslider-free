@@ -50,6 +50,22 @@ call_user_func( function( $attributes ) {
          */
         $profile = \B_SLIDER\SocialFeed::profileFor( isset( $attributes['socialQuery'] ) ? $attributes['socialQuery'] : [] );
 
+        /**
+         * Instagram's "address" is an access token, and every attribute below is printed into the
+         * page for the browser to read.
+         *
+         * Nothing on the front end wants it — the items are rendered already, and `Layout` only
+         * reads the header fields — so it is taken back out rather than handed to everyone who
+         * views the source. Read the profile first, above: the token is what it is looked up with.
+         *
+         * The same reasoning keeps the YouTube Data API key out of the attributes altogether.
+         */
+        $feed_type = isset( $attributes['socialQuery']['feedType'] ) ? $attributes['socialQuery']['feedType'] : 'youtube';
+
+        if ( 'instagram' === $feed_type && isset( $attributes['socialQuery']['source'] ) ) {
+            $attributes['socialQuery']['source'] = '';
+        }
+
         if ( $profile ) {
             $attributes['socialQuery']['profile'] = [
                 'name'      => isset( $profile['name'] ) ? $profile['name'] : '',

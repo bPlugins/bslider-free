@@ -10,10 +10,9 @@ import { instagram, youtube, rss } from './icons';
  * `youtube_video` is out because a single video is not a channel: the slider is one clip somebody
  * embedded, and a "Subscribe" card over it is an invitation the block was never asked to make.
  * `json` is out because an arbitrary JSON document describes no publisher — there is nothing to read
- * a name or a picture out of, and no address to send anybody to. Instagram is out because it is
- * Premium, and this build has no reader for it.
+ * a name or a picture out of, and no address to send anybody to.
  */
-export const PROFILE_FEED_TYPES = ['youtube', 'rss'];
+export const PROFILE_FEED_TYPES = ['instagram', 'youtube', 'rss'];
 
 export const hasFeedProfile = feedType => PROFILE_FEED_TYPES.includes(feedType);
 

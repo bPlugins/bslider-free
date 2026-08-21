@@ -356,8 +356,11 @@ const General = ({ attributes, setAttributes, activeIndex, setActiveIndex, updat
         {layoutType === "thumbnails" && <ThumbnailsGeneral {...commonProps} multipleAttrChange={multipleAttrChange} />}
         {sourceType === "video" && <VideoGeneral {...commonProps} />}
 
-        {/* The feed's own player settings. Only where there is a video to play. */}
-        {isFeedSource && ['youtube', 'youtube_video'].includes(currentFeedType)
+        {/* The feed's own player settings. Only where there is a video to play, and not when a click
+            leaves the page — a slide that opens the original elsewhere has no player to configure.
+            `HTML5_ONLY` keeps the two families from being offered each other's controls. */}
+        {isFeedSource && ['youtube', 'youtube_video', 'instagram'].includes(currentFeedType)
+            && 'link' !== (socialQuery?.playVideo || 'popup')
             && <PlayerGeneral {...commonProps} isFeed />}
 
         {/* Said once, at the end of the panel: a feed slider gets the Default layout here, and the

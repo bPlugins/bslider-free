@@ -37,11 +37,7 @@ export const sourceItem = [
 /**
  * The services a `social` slider can read.
  *
- * `pro: true` is a licence lock — the reader for it does not ship in this build. The card is shown
- * anyway, and says so when it is pressed, because a service quietly missing from the list reads as
- * "not supported" rather than "available with a licence".
- *
- * Mirrors `SocialFeed::FEED_TYPES`, which is where the lock is really held.
+ * Mirrors `SocialFeed::FEED_TYPES`, which is what actually decides whether a feed can be read.
  */
 export const feedItem = [
     {
@@ -77,7 +73,6 @@ export const feedItem = [
         icon: socialFeed,
         title: "Instagram Feed",
         desc: "Posts from a connected account",
-        available: true,
-        pro: true
+        available: true
     },
 ];

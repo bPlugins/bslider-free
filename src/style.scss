@@ -1320,9 +1320,9 @@
  * above the slides and the strip under them cannot drift apart — both carry the feed's class, and
  * everything below reads these five values. A new feed type is one block here.
  *
- * `--bsb-feed-brand` is separate from `--bsb-feed-accent` because a service's mark can be a gradient
- * and a gradient cannot be a line colour. The two tints are written out rather than mixed from the
- * accent so the card still has a wash in browsers without `color-mix()`.
+ * `--bsb-feed-brand` is separate from `--bsb-feed-accent` because Instagram's mark is a gradient and
+ * cannot be a line colour, and the two tints are written out rather than mixed from the accent so the
+ * card still has a wash in browsers without `color-mix()`.
  */
 .bsb-feed-youtube {
     --bsb-feed-accent: #ff0000;
@@ -1330,6 +1330,14 @@
     --bsb-feed-shadow: rgba(255, 0, 0, 0.3);
     --bsb-feed-tint: rgba(255, 0, 0, 0.06);
     --bsb-feed-tint-dark: rgba(255, 0, 0, 0.12);
+}
+
+.bsb-feed-instagram {
+    --bsb-feed-accent: #dc2743;
+    --bsb-feed-brand: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+    --bsb-feed-shadow: rgba(220, 39, 67, 0.3);
+    --bsb-feed-tint: rgba(220, 39, 67, 0.06);
+    --bsb-feed-tint-dark: rgba(220, 39, 67, 0.12);
 }
 
 .bsb-feed-rss {
