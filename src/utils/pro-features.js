@@ -1,33 +1,22 @@
 /**
- * Every feature the free build points at as Premium, named once.
+ * Every feature the free build names in a *sentence*, named once.
  *
- * A panel lists the feature names it is missing and `ProNotice`/`ProPanel` compose the sentence
- * from them, so a feature crossing between free and Premium is one edit here rather than a
+ * A panel lists the feature names it is missing and `ProNotice`/`ProPanel`/`ProCard` compose the
+ * sentence from them, so a feature crossing between free and Premium is one edit here rather than a
  * hand-written sentence tracked down at the call site.
  *
- * Names are held as separate strings rather than whole sentences for the panels that used to carry
- * two notices: a merged list can drop what both halves named — `Mouse Wheel` and `Grab Cursor` were
- * printed twice in the carousel `Controls` panel — and still say everything either one said.
+ * Names are held as separate strings rather than whole sentences, so a panel drawing two groups can
+ * hand over both lists and still print one notice — `proFeatureSentence` dedupes what they share.
+ *
+ * A control drawn *locked* is not listed here. `BControlPro` puts the Pro tag on the control's own
+ * label, so the control names itself and a list saying the same thing would be a second copy to keep
+ * in step for no notice — which is what fourteen of these keys had become when the panels moved from
+ * hiding controls to locking them. A key earns its place only where a sentence is printed.
  */
 
 import { __, _n, sprintf } from '@wordpress/i18n';
 
-/** Shared between panels, so the merged lists stay spelt the same and dedupe cleanly. */
-const MOUSE_WHEEL = __('Mouse Wheel', 'b-slider');
-const GRAB_CURSOR = __('Grab Cursor', 'b-slider');
-
 export const PRO_FEATURES = {
-	/**
-	 * General tab.
-	 *
-	 * A slide's own button — label, URL and new-tab — is deliberately not a key here. Those three are
-	 * drawn as `BControlPro` in `Settings/Item`, which puts the Pro tag on each control's own label,
-	 * so a list of the same three names would be a second copy to keep in step for no notice. A key
-	 * earns its place when a panel needs a *sentence*; a locked control names itself.
-	 */
-	postQuery: [__('Include', 'b-slider'), __('Exclude', 'b-slider'), __('Current Post', 'b-slider')],
-	title: [__('Custom HTML wrapper tags (e.g., h1-h6)', 'b-slider')],
-
 	/**
 	 * The icon beside an ACF field or a badge.
 	 *
@@ -40,44 +29,7 @@ export const PRO_FEATURES = {
 	 */
 	iconLibrary: [__('Icon Library', 'b-slider')],
 
-	/**
-	 * Carousel `Controls` panel. `Direction` and `Show Arrow/Navigation` are deliberately absent:
-	 * this panel draws both of them for free, and the notice it inherited from `Controls` used to
-	 * claim otherwise right underneath the working controls.
-	 */
-	carouselControls: [
-		__('Carousel Style (Ticker, Grid, 3D Carousel)', 'b-slider'),
-		__('Effect (Default, Cards, Coverflow)', 'b-slider'),
-		MOUSE_WHEEL,
-		GRAB_CURSOR,
-	],
-
-	/** Thumbnails panel — here the direction and arrow toggles really are Premium-only. */
-	thumbnailsControls: [
-		MOUSE_WHEEL,
-		GRAB_CURSOR,
-		__('Direction (Horizontal, Vertical)', 'b-slider'),
-		__('Show Arrow/Navigation', 'b-slider'),
-	],
-
-	layoutSettings: [__('Slide Direction (Horizontal and Vertical)', 'b-slider'), __('Arrow Styles', 'b-slider')],
-	sliderOptions: [
-		__('Slide On MouseWheel', 'b-slider'),
-		__('Slide on Mouse Drag', 'b-slider'),
-		__('Arrow Follow Mouse', 'b-slider'),
-		__('Lazy Load Enable', 'b-slider'),
-	],
-	indicators: [__('Move From Edge', 'b-slider')],
 	gridPagination: [__('Position (Left, Right, Center)', 'b-slider')],
-	video: [__('Reset On End', 'b-slider'), __('Auto Hide Control', 'b-slider')],
-	videoControls: [
-		__('Volume', 'b-slider'),
-		__('PIP', 'b-slider'),
-		__('Airplay', 'b-slider'),
-		__('Settings', 'b-slider'),
-		__('Download', 'b-slider'),
-		__('Fullscreen', 'b-slider'),
-	],
 
 	/**
 	 * External feeds. The free build reads YouTube channels and videos, Instagram, RSS and JSON —
@@ -201,22 +153,6 @@ export const PRO_FEATURES = {
 		__('List layouts', 'b-slider'),
 	],
 
-	/* Style tab */
-	sliderStyle: [__('Margin', 'b-slider')],
-	contentStyle: [__('Animation', 'b-slider'), __('Delay', 'b-slider'), __('Duration', 'b-slider')],
-	buttonStyle: [
-		__('Typography', 'b-slider'),
-		__('Colors', 'b-slider'),
-		__('Hover Colors', 'b-slider'),
-		__('Padding', 'b-slider'),
-		__('Border', 'b-slider'),
-		__('Border Radius', 'b-slider'),
-		__('Animation', 'b-slider'),
-		__('Delay', 'b-slider'),
-		__('Duration', 'b-slider'),
-	],
-	thumbnailsStyle: [__('Position (Bottom, Top, Right, Left)', 'b-slider'), __('Height', 'b-slider')],
-	thumbnailsActive: [__('Overly Color', 'b-slider'), __('Border', 'b-slider')],
 };
 
 /**

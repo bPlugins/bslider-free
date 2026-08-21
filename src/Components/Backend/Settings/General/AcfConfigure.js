@@ -1,12 +1,10 @@
-import { __, _n, sprintf } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { useEffect, useState } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
 import { AccordionGroup, PanelBody } from '../../../Panel/AccordionPanel';
 import { Label } from '../../../../../../bpl-tools/Components';
-import { FIELD_ROLES } from '../../../Common/single-item/AcfFields';
+import { FIELD_ROLES, FREE_ACF_FIELD_LIMIT } from '../../../Common/single-item/AcfFields';
 import Notice from '../../Notice';
-import ProNotice from '../../../Panel/ProNotice';
-import { PRO_FEATURES } from '../../../../utils/pro-features';
 import SelectTokenField from '../../../Panel/SelectTokenField';
 import AcfFieldRoles, { ACF_ROLES_PANEL } from './AcfFieldRoles';
 import AcfFieldSettings from './AcfFieldSettings';
@@ -27,9 +25,10 @@ import AcfFieldSettings from './AcfFieldSettings';
  */
 const ACF_VIDEO = 'https://www.youtube.com/watch?v=Pj7veTzHbQk';
 
-const AcfConfigure = ({ attributes, setAttributes, updateObject, queriedPosts = [] }) => {
+const AcfConfigure = ({ attributes, setAttributes, updateObject, premiumProps, queriedPosts = [] }) => {
     const { postsQuery, sourceType, caption } = attributes;
     const { post_type = 'post', selectedAcfFields = [], acfFieldSettings = {}, acfDisplayStyle = 'chips' } = postsQuery;
+    const { isPremium, setIsProModalOpen } = premiumProps || {};
 
     // `null` until the request answers, so the panel says nothing rather than guessing wrong.
     const [acf, setAcf] = useState(null);
@@ -125,6 +124,14 @@ const AcfConfigure = ({ attributes, setAttributes, updateObject, queriedPosts = 
      * has to land as well.
      */
     const setAcfFields = val => {
+        // Only growing past the free cap is refused. Taking a field out is always allowed, so a
+        // slider set up on a licence that has since lapsed can still be brought back under it
+        // instead of being frozen with every control rejecting the click.
+        if (!isPremium && val.length > FREE_ACF_FIELD_LIMIT && val.length > selectedAcfFields.length) {
+            setIsProModalOpen?.(true);
+            return;
+        }
+
         const removed = selectedAcfFields.filter(name => !val.includes(name));
 
         // One write: the selection and the slots it releases are the same change, and two calls
@@ -221,15 +228,17 @@ const AcfConfigure = ({ attributes, setAttributes, updateObject, queriedPosts = 
                 options={acfOptions}
             />
 
-            {/* No cap on the picker, so this only reports the count — and only once there is one to
-                report, rather than sitting under an empty picker saying "0 fields selected". */}
-            {selectedAcfFields.length > 0 && <Notice>
+            {/* The one place the free limit is stated, so it is read while the fields are being
+                picked rather than after a click has already been refused. It also counts what is
+                used, since "up to three" on its own does not say how many are left. */}
+            {!isPremium && <small className="bsb_field_hint">
                 {sprintf(
-                    /* translators: %d: number of ACF fields picked for display. */
-                    _n('%d field selected.', '%d fields selected.', selectedAcfFields.length, 'b-slider'),
-                    selectedAcfFields.length
+                    /* translators: 1: fields picked, 2: how many the free version allows. */
+                    __('Using %1$d of %2$d fields. Upgrade to Pro to display more than %2$d.', 'b-slider'),
+                    selectedAcfFields.length,
+                    FREE_ACF_FIELD_LIMIT
                 )}
-            </Notice>}
+            </small>}
         </>}
 
         {/* Nothing picked, nothing to configure — the picker stays on its own until the user puts a
@@ -264,15 +273,10 @@ const AcfConfigure = ({ attributes, setAttributes, updateObject, queriedPosts = 
                     onRoleChange={setFieldRole}
                     onStyleChange={setDisplayStyle}
                     caption={caption}
+                    premiumProps={premiumProps}
                 />
             </AccordionGroup>
         </div>}
-
-        {/* At the foot of the panel rather than inside each field's own, which is where the icon
-            field actually is: a slider with five fields would otherwise carry five copies of the
-            same sentence, each behind a different accordion. Only once there are fields to put an
-            icon on — the notice is about a control that is not on screen until then. */}
-        {acfOptions.length > 0 && hasAcfInPlay && <ProNotice className='mt10' features={PRO_FEATURES.iconLibrary} />}
     </PanelBody>
 }
 export default AcfConfigure;

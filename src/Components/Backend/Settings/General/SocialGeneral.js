@@ -109,34 +109,23 @@ const SocialGeneral = ({ attributes, setAttributes, updateObject, socialFeed }) 
     const [playlistsError, setPlaylistsError] = useState('');
 
     useEffect(() => {
+        /**
+         * Without a licence there are no playlists to offer, and the saved query is left alone.
+         *
+         * This used to write the free answer into `socialQuery` as well — `ytQueryType` back to
+         * `channel` with `source` blanked, `cacheTime` to 21600, `seoSchema` to `off`. A feed
+         * configured under a licence therefore lost all four by being *looked at* here: overwritten
+         * rather than ignored, so they did not return when the licence did, and the post was dirty
+         * from the moment the inspector drew.
+         *
+         * It was not what enforced them either. All four are refused server-side, before anything is
+         * fetched or printed: `YouTubeFeed::items()` forces `ytQueryType` to `channel` and clears
+         * `ytPlaylistId`, `SocialFeed::cacheTtl()` ignores a saved `cacheTime`, and `render.php`
+         * prints the JSON-LD block only for a premium build.
+         */
         if (!isPro) {
             setPlaylists([]);
             setPlaylistsError('');
-
-            let needsUpdate = false;
-            const updatedQuery = { ...(socialQuery || {}) };
-
-            if (socialQuery?.ytQueryType && socialQuery.ytQueryType !== 'channel') {
-                updatedQuery.ytQueryType = 'channel';
-                updatedQuery.source = '';
-                needsUpdate = true;
-            }
-
-            if (socialQuery?.cacheTime && socialQuery.cacheTime !== 21600) {
-                updatedQuery.cacheTime = 21600;
-                needsUpdate = true;
-            }
-
-            if (socialQuery?.seoSchema && socialQuery.seoSchema !== 'off') {
-                updatedQuery.seoSchema = 'off';
-                needsUpdate = true;
-            }
-
-            if (needsUpdate) {
-                setAttributes({
-                    socialQuery: updatedQuery
-                });
-            }
             return;
         }
 

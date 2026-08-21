@@ -86,9 +86,17 @@
     require_once plugin_dir_path(__FILE__) . '/includes/AcfFields.php';
     require_once plugin_dir_path(__FILE__) . '/includes/RestQuery.php';
 
+    /*
+     * Keeping a feed on this site is Premium, so `FeedStore`, `FeedMedia` and `FeedSync` are stubs
+     * here — `SocialFeed` names them in about twenty places, and this is loaded before it so those
+     * calls resolve. Each stub guards its own name, so the Premium build's real classes win whichever
+     * plugin PHP reaches first. `SocialFeed::storesLocally()` still answers false, so nothing asks
+     * them to store anything; they exist so the asking does not have to be guarded.
+     */
+    require_once plugin_dir_path(__FILE__) . '/includes/stubs.php';
+
     // The external feed readers. SocialFeed last: it constructs itself on include and drives the
-    // other four. Keeping a feed on this site is Premium — those classes are absent here, and
-    // `SocialFeed::storesLocally()` answers false so nothing reaches for them.
+    // other four.
     require_once plugin_dir_path(__FILE__) . '/includes/FeedChannels.php';
     require_once plugin_dir_path(__FILE__) . '/includes/FeedSchema.php';
     require_once plugin_dir_path(__FILE__) . '/includes/YouTubeFeed.php';
@@ -201,6 +209,7 @@
         }
     }
     B_Slider::get_instance();
+
 
 
  

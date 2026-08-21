@@ -51,7 +51,7 @@ const panelFields = (selected = [], acfOptions = [], postsQuery = {}) => {
 
 const AcfFieldSettings = ({
     fields = [], acfOptions = [], acfDisplayStyle = DEFAULT_PRESET, postsQuery = {}, queriedPosts = [],
-    onFieldChange, onRoleChange, onStyleChange, caption
+    onFieldChange, onRoleChange, onStyleChange, caption, premiumProps
 }) => {
     const panels = panelFields(fields, acfOptions, postsQuery);
 
@@ -81,6 +81,7 @@ const AcfFieldSettings = ({
                 onFieldChange={onFieldChange}
                 onRoleChange={onRoleChange}
                 caption={caption}
+                premiumProps={premiumProps}
             />;
         })}
 

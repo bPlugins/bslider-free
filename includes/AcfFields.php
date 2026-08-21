@@ -103,19 +103,31 @@ class AcfFields {
         return current_user_can( 'edit_posts' );
     }
 
-    public function get_post_acf_values( \WP_REST_Request $request ) {
-        $post_ids_str = sanitize_text_field( $request->get_param( 'post_ids' ) ?: '' );
-        $fields_str   = sanitize_text_field( $request->get_param( 'fields' ) ?: '' );
+    /** How many posts one values request may ask about, so a single call cannot walk the table. */
+    const MAX_VALUE_POSTS = 100;
 
-        $post_ids = array_filter( array_map( 'intval', explode( ',', $post_ids_str ) ) );
+    /**
+     * ACF values for a set of posts, for the editor's own preview.
+     *
+     * `edit_posts` is only the door: it says the caller edits something, not that they may read
+     * this particular post. So every ID is checked on its own, and one the caller cannot read is
+     * skipped rather than refused — the picker asks about whatever is in the current query, and a
+     * single unreadable post should not blank the whole preview.
+     */
+    public function get_post_acf_values( \WP_REST_Request $request ) {
+        $post_ids_str = sanitize_text_field( (string) ( $request->get_param( 'post_ids' ) ?: '' ) );
+        $fields_str   = sanitize_text_field( (string) ( $request->get_param( 'fields' ) ?: '' ) );
+
+        $post_ids = array_slice(
+            array_unique( array_filter( array_map( 'intval', explode( ',', $post_ids_str ) ) ) ),
+            0,
+            self::MAX_VALUE_POSTS
+        );
         $fields   = array_filter( array_map( 'trim', explode( ',', $fields_str ) ) );
 
         $results = [];
 
         foreach ( $post_ids as $id ) {
-            // `can_edit()` lets a contributor this far, and the IDs come with the request. Without
-            // this the route would hand out the meta of anyone's drafts and private posts to anyone
-            // who can guess an ID.
             if ( ! current_user_can( 'read_post', $id ) ) {
                 continue;
             }
@@ -580,6 +592,8 @@ class AcfFields {
                 'value' => $slug,
                 'label' => ! empty( $pt->labels->name ) ? $pt->labels->name : ( ! empty( $pt->label ) ? $pt->label : ucfirst( $slug ) ),
                 'singular' => ! empty( $pt->labels->singular_name ) ? $pt->labels->singular_name : ucfirst( $slug ),
+                // The gate itself lives in `Posts::query()`; this only tells the editor which
+                // cards to lock, so the picker and the rendered slider agree on what is available.
                 'locked' => ! Posts::isPostTypeAllowed( $slug )
             ];
         }
@@ -646,11 +660,14 @@ class AcfFields {
      * guessing, and the advice for the two cases is not the same.
      */
     public function get_acf_fields( \WP_REST_Request $request ) {
-        $post_type = sanitize_text_field( $request->get_param( 'post_type' ) ?: 'post' );
+        $post_type = sanitize_key( (string) ( $request->get_param( 'post_type' ) ?: 'post' ) );
+        $post_type = post_type_exists( $post_type ) ? $post_type : 'post';
+        $is_active = self::acf_is_active();
+        $fields_list = self::fields_for_post_type( $post_type );
 
         return rest_ensure_response( [
-            'isActive' => self::acf_is_active(),
-            'fields'   => self::fields_for_post_type( $post_type )
+            'isActive' => $is_active,
+            'fields'   => $fields_list
         ] );
     }
 
@@ -694,11 +711,49 @@ class AcfFields {
                         continue;
                     }
                     $seen[ $field['name'] ] = true;
-                    $fields_list[] = [
+
+                    $entry = [
                         'value' => $field['name'],
                         'label' => self::field_label( $field, $field['name'] ),
                         'type'  => $field['type'] ?? 'text'
                     ];
+
+                    /**
+                     * The values a choice field will accept, so a filter can offer them.
+                     *
+                     * This is the answer to not knowing what fields a site has: for these types ACF
+                     * has already written down every value that can legitimately be stored, so the
+                     * editor asks with a dropdown rather than a text box, and "For Rent" cannot be
+                     * mistyped into a rule that silently matches nothing.
+                     *
+                     * Sent only for the types that have them — an empty array on a text field would
+                     * read as "a choice field with no choices left".
+                     */
+                    $choices = ( isset( $field['choices'] ) && is_array( $field['choices'] ) ) ? $field['choices'] : [];
+
+                    if ( $choices ) {
+                        $entry['choices'] = array_map(
+                            function( $key, $label ) {
+                                return [ 'value' => (string) $key, 'label' => (string) $label ];
+                            },
+                            array_keys( $choices ),
+                            $choices
+                        );
+                    }
+
+                    /**
+                     * Whether the field holds one value or a list of them.
+                     *
+                     * It decides how a filter has to look for a value: one is stored as itself, a
+                     * list is stored serialized and has to be searched inside. `select`,
+                     * `post_object`, `user` and `taxonomy` are each either, depending on how they
+                     * were set up, so the editor cannot tell from the type alone.
+                     */
+                    if ( ! empty( $field['multiple'] ) ) {
+                        $entry['multiple'] = true;
+                    }
+
+                    $fields_list[] = $entry;
                 }
             }
         }

@@ -5,6 +5,7 @@ import Header from '../../../../bpl-tools/Admin/Header';
 const navigation = [
     { name: 'Welcome', href: '/welcome' },
     { name: 'Demos', href: '/demos' },
+    { name: 'Settings', href: '/settings' },
     { name: 'Pricing', href: '/pricing' },
     { name: 'Feature Comparison', href: '/feature-comparison' },
     { name: 'License Activation', href: '/activation' }

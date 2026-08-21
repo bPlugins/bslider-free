@@ -1,8 +1,11 @@
 import { __ } from '@wordpress/i18n';
 import { SelectControl, TextControl, ToggleControl } from '@wordpress/components';
 import { PanelBody } from '../../../Panel/AccordionPanel';
-import { TipText } from '../../../Panel/TipField';
-import { Label } from '../../../../../../bpl-tools/Components';
+import { TipSelect, TipToggle, TipRange, TipText } from '../../../Panel/TipField';
+import { IconLibrary, Label } from '../../../../../../bpl-tools/Components';
+import ProNotice from '../../../Panel/ProNotice';
+import { PRO_FEATURES } from '../../../../utils/pro-features';
+import { isProActive } from '../../../../utils/functions';
 import { FIELD_PRESETS, FIELD_ROLES, anchorOf, isMediaField, rendersAsCaption, sourceOf } from '../../../Common/single-item/AcfFields';
 import AnchorPicker from './AnchorPicker';
 import PresetPicker from './PresetPicker';
@@ -36,11 +39,12 @@ const OVERRIDE_OPTIONS = (fallbackLabel, source) => {
 
 const AcfFieldPanel = ({
     field, postsQuery = {}, queriedPosts = [], fallbackLabel, everyItemLabel,
-    onFieldChange, onRoleChange, caption
+    onFieldChange, onRoleChange, caption, premiumProps
 }) => {
     const cfg = postsQuery?.acfFieldSettings?.[field.value] || {};
     const roleKey = roleKeyOf(field.value, postsQuery);
     const role = roleKey ? FIELD_ROLES[roleKey].label : null;
+    const isPro = premiumProps?.isPremium ?? isProActive();
 
     // A field filling a slot is already on screen there, so it is not placed on the slide too
     // unless the user asks for both.
@@ -106,12 +110,37 @@ const AcfFieldPanel = ({
                 />
             )}
 
-            <TipText
-                label={__('Icon:', 'b-slider')}
-                value={cfg.icon || ''}
-                onChange={val => onFieldChange(field.value, { icon: val })}
-                tip={__('An emoji or character shown before the value, e.g. 📍', 'b-slider')}
-            />
+            {/**
+              * One value, two ways to set it — the same pair the badges have.
+              *
+              * The library hands back the icon's own `<svg>` markup rather than a class name, which
+              * is why nothing has to be enqueued on the front end for these to draw: the icon
+              * travels with the slider. See `IconLibrary` in bpl-tools, and the `<svg` check in
+              * `AcfFields` that decides how a saved value is rendered.
+              *
+              * The text field stays beside it because an emoji is still the quickest answer for
+              * some fields, and every slider that already has one keeps working — the same
+              * `cfg.icon`, either kind of value.
+              */}
+            {isPro ? (
+                <>
+                    <IconLibrary
+                        label={__('Icon:', 'b-slider')}
+                        value={cfg.icon || ''}
+                        onChange={val => onFieldChange(field.value, { icon: val })}
+                    />
+
+                    <TipText
+                        className='mt15'
+                        label={__('Or type a character', 'b-slider')}
+                        value={String(cfg.icon || '').startsWith('<svg') ? '' : (cfg.icon || '')}
+                        onChange={val => onFieldChange(field.value, { icon: val })}
+                        tip={__('An emoji or character shown before the value, e.g. 📍', 'b-slider')}
+                    />
+                </>
+            ) : (
+                <ProNotice className='mt15' features={PRO_FEATURES.iconLibrary} />
+            )}
 
             <TextControl
                 label={__('Prefix:', 'b-slider')}

@@ -33,6 +33,22 @@ if ( ! class_exists( __NAMESPACE__ . '\SocialFeed' ) ) {
          */
         const PROFILE_TYPES = [ 'instagram', 'youtube', 'rss' ];
 
+        /**
+         * The most items one read of the local store hands back.
+         *
+         * **Not `maxItems()`, and deliberately not tied to the API key.** Reading the store is reading
+         * this site's own rows; no service is asked and no key is used, so the rules about what a
+         * service will give up do not apply here. `YouTubeFeed::maxItems()` answers 15 without a key
+         * because that is all the *public XML feed* carries — cap a store read with it and a channel
+         * imported at 500 collapses to 15 the moment somebody clears the key, with the other 485 videos
+         * still sitting in the database.
+         *
+         * Written as the largest a feed can be rather than as a number of its own, so raising what
+         * YouTube reaches cannot leave the store reading less than was imported into it. This was a
+         * hardcoded 100 in three places, which is what held a 500-video channel to 100 slides.
+         */
+        const STORE_READ_MAX = YouTubeFeed::MAX_API_ITEMS;
+
         /** How long a fetched feed is kept, when nothing else says otherwise. */
         const CACHE_TTL = 6 * HOUR_IN_SECONDS;
 
@@ -132,6 +148,24 @@ if ( ! class_exists( __NAMESPACE__ . '\SocialFeed' ) ) {
                 ],
             ] );
 
+            register_rest_route( 'bsb/v1', '/feed-media', [
+                [
+                    'methods'             => 'GET',
+                    'callback'            => [ $this, 'list_media' ],
+                    'permission_callback' => [ __CLASS__, 'can_upload' ],
+                ],
+                [
+                    'methods'             => 'POST',
+                    'callback'            => [ $this, 'import_media' ],
+                    'permission_callback' => [ __CLASS__, 'can_upload' ],
+                ],
+                [
+                    'methods'             => 'DELETE',
+                    'callback'            => [ $this, 'purge_media' ],
+                    'permission_callback' => [ __CLASS__, 'can_upload' ],
+                ],
+            ] );
+
             register_rest_route( 'bsb/v1', '/feed-channels', [
                 [
                     'methods'             => 'GET',
@@ -150,6 +184,14 @@ if ( ! class_exists( __NAMESPACE__ . '\SocialFeed' ) ) {
                     'callback'            => [ $this, 'delete_channel' ],
                     'permission_callback' => [ __CLASS__, 'can_edit' ],
                 ],
+            ] );
+
+            register_rest_route( 'bsb/v1', '/feed-sync', [
+                'methods'             => 'POST',
+                'callback'            => [ $this, 'sync_feed' ],
+                // Puts files in the Media Library, so it wants the capability for it — the same
+                // one importing from the block panel needs.
+                'permission_callback' => [ __CLASS__, 'can_upload' ],
             ] );
 
             register_rest_route( 'bsb/v1', '/feed-profile', [
@@ -202,6 +244,11 @@ if ( ! class_exists( __NAMESPACE__ . '\SocialFeed' ) ) {
 
         public static function can_manage() {
             return current_user_can( 'manage_options' );
+        }
+
+        /** Storing feed pictures puts files in the Media Library, so it needs the capability for it. */
+        public static function can_upload() {
+            return current_user_can( 'upload_files' );
         }
 
         public static function postProcessItems( $items, $normalizedQuery ) {
@@ -371,9 +418,6 @@ if ( ! class_exists( __NAMESPACE__ . '\SocialFeed' ) ) {
                 'titleLength'          => $request->get_param( 'titleLength' ),
                 'keywordFilter'        => (string) $request->get_param( 'keywordFilter' ),
                 'excludeKeywordFilter' => (string) $request->get_param( 'excludeKeywordFilter' ),
-                'igAllowImage'         => ! $request->has_param( 'igAllowImage' ) || rest_sanitize_boolean( $request->get_param( 'igAllowImage' ) ),
-                'igAllowAlbum'         => ! $request->has_param( 'igAllowAlbum' ) || rest_sanitize_boolean( $request->get_param( 'igAllowAlbum' ) ),
-                'igAllowVideo'         => ! $request->has_param( 'igAllowVideo' ) || rest_sanitize_boolean( $request->get_param( 'igAllowVideo' ) ),
                 'feedOrderBy'          => (string) $request->get_param( 'feedOrderBy' ),
                 'feedOffset'           => $request->get_param( 'feedOffset' ),
                 'feedAgeLimit'         => $request->get_param( 'feedAgeLimit' ),
@@ -405,35 +449,151 @@ if ( ! class_exists( __NAMESPACE__ . '\SocialFeed' ) ) {
                 'rssTimezoneOffset'    => (string) $request->get_param( 'rssTimezoneOffset' ),
                 'rssTranslateDate'     => (string) $request->get_param( 'rssTranslateDate' ),
                 'rssLocalTimezone'     => rest_sanitize_boolean( $request->get_param( 'rssLocalTimezone' ) ),
+                'igAllowImage'         => ! $request->has_param( 'igAllowImage' ) || rest_sanitize_boolean( $request->get_param( 'igAllowImage' ) ),
+                'igAllowAlbum'         => ! $request->has_param( 'igAllowAlbum' ) || rest_sanitize_boolean( $request->get_param( 'igAllowAlbum' ) ),
+                'igAllowVideo'         => ! $request->has_param( 'igAllowVideo' ) || rest_sanitize_boolean( $request->get_param( 'igAllowVideo' ) ),
                 'ytPrivacyStatus'      => (string) $request->get_param( 'ytPrivacyStatus' ),
                 'ytRefreshToken'       => (string) $request->get_param( 'ytRefreshToken' ),
             ];
         }
 
+        /**
+         * Import this slider's feed onto the site.
+         *
+         * The items are written on the first call and the pictures come down a handful at a time
+         * after that, with the count coming back each time so the editor can drive it in a loop and
+         * show progress. Downloading a channel's worth of images in one request is a PHP timeout.
+         *
+         * The items are fetched live here — this is the one moment the service is meant to be
+         * contacted — and once they are stored, rendering never asks again.
+         */
+        public function import_media( \WP_REST_Request $request ) {
+            $query = self::requestQuery( $request );
+            $items = self::fetch( $query, self::excerptLength( $request->get_param( 'excerptLength' ) ), true );
+
+            if ( is_wp_error( $items ) ) {
+                return rest_ensure_response( [
+                    'total'    => 0,
+                    'stored'   => 0,
+                    'items'    => FeedStore::count( $query ),
+                    'imported' => 0,
+                    'written'  => 0,
+                    'failed'   => [],
+                    'error'    => $items->get_error_message(),
+                ] );
+            }
+
+            // Post-process items (filter by keywords, sort, offset, and limit by per_page/slide count)
+            $normalized = self::normalizeQuery( $query, self::excerptLength( $request->get_param( 'excerptLength' ) ) );
+            $items = self::postProcessItems( $items, $normalized );
+
+            // Written every round, not only the first: a re-import of a channel that has published
+            // since picks the new videos up, and `save()` updates rather than duplicates.
+            $written = FeedStore::save( $items, $query );
+
+            // Written by this route rather than by the scheduled one, so `FeedSync` knows the copy
+            // is current and does not repair what was just made. See `FeedSync::markStored()`.
+            FeedSync::markStored( FeedStore::feedKey( $query ) );
+
+            $result             = FeedMedia::import( $items, self::normalizeQuery( $query )['feedType'] );
+
+            // The account's picture, which belongs to no item and so is in nothing `import()` walks.
+            // Here rather than in `import()` because it is fetched once for a whole channel, not
+            // once per slide, and it must not eat into a batch meant for the slides.
+            self::storeAvatar( $query );
+
+            $result['items']    = FeedStore::count( $query );
+            $result['written']  = $written['saved'] + $written['updated'];
+            $result['error']    = '';
+
+            return rest_ensure_response( $result );
+        }
 
         /**
-         * The saved channels.
+         * The saved channels, with how many sliders use each.
          *
-         * The free build reads its feeds from the service every time, so there is no stored copy to
-         * count and no slider-usage warning to give — both belong to the Storage screen, which is
-         * Premium. What is left is the list itself, which is what the block's channel picker needs.
+         * The count comes back with the list so the management screen can warn before a delete that
+         * takes a channel out from under a slider still showing it.
          */
         public function get_channels( \WP_REST_Request $request ) {
+            $usage    = [];
             // Initialised here rather than in the loop below: a site with nothing saved yet used to
             // answer with an undefined variable, and the picker reading it found no list at all.
             $channels = [];
 
+            foreach ( FeedStore::sliderUsage() as $use ) {
+                if ( '' !== $use['channelId'] ) {
+                    $usage[ $use['channelId'] ][] = [
+                        'postId'  => $use['postId'],
+                        'title'   => $use['title'],
+                        'editUrl' => $use['editUrl'],
+                    ];
+                }
+            }
+
             foreach ( FeedChannels::all() as $channel ) {
-                // Masked on the way out — this route answers anybody who may edit a post.
-                $channels[] = FeedChannels::forDisplay( $channel );
+                $feed_key = FeedStore::feedKey( [ 'channelId' => $channel['id'] ] );
+                $channel['usedBy'] = $usage[ $channel['id'] ] ?? [];
+                $channel['videos'] = FeedStore::countByKey( $feed_key );
+
+                // Extract avatar image from the first stored item/slide
+                $channel_avatar = '';
+                $stored_posts = get_posts( [
+                    'post_type'      => FeedStore::POST_TYPE,
+                    'post_status'    => [ 'publish', 'future' ],
+                    'posts_per_page' => 1,
+                    'meta_key'       => FeedStore::FEED_META,
+                    'meta_value'     => $feed_key,
+                    'fields'         => 'ids',
+                ] );
+                if ( ! empty( $stored_posts ) ) {
+                    $post_id = $stored_posts[0];
+                    $item_data = json_decode( get_post_meta( $post_id, FeedStore::DATA_META, true ), true );
+                    if ( is_array( $item_data ) && ! empty( $item_data['thumbnail']['url'] ) ) {
+                        $channel_avatar = $item_data['thumbnail']['url'];
+                    }
+                }
+                $channel['avatar'] = $channel_avatar;
+
+                // Masked on the way out — an Instagram account's address is a credential, and this
+                // route answers anybody who may edit a post.
+                $channels[]        = FeedChannels::forDisplay( $channel );
             }
 
             return rest_ensure_response( [
                 'channels' => $channels,
+                // Sent rather than written into the screen's wording, so the explanation of when
+                // renewal starts cannot drift from the constant that decides it.
+                'instagram' => [
+                    'renewsFromDays' => (int) ( InstagramFeed::REFRESH_WINDOW / DAY_IN_SECONDS ),
+                ],
                 'error'    => '',
             ] );
         }
 
+        /**
+         * Re-read one stored feed on demand.
+         *
+         * The Storage screen's "Sync now". Until this existed the only way to bring a stored feed
+         * up to date was to open the page holding the slider, select the block, find the Store
+         * panel and press Re-sync — which is four steps and a thing most people never found.
+         */
+        public function sync_feed( \WP_REST_Request $request ) {
+            $feed_key = (string) $request->get_param( 'feedKey' );
+
+            if ( '' === $feed_key ) {
+                return new \WP_Error( 'b_slider_sync_no_feed', __( 'Which feed?', 'b-slider' ), [ 'status' => 400 ] );
+            }
+
+            $done = FeedSync::syncNow( $feed_key );
+
+            return rest_ensure_response( [
+                'synced' => (bool) $done,
+                // A feed no slider shows any more cannot be re-read: what it should hold is decided
+                // by the block that asks for it, and there is no longer a block to ask.
+                'error'  => $done ? '' : __( 'Nothing came back. The feed may be unreachable, or no slider is using it any more.', 'b-slider' ),
+            ] );
+        }
 
         /**
          * The account, channel or publication behind a feed.
@@ -534,6 +694,10 @@ if ( ! class_exists( __NAMESPACE__ . '\SocialFeed' ) ) {
          * bio went on showing the old one until a human noticed and pressed a button. Read here they
          * follow the account, and what was typed into the block stays as an override — see `Layout`.
          *
+         * The avatar is resolved through `FeedMedia` on the way out rather than baked in, exactly as
+         * `FeedStore::read()` does for an item's thumbnail: the picture is copied by the import and by
+         * the sync, and a render only ever looks up whether a copy exists.
+         *
          * Failure is silence. A slider whose token has expired should show its slides and no header,
          * not an error where a name should be — and there is a panel that says so properly.
          *
@@ -576,7 +740,45 @@ if ( ! class_exists( __NAMESPACE__ . '\SocialFeed' ) ) {
                 return [];
             }
 
+            if ( ! empty( $entry['avatar'] ) ) {
+                $entry['avatar'] = FeedMedia::localiseUrl( $entry['avatar'] );
+            }
+
             return $entry;
+        }
+
+        /**
+         * Copy this account's picture into the Media Library, if the slider keeps its feed locally.
+         *
+         * Called from the import route and from the scheduled sync — the two places that are already
+         * downloading pictures and have a budget for it. `storeUrl()` returns straight away once the
+         * copy exists, so calling it on every sync costs one indexed query.
+         *
+         * Instagram signs the avatar URL as it signs everything else, so the address changes between
+         * fetches while the picture does not. `srcKey()` ignores the query string, which is what stops
+         * that from filling the library with copies of one face.
+         *
+         * Filed under the feed's own type rather than always under `instagram`, now that a YouTube
+         * channel and an RSS publication have pictures of their own to keep — the library's feed
+         * filter reads that value, and a channel avatar filed as Instagram's is filed under a
+         * service the slider never touched.
+         */
+        public static function storeAvatar( $socialQuery = [] ) {
+            if ( ! self::storesLocally( $socialQuery ) ) {
+                return;
+            }
+
+            $profile = self::profileFor( $socialQuery );
+
+            if ( empty( $profile['avatar'] ) ) {
+                return;
+            }
+
+            FeedMedia::storeUrl(
+                $profile['avatar'],
+                $profile['name'] ?? ( $profile['username'] ?? '' ),
+                self::normalizeQuery( $socialQuery )['feedType']
+            );
         }
 
         /** Add a channel, or update one. Answers with the whole list, so a caller needs one request. */
@@ -618,7 +820,99 @@ if ( ! class_exists( __NAMESPACE__ . '\SocialFeed' ) ) {
             return rest_ensure_response( $this->get_channels( $request )->get_data() );
         }
 
+        /**
+         * Everything stored, for the Configure screen.
+         *
+         * Not scoped to a slider: the point of that screen is to see what is on the site as a whole,
+         * including the pictures a feed no longer asks for.
+         */
+        public function list_media( \WP_REST_Request $request ) {
+            $listing = FeedMedia::groupedListing();
 
+            $listing['videos'] = self::storedItemCount();
+            $listing['error']  = '';
+
+            return rest_ensure_response( $listing );
+        }
+
+        /** How many feed items are stored across every feed on the site. */
+        private static function storedItemCount() {
+            $counts = (array) wp_count_posts( FeedStore::POST_TYPE );
+
+            return (int) ( $counts['publish'] ?? 0 );
+        }
+
+        /**
+         * Remove a stored copy — all of it.
+         *
+         * Deleting always takes the pictures *and* the videos, so a feed is either held on this site
+         * or read from the service, and never half of each. Clearing only the pictures used to leave
+         * a slider reporting itself as stored while every slide hotlinked, which needed explaining
+         * every time somebody met it.
+         *
+         * Three callers, told apart by what they send: `unused` for everything no slider shows,
+         * `feedKey` for one row of the Storage screen, and the slider's own query for the block
+         * panel's "Remove stored copy".
+         */
+        public function purge_media( \WP_REST_Request $request ) {
+            // "Everything nothing is using", worked out on the server so the answer covers the whole
+            // library rather than the page the screen happens to be showing.
+            if ( $request->get_param( 'unused' ) ) {
+                // Pictures before videos: which pictures belong to a feed is read from that feed's
+                // stored items, so clearing the items first would leave nothing to find them by.
+                $deleted = FeedMedia::deleteIds( FeedMedia::unusedIds() );
+
+                return rest_ensure_response( [
+                    'deleted' => $deleted,
+                    'removed' => FeedStore::purgeUnused(),
+                    'items'   => 0,
+                    'total'   => 0,
+                    'stored'  => 0,
+                    'error'   => '',
+                ] );
+            }
+
+            // One row of the Storage screen.
+            $feed_key = $request->get_param( 'feedKey' );
+
+            if ( is_string( $feed_key ) && '' !== $feed_key ) {
+                $deleted = FeedMedia::deleteByFeed( $feed_key );
+
+                return rest_ensure_response( [
+                    'deleted' => $deleted,
+                    'removed' => FeedStore::purgeByKey( $feed_key ),
+                    'items'   => 0,
+                    'total'   => 0,
+                    'stored'  => 0,
+                    'error'   => '',
+                ] );
+            }
+
+            $query    = self::requestQuery( $request );
+            $feed_key = FeedStore::feedKey( $query );
+
+            // Scoped to this one feed. It used to clear everything of the same *feed type*, which for
+            // a button sitting in one slider's panel meant pressing it took every other YouTube
+            // slider's pictures with it — they carried on hotlinking and nobody was told why.
+            //
+            // Images before items: which pictures belong to a feed is read from that feed's stored
+            // items, so purging the items first would leave nothing to look them up by.
+            $deleted = FeedMedia::deleteByFeed( $feed_key );
+            $removed = FeedStore::purge( $query );
+
+            // "Remove stored copy" means remove it. Leaving the last-good copy behind would have
+            // the slider go on drawing items from a feed the user had just asked to be forgotten.
+            self::forgetKeepsake( $query, $request->get_param( 'excerptLength' ) ?? 25 );
+
+            return rest_ensure_response( [
+                'deleted' => $deleted,
+                'items'   => 0,
+                'removed' => $removed,
+                'total'   => 0,
+                'stored'  => 0,
+                'error'   => '',
+            ] );
+        }
 
         /**
          * This site's YouTube Data API key, if it has one.
@@ -800,16 +1094,21 @@ if ( ! class_exists( __NAMESPACE__ . '\SocialFeed' ) ) {
                 ] );
             }
 
-            // Keeping a feed on this site is Premium, so the free build always answers with what it
-            // just read from the service.
-            $response_items = $items;
+            $stores_locally = self::storesLocally( [ 'storeLocal' => $request->get_param( 'storeLocal' ) ] );
+
+            $response_items = $stores_locally
+                ? ( FeedStore::has( $query )
+                    ? FeedStore::read( $query, self::STORE_READ_MAX )
+                    : FeedMedia::localise( $items ) )
+                : $items;
 
             $normalized = self::normalizeQuery( $query, $excerpt_length );
             $response_items = self::postProcessItems( $response_items, $normalized );
 
-            // Nothing is held locally, and the editor reads these to decide whether to offer the
-            // import — sent as zeroes rather than left out so the shape of the answer is unchanged.
-            $media = [ 'total' => 0, 'stored' => 0, 'items' => 0 ];
+            // How much of this post-processed set is held locally. Running it on postProcessItems
+            // ensures the count matches the user's slide count choice.
+            $media          = FeedMedia::progress( $response_items );
+            $media['items'] = FeedStore::count( $query );
 
             return rest_ensure_response( [
                 'items' => $response_items,
@@ -830,34 +1129,49 @@ if ( ! class_exists( __NAMESPACE__ . '\SocialFeed' ) ) {
          * state, the same as a post query that matched no posts.
          */
         public static function items( $socialQuery = [], $excerpt_length = 25 ) {
-            $items = self::fetch( $socialQuery, $excerpt_length );
-            $items = is_wp_error( $items ) ? [] : $items;
+            // Imported: read from this site and stop. No HTTP request of any kind, so nothing the
+            // service does — quota, rate limits, an outage, a revoked key — reaches the page.
+            if ( self::storesLocally( $socialQuery ) && FeedStore::has( $socialQuery ) ) {
+                $items = FeedStore::read( $socialQuery, self::STORE_READ_MAX );
+            } else {
+                $items = self::fetch( $socialQuery, $excerpt_length );
+                $items = is_wp_error( $items ) ? [] : $items;
 
-            // Nothing to draw. The failure has already been handled as far as the cache is
-            // concerned — what is left is a visitor looking at a hole where a slider was, and
-            // the last thing this feed ever said is better than that. Deliberately only on the
-            // render path: the editor's preview goes through `get_feed()`, which still gets the
-            // failure itself, because somebody typing an address needs to be told what is wrong
-            // rather than shown yesterday's answer.
-            if ( ! $items ) {
-                $items = self::recall( self::keyFor( $socialQuery, $excerpt_length ) );
+                // Nothing to draw. The failure has already been handled as far as the cache is
+                // concerned — what is left is a visitor looking at a hole where a slider was, and
+                // the last thing this feed ever said is better than that. Deliberately only on the
+                // render path: the editor's preview goes through `get_feed()`, which still gets the
+                // failure itself, because somebody typing an address needs to be told what is wrong
+                // rather than shown yesterday's answer.
+                if ( ! $items ) {
+                    $items = self::recall( self::keyFor( $socialQuery, $excerpt_length ) );
+                }
             }
 
             $normalized = self::normalizeQuery( $socialQuery, $excerpt_length );
+            $items = self::postProcessItems( $items, $normalized );
 
-            return self::postProcessItems( $items, $normalized );
+            // Storing is on but nothing has been imported yet — the live feed still renders, with
+            // whatever pictures are already held, so a half-set-up slider is not a blank one.
+            return self::storesLocally( $socialQuery ) ? FeedMedia::localise( $items ) : $items;
         }
 
         /**
-         * Whether this slider keeps its videos and pictures on this site.
+         * Whether this slider keeps its videos and pictures on this site. Off unless asked for.
          *
-         * Never, in the free build: keeping a feed locally is Premium, and the classes that write
-         * the rows and copy the pictures are not shipped here. Kept as a method rather than removed
-         * so the read paths that ask the question still have something to ask, and so a block saved
-         * with `storeLocal` on simply reads from the service instead of breaking.
+         * One setting rather than two: "store this feed here" is a single decision, and storing the
+         * pictures while still fetching the items every six hours would leave the page depending on
+         * the service anyway.
          */
         public static function storesLocally( $socialQuery = [] ) {
-            return false;
+            if ( ! b_slider_is_premium() ) {
+                return false;
+            }
+            $store = is_array( $socialQuery ) ? ( $socialQuery['storeLocal'] ?? false ) : false;
+
+            // A saved `'false'` is a string, which is truthy on its own — the same trap the post
+            // sources have with `isExcerptFromContent`.
+            return ! empty( $store ) && 'false' !== $store;
         }
 
         /**
@@ -950,7 +1264,7 @@ if ( ! class_exists( __NAMESPACE__ . '\SocialFeed' ) ) {
          * A copy in an option survives all of it. Never autoloaded, and only read when there is
          * nothing else, so on a working site it costs one write per cache window and nothing else.
          *
-         * A feed that stores its items on the site does not get one: the store already holds a
+         * A feed that stores its items on the site does not get one: `FeedStore` already holds a
          * copy that outlasts anything, and a second one would be the same items written twice.
          */
         private static function remember( $key, $items ) {
@@ -1116,23 +1430,6 @@ if ( ! class_exists( __NAMESPACE__ . '\SocialFeed' ) ) {
                         $query['rssTimezoneOffset'] ?? '',
                         $query['rssTranslateDate'] ?? ''
                     );
-                case 'instagram':
-                    // Renewed on the way past, when it is close enough to running out to be worth
-                    // it. This request is already going to Instagram, so the check costs nothing on
-                    // the page loads that are served from cache — and it means a token stays alive
-                    // on any site whose feed is actually being read, whether or not its WP-Cron has
-                    // fired this fortnight. See `InstagramFeed::tokenFor()`.
-                    return InstagramFeed::items(
-                        InstagramFeed::tokenFor( $query['channelId'], $query['source'] ),
-                        $query['per_page'],
-                        $query['metaDateFormat'],
-                        $query['excerptLength'],
-                        $query['defaultImageUrl'],
-                        $query['titleLength'],
-                        $query['igAllowImage'] ?? true,
-                        $query['igAllowAlbum'] ?? true,
-                        $query['igAllowVideo'] ?? true
-                    );
                 case 'json':
                     return JsonFeed::items(
                         $query['source'],
@@ -1149,6 +1446,23 @@ if ( ! class_exists( __NAMESPACE__ . '\SocialFeed' ) ) {
                         $query['jsonButtonTextKey'],
                         $query['jsonDateKey'],
                         $query['jsonAuthorKey']
+                    );
+                case 'instagram':
+                    // Renewed on the way past, when it is close enough to running out to be worth
+                    // it. This request is already going to Instagram, so the check costs nothing on
+                    // the page loads that are served from cache — and it means a token stays alive
+                    // on any site whose feed is actually being read, whether or not its WP-Cron has
+                    // fired this fortnight. See `InstagramFeed::tokenFor()`.
+                    return InstagramFeed::items(
+                        InstagramFeed::tokenFor( $query['channelId'], $query['source'] ),
+                        $query['per_page'],
+                        $query['metaDateFormat'],
+                        $query['excerptLength'],
+                        $query['defaultImageUrl'],
+                        $query['titleLength'],
+                        $query['igAllowImage'] ?? true,
+                        $query['igAllowAlbum'] ?? true,
+                        $query['igAllowVideo'] ?? true
                     );
             }
 
@@ -1171,23 +1485,8 @@ if ( ! class_exists( __NAMESPACE__ . '\SocialFeed' ) ) {
             // says rather than from whatever the block last had.
             $socialQuery = FeedChannels::resolve( $socialQuery );
 
-            /**
-             * An unknown type stays unknown; only an empty one gets a default.
-             *
-             * Renaming whatever arrived into `youtube` is the wrong repair, because a feed's
-             * `source` means different things to different services — Instagram's is an access
-             * token — so a type this build does not know would have had its address handed to a
-             * service it was never meant for. Left as it is, `fetchFresh()` matches no case and
-             * answers with the unknown-type error, which is the truth.
-             *
-             * Empty still becomes `youtube`: that is a new block with nothing chosen yet, rather
-             * than one asking for a service that is not here.
-             */
             $feed_type = self::str( $socialQuery, 'feedType' );
-
-            if ( '' === $feed_type ) {
-                $feed_type = 'youtube';
-            }
+            $feed_type = in_array( $feed_type, self::FEED_TYPES, true ) ? $feed_type : 'youtube';
             $format    = self::str( $socialQuery, 'metaDateFormat' );
 
             return [
@@ -1217,11 +1516,6 @@ if ( ! class_exists( __NAMESPACE__ . '\SocialFeed' ) ) {
                 'titleLength'          => isset( $socialQuery['titleLength'] ) ? (int) $socialQuery['titleLength'] : -1,
                 'keywordFilter'        => isset( $socialQuery['keywordFilter'] ) ? sanitize_text_field( (string) $socialQuery['keywordFilter'] ) : '',
                 'excludeKeywordFilter' => isset( $socialQuery['excludeKeywordFilter'] ) ? sanitize_text_field( (string) $socialQuery['excludeKeywordFilter'] ) : '',
-                // Which kinds of Instagram post reach the slider. Absent means on, so a slider saved
-                // before these existed keeps showing everything it showed.
-                'igAllowImage'         => ! isset( $socialQuery['igAllowImage'] ) || (bool) $socialQuery['igAllowImage'],
-                'igAllowAlbum'         => ! isset( $socialQuery['igAllowAlbum'] ) || (bool) $socialQuery['igAllowAlbum'],
-                'igAllowVideo'         => ! isset( $socialQuery['igAllowVideo'] ) || (bool) $socialQuery['igAllowVideo'],
                 'feedOrderBy'          => isset( $socialQuery['feedOrderBy'] ) ? sanitize_text_field( (string) $socialQuery['feedOrderBy'] ) : 'date_desc',
                 'feedOffset'           => isset( $socialQuery['feedOffset'] ) ? (int) $socialQuery['feedOffset'] : 0,
                 'feedAgeLimit'         => isset( $socialQuery['feedAgeLimit'] ) ? (int) $socialQuery['feedAgeLimit'] : 0,
@@ -1253,6 +1547,9 @@ if ( ! class_exists( __NAMESPACE__ . '\SocialFeed' ) ) {
                 'rssTimezoneOffset'    => isset( $socialQuery['rssTimezoneOffset'] ) ? sanitize_text_field( (string) $socialQuery['rssTimezoneOffset'] ) : '',
                 'rssTranslateDate'     => isset( $socialQuery['rssTranslateDate'] ) ? sanitize_text_field( (string) $socialQuery['rssTranslateDate'] ) : '',
                 'rssLocalTimezone'     => isset( $socialQuery['rssLocalTimezone'] ) && (bool) $socialQuery['rssLocalTimezone'],
+                'igAllowImage'         => ! isset( $socialQuery['igAllowImage'] ) || (bool) $socialQuery['igAllowImage'],
+                'igAllowAlbum'         => ! isset( $socialQuery['igAllowAlbum'] ) || (bool) $socialQuery['igAllowAlbum'],
+                'igAllowVideo'         => ! isset( $socialQuery['igAllowVideo'] ) || (bool) $socialQuery['igAllowVideo'],
                 'ytPrivacyStatus'      => ! empty( $socialQuery['ytPrivacyStatus'] ) ? sanitize_text_field( (string) $socialQuery['ytPrivacyStatus'] ) : 'all',
                 'ytRefreshToken'       => isset( $socialQuery['ytRefreshToken'] ) ? sanitize_text_field( (string) $socialQuery['ytRefreshToken'] ) : '',
             ];
@@ -1443,8 +1740,17 @@ if ( ! class_exists( __NAMESPACE__ . '\SocialFeed' ) ) {
          * YouTube is the one that has to be asked: what a channel will give up depends on whether
          * this site has a Data API key, because the public feed is fifteen entries and no more.
          *
+         * Instagram answers with what its paging loop reaches. It used to sit on the 100 below, which
+         * was a page of Graph and nothing more — but `InstagramFeed::read()` has followed `paging.next`
+         * for a while now, so the account could always give up more than the block was allowed to ask
+         * for. A feed slider should be as free as a YouTube one: the user says how many, and the
+         * ceiling is what the service can actually reach rather than a round number.
+         *
          * RSS and JSON keep the 100. A document that lists its own items is read in one request, and
          * 100 is already more slides than a slider shows.
+         *
+         * This used to be `YouTubeFeed::maxItems()` for everything that was not RSS, which meant an
+         * Instagram slider's post count moved when somebody saved — or cleared — a *YouTube* key.
          */
         public static function maxItems( $feed_type ) {
             if ( 'youtube' === $feed_type ) {

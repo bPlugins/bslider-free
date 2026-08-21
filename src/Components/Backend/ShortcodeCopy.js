@@ -1,6 +1,7 @@
 import { useState } from "react";
+import { __ } from '@wordpress/i18n';
 
-const ClipBoard = ({ shortcode }) => {
+const ShortcodeCopy = ({ shortcode }) => {
     const [hasCopied, setHasCopied] = useState(false);
 
     const handleCopy = async () => {
@@ -16,13 +17,13 @@ const ClipBoard = ({ shortcode }) => {
     return (
         <section className="clipBoard">
             <div className="clipBtnWrapper">
-                <p>Copy this shortcode and paste it into your post, page, or text widget content</p>
+                <p>{__('Copy this shortcode and paste it into your post, page, or text widget content', 'b-slider')}</p>
                 <button onClick={handleCopy}>
-                    {hasCopied ? "Copied Shortcode!" : shortcode}
+                    {hasCopied ? __('Copied Shortcode!', 'b-slider') : shortcode}
                 </button>
             </div>
         </section>
     );
 };
 
-export default ClipBoard;
+export default ShortcodeCopy;
