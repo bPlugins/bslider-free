@@ -47,6 +47,13 @@ You can use bSlider for product showcases, portfolios, testimonials, or hero sec
 - **WooCommerce Slider**: Highlight products with content length and excerpt display controls.
 - **Video Slider Options**: Enable popup playback with repeat, mute, autoplay, reset, or hide controls.
 - **Basic Video Controls**: Show a large play button and restart option for easier interaction.
+- **YouTube Channel Slider**: Pull the latest videos from any channel or playlist and keep the slider in step as the channel publishes.
+- **Single YouTube Video**: Paste one video URL and show it as a slide, played in a lightbox.
+- **RSS Feed Slider**: Read any blog or news feed and turn its posts into slides, pictures and all.
+- **External JSON Slider**: Point the slider at a JSON endpoint or image CDN and map its fields to the slide.
+- **Saved Feed Library**: Save a channel or feed once for the whole site and pick it in any slider.
+- **Feed Profile Header**: Show the channel's picture, name, bio and subscriber count above the slides, read from the account itself and editable.
+- **Feed Badges**: Put the item's date or author over the slide, with an icon, a corner and a style preset.
 - **Gutenberg Block**: Add sliders directly in the block editor with full customization.
 - **Custom Slider Height**: Easily define and set the perfect height for your sliders.
 - **Dynamic Indicators**: Fully customize indicator types, positioning, and direction (Horizontal or Vertical).
@@ -106,6 +113,18 @@ You can use bSlider for product showcases, portfolios, testimonials, or hero sec
 - **ACF Query – Filter by Custom Field**: Show only the posts that match your rules, e.g. price is at least 2000, stock has "In stock", event date is after today. Build as many rules as you need and match all of them or any of them.
 - **Rules Built From Your Fields**: Each rule offers the comparisons that suit the field and, for dropdown, radio and checkbox fields, a list of that field's own choices — no typing values by hand and no guessing which comparison works.
 - **Badge & Field Icon Library**: Pick an icon for any badge or ACF field from Font Awesome, Bootstrap or Lucide instead of typing an emoji.
+- **Instagram Feed**: Show posts from a connected Instagram account, with its own picture and follower count.
+- **Feed Layouts**: Draw a feed as a Carousel, Grid, Thumbnails strip or a YouTube-style List with a player above it.
+- **Feed Presets**: Ready-made looks that set the layout, header, colours and badges for a feed in one click.
+- **Store Feeds On Your Site**: Import a feed's videos and pictures into your Media Library, so the page never waits on the service and keeps working if it goes down.
+- **Scheduled Feed Sync**: Keep a stored feed up to date on its own, and re-sync any feed on demand.
+- **Feed Cache Time**: Choose how long a feed is reused before it is read again, from five minutes to a week.
+- **YouTube Search & Playlists**: Build a slider from a search term, or pick any of a channel's playlists from a list.
+- **Thumbnail Quality & Privacy Filter**: Choose the resolution YouTube thumbnails are pulled at, and include unlisted videos.
+- **Feed Keyword & Date Filters**: Keep or drop items by keyword, and show only what was published recently.
+- **Feed Date & Time Formats**: Convert the timezone, translate the month names and choose how a date is written.
+- **Hover Preview & Mini Player**: Play a muted preview as the pointer rests on a slide, or dock a video in the corner so it keeps playing while the visitor reads on.
+- **Feed SEO Schema**: Add JSON-LD structured data so search engines read the slides as videos.
 
 [Upgrade to Pro](https://bplugins.com/products/b-slider/pricing/) to unlock all premium features.
 
@@ -195,6 +214,18 @@ Enjoy smooth, responsive sliders on your site!
 
 Yes, Slider Block is a free Gutenberg block plugin.
 
+= Do I need a YouTube API key? =
+
+No, not to get started. Without one the slider reads a channel's public feed, which carries its fifteen most recent videos. Saving your own free YouTube Data API key — in bSlider's own panel in the editor sidebar, saved once for the whole site — lifts that limit and lets the slider read a channel's subscriber count and picture for the Profile Header.
+
+= How often does a feed update? =
+
+Every six hours. The slider serves a cached copy in between, so a page holding a feed slider does not wait on YouTube or on the feed's host, and keeps working if either is unreachable. There is a Refresh button in the editor for when you want it now. Choosing your own cache window is a Pro feature.
+
+= Does the feed slow my site down or track my visitors? =
+
+No. The feed is read by your server and cached, so a visitor's browser never waits on the service, and nothing about your visitors is sent to it. Their browsers do load the slide pictures from wherever the feed hosts them — YouTube thumbnails from i.ytimg.com, for instance — and a YouTube video loads from YouTube when somebody presses play. See External Services below.
+
 = Does it work with any WordPress theme? =
 
 Yes, it will work with any standard WordPress theme.
@@ -265,7 +296,17 @@ Please report security bugs found in the source code of the bSlider plugin throu
 == Changelog ==
 
 = 2.0.20 - 19 August, 2026 =
+* New: Social Feeds source — build a slider from a YouTube channel or playlist, a single YouTube video, any RSS or Atom feed, or an external JSON endpoint;
+* New: Saved feed library — save a channel, feed or endpoint once for the whole site and pick it in any slider, instead of pasting the address into each one;
+* New: JSON field mapping — tell the slider which keys in your endpoint hold the title, picture, link, excerpt, date and author;
+* New: Profile Header — show the channel's picture, name, bio and subscriber count above the slides, read from the account itself and editable field by field;
+* New: Follow button under the slides, pointing at the account the feed comes from;
+* New: Feed Badges — put an item's date or author over the slide, each with its own icon, corner, offset and style preset;
+* New: Feed slides carry their own settings — how many to show, what order, an offset, a fallback picture, how the picture fits, and how long the title may run;
+* New: YouTube player settings for a feed slider — autoplay, mute, keyboard shortcuts and privacy-enhanced mode;
+* New: The editor shows the feed as it will look while it loads, rather than reporting an empty slider;
 * New: The three-field limit on ACF fields is gone — a slide can now show every ACF field you pick, no upgrade needed;
+* Fix: A slide title containing two spaces in a row had them collapsed to one on the front end;
 
 = 2.0.19 - 17 August, 2026 =
 * New: Added promotional/upsell panel for the ACF Query premium features under the ACF Integration panel;
@@ -498,7 +539,7 @@ Please report security bugs found in the source code of the bSlider plugin throu
 == Upgrade Notice ==
 
 = 2.0.20 - 19 August, 2026 =
-* Removes the three-field cap on ACF fields — show as many custom fields per slide as you like.
+* Adds the Social Feeds source — YouTube channels and videos, RSS and external JSON — with a saved feed library, a profile header and feed badges. Also removes the three-field cap on ACF fields. Note: a feed slider reads from the service you point it at; see External Services below.
 
 = 2.0.19 - 17 August, 2026 =
 * Adds the ACF Query Pro panel, extends badge styling to ACF fields, and fixes ACF fields named after a badge, fields blocking the navigation arrows, and preset colours being overridden.
@@ -682,6 +723,36 @@ Please report security bugs found in the source code of the bSlider plugin throu
 = 1.0.0 =
 * Initial Release
 
+
+== External Services ==
+
+This plugin can read content from services outside your site. Nothing below happens unless you build a slider that asks for it — a slider using Images, Posts, WooCommerce or Video makes none of these requests.
+
+= YouTube =
+Used when a slider's source is a YouTube channel, playlist or single video.
+
+* **What is sent:** the channel URL, @handle, channel ID, playlist ID or video URL you enter, and — if you have saved one — your own YouTube Data API key. No information about your visitors is sent.
+* **When:** when you set the slider up in the editor, and when a page holding the slider is rendered and the cached copy has expired (every six hours). Requests are made by your server, not by your visitors' browsers.
+* **Endpoints:** `https://www.googleapis.com/youtube/v3/` (with an API key), `https://www.youtube.com/feeds/videos.xml` (without one), and video thumbnails from `https://i.ytimg.com`. Saving a channel's OAuth credentials also contacts `https://oauth2.googleapis.com`.
+* **Terms of Service:** https://www.youtube.com/t/terms — **Privacy Policy:** https://policies.google.com/privacy
+
+Thumbnail images are loaded from `https://i.ytimg.com` by your visitors' browsers, and a video plays from `https://www.youtube.com` when a visitor presses play. Turning on Privacy-Enhanced Mode plays it from `https://www.youtube-nocookie.com` instead.
+
+= RSS and Atom feeds =
+Used when a slider's source is an RSS feed.
+
+* **What is sent:** a request for the feed URL you enter. Nothing else, and no information about your visitors.
+* **When:** as above — in the editor, and on a render once the six-hour cache has expired.
+* **Endpoint:** the address you enter. The service it belongs to, and its terms and privacy policy, are whichever ones you point the slider at.
+
+= External JSON endpoints =
+Used when a slider's source is an external JSON / image CDN.
+
+* **What is sent:** a request for the endpoint URL you enter. Nothing else, and no information about your visitors.
+* **When:** as above.
+* **Endpoint:** the address you enter, so the terms and privacy policy are those of the service you choose.
+
+Pictures referenced by an RSS or JSON feed are loaded from wherever that feed hosts them, by your visitors' browsers.
 
 == Source Code ==
 
