@@ -7,7 +7,17 @@ import { isPostSource, updateArrayItem } from '../../../utils/functions';
 const Item = ({ attributes, setAttributes, arrKey, index, setActiveIndex = false, premiumProps }) => {
     const { sourceType } = attributes;
     const sliders = attributes[arrKey];
-    const { title, img, video, desc, btnLabel, btnUrl, target, altText, } = sliders[index];
+    /**
+     * The button's three keys are given a value here rather than in `block.json`.
+     *
+     * A slide made in this build has no `btnLabel`, `btnUrl` or `target` at all — nothing writes them,
+     * because the controls below are locked. Handed straight to a `TextControl` that is
+     * `value={undefined}`, which React treats as an uncontrolled input, and `checked={undefined}` on
+     * the toggle warns. Defaulting them here keeps both controlled while leaving the saved slide as
+     * it is; seeding them into the attribute default instead would write three keys into every new
+     * slider for a feature this build cannot render.
+     */
+    const { title, img, video, desc, btnLabel = '', btnUrl = '', target = false, altText, } = sliders[index];
 
     const updateSlider = (type, val, childType = false) => {
         setAttributes({ [arrKey]: updateArrayItem(sliders, index, type, val, childType) });

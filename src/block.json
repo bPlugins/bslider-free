@@ -295,12 +295,12 @@
 				"loadMoreBtn": {
 					"typo": {
 						"fontSize": {
-							"desktop": 25,
-							"tablet": 20,
-							"mobile": 15
+							"desktop": 15,
+							"tablet": 15,
+							"mobile": 14
 						},
-						"fontWeight": 700,
-						"lineHeight": "135%"
+						"fontWeight": 600,
+						"lineHeight": "140%"
 					},
 					"colors": {
 						"color": "#000",
@@ -705,7 +705,7 @@
 				"visibility": true,
 				"size": 48,
 				"color": "#fff",
-				"bg": "transparent"
+				"bg": "rgba(17, 17, 17, 0.55)"
 			}
 		},
 		"arrowWidth": {
