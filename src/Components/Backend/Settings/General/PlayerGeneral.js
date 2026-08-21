@@ -1,6 +1,5 @@
 import { __ } from '@wordpress/i18n';
 import { CheckboxControl, SelectControl, ToggleControl } from '@wordpress/components';
-import { useEffect } from '@wordpress/element';
 import { PanelBody } from '../../../Panel/AccordionPanel';
 import FieldGroup from '../../../Panel/FieldGroup';
 import { TipSelect, TipToggle, TipRange } from '../../../Panel/TipField';
@@ -55,16 +54,6 @@ const RATIO_OPTIONS = [
 ];
 
 /**
- * Plyr's settings, for whichever source is using Plyr.
- *
- * Both sources play through the same component and the same `plyrConfig()`, so both are configured
- * here: the video source's own file, and a feed slide's video in the lightbox. `isFeed` is not about
- * which panel to draw but about which settings YouTube can actually honour — see the two lists above.
- *
- * Everything lands in `videoConf`, the attribute `plyrConfig()` already read. Flat keys, so each
- * control is one `updateObject` call; the nested shape Plyr wants is assembled there, not here.
- */
-/**
  * The Premium line that stands where a group of locked controls would have been.
  *
  * One per section rather than one per panel. The panel used to end with a single notice naming
@@ -80,6 +69,17 @@ const ProLine = ({ children }) => (
         {children}
     </Notice>
 );
+
+/**
+ * Plyr's settings, for whichever source is using Plyr.
+ *
+ * Both sources play through the same component and the same `plyrConfig()`, so both are configured
+ * here: the video source's own file, and a feed slide's video in the lightbox. `isFeed` is not about
+ * which panel to draw but about which settings YouTube can actually honour — see the two lists above.
+ *
+ * Everything lands in `videoConf`, the attribute `plyrConfig()` already read. Flat keys, so each
+ * control is one `updateObject` call; the nested shape Plyr wants is assembled there, not here.
+ */
 
 const PlayerGeneral = ({ attributes, setAttributes, updateObject, premiumProps, isFeed = false }) => {
     const { videoConf, sourceType, socialQuery } = attributes;
@@ -110,43 +110,20 @@ const PlayerGeneral = ({ attributes, setAttributes, updateObject, premiumProps, 
 
     const isPro = premiumProps?.isPremium ?? isProActive();
 
-    useEffect(() => {
-        if (!isPro) {
-            let updatedConf = {};
-            let hasChanges = false;
-
-            if (conf.repeat !== false) {
-                updatedConf.repeat = false;
-                hasChanges = true;
-            }
-            if (conf.clickToPlay !== true) {
-                updatedConf.clickToPlay = true;
-                hasChanges = true;
-            }
-            if (conf.resetOnEnd !== false) {
-                updatedConf.resetOnEnd = false;
-                hasChanges = true;
-            }
-
-            const currentControls = conf.controls || {};
-            if (currentControls.fullscreen !== false) {
-                updatedConf.controls = { ...currentControls, fullscreen: false };
-                hasChanges = true;
-            }
-
-            const currentSettingsMenu = conf.settingsMenu || {};
-            if (currentSettingsMenu.speed !== false) {
-                updatedConf.settingsMenu = { ...currentSettingsMenu, speed: false };
-                hasChanges = true;
-            }
-
-            if (hasChanges) {
-                setAttributes({
-                    videoConf: { ...videoConf, ...updatedConf }
-                });
-            }
-        }
-    }, [isPro, conf.repeat, conf.clickToPlay, conf.resetOnEnd, conf.controls?.fullscreen, conf.settingsMenu?.speed]);
+    /**
+     * Nothing here writes the free build's answer into `videoConf`.
+     *
+     * There used to be an effect that did: on every render without a licence it compared `repeat`,
+     * `clickToPlay`, `resetOnEnd`, `controls.fullscreen` and `settingsMenu.speed` against the free
+     * values and called `setAttributes` for any that differed. A slider configured under Premium
+     * therefore lost those settings by being *looked at* here — they were overwritten, not merely
+     * ignored, so restoring the licence did not bring them back. It also dirtied the post as soon as
+     * the inspector opened.
+     *
+     * `PRO_ONLY` in `utils/config` holds the same list and `plyrConfig()` applies it on the way to
+     * Plyr, so the player behaves the same while the saved slider is left alone — the arrangement
+     * `HTML5_ONLY` already uses for the settings an embed cannot honour.
+     */
 
     /** One key inside one of the two nested objects — `controls` and `settingsMenu`. */
     const updateChild = (child, key, val) => setAttributes({

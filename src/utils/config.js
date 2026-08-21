@@ -99,6 +99,34 @@ export const HTML5_ONLY = {
 };
 
 /**
+ * What the player does only with a licence, and what it falls back to without one.
+ *
+ * The same shape of problem as `HTML5_ONLY`, and answered the same way: strip it here, on the way to
+ * Plyr, rather than write the free value into `videoConf`.
+ *
+ * The panel used to enforce this with an effect that called `setAttributes` whenever it found a
+ * Premium value saved. That is destructive in a way hiding a control is not — a slider built on
+ * Premium and then opened here had its settings *rewritten*, so they were gone rather than dormant
+ * and did not come back when the licence did. It also marked the post dirty the moment the inspector
+ * opened, on a post nobody had edited.
+ *
+ * `controls` and `settings` name Plyr's own control keys, so they are filtered by name like
+ * `HTML5_ONLY`. `values` are the flat options, given as the value the free player uses.
+ */
+export const PRO_ONLY = {
+    /**
+     * `settings` is the gear button itself, and it is here because the panel already hides it —
+     * `CONTROL_ITEMS` is filtered on `isPro` for exactly these two keys. Without it a slider saved
+     * under Premium keeps a gear that this build has nothing to put behind: `quality` is stripped on
+     * a feed by `HTML5_ONLY` and `speed` is stripped below, which is the "gear that opens on
+     * nothing" the Controls panel is written to avoid.
+     */
+    controls: ['settings', 'fullscreen'],
+    settings: ['speed'],
+    values: { repeat: false, clickToPlay: true, resetOnEnd: false }
+};
+
+/**
  * The gear entry Plyr accepts and never finished.
  *
  * `loop` is a documented member of `settings`, and Plyr does build it: a `Loop` row in the menu and a
@@ -170,12 +198,9 @@ export const finishPlyr = (player, conf) => {
 export const plyrConfig = (attributes) => {
     const {
         controls,
-        repeat,
         muted,
-        resetOnEnd,
         autoHideControl,
         settingsMenu,
-        clickToPlay,
         playsinline,
         volume,
         rememberSettings,
@@ -209,7 +234,20 @@ export const plyrConfig = (attributes) => {
 
     // A feed slide plays a YouTube embed, so it drops what an embed cannot do — see `HTML5_ONLY`.
     const isFeed = 'social' === attributes?.sourceType;
-    const forHere = (list, group) => list.filter(item => !isFeed || !HTML5_ONLY[group].includes(item));
+
+    /**
+     * The free build's own answer for the Premium-only settings — see `PRO_ONLY`.
+     *
+     * A constant rather than a call to `isProActive()`: this build's `b_slider_is_premium()` returns
+     * false outright, and `bsbpipecheck` is only printed for the editor, so asking on the front end
+     * reads an undefined global to learn what is already known here.
+     */
+    const { repeat, clickToPlay, resetOnEnd } = { ...PRO_ONLY.values };
+
+    /** Drops what this build cannot draw: a Premium control, and an embed-only one on a feed. */
+    const forHere = (list, group) => list.filter(item =>
+        !PRO_ONLY[group].includes(item) && (!isFeed || !HTML5_ONLY[group].includes(item))
+    );
 
     return {
         controls: forHere(controlsHandler(controls), 'controls'),
