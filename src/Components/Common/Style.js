@@ -3,7 +3,7 @@ import { getTypoCSS, getColorsCSS } from '../../../../bpl-tools/utils/getCSS';
 import arrows from '../../utils/arrows';
 
 const Style = ({ attributes, clientId, postsCount, products }) => {
-	const { badgeStyle = {}, sliders, slideInnerGap, slideInnerGapDevice, titleTypo, titleColor, descTypo, descColor, titleMargin, descMargin, arrow, arrowStyle, indicator, SliderOverly, height, sliderHeight, borderRadius, arrowWidth, deviceArrowWidth, arrowHeight, deviceArrowHeight, arrowRadius, btnColors, btnHovColors, btnPadding, btnBorder, btnRadius, direction, columnGap, rowGap, grid, arrowBorder, thumbnails, sourceType, carousel, caption, image, title, desc, button, postsQuery, layoutType } = attributes;
+	const { badgeStyle = {}, sliders, slideInnerGap, slideInnerGapDevice, titleTypo, titleColor, descTypo, descColor, titleMargin, descMargin, arrow, arrowStyle, indicator, SliderOverly, height, sliderHeight, borderRadius, arrowWidth, deviceArrowWidth, arrowHeight, deviceArrowHeight, arrowRadius, btnColors, btnHovColors, btnPadding, btnBorder, btnRadius, direction, columnGap, rowGap, grid, arrowBorder, thumbnails, sourceType, carousel, caption, image, title, desc, button, postsQuery, socialQuery, layoutType } = attributes;
 	const { loadMoreBtn } = grid;
 	const { overly, height: thumbnailsHeight, width: thumbnailsWidth, active } = thumbnails;
 	const { carouselStyle } = carousel;
@@ -153,7 +153,16 @@ const Style = ({ attributes, clientId, postsCount, products }) => {
 
 	const selectedAcfFields = postsQuery?.selectedAcfFields || [];
 	const acfFieldSettings = postsQuery?.acfFieldSettings || {};
-	const badgeSettings = postsQuery?.badgeSettings || {};
+	/**
+	 * The badges, read from whichever query holds them.
+	 *
+	 * A feed slider keeps them on `socialQuery` and a post or product slider on `postsQuery` — the
+	 * same split `PostBadges` writes by. Reading only one of the two left a feed slider's badges
+	 * unstyled while its panel showed them turned on.
+	 */
+	const badgeQuery = ('social' === sourceType ? socialQuery : postsQuery) || {};
+	const badgeSettings = badgeQuery?.badgeSettings || {};
+	const selectedBadges = badgeQuery?.selectedBadges || [];
 
 	// Create a unique set of all possible active ACF field names
 	const activeFieldNames = new Set([
@@ -182,12 +191,16 @@ const Style = ({ attributes, clientId, postsCount, products }) => {
 	 * own to style and quietly takes the field instead, hiding it until the pointer arrives however
 	 * its own panel was set.
 	 */
-	const badgeOn = name => !!postsQuery?.selectedBadges?.includes(name);
+	const badgeOn = name => !!selectedBadges.includes(name);
 
-	if (sourceType === 'posts' && badgeOn('date') && badgeSettings?.date?.hoverOnly !== false) {
+	/* A feed slide carries a date and an author too, so both are offered for a feed exactly as they
+	   are for a post — see `allowedBadges` in `PostBadges`. */
+	const hasDateAuthor = 'posts' === sourceType || 'social' === sourceType;
+
+	if (hasDateAuthor && badgeOn('date') && badgeSettings?.date?.hoverOnly !== false) {
 		hoverAcfSelectors.push(`#bsbCarousel-${clientId} .item .bsb-acf-field-date`);
 	}
-	if (sourceType === 'posts' && badgeOn('author') && badgeSettings?.author?.hoverOnly !== false) {
+	if (hasDateAuthor && badgeOn('author') && badgeSettings?.author?.hoverOnly !== false) {
 		hoverAcfSelectors.push(`#bsbCarousel-${clientId} .item .bsb-acf-field-author`);
 	}
 	if (sourceType === 'woo' && badgeOn('price') && badgeSettings?.price?.hoverOnly !== false) {
@@ -201,10 +214,10 @@ const Style = ({ attributes, clientId, postsCount, products }) => {
 		(title?.isVisible !== false && caption?.hoverTitle === false) ||
 		(desc?.isVisible !== false && caption?.hoverDesc === false) ||
 		(isPostSource && button?.isVisible !== false && caption?.hoverBtn === false) ||
-		(sourceType === 'posts' && postsQuery?.selectedBadges?.includes('date') && badgeSettings?.date?.hoverOnly === false) ||
-		(sourceType === 'posts' && postsQuery?.selectedBadges?.includes('author') && badgeSettings?.author?.hoverOnly === false) ||
-		(sourceType === 'woo' && postsQuery?.selectedBadges?.includes('price') && badgeSettings?.price?.hoverOnly === false) ||
-		(sourceType === 'woo' && postsQuery?.selectedBadges?.includes('sale') && badgeSettings?.sale?.hoverOnly === false) ||
+		(hasDateAuthor && badgeOn('date') && badgeSettings?.date?.hoverOnly === false) ||
+		(hasDateAuthor && badgeOn('author') && badgeSettings?.author?.hoverOnly === false) ||
+		(sourceType === 'woo' && badgeOn('price') && badgeSettings?.price?.hoverOnly === false) ||
+		(sourceType === 'woo' && badgeOn('sale') && badgeSettings?.sale?.hoverOnly === false) ||
 		hasAlwaysVisibleAcf;
 
 	const layerMotionCSS = hoverAcfSelectors.length === 0 ? '' : `		/* At rest, and the way back: no delay, so they leave as soon as the pointer does. */

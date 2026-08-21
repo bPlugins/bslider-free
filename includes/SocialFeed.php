@@ -1151,8 +1151,23 @@ if ( ! class_exists( __NAMESPACE__ . '\SocialFeed' ) ) {
             // says rather than from whatever the block last had.
             $socialQuery = FeedChannels::resolve( $socialQuery );
 
+            /**
+             * An unknown type stays unknown.
+             *
+             * It used to fall back to `youtube`, which is safe where every type has a reader — but
+             * Instagram is Premium and absent here, so a block built on a licensed site arrived with
+             * `feedType: 'instagram'` and had its *access token* renamed into a YouTube channel
+             * address and sent to YouTube. Left as it is, `fetchFresh()` matches no case and answers
+             * with the unknown-type error, which is the truth: this build cannot read that feed.
+             *
+             * Empty still becomes `youtube`, because that is a new block with nothing chosen yet
+             * rather than a block asking for something this build has not got.
+             */
             $feed_type = self::str( $socialQuery, 'feedType' );
-            $feed_type = in_array( $feed_type, self::FEED_TYPES, true ) ? $feed_type : 'youtube';
+
+            if ( '' === $feed_type ) {
+                $feed_type = 'youtube';
+            }
             $format    = self::str( $socialQuery, 'metaDateFormat' );
 
             return [

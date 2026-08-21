@@ -1305,3 +1305,259 @@
 .bsb-backend-inner-item {
     display: none;
 }
+
+/* ═══ External feeds ═════════════════════════════════════════════════════════════════════════
+ *
+ * The header card above the slides and the follow button under them. The channel-page header
+ * (`is-panel`), the mini player and the List layout are Premium and have no rules here.
+ */
+
+
+/**
+ * Each service's own colours, in one place.
+ *
+ * Declared on the container rather than repeated inside every rule that needs a colour, so the card
+ * above the slides and the strip under them cannot drift apart — both carry the feed's class, and
+ * everything below reads these five values. A new feed type is one block here.
+ *
+ * `--bsb-feed-brand` is separate from `--bsb-feed-accent` because a service's mark can be a gradient
+ * and a gradient cannot be a line colour. The two tints are written out rather than mixed from the
+ * accent so the card still has a wash in browsers without `color-mix()`.
+ */
+.bsb-feed-youtube {
+    --bsb-feed-accent: #ff0000;
+    --bsb-feed-brand: #ff0000;
+    --bsb-feed-shadow: rgba(255, 0, 0, 0.3);
+    --bsb-feed-tint: rgba(255, 0, 0, 0.06);
+    --bsb-feed-tint-dark: rgba(255, 0, 0, 0.12);
+}
+
+.bsb-feed-rss {
+    --bsb-feed-accent: #f26522;
+    --bsb-feed-brand: #f26522;
+    --bsb-feed-shadow: rgba(242, 101, 34, 0.3);
+    --bsb-feed-tint: rgba(242, 101, 34, 0.06);
+    --bsb-feed-tint-dark: rgba(242, 101, 34, 0.12);
+}
+
+.bsb-social-profile-banner {
+    overflow: hidden;
+    margin-bottom: 20px;
+    border-radius: var(--bsb-radius-lg, 12px);
+    background: var(--bsb-feed-tint, rgba(0, 0, 0, 0.04));
+
+    img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+    }
+
+    + .bsb-social-profile-header {
+        margin-top: -8px;
+    }
+}
+
+/* Social Profile Header Card */
+.bsb-social-profile-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: var(--bsb-radius-lg, 12px);
+    background: var(--bsb-feed-tint, rgba(255, 255, 255, 0.05));
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    // The card's own edge, in the service's colour. Last, so it wins over the `border` above.
+    border-left: 4px solid var(--bsb-feed-accent, rgba(0, 0, 0, 0.08));
+    backdrop-filter: blur(10px);
+
+    // Light/Dark mode adaptive
+    @media (prefers-color-scheme: dark) {
+        background: var(--bsb-feed-tint-dark, rgba(255, 255, 255, 0.02));
+        border-color: rgba(255, 255, 255, 0.08);
+        // Restated rather than left to the rule above: Sass flattens the parent's own declarations
+        // into a rule that comes *before* this one, so a bare `border-color` here would repaint the
+        // accented edge grey in dark mode.
+        border-left-color: var(--bsb-feed-accent, rgba(255, 255, 255, 0.08));
+    }
+
+    .bsb-profile-info-wrap {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .bsb-profile-avatar {
+        flex: none;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        overflow: hidden;
+        border: 2px solid #fff;
+        // A ring in the service's colour, outside the white edge that keeps the picture off the
+        // wash — one spread shadow for the ring and the existing lift under it.
+        box-shadow: 0 0 0 2px var(--bsb-feed-accent, transparent), 0 2px 8px rgba(0, 0, 0, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+    }
+
+    .bsb-profile-text {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+    }
+
+    .bsb-profile-name {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 700;
+        color: inherit;
+        line-height: 1.2;
+    }
+
+    .bsb-profile-bio {
+        margin: 0;
+        font-size: 13px;
+        color: #666;
+        line-height: 1.3;
+
+        @media (prefers-color-scheme: dark) {
+            color: #aaa;
+        }
+    }
+
+    /* The count carries the weight and the word does not — it is the number somebody is reading. */
+    .bsb-profile-followers {
+        margin: 2px 0 0;
+        font-size: 13px;
+        color: #666;
+        line-height: 1.3;
+
+        /* Three numbers on one line, dotted apart. The separator is on the gaps rather than after
+           each item, so a channel reporting only one of the three gets no stray dot. */
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 4px 8px;
+
+        > span + span::before {
+            content: '\2022';
+            margin-right: 8px;
+            color: currentColor;
+            opacity: 0.6;
+        }
+
+        /**
+         * The figures, in the service's accent until somebody picks a colour.
+         *
+         * **This is why the Stats Color control looked broken.** It writes `color` on
+         * `.bsb-profile-followers`; this rule used to paint the three numbers in the accent
+         * regardless, so picking a colour recoloured the words "Subscribers", "Videos" and "Views"
+         * and left the figures beside them red — most of the change invisible.
+         *
+         * `--bsb-stats-color` is set by that control (see `Style.js`) and is otherwise unset, so the
+         * fallback keeps the card exactly as it looked.
+         */
+        strong {
+            color: var(--bsb-stats-color, var(--bsb-feed-accent, inherit));
+            font-weight: 700;
+        }
+
+        /* Only where nothing has been chosen — `headerFollowersColor` writes an ID-scoped rule that
+           beats this, so a picked colour is not quietly swapped for grey after dark. */
+        @media (prefers-color-scheme: dark) {
+            color: #aaa;
+        }
+    }
+
+    .bsb-profile-action {
+        flex: none;
+    }
+}
+
+/**
+ * The follow button, wherever it stands.
+ *
+ * Lifted out of the header card rather than copied: the card and the strip under the slider offer
+ * the same link to the same account, and two rules drifting apart is how one of them ends up looking
+ * like a different button on the same page.
+ */
+.bsb-follow-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 8px 18px;
+    border-radius: var(--bsb-radius-pill, 20px);
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    background: var(--bsb-primary, #007cba);
+    color: #fff !important;
+    border: 1px solid transparent;
+
+    &:hover {
+        opacity: 0.9;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 124, 186, 0.2);
+    }
+
+    &:active {
+        transform: translateY(0);
+    }
+}
+
+/* The service's mark, sized here rather than on the SVG so one glyph serves every place it appears. */
+.bsb-follow-btn-icon {
+    display: inline-flex;
+
+    svg {
+        width: 15px;
+        height: 15px;
+        fill: currentColor;
+    }
+}
+
+// The service's fill, one rule for every platform. Written against the container rather than the
+// card, so it reaches the button inside the card and the one standing alone under the slider — each
+// carries its feed's class, and each brings the colours with it.
+[class*='bsb-feed-'] .bsb-follow-btn {
+    background: var(--bsb-feed-brand, var(--bsb-primary, #007cba));
+
+    &:hover {
+        box-shadow: 0 4px 12px var(--bsb-feed-shadow, rgba(0, 124, 186, 0.2));
+    }
+}
+
+/**
+ * The strip under the last row of slides.
+ *
+ * A flex row for one item, which is what makes the alignment setting a single property rather than a
+ * choice between `margin: auto`, `text-align` and a float that each behave differently.
+ */
+.bsb-social-follow-footer {
+    display: flex;
+    margin-top: 20px;
+
+    &.is-left {
+        justify-content: flex-start;
+    }
+
+    &.is-center {
+        justify-content: center;
+    }
+
+    &.is-right {
+        justify-content: flex-end;
+    }
+}

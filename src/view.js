@@ -22,8 +22,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		const isBackend = false;
 		// const posts = all_posts?.posts;
-		const postsText = sliderEl.querySelector('pre#posts')?.innerText;
-		const firstPosts = postsText ? JSON.parse(postsText?.replace(/\n/g, ' ')?.replace(/\s+/g, ' ')?.trim()) : [];
+		/**
+		 * The items, as `render.php` printed them.
+		 *
+		 * `textContent` and not `innerText`: they agree here — the `<pre>` is `display: none`, and for an
+		 * element that is not rendered `innerText` falls back to `textContent` anyway — but only one of
+		 * them says so plainly, and only one of them cannot start depending on layout later.
+		 *
+		 * **Trimmed and nothing more.** This used to collapse every run of whitespace to a single space
+		 * before parsing, which was two things at once: unnecessary, because the only whitespace outside
+		 * the JSON is the template's own indentation either side of it, and quietly destructive, because
+		 * the collapse reached *inside* the strings and rewrote every title that had two spaces in it.
+		 */
+		const postsText = sliderEl.querySelector('pre#posts')?.textContent;
+		const firstPosts = postsText?.trim() ? JSON.parse(postsText.trim()) : [];
 
 		createRoot(sliderEl).render(<>
 			<RenderLayout {...{ attributes, firstPosts, totalPosts, isBackend, nonce, id }} />

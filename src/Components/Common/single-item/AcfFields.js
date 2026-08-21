@@ -481,8 +481,17 @@ const anchorAnimation = (anchor, attributes, classNames) => {
  * the fields themselves take them back, so a linked field is still clickable.
  */
 const AcfFields = ({ post, attributes, classNames, isBackEnd = false, isSelected = false }) => {
-    const { layoutType, postsQuery, sourceType } = attributes || {};
-    const selectedBadges = postsQuery?.selectedBadges || [];
+    const { layoutType, postsQuery, socialQuery, sourceType } = attributes || {};
+
+    /**
+     * The badges, read from whichever query holds them.
+     *
+     * A feed slider keeps them on `socialQuery` and a post or product slider on `postsQuery` — the
+     * same split `PostBadges` writes by, and `Style` reads by. Reading only `postsQuery` left a feed
+     * slider's badges chosen in the panel and absent from the slide.
+     */
+    const badgeQuery = ('social' === sourceType ? socialQuery : postsQuery) || {};
+    const selectedBadges = badgeQuery?.selectedBadges || [];
 
     /**
      * The date and author badges, added to whatever ACF fields the post already has.
@@ -507,7 +516,7 @@ const AcfFields = ({ post, attributes, classNames, isBackEnd = false, isSelected
         }
 
         if (isWoo && chosen.includes('sale') && post?.sale) {
-            const showPercentage = postsQuery?.badgeSettings?.sale?.showPercentage === true;
+            const showPercentage = badgeQuery?.badgeSettings?.sale?.showPercentage === true;
             const value = showPercentage && post?.sale_percent ? post.sale_percent : post.sale;
             into['sale'] = { name: 'sale', label: __('Sale', 'b-slider'), type: 'text', value, isBadge: true };
         }
@@ -541,8 +550,8 @@ const AcfFields = ({ post, attributes, classNames, isBackEnd = false, isSelected
      * it was given.
      */
     const badgeOverrides = Object.keys(fields)
-        .filter(name => fields[name]?.isBadge && (postsQuery?.badgeSettings || {})[name])
-        .reduce((into, name) => ({ ...into, [name]: postsQuery.badgeSettings[name] }), {});
+        .filter(name => fields[name]?.isBadge && (badgeQuery?.badgeSettings || {})[name])
+        .reduce((into, name) => ({ ...into, [name]: badgeQuery.badgeSettings[name] }), {});
 
     const settings = { ...(postsQuery?.acfFieldSettings || {}), ...badgeOverrides };
     // A slider with no ACF fields at all is showing badges and nothing else, so the badge style is
@@ -550,7 +559,7 @@ const AcfFields = ({ post, attributes, classNames, isBackEnd = false, isSelected
     // and a badge that wants to differ says so with its own preset.
     const style = presetOf(Object.keys(post?.acf_fields || {}).length
         ? postsQuery?.acfDisplayStyle
-        : postsQuery?.badgeDisplayStyle);
+        : badgeQuery?.badgeDisplayStyle);
 
     // Pick order, which is the order Posts.php returns them in.
     const placeable = Object.values(fields).filter(acf => rendersAsCaption(acf?.name, acf?.type, postsQuery));

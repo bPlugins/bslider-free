@@ -11,6 +11,7 @@
     --bsb-primary-soft: #eff6ff;
     --bsb-primary-line: #bfdbfe;
     --bsb-accent: #ff7a00;
+    --bsb-success: #2f7d32;
     --bsb-warning: #9a3412;
     --bsb-warning-soft: #fff7ed;
     --bsb-danger: #dc2626;
@@ -1165,6 +1166,46 @@ svg#bsbSlider {
         .single_lay {
             position: relative;
             background: var(--bsb-surface);
+
+            /* The corner flag — see `CardFlag`. One shape, and the fill says which of the two it is:
+               an offer this licence has not taken up, or a source that has only just arrived. */
+            .bsb_card_flag {
+                position: absolute;
+                top: 10px;
+                right: 10px;
+
+                p {
+                    margin: 0;
+                    font-size: 10px;
+                    font-weight: 700;
+                    padding: 2px 8px;
+                    color: var(--bsb-surface);
+                    border-radius: 12px;
+                    text-transform: uppercase;
+                    letter-spacing: 0.5px;
+                }
+
+                &.is-pro p {
+                    background: var(--bsb-accent);
+                    box-shadow: 0 2px 6px rgba(255, 122, 0, 0.3);
+                }
+
+                /* Green rather than the accent orange: "New" is an invitation and orange is the
+                   colour this editor uses for a limit. Two flags in one colour would also read as
+                   the same flag worn by different cards. */
+                &.is-new p {
+                    background: var(--bsb-success);
+                    box-shadow: 0 2px 6px rgba(47, 125, 50, 0.3);
+                }
+            }
+
+            /* A feed this licence cannot read. Still hoverable, so the card reads as an offer
+               rather than as a dead tile. */
+            &.is-disabled {
+                opacity: 0.72;
+                cursor: default;
+            }
+
             border: 1.5px solid var(--bsb-line);
             display: flex;
             flex-direction: column;
@@ -1906,4 +1947,207 @@ svg#bsbSlider {
 .bsb_social_badges_panel,
 .bsb_social_badges_panel .bsb_acf_field_panel {
     border-radius: 0 !important;
+}
+
+/**
+ * The slider while its feed is still arriving — see `FeedSkeleton`.
+ *
+ * Grey blocks in the layout's proportions, with the picture areas softly blurred: a photograph that
+ * has not resolved yet is the thing this is standing in for, and a flat rectangle reads as a missing
+ * image instead. The shimmer is what says "still working" — without it a skeleton is indistinguishable
+ * from a slider that has finished and come back empty, which is the very confusion it exists to end.
+ */
+@keyframes bsbFeedSkeletonSheen {
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+/* The same sheen for a field that keeps its own chevron — the arrow layer is pinned while the second
+   travels. See the disabled `select` in `.bsbCardSelector`. */
+@keyframes bsbFeedFieldSheen {
+    0% {
+        background-position: right 10px center, 200% 0;
+    }
+
+    100% {
+        background-position: right 10px center, -200% 0;
+    }
+}
+
+@keyframes bsbFeedSkeletonPulse {
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.35;
+    }
+}
+
+.bsbFeedSkeleton {
+    --bsb-skeleton-base: #eef2f7;
+    --bsb-skeleton-sheen: #f8fafc;
+    --bsb-skeleton-line: #e2e8f0;
+
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+
+    .bsbFeedSkeletonGrid {
+        display: grid;
+        gap: 14px;
+    }
+
+    /* One wide slide, which is what `default` and `carousel` are about to draw. */
+    &.is-tall .bsbFeedSkeletonGrid {
+        grid-template-columns: 1fr;
+    }
+
+    /* Three across for a grid or a thumbnail strip, collapsing rather than squeezing on a narrow
+       column — a 90px card is not a recognisable slide. */
+    &.is-row .bsbFeedSkeletonGrid {
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    }
+
+    .bsbFeedSkeletonCard {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        /* The stagger set inline in `FeedSkeleton` needs an animation on the card itself to delay;
+           the card's own is the fade the blocks inside inherit their timing from. */
+        animation: bsbFeedSkeletonPulse 1.6s var(--bsb-ease, ease-in-out) infinite;
+    }
+
+    /* 16:9, the shape of every thumbnail a feed returns. */
+    .bsbFeedSkeletonThumb {
+        aspect-ratio: 16 / 9;
+        width: 100%;
+        border-radius: 12px;
+        /* Two greys under the blur, so what comes through reads as an out-of-focus picture rather than
+           as a grey box someone forgot to fill. */
+        background:
+            radial-gradient(60% 70% at 30% 35%, #dde5f0 0%, rgba(221, 229, 240, 0) 70%),
+            linear-gradient(100deg, var(--bsb-skeleton-base) 20%, var(--bsb-skeleton-sheen) 40%, var(--bsb-skeleton-base) 60%);
+        background-size: auto, 200% 100%;
+        filter: blur(2px);
+        animation: bsbFeedSkeletonSheen 1.8s linear infinite;
+    }
+
+    /* A tall slide is a slide, not a card: no title stub under it, because the caption sits over the
+       picture there. The lines below are for the grid and thumbnail shapes. */
+    &.is-tall .bsbFeedSkeletonThumb {
+        aspect-ratio: 21 / 9;
+    }
+
+    .bsbFeedSkeletonLines {
+        display: flex;
+        flex-direction: column;
+        gap: 7px;
+        padding: 0 2px;
+    }
+
+    .bsbFeedSkeletonLine {
+        display: block;
+        height: 9px;
+        border-radius: 999px;
+        background: linear-gradient(100deg, var(--bsb-skeleton-line) 20%, var(--bsb-skeleton-sheen) 40%, var(--bsb-skeleton-line) 60%);
+        background-size: 200% 100%;
+        animation: bsbFeedSkeletonSheen 1.8s linear infinite;
+
+        &.is-title {
+            width: 78%;
+        }
+
+        &.is-meta {
+            width: 42%;
+            height: 7px;
+        }
+    }
+
+    .bsbFeedSkeletonNote {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        margin: 0;
+        font-size: 12px;
+        font-weight: 600;
+        color: #64748b;
+    }
+}
+
+/* Takes no space and pushes nothing down; it exists only to give the marker below something to be
+   positioned against. See the note in `Layout`. */
+.bsbFeedActivityAnchor {
+    position: relative;
+    height: 0;
+}
+
+/* The marker for a feed that already has slides up and is fetching again. Absolute, so appearing and
+   disappearing moves nothing — see the note in `Layout`. */
+.bsbFeedActivity {
+    position: absolute;
+    z-index: 5;
+    top: 8px;
+    right: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 11px;
+    border-radius: 999px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    color: #0f172a;
+    /* Over a slide of any colour, so it carries its own ground rather than trusting what is behind it. */
+    background: rgba(255, 255, 255, 0.92);
+    border: 1px solid rgba(15, 23, 42, 0.1);
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.12);
+    backdrop-filter: blur(4px);
+    /* Never in the way of the slide it sits on. */
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(-4px);
+    transition: opacity 0.2s var(--bsb-ease), transform 0.2s var(--bsb-ease);
+
+    &.is-on {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* The dot that says the marker is live, shared with the skeleton's own note. */
+.bsbFeedSkeletonDot {
+    flex: none;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--bsb-primary, #1d4ed8);
+    animation: bsbFeedSkeletonPulse 1.2s ease-in-out infinite;
+}
+
+/**
+ * Motion is what carries the message here, so it is only softened rather than dropped: the sheen and
+ * the pulse go, and the blocks stay at an opacity that still reads as unfinished.
+ */
+@media (prefers-reduced-motion: reduce) {
+
+    .bsbFeedSkeleton .bsbFeedSkeletonCard,
+    .bsbFeedSkeleton .bsbFeedSkeletonThumb,
+    .bsbFeedSkeleton .bsbFeedSkeletonLine,
+    .bsbFeedSkeletonDot {
+        animation: none;
+    }
+
+    .bsbFeedSkeleton .bsbFeedSkeletonCard {
+        opacity: 0.7;
+    }
 }
