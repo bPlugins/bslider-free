@@ -92,7 +92,7 @@ const SocialHeaderSettings = ({ attributes, setAttributes, updateObject, socialF
     /**
      * Whether this feed has a cover picture behind it at all.
      *
-     * YouTube alone reports one — `InstagramFeed` and `RssFeed` answer with `''` deliberately, an
+     * YouTube alone reports one — the other readers answer with `''` deliberately, an
      * Instagram profile having no cover and an RSS channel's one image already being its avatar. The
      * controls are hidden rather than left to produce nothing, so the panel does not offer a banner
      * to a feed that can never draw one.

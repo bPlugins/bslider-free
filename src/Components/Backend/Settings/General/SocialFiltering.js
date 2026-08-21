@@ -2,7 +2,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { useEffect } from '@wordpress/element';
 import { PanelBody } from '../../../Panel/AccordionPanel';
 import { TipSelect, TipRange } from '../../../Panel/TipField';
-import { SelectControl, CheckboxControl } from '@wordpress/components';
+import { SelectControl } from '@wordpress/components';
 import useYouTubeKey from '../../../../hooks/useYouTubeKey';
 import { Notice } from '../../../../../../bpl-tools/Components';
 
@@ -80,9 +80,6 @@ const SocialFiltering = ({ attributes, updateObject, setAttributes }) => {
         feedType = 'youtube',
         videoSet = 'latest',
         ytQueryType = 'channel',
-        igAllowImage = true,
-        igAllowAlbum = true,
-        igAllowVideo = true
     } = socialQuery || {};
 
     const apiKey = useYouTubeKey();
@@ -242,35 +239,6 @@ const SocialFiltering = ({ attributes, updateObject, setAttributes }) => {
                 it governs, not a panel away from them. See `PlayerGeneral`, which now carries it in
                 both of its branches. */}
 
-            {/* Moved from Feed Settings' address step, where it sat beside the account picker asking
-                a question that step never answers. `InstagramFeed::items()` takes these three exactly
-                as it takes keywords or an age limit — as a filter on what is fetched — so this is
-                where they belong: with the rest of what decides which of an account's posts reach the
-                slider. */}
-            {feedType === 'instagram' && (
-                <div className={gap}>
-                    <div style={{ fontWeight: '500', marginBottom: '8px', fontSize: '13px', color: '#1e293b' }}>
-                        {__('Allowed Media Types', 'b-slider')}
-                    </div>
-                    <div className="bsb_choice_row">
-                        <CheckboxControl
-                            label={__('Images', 'b-slider')}
-                            checked={igAllowImage}
-                            onChange={val => updateObject('socialQuery', 'igAllowImage', val)}
-                        />
-                        <CheckboxControl
-                            label={__('Albums', 'b-slider')}
-                            checked={igAllowAlbum}
-                            onChange={val => updateObject('socialQuery', 'igAllowAlbum', val)}
-                        />
-                        <CheckboxControl
-                            label={__('Videos', 'b-slider')}
-                            checked={igAllowVideo}
-                            onChange={val => updateObject('socialQuery', 'igAllowVideo', val)}
-                        />
-                    </div>
-                </div>
-            )}
 
 
 

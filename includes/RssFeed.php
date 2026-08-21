@@ -52,7 +52,7 @@ if ( ! class_exists( __NAMESPACE__ . '\RssFeed' ) ) {
         /**
          * The publication behind a feed, in the shape the Profile Header draws.
          *
-         * Same keys as `InstagramFeed::profile()` — the header card and the button under the slides
+         * The same keys every reader's `profile()` returns — the header card and the button under the slides
          * read one shape and never ask which service filled it in. A feed states its own title,
          * description, site link and, where the publisher bothered, a logo, which is all of what the
          * card shows. Nobody follows an RSS feed and there is no count to print, so the button sends

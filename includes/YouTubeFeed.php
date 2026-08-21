@@ -878,7 +878,7 @@ if ( ! class_exists( __NAMESPACE__ . '\YouTubeFeed' ) ) {
         /**
          * The channel a slider is reading, in the shape the Profile Header draws.
          *
-         * Same keys as `InstagramFeed::profile()`, because the header card and the button under the
+         * The same keys every reader's `profile()` returns, because the header card and the button under the
          * slides read one shape and do not ask which service filled it in — see `SocialFeed::profileFor()`.
          *
          * **Why this needs the API key.** The public `videos.xml` names the channel and links to it,
@@ -1346,7 +1346,7 @@ if ( ! class_exists( __NAMESPACE__ . '\YouTubeFeed' ) ) {
                     'fallback' => esc_url_raw( (string) $entry['feed_thumb'] ) ?: self::thumbUrl( $video_id, 'hqdefault' ),
                     'srcset'   => self::srcset( $video_id ),
                     // A slide is as wide as the slider, and a slider is nearly always the full width
-                    // of its container. `FeedMedia` replaces this with the real sizes once the
+                    // of its container. An import replaces this with the real sizes once the
                     // picture is stored on this site.
                     'sizes'    => '(max-width: 782px) 100vw, 1280px',
                 ],
@@ -1449,7 +1449,7 @@ if ( ! class_exists( __NAMESPACE__ . '\YouTubeFeed' ) ) {
          * group to capture it, so a 25-hour livestream archive came out as one hour. Rare, but the
          * kind of wrong that is invisible until somebody points at a video and asks.
          *
-         * Its own method because `FeedStore` needs the number, not the readable form — it stores the
+         * Its own method because the store needs the number, not the readable form — it stores the
          * length as a meta so a Shorts filter can compare on it. Deriving that by parsing the string
          * this used to return worked until exactly the case above, where the hours had already been
          * lost. One parser, two callers.

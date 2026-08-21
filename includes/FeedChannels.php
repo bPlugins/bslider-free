@@ -13,10 +13,10 @@ if ( ! class_exists( __NAMESPACE__ . '\FeedChannels' ) ) {
      * had one. A saved channel is stored here and *referenced* by the sliders that show it, so the
      * address, the name and the defaults are edited in one place and every slider follows.
      *
-     * **A reference has to survive an edit.** `FeedStore` groups imported videos by feed, and if that
+     * **A reference has to survive an edit.** Imported videos are grouped by feed, and if that
      * grouping were derived from the address then repointing a channel would orphan everything
      * already imported for it. So a referencing slider is keyed by the channel's own id, which never
-     * changes — see `FeedStore::feedKey()`. Changing the address refetches the videos, as it should,
+     * changes — the feed key is derived from it. Changing the address refetches the videos, as it should,
      * without losing what is already stored against the channel.
      *
      * Service-agnostic by design: a channel carries a `feedType`, so the same library holds an RSS

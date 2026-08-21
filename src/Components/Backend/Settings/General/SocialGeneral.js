@@ -154,7 +154,7 @@ const SocialGeneral = ({ attributes, setAttributes, updateObject, socialFeed }) 
             }
         });
     // The import's own state moved out with the panel that shows it — see SocialStore, which runs
-    // `useFeedMedia` for itself. A second copy here drove a second import poll for nothing.
+    // the import for itself. A second copy here drove a second import poll for nothing.
     const [keyInput, setKeyInput] = useState('');
     const [isKeyOpen, setIsKeyOpen] = useState(false);
 
@@ -263,7 +263,7 @@ const SocialGeneral = ({ attributes, setAttributes, updateObject, socialFeed }) 
                                 }
 
                                 // A saved channel owns the address, so the slider's own copy is cleared — left
-                                // behind it would stay in the cache key and in `FeedStore`'s reach after the switch.
+                                // behind it would stay in the cache key and in the store's reach after the switch.
                                 setAttributes({
                                     socialQuery: {
                                         ...(attributes.socialQuery || {}),
@@ -318,9 +318,9 @@ const SocialGeneral = ({ attributes, setAttributes, updateObject, socialFeed }) 
                         </p>}
 
                         {/* "Allowed Media Types" stood here and has moved to Social Filtering. It picks
-                            which of an account's posts are fetched at all — `InstagramFeed::items()`
-                            takes the three as filters, the same as keywords or an age limit do — which
-                            is a question this step, about the account's own address, was never asking. */}
+                            which of an account's posts are fetched at all, the same sort of question as a
+                            keyword or an age limit — and not one this step, about the account's own
+                            address, was ever asking. */}
 
                         {showCustom && (
                             <>
