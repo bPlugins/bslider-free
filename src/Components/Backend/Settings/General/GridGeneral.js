@@ -2,14 +2,14 @@ import { __ } from '@wordpress/i18n';
 import { SelectControl, RangeControl } from "@wordpress/components";
 import { PanelBody } from '../../../Panel/AccordionPanel';
 import { TipSelect, TipToggle, TipRange, TipText } from '../../../Panel/TipField';
-import { alignBtnOpt, paginationTypeOpt } from '../../../../utils/options';
-import { BControlPro } from '../../../../../../bpl-tools/ProControls';
+import { paginationTypeOpt } from '../../../../utils/options';
+import ProNotice from '../../../Panel/ProNotice';
+import { PRO_FEATURES } from '../../../../utils/pro-features';
 
-const GridGeneral = ({ attributes, updateObject, multipleAttrChange, premiumProps }) => {
+const GridGeneral = ({ attributes, updateObject }) => {
     const { grid, postsQuery, sourceType } = attributes;
-    const { paginationType, loadMoreBtn } = grid;
+    const { paginationType } = grid;
     const { per_page } = postsQuery;
-    const { align } = loadMoreBtn;
     const isFeed = 'social' === sourceType;
 
     return <>
@@ -36,7 +36,7 @@ const GridGeneral = ({ attributes, updateObject, multipleAttrChange, premiumProp
 
             <SelectControl label={__('Pagination Type', 'b-slider')} className='mt10' options={paginationTypeOpt} value={paginationType} onChange={val => updateObject('grid', 'paginationType', val)} />
 
-            <BControlPro label={__('Position', 'b-slider')} className='mt10' options={alignBtnOpt} value={align} onChange={val => multipleAttrChange('grid', 'loadMoreBtn', "align", val)} Component={SelectControl} {...premiumProps} />
+            <ProNotice features={PRO_FEATURES.gridPagination} />
         </PanelBody>
     </>
 }

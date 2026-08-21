@@ -3,7 +3,6 @@ import { CheckboxControl, SelectControl, ToggleControl } from '@wordpress/compon
 import { PanelBody } from '../../../Panel/AccordionPanel';
 import FieldGroup from '../../../Panel/FieldGroup';
 import { TipSelect, TipToggle, TipRange } from '../../../Panel/TipField';
-import { BControlPro } from '../../../../../../bpl-tools/ProControls';
 import { ColorControl, Label, Notice } from '../../../../../../bpl-tools/Components';
 import { HTML5_ONLY, PLAYER_DEFAULTS, playerConf } from '../../../../utils/config';
 import { isProActive } from '../../../../utils/functions';
@@ -421,27 +420,18 @@ const PlayerGeneral = ({ attributes, setAttributes, updateObject, premiumProps, 
 
             <FieldGroup title={__('The control bar', 'b-slider')} />
 
+            {/* Every Premium button is left out rather than drawn locked — `pro` on a CONTROL_ITEM
+                and the two named here are the same thing to this filter. The line below is what says
+                they exist, so nothing is simply absent with no explanation. */}
             {CONTROL_ITEMS.filter(forHere('controls'))
-                .filter(({ key }) => isPro || !['settings', 'fullscreen'].includes(key))
-                .map(({ key, label, pro }) => pro
-                ? <BControlPro
-                    key={key}
-                    className='mt15'
-                    label={label}
-                    checked={!!controls?.[key]}
-                    onChange={val => updateChild('controls', key, val)}
-                    Component={ToggleControl}
-                    {...premiumProps}
-                />
-                : <ToggleControl
+                .filter(({ key, pro }) => isPro || (!pro && !['settings', 'fullscreen'].includes(key)))
+                .map(({ key, label }) => <ToggleControl
                     key={key}
                     className='mt15'
                     label={label}
                     checked={!!controls?.[key]}
                     onChange={val => updateChild('controls', key, val)}
                 />)}
-            {/* These three are filtered out of the list above rather than drawn locked, so without a
-                line here they would simply be absent with nothing to say why. */}
             {!isPro && <ProLine features={PRO_FEATURES.playerControlButtons} />}
 
             {/* The gear itself is the `settings` control above; this is what it opens. Worth saying so,

@@ -1,17 +1,18 @@
 import { __, sprintf } from '@wordpress/i18n';
-import { RangeControl, SelectControl, __experimentalNumberControl as NumberControl, TextControl, ToggleControl } from "@wordpress/components";
+import { RangeControl, SelectControl, __experimentalNumberControl as NumberControl, ToggleControl } from "@wordpress/components";
 import { PanelBody } from '../../../Panel/AccordionPanel';
 import { Label } from '../../../../../../bpl-tools/Components';
-import { filterSelected, strToIntArr } from '../../../../utils/functions';
+import { filterSelected } from '../../../../utils/functions';
 import { postsOrders, postsOrdersBy, safeOrderBy } from '../../../../utils/options';
 import SelectTokenField from '../../../Panel/SelectTokenField';
-import { BControlPro } from '../../../../../../bpl-tools/ProControls';
+import ProNotice from '../../../Panel/ProNotice';
+import { PRO_FEATURES } from '../../../../utils/pro-features';
 
 /** Sorting on a custom field belongs to the `ACF Query` panel — see AcfQuery. */
-const PostQuery = ({ updateObject, attributes, getTaxonomy, premiumProps }) => {
+const PostQuery = ({ updateObject, attributes, getTaxonomy }) => {
 
     const { postsQuery, sourceType } = attributes;
-    const { selectedTags, selectedCategories, per_page, orderby, order, offset, include, exclude, isExcludeCurrent, isExcerptFromContent, excerptLength, post_type = 'post', orderByField = '' } = postsQuery;
+    const { selectedTags, selectedCategories, per_page, orderby, order, offset, isExcerptFromContent, excerptLength, post_type = 'post', orderByField = '' } = postsQuery;
 
     const targetPostType = post_type || (sourceType === 'woo' ? 'product' : 'post');
     const catTaxSlug = targetPostType === 'product' ? 'product_cat' : 'category';
@@ -113,25 +114,10 @@ const PostQuery = ({ updateObject, attributes, getTaxonomy, premiumProps }) => {
                 <small className="bsb_field_hint">{__('Skips the first N posts. Ignored when `Per Page` is -1.', 'b-slider')}</small>
             </div>
 
-            <div className="mb20">
-                <BControlPro label={sprintf(
-                    // translators: %s is the content type this slider pulls, e.g. "Post" or "Product".
-                    __('Include %s:', 'b-slider'), noun)} value={include?.join(',')} onChange={val => updateObject("postsQuery", "include", strToIntArr(val))} Component={TextControl} {...premiumProps} />
-                <small className="bsb_field_hint">{__('Comma separated IDs, e.g. 23, 45, 16', 'b-slider')}</small>
-            </div>
-
-            <div className="mb20">
-                <BControlPro label={sprintf(
-                    // translators: %s is the content type this slider pulls, e.g. "Post" or "Product".
-                    __('Exclude %s:', 'b-slider'), noun)} value={exclude?.join(',')} onChange={val => updateObject("postsQuery", "exclude", strToIntArr(val))} Component={TextControl} {...premiumProps} />
-                <small className="bsb_field_hint">{__('Comma separated IDs, e.g. 23, 45, 16', 'b-slider')}</small>
-            </div>
-
-            <div className="mb20">
-                <BControlPro label={sprintf(
-                    // translators: %s is the content type this slider pulls, e.g. "Post" or "Product".
-                    __('Exclude Current %s', 'b-slider'), noun)} checked={isExcludeCurrent} onChange={val => updateObject("postsQuery", "isExcludeCurrent", val)} Component={ToggleControl} {...premiumProps} />
-            </div>
+            {/* Premium fills this stretch of the panel with Include, Exclude and Exclude Current.
+                Naming them is what the notice is for, rather than drawing three controls that do
+                nothing. */}
+            <ProNotice className='mb20' features={PRO_FEATURES.postQuery} />
 
             <div className="mb20">
                 <ToggleControl label={__('Show Excerpt from Content', 'b-slider')} checked={isExcerptFromContent} onChange={val => updateObject("postsQuery", "isExcerptFromContent", val)} />

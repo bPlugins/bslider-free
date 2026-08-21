@@ -2,13 +2,12 @@ import { __ } from '@wordpress/i18n';
 import { SelectControl, ToggleControl } from "@wordpress/components";
 import { PanelBody } from '../../../Panel/AccordionPanel';
 import Controls from './Carousel/Controls';
-import { caroDirectionOpt } from '../../../../utils/options';
 import Notice from '../../Notice';
-import { BControlPro } from '../../../../../../bpl-tools/ProControls';
+import ProNotice from '../../../Panel/ProNotice';
+import { PRO_FEATURES } from '../../../../utils/pro-features';
 
-const ThumbnailsGeneral = ({ attributes, updateObject, premiumProps }) => {
-    const { carousel, arrow, thumbnails, sourceType, socialQuery } = attributes
-    const { caroDirection } = carousel;
+const ThumbnailsGeneral = ({ attributes, updateObject }) => {
+    const { arrow, thumbnails, sourceType, socialQuery } = attributes
     const {
         mode = 'slider',
         showStage = true,
@@ -44,8 +43,7 @@ const ThumbnailsGeneral = ({ attributes, updateObject, premiumProps }) => {
 
     const controlsProps = {
         attributes,
-        updateObject,
-        premiumProps
+        updateObject
     }
     return <PanelBody className='bPlPanelBody' title={__('Thumbnails', 'b-slider')} badge={__('New', 'b-slider')} initialOpen={false}>
         <Notice />
@@ -81,9 +79,6 @@ const ThumbnailsGeneral = ({ attributes, updateObject, premiumProps }) => {
 
         <Controls {...controlsProps} />
 
-        {/* A row can run down the side; a wrapping grid cannot, so the control goes with the mode
-            that has something to do with it. */}
-        {!isGrid && <BControlPro className='mt10' label={__('Direction', 'b-slider')} value={caroDirection} options={caroDirectionOpt} onChange={val => updateObject("carousel", "caroDirection", val)} Component={SelectControl} {...premiumProps} />}
 
         {/* Only where the items carry words to print. An image slider's thumbnails have a picture and
             nothing else, so the whole group is hidden rather than offered as toggles that do nothing. */}
@@ -144,9 +139,6 @@ const ThumbnailsGeneral = ({ attributes, updateObject, premiumProps }) => {
             help={__('Marks each thumbnail as a video rather than a picture.', 'b-slider')}
         />
 
-        {/* The arrows move the stage, so they go with it. */}
-        {false !== showStage && <BControlPro className='mt20' label={__('Show Arrow/Navigation', 'b-slider')} checked={arrow.visibility} onChange={(value) => { updateObject('arrow', 'visibility', value) }} Component={ToggleControl} {...premiumProps} />}
-
         {false !== showStage && !!arrow?.visibility && <SelectControl
             className='mt10'
             label={__('Navigation Position', 'b-slider')}
@@ -157,6 +149,10 @@ const ThumbnailsGeneral = ({ attributes, updateObject, premiumProps }) => {
             ]}
             onChange={val => updateObject('thumbnails', 'navPosition', val)}
         />}
+
+        {/* One notice for the panel. Direction and Show Arrow/Navigation really are Premium here,
+            unlike in the carousel panel, which draws both for free — see `PRO_FEATURES`. */}
+        <ProNotice features={PRO_FEATURES.thumbnailsControls} />
     </PanelBody>
 }
 export default ThumbnailsGeneral;

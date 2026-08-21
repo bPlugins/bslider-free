@@ -22,6 +22,15 @@ const GRAB_CURSOR = __('Grab Cursor', 'b-slider');
 
 export const PRO_FEATURES = {
 	/* General tab */
+
+	/**
+	 * A slide's own button. Named here rather than drawn: this build has no reader for `btnLabel`,
+	 * `btnUrl` or `target` on an image slide, and WordPress.org does not allow the controls to be put
+	 * in front of someone who cannot use them — see `MainItem`, which prints this once under the list
+	 * rather than once per slide.
+	 */
+	slides: [__('Button label', 'b-slider'), __('Button Url', 'b-slider'), __('Open In New Tab', 'b-slider')],
+
 	title: [__('Custom HTML wrapper tags (e.g., h1-h6)', 'b-slider')],
 	postQuery: [__('Include', 'b-slider'), __('Exclude', 'b-slider'), __('Current Post', 'b-slider')],
 
@@ -60,7 +69,6 @@ export const PRO_FEATURES = {
 	lazyLoad: [__('Lazy Load Images', 'b-slider')],
 
 	indicators: [__('Move From Edge', 'b-slider')],
-	video: [__('Reset On End', 'b-slider'), __('Auto Hide Control', 'b-slider')],
 
 	/* Style tab */
 	sliderStyle: [__('Margin', 'b-slider')],
@@ -192,7 +200,18 @@ export const PRO_FEATURES = {
 		__('Remember Settings', 'b-slider'),
 	],
 	playerSpeed: [__('Playback Speed', 'b-slider')],
-	playerControlButtons: [__('Settings', 'b-slider'), __('Fullscreen buttons', 'b-slider')],
+	/**
+	 * The control-bar buttons this build leaves out — the two named on the panel plus every
+	 * CONTROL_ITEM marked `pro`. They used to be drawn locked, so the list only had to cover the two
+	 * that were filtered out; now the filter drops all five and this has to name all five.
+	 */
+	playerControlButtons: [
+		__('PIP', 'b-slider'),
+		__('Airplay', 'b-slider'),
+		__('Settings', 'b-slider'),
+		__('Download', 'b-slider'),
+		__('Fullscreen', 'b-slider'),
+	],
 	playerSpeedMenu: [__('Speed menu option', 'b-slider')],
 	/**
 	 * `Tooltip On The Progress Bar` is the control's own label. The line here read "progress

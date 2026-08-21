@@ -127,6 +127,28 @@ for (const [file, code] of sources) {
 	}
 }
 
+/* ── 2b. Premium controls rendered at all ─────────────────────────────────── */
+
+/**
+ * A control for a feature this build cannot deliver, drawn rather than described.
+ *
+ * WordPress.org does not allow a plugin to put options for its paid version in front of the user. A
+ * notice naming the feature is allowed; a control is not — and `BControlPro` and its siblings are
+ * exactly that: the real control, with a Pro tag on the label, whose click opens a pricing modal
+ * instead of doing anything. A tag makes it more of a shopfront, not less.
+ *
+ * The released build has never had one. The feed branch introduced fifty-two, so this rule exists to
+ * keep them out: the control comes off the screen and the feature is named in `ProNotice`,
+ * `ProPanel` or `ProCard` instead.
+ */
+const PRO_CONTROL = /<(?:BControl|SelectControl|RadioControl|BtnGroup)Pro\b/;
+
+for (const [file, code] of sources) {
+	if (PRO_CONTROL.test(stripComments(code))) {
+		report(2, file, 'renders a Premium control (`BControlPro` or a sibling). WordPress.org allows a notice naming a paid feature, not an option for it — take the control off the screen and name the feature in `ProNotice`/`ProPanel`/`ProCard`.');
+	}
+}
+
 /* ── 3. Attribute defaults against the Premium build ──────────────────────── */
 
 /**
@@ -137,7 +159,7 @@ for (const [file, code] of sources) {
  */
 const INTENDED_ATTRIBUTE_SPLITS = {
 	postsQuery: 'ACF sorting and meta filter rules are Premium — orderByField, metaFilters and the rest.',
-	sliders: "A slide's own button — btnLabel, btnUrl, target — is Premium; the controls are drawn locked.",
+	sliders: "A slide's own button — btnLabel, btnUrl, target — is Premium, so this build has no control for it; `MainItem` names it in a notice.",
 	videoConf: 'The Plyr options behind the Premium player panels, and `controls.duration`, which is a free toggle here and not offered there.'
 };
 
@@ -258,7 +280,7 @@ if (!findings.length) {
 
 const RULE_TITLES = {
 	1: 'PRO_FEATURES key with no reader, or no declaration',
-	2: 'upsell written by hand instead of composed',
+	2: 'upsell written by hand, or a Premium control rendered',
 	3: 'attribute default out of step with the Premium build',
 	4: 'panel overwrites a value saved under a licence'
 };
