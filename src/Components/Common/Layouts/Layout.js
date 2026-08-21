@@ -55,6 +55,7 @@ const Layout = (props) => {
         headerFollowText = 'Follow',
         showFollowButton = false,
         followButtonText = '',
+        showFollowers = false,
         feedType = 'youtube'
     } = socialQuery;
 
@@ -158,11 +159,17 @@ const Layout = (props) => {
                         <div className="bsb-profile-text">
                             {!!profileName && <h3 className="bsb-profile-name">{profileName}</h3>}
                             {!!profileBio && <p className="bsb-profile-bio">{profileBio}</p>}
-                            {/* Only where the account actually reported one. A YouTube channel may
-                                hide its subscriber count outright, which comes back as 0 — and
+                            {/* Asked for, and only where the account actually reported one. A
+                                YouTube channel may hide its subscriber count outright and Instagram
+                                withholds it from a personal account; both come back as 0, and
                                 "0 subscribers" under a feed with videos in it is a number nobody
-                                has, not a fact. */}
-                            {followers > 0 && (
+                                has, not a fact.
+                                
+                                The switch itself is Premium, so this stays off unless a block was
+                                built with a licence — reading the saved value rather than drawing
+                                whenever a number exists is what keeps the two builds agreeing about
+                                what the same block looks like. */}
+                            {showFollowers && followers > 0 && (
                                 <p className="bsb-profile-followers">
                                     <span><strong>{compactCount(followers)}</strong> {followersLabel(feedType)}</span>
                                 </p>
