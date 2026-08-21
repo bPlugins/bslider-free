@@ -1,24 +1,24 @@
 import { __ } from '@wordpress/i18n';
 import { SelectControl, __experimentalUnitControl as UnitControl, __experimentalNumberControl as NumberControl, ToggleControl, PanelRow, __experimentalAlignmentMatrixControl as AlignmentMatrixControl, RangeControl } from "@wordpress/components";
 import { PanelBody } from '../../../Panel/AccordionPanel';
-import { animationFreeOptions, animationOptions, arrowStyles, contentPosition, emUnit, indicatorOption, indicatorOptions, perUnit, sliderOption, titleTag, caroDirectionOpt, carouselStyOpt, effectOpt } from '../../../../utils/options';
+import { animationFreeOptions, animationOptions, contentPosition, emUnit, indicatorOption, indicatorOptions, perUnit, caroDirectionOpt, carouselStyOpt } from '../../../../utils/options';
 
 import { BtnGroup, Label } from '../../../../../../bpl-tools/Components';
 import { pxUnit, vhUnit } from '../../../../../../bpl-tools/utils/options';
 import { BDevice } from '../../../../../../bpl-tools/Components/Deprecated';
-import icons from '../../../../../../bpl-tools/Components/IconControl/icons';
 
-import { BControlPro, SelectControlPro } from '../../../../../../bpl-tools/ProControls';
 import { checkDirection, isAutoGridHeight } from '../../../../utils/functions';
 
 import Controls from './Carousel/Controls';
-import ButtonGroupController from '../ButtonGroupController';
+import ProNotice from '../../../Panel/ProNotice';
+import ProPanel from '../../../Panel/ProPanel';
+import { PRO_FEATURES } from '../../../../utils/pro-features';
 import Notice from '../../Notice';
 
-const DefaultGeneral = ({ attributes, setAttributes, premiumProps, updateObject, gapDevice, setGapDevice, device, setDevice }) => {
+const DefaultGeneral = ({ attributes, setAttributes, premiumProps, updateObject, device, setDevice }) => {
 
-    const { layoutType, gridItemRatio, title, titleFCaption, slideInnerGap, options, height, sliderHeight, slideInnerGapDevice, animation, arrowStyle, isMouseWheel, position, isArrowFollowSlide, isMouseDrag, isLazyLoad, direction, arrow, indicator, carousel, columns, rowGap, columnGap, sourceType, socialQuery } = attributes;
-    const { effect, carouselStyle, reverseDirection, caroDirection } = carousel;
+    const { layoutType, gridItemRatio, titleFCaption, options, height, sliderHeight, animation, position, arrow, indicator, carousel, columns, rowGap, columnGap, sourceType, socialQuery } = attributes;
+    const { carouselStyle, reverseDirection, caroDirection } = carousel;
     const isSingleVideo = sourceType === 'social' && socialQuery?.feedType === 'youtube_video';
     /* The same answer `Style` writes the CSS from, so the field and the page cannot disagree. */
     const autoGrid = isAutoGridHeight(attributes);
@@ -27,22 +27,22 @@ const DefaultGeneral = ({ attributes, setAttributes, premiumProps, updateObject,
 
         <PanelBody className='bPlPanelBody' title={__('Title', 'b-slider')} initialOpen={false}>
 
-            <BControlPro label={__('Tag', 'b-slider')} options={titleTag} labelPosition='left' value={title?.tag || 'h5'} onChange={val => updateObject('title', 'tag', val)} Component={SelectControl} {...premiumProps} />
-
             {sourceType !== 'social' && (
                 <ToggleControl className='mt10' label={__('Import Title From Media Caption', 'b-slider')} checked={titleFCaption} onChange={(val) => setAttributes({ titleFCaption: val })} />
             )}
+
+            <ProNotice features={PRO_FEATURES.title} />
         </PanelBody>
 
         {
             layoutType === "carousel" && <PanelBody className='bPlPanelBody' title={__('Carousel Settings', 'b-slider')} badge={__('New', 'b-slider')} initialOpen={false}>
 
-                <SelectControlPro label={__('Carousel Style', 'b-slider')} value={carouselStyle} options={carouselStyOpt} onChange={val => updateObject("carousel", "carouselStyle", val)} proValues={['ticker', 'grid', '3dcarousel']} {...premiumProps} />
+                {/* `carouselStyOpt` carries only the styles this build can draw — Ticker, Grid and
+                    3D Carousel are named in the notice below rather than offered and refused. */}
+                <SelectControl label={__('Carousel Style', 'b-slider')} value={carouselStyle} options={carouselStyOpt} onChange={val => updateObject("carousel", "carouselStyle", val)} />
 
-                {carouselStyle !== "ticker" && <> {
-                    (carouselStyle !== "grid" && carouselStyle !== "3dcarousel") && <BControlPro label={__('Effect', 'b-slider')} value={effect} options={effectOpt} onChange={val => updateObject("carousel", "effect", val)} Component={SelectControl} {...premiumProps} />}
-
-                    <Controls attributes={attributes} updateObject={updateObject} premiumProps={{ ...premiumProps }} />
+                {carouselStyle !== "ticker" && <>
+                    <Controls attributes={attributes} updateObject={updateObject} />
                 </>}
 
                 {carouselStyle === "ticker" && <ToggleControl className='mt10' label={__("Reverse Direction", 'b-slider')} checked={reverseDirection} onChange={val => updateObject("carousel", "reverseDirection", val)} />}
@@ -54,24 +54,15 @@ const DefaultGeneral = ({ attributes, setAttributes, premiumProps, updateObject,
 
                     <ToggleControl className='mt10' label={__('Show Indicators/Pagination', 'b-slider')} checked={indicator.visibility} onChange={(value) => updateObject('indicator', 'visibility', value)} />
                 </>}
+
+                {/* One notice for the panel. `Controls` above no longer brings its own, which used
+                    to sit here as a second notice repeating Mouse Wheel and Grab Cursor. */}
+                <ProNotice features={PRO_FEATURES.carouselControls} />
             </PanelBody>
         }
 
         <PanelBody className='' title={__('Layout Settings', 'b-slider')} initialOpen={false}>
 
-            {(sourceType === "image" && layoutType === "image") && <>
-
-                <PanelRow className='mt20'>
-                    <Label mt='0'>{__('Gap:', 'b-slider')}</Label>
-                    <BControlPro device={gapDevice} onChange={val => setGapDevice(val)} Component={BDevice} {...premiumProps} />
-                </PanelRow>
-
-                <BControlPro className='mb20' label={__('Left/Right Inner Gap', 'b-slider')} labelPosition='left' value={slideInnerGapDevice[gapDevice] || slideInnerGap} onChange={val => { setAttributes({ slideInnerGapDevice: { ...slideInnerGapDevice, [gapDevice]: val } }) }} units={[pxUnit(400), vhUnit(30)]} isResetValueOnUnitChange={true} beforeIcon='grid-view' Component={UnitControl} {...premiumProps} />
-            </>}
-
-            {(!isSingleVideo && layoutType !== "carousel" && layoutType !== "grid" && layoutType !== "thumbnails") && <>
-                <BControlPro className='mt20' label={__('Slide Direction', 'b-slider')} labelPosition='left' value={direction} options={sliderOption} onChange={(val) => { setAttributes({ direction: val }) }} Component={SelectControl} {...premiumProps} />
-            </>}
 
             {
                 (!isSingleVideo && (layoutType === "grid" || layoutType === "carousel" || layoutType === "thumbnails")) && <>
@@ -97,7 +88,7 @@ const DefaultGeneral = ({ attributes, setAttributes, premiumProps, updateObject,
             {/* Height define option  */}
             <PanelRow className='mt20'>
                 <Label mt='0'>{__('Height:', 'b-slider')}</Label>
-                <BControlPro label={__('Slider Height', 'b-slider')} device={device} onChange={val => setDevice(val)} Component={BDevice} {...premiumProps} />
+                <BDevice device={device} onChange={val => setDevice(val)} />
             </PanelRow>
 
             {/* Empty, with "Auto" in its place, while a grid is sizing itself to its pictures. The field
@@ -148,8 +139,7 @@ const DefaultGeneral = ({ attributes, setAttributes, premiumProps, updateObject,
                 }
             </PanelRow>}
 
-            {(!isSingleVideo && arrow?.visibility && layoutType !== "grid") &&
-                <BControlPro label={__('Arrow Style:', 'b-slider')} value={arrowStyle} onChange={(arrowStyle) => setAttributes({ arrowStyle })} {...premiumProps} Component={ButtonGroupController} options={arrowStyles} />}
+            <ProNotice features={PRO_FEATURES.layoutSettings} />
         </PanelBody>
 
         {(!isSingleVideo && layoutType !== "carousel" && layoutType !== "grid" && layoutType !== "thumbnails") && (
@@ -175,16 +165,7 @@ const DefaultGeneral = ({ attributes, setAttributes, premiumProps, updateObject,
 
                 <ToggleControl className='mt10' label={__('Show Indicators/Pagination', 'b-slider')} checked={indicator.visibility} onChange={(value) => updateObject('indicator', 'visibility', value)} />
 
-                <BControlPro className='mt20' label={__('Slide On MouseWheel', 'b-slider')} checked={isMouseWheel} onChange={(val) => setAttributes({ isMouseWheel: val })} Component={ToggleControl} {...premiumProps} />
-                {
-                    sourceType !== "video" && <>
-                        <BControlPro className='mt10 marginLeft' label={__('Arrow Follow Mouse', 'b-slider')} checked={isArrowFollowSlide} onChange={(val) => setAttributes({ isArrowFollowSlide: val })} Component={ToggleControl} {...premiumProps} />
-                        <small className='warning'>{icons.warning}{__('Only works on the front end, and the button will not work.', 'b-slider')}</small>
-                    </>
-                }
-
-                <BControlPro className='mt10 marginLeft' label={__('Slide on Mouse Drag', 'b-slider')} checked={isMouseDrag} onChange={(val) => setAttributes({ isMouseDrag: val })} Component={ToggleControl} {...premiumProps} />
-                <small className='warning'>{__('With Arrow Follow Mouse on, Slide on Mouse Drag has no effect.', 'b-slider')}</small>
+                <ProNotice features={PRO_FEATURES.sliderOptions} />
             </PanelBody>
         )}
 
@@ -192,14 +173,15 @@ const DefaultGeneral = ({ attributes, setAttributes, premiumProps, updateObject,
             question this panel had no other reason to ask — it is one parameter of a native YouTube
             iframe, and lives in `PlayerGeneral`'s YouTube Native Controls panel now, which is that
             iframe's own panel and already carried the `isNativeYouTube` this used a second copy of. */}
+        {/* The panel's only control is Premium, so the panel itself is the upsell. */}
         {!isSingleVideo && (
-            <PanelBody className='bPlPanelBody' title={__('Lazy Load', 'b-slider')} initialOpen={false}>
-                <BControlPro className='mt10' label={__('Lazy Load Images', 'b-slider')} checked={isLazyLoad} onChange={(val) => setAttributes({ isLazyLoad: val })} Component={ToggleControl} {...premiumProps} />
-            </PanelBody>
+            <ProPanel title={__('Lazy Load', 'b-slider')} proTitle={__('Premium Lazy Load', 'b-slider')} features={PRO_FEATURES.lazyLoad} />
         )}
 
         {(!isSingleVideo && (layoutType !== "carousel" && layoutType !== "grid" && layoutType !== "thumbnails") && indicator.visibility) && <PanelBody className='bPlPanelBody' title={__('Indicators', 'b-slider')} initialOpen={false}>
-            <BControlPro className='mt10' label={__('Type', 'b-slider')} value={indicator?.type} labelPosition='left' onChange={(val) => setAttributes({
+            {/* Type, Position and Direction are free, as they are on the released build — only
+                `Move From Edge` is held back, and the notice below is what says so. */}
+            <SelectControl className='mt10' label={__('Type', 'b-slider')} value={indicator?.type} labelPosition='left' onChange={(val) => setAttributes({
                 indicator: {
                     ...indicator,
                     type: val,
@@ -208,9 +190,9 @@ const DefaultGeneral = ({ attributes, setAttributes, premiumProps, updateObject,
                     radius: 'image' === val ? '50%' : '0px',
                     moveFromEdge: 'image' === val ? '50%' : '-15px',
                 }
-            })} options={indicatorOption} Component={SelectControl} {...premiumProps} />
+            })} options={indicatorOption} />
 
-            {premiumProps?.isPremium && <PanelRow className='mt20 mb10'>
+            <PanelRow className='mt20 mb10'>
                 <Label className='mb0'>{__('Position:', 'b-slider')}</Label>
                 <AlignmentMatrixControl value={indicator.position}
                     onChange={val => {
@@ -219,16 +201,11 @@ const DefaultGeneral = ({ attributes, setAttributes, premiumProps, updateObject,
                         })
                     }}
                 />
-            </PanelRow>}
+            </PanelRow>
 
-            <BControlPro label={__('Direction', 'b-slider')} labelPosition='side' value={indicator.direction} onChange={(val) => { updateObject('indicator', 'direction', val) }} options={indicatorOptions} Component={SelectControl} {...premiumProps} />
+            <SelectControl label={__('Direction', 'b-slider')} labelPosition='side' value={indicator.direction} onChange={(val) => { updateObject('indicator', 'direction', val) }} options={indicatorOptions} />
 
-            {
-                indicator.position !== 'center center' && <>
-                    <BControlPro className='mb20 mt20 marginLeft' label={__('Move From Edge', 'b-slider')} labelPosition='left' value={indicator.moveFromEdge} onChange={(val) => updateObject('indicator', 'moveFromEdge', val)} units={[pxUnit(40), perUnit(50)]} isResetValueOnUnitChange={true} Component={UnitControl} {...premiumProps} />
-                    <small className='warning'>{__('Use a negative or positive value to move in or out.', 'b-slider')}</small>
-                </>
-            }
+            <ProNotice features={PRO_FEATURES.indicators} />
         </PanelBody>}
     </>
 }

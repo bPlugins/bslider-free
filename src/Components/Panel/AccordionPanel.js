@@ -59,7 +59,13 @@ export const PanelBody = ({ initialOpen, onToggle, opened, panelId, badge, ...pr
     const title = badge
         ? <>
             {props.title}
-            <span className='bsbPanelBadge' aria-hidden='true'>{badge}</span>
+            {typeof badge === 'string' ? (
+                <span className='bsbPanelBadge' aria-hidden='true'>{badge}</span>
+            ) : (
+                <span style={{ marginLeft: '8px', display: 'inline-flex', verticalAlign: 'middle' }} aria-hidden='true'>
+                    {badge}
+                </span>
+            )}
         </>
         : props.title;
 

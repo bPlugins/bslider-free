@@ -1,16 +1,18 @@
 import { __ } from '@wordpress/i18n';
 import { useState } from '@wordpress/element';
-import { SelectControl, ToggleControl, __experimentalUnitControl as UnitControl, __experimentalBoxControl as BoxControl, __experimentalNumberControl as NumberControl, RangeControl, BorderControl, PanelRow } from "@wordpress/components";
+import { SelectControl, ToggleControl, __experimentalUnitControl as UnitControl, __experimentalBoxControl as BoxControl, RangeControl, BorderControl, PanelRow } from "@wordpress/components";
 import { PanelBody } from '../../../Panel/AccordionPanel';
 import { produce } from 'immer';
 
-import { ColorControl, ColorsControl, Typography } from '../../../../../../bpl-tools/Components';
+import { ColorControl, ColorsControl, Label, Typography } from '../../../../../../bpl-tools/Components';
 
 import { BDevice } from '../../../../../../bpl-tools/Components/Deprecated';
-import { BControlPro } from '../../../../../../bpl-tools/ProControls';
-import { contentAniOption, emUnit, perUnit, pxUnit, styles, vhUnit } from '../../../../utils/options';
+import { emUnit, perUnit, pxUnit, styles, vhUnit } from '../../../../utils/options';
 import { isProActive } from '../../../../utils/functions';
 import ProCard from '../../../Panel/ProCard';
+import ProNotice from '../../../Panel/ProNotice';
+import ProPanel from '../../../Panel/ProPanel';
+import { PRO_FEATURES } from '../../../../utils/pro-features';
 import { PremiumBadge } from '../../../../../../bpl-tools/ProControls';
 
 const DefaultStyle = ({ attributes, setAttributes, updateObject, premiumProps }) => {
@@ -19,7 +21,7 @@ const DefaultStyle = ({ attributes, setAttributes, updateObject, premiumProps })
     const [DArrowWidth, setDArrowWidth] = useState('desktop');
     const [DArrowHeight, setDArrowHeight] = useState('desktop');
 
-    const { layoutType, titleTypo, titleColor, descTypo, descColor, titleMargin, descMargin, SliderOverly, borderRadius, margin, deviceArrowWidth, arrowHeight, deviceArrowHeight, arrowRadius, btnColors, btnHovColors, btnTypo, btnPadding, btnBorder, btnRadius, titleAnimation, descAnimation, btnAnimation, arrow, arrowWidth, indicator, arrowBorder, sourceType, likesCommentsColor, likesCommentsTypo, playIconColor, playIconBg, playIconHoverBg, cardLayout, cardBgColor, cardPadding, cardRadius, title, desc, button, caption, socialQuery } = attributes;
+    const { layoutType, titleTypo, titleColor, descTypo, descColor, titleMargin, descMargin, SliderOverly, borderRadius, deviceArrowWidth, arrowHeight, deviceArrowHeight, arrowRadius, arrow, arrowWidth, indicator, arrowBorder, sourceType, likesCommentsColor, likesCommentsTypo, playIconColor, playIconBg, playIconHoverBg, cardLayout, cardBgColor, cardPadding, cardRadius, title, desc, button, caption, socialQuery } = attributes;
 
     return <>
         <PanelBody className='bPlPanelBody' title={__('Slider', 'b-slider')} initialOpen={false}>
@@ -27,11 +29,9 @@ const DefaultStyle = ({ attributes, setAttributes, updateObject, premiumProps })
                 <ColorControl className='mb20' label={__('Overly Color', 'b-slider')} value={SliderOverly} defaultColor="#59595952" onChange={(val) => { setAttributes({ SliderOverly: val }) }} />
             )}
 
-            {(layoutType !== "carousel" && layoutType !== "grid" && layoutType !== "post_thumbnails") && <>
-                <BControlPro className='mt20' label={__('Margin', 'b-slider')} values={margin} onChange={val => setAttributes({ margin: val })} resetValues={{ top: '0px', right: '0px', bottom: '0px', left: '0px' }} units={[pxUnit(3)]} Component={BoxControl} {...premiumProps} />
-            </>}
-
             <BoxControl className='mt20' label={__('Border Radius', 'b-slider')} values={borderRadius} onChange={val => setAttributes({ borderRadius: val })} resetValues={{ top: '0px', right: '0px', bottom: '0px', left: '0px' }} units={[pxUnit(3), emUnit(2)]} />
+
+            {(layoutType !== "carousel" && layoutType !== "grid" && layoutType !== "post_thumbnails") && <ProNotice features={PRO_FEATURES.sliderStyle} />}
         </PanelBody>
 
 
@@ -43,15 +43,8 @@ const DefaultStyle = ({ attributes, setAttributes, updateObject, premiumProps })
 
                 <BoxControl label={__('Padding', 'b-slider')} values={titleMargin} onChange={val => setAttributes({ titleMargin: val })} resetValues={{ top: '0px', left: '0px', right: '0px', bottom: '0px' }} />
 
-                {
-                    (layoutType !== "carousel" && layoutType !== "grid" && layoutType !== "post_thumbnails") && <>
-                        <BControlPro className='mt20' label={__('Animation', 'b-slider')} value={titleAnimation?.effect} labelPosition='left' onChange={(val) => { updateObject('titleAnimation', 'effect', val) }} options={contentAniOption} Component={SelectControl} {...premiumProps} />
-
-                        <BControlPro className='mb10 marginLeft' label={__('Delay(s)', 'b-slider')} labelPosition='left' value={titleAnimation?.delay} onChange={(val) => updateObject('titleAnimation', 'delay', parseFloat(val))} min={0.0} max={10} step={0.1} Component={NumberControl} {...premiumProps} />
-
-                        <BControlPro className='mb10 mt20 marginLeft' label={__('Duration(s)', 'b-slider')} labelPosition='left' value={titleAnimation?.duration} onChange={(val) => updateObject('titleAnimation', 'duration', parseFloat(val))} min={0.0} max={10} step={0.1} Component={NumberControl} {...premiumProps} />
-                    </>
-                }
+                {(layoutType !== "carousel" && layoutType !== "grid" && layoutType !== "post_thumbnails") &&
+                    <ProNotice features={PRO_FEATURES.contentStyle} />}
             </PanelBody>
         )}
 
@@ -63,17 +56,8 @@ const DefaultStyle = ({ attributes, setAttributes, updateObject, premiumProps })
 
                 <BoxControl label={__("Margin", 'b-slider')} values={descMargin} onChange={val => setAttributes({ descMargin: val })} resetValues={{ top: '0px', left: '0px', right: '0px', bottom: '0px' }} />
 
-                {
-                    (layoutType !== "carousel" && layoutType !== "grid" && layoutType !== "post_thumbnails") && <>
-                        <BControlPro className='mt20' label={__('Animation', 'b-slider')} value={descAnimation?.effect} labelPosition='left' onChange={(val) => {
-                            updateObject('descAnimation', 'effect', val)
-                        }} options={contentAniOption} Component={SelectControl} {...premiumProps} />
-
-                        <BControlPro className='mb10 marginLeft' label={__('Delay(s)', 'b-slider')} labelPosition='left' value={descAnimation?.delay} onChange={(val) => updateObject('descAnimation', 'delay', parseFloat(val))} min={0.0} max={10} step={0.1} Component={NumberControl} {...premiumProps} />
-
-                        <BControlPro className='mb10 mt20 marginLeft' label={__('Duration(s)', 'b-slider')} labelPosition='left' value={descAnimation?.duration} onChange={(val) => updateObject('descAnimation', 'duration', parseFloat(val))} min={0.0} max={10} step={0.1} Component={NumberControl} {...premiumProps} />
-                    </>
-                }
+                {(layoutType !== "carousel" && layoutType !== "grid" && layoutType !== "post_thumbnails") &&
+                    <ProNotice features={PRO_FEATURES.contentStyle} />}
             </PanelBody>
         )}
 
@@ -127,34 +111,10 @@ const DefaultStyle = ({ attributes, setAttributes, updateObject, premiumProps })
             </PanelBody>
         )}
 
+        {/* Every control in this panel is Premium, so the whole panel is the upsell — no option is
+            rendered. */}
         {button?.isVisible !== false && (
-            <PanelBody className='bPlPanelBody' title={__('Button', 'b-slider')} initialOpen={false}>
-
-                <BControlPro className='mt20' label={__('Typography:', 'b-slider')} value={btnTypo} onChange={val => setAttributes({ btnTypo: val })} defaults={{ fontSize: 14 }} Component={Typography} {...premiumProps} produce={produce} />
-
-                <BControlPro className='' label={__('Colors', 'b-slider')} value={btnColors} onChange={val => setAttributes({ btnColors: val })} defaults={{ color: '#fff', bg: '' }} Component={ColorsControl} {...premiumProps} />
-
-                <BControlPro className='' label={__('Hover Colors', 'b-slider')} value={btnHovColors} onChange={val => setAttributes({ btnHovColors: val })} defaults={{ color: '#000', bg: '#fff' }} Component={ColorsControl} {...premiumProps} />
-
-                <BControlPro label={__('Padding', 'b-slider')} values={btnPadding} onChange={val => setAttributes({ btnPadding: val })} resetValues={{
-                    top: '0px', left: '0px', right: '0px', bottom: '0px'
-                }} Component={BoxControl} {...premiumProps} />
-
-                <BControlPro className='mt10' label={__('Border', 'b-slider')} value={btnBorder} onChange={(val) => setAttributes({ btnBorder: val })} Component={BorderControl} {...premiumProps} />
-
-                <BControlPro className='mt20' label={__('Radius:', 'b-slider')} labelPosition='left' value={btnRadius} onChange={val => setAttributes({ btnRadius: val })} units={[pxUnit(10), perUnit(100)]} isResetValueOnUnitChange={true} Component={UnitControl} {...premiumProps} />
-                {
-                    (layoutType !== "carousel" && layoutType !== "grid" && layoutType !== "post_thumbnails") && <>
-                        <BControlPro className='mt20' label={__('Animation', 'b-slider')} value={btnAnimation?.effect} labelPosition='left' onChange={(val) => {
-                            updateObject('btnAnimation', 'effect', val)
-                        }} options={contentAniOption} Component={SelectControl} {...premiumProps} />
-
-                        <BControlPro className='mb10 marginLeft' label={__('Delay(s)', 'b-slider')} labelPosition='left' value={btnAnimation?.delay} onChange={(val) => updateObject('btnAnimation', 'delay', parseFloat(val))} min={0.0} max={10} step={0.1} Component={NumberControl} {...premiumProps} />
-
-                        <BControlPro className='mb10 mt20 marginLeft' label={__('Duration(s)', 'b-slider')} labelPosition='left' value={btnAnimation?.duration} onChange={(val) => updateObject('btnAnimation', 'duration', parseFloat(val))} min={0.0} max={10} step={0.1} Component={NumberControl} {...premiumProps} />
-                    </>
-                }
-            </PanelBody>
+            <ProPanel title={__('Button', 'b-slider')} proTitle={__('Premium Button', 'b-slider')} features={PRO_FEATURES.buttonStyle} />
         )}
 
         {(layoutType !== "grid") && <>
@@ -164,19 +124,22 @@ const DefaultStyle = ({ attributes, setAttributes, updateObject, premiumProps })
                     updateObject('arrow', 'size', value)
                 }} min={1} max={100} />
 
-                <PanelRow className='mt0'>
-                    <p></p>
-                    <BControlPro device={DArrowWidth} onChange={val => setDArrowWidth(val)} Component={BDevice} {...premiumProps} />
+                {/* The device switch belongs to the control under it, so it goes in that control's
+                    heading row rather than being pushed across by an empty `<p>`, which left the row
+                    looking like a stray blank field. */}
+                <PanelRow className='bsb_device_row mt20'>
+                    <Label className='mb0'>{__('Width:', 'b-slider')}</Label>
+                    <BDevice device={DArrowWidth} onChange={val => setDArrowWidth(val)} />
                 </PanelRow>
 
-                <UnitControl className='mb0' label={__('Width', 'b-slider')} labelPosition='left' value={deviceArrowWidth[DArrowWidth] || arrowWidth} onChange={val => { setAttributes({ deviceArrowWidth: { ...deviceArrowWidth, [DArrowWidth]: val } }) }} units={[pxUnit(400), vhUnit(30)]} isResetValueOnUnitChange={true} beforeIcon='grid-view' />
+                <UnitControl className='mb0' value={deviceArrowWidth[DArrowWidth] || arrowWidth} onChange={val => { setAttributes({ deviceArrowWidth: { ...deviceArrowWidth, [DArrowWidth]: val } }) }} units={[pxUnit(400), vhUnit(30)]} isResetValueOnUnitChange={true} beforeIcon='grid-view' />
 
-                <PanelRow className=''>
-                    <p></p>
-                    <BControlPro device={DArrowHeight} onChange={val => setDArrowHeight(val)} Component={BDevice} {...premiumProps} />
+                <PanelRow className='bsb_device_row mt20'>
+                    <Label className='mb0'>{__('Height:', 'b-slider')}</Label>
+                    <BDevice device={DArrowHeight} onChange={val => setDArrowHeight(val)} />
                 </PanelRow>
 
-                <UnitControl className='' label={__('Height', 'b-slider')} labelPosition='left' value={deviceArrowHeight[DArrowHeight] || arrowHeight} onChange={val => { setAttributes({ deviceArrowHeight: { ...deviceArrowHeight, [DArrowHeight]: val } }) }} units={[pxUnit(400), vhUnit(30)]} isResetValueOnUnitChange={true} beforeIcon='grid-view' />
+                <UnitControl className='' value={deviceArrowHeight[DArrowHeight] || arrowHeight} onChange={val => { setAttributes({ deviceArrowHeight: { ...deviceArrowHeight, [DArrowHeight]: val } }) }} units={[pxUnit(400), vhUnit(30)]} isResetValueOnUnitChange={true} beforeIcon='grid-view' />
 
                 {/* The same value `block.json` gives `arrow.bg`, and it has to be: this is what the
                     control resets to, so a different one here would make "reset" mean something the

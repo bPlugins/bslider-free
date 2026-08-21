@@ -16,7 +16,69 @@
 
 import { __, _n, sprintf } from '@wordpress/i18n';
 
+/** Shared between panels, so the merged lists stay spelt the same and dedupe cleanly. */
+const MOUSE_WHEEL = __('Mouse Wheel', 'b-slider');
+const GRAB_CURSOR = __('Grab Cursor', 'b-slider');
+
 export const PRO_FEATURES = {
+	/* General tab */
+	title: [__('Custom HTML wrapper tags (e.g., h1-h6)', 'b-slider')],
+	postQuery: [__('Include', 'b-slider'), __('Exclude', 'b-slider'), __('Current Post', 'b-slider')],
+
+	/**
+	 * Carousel settings. `Direction` and `Show Arrow/Navigation` are deliberately absent: this panel
+	 * draws both of them for free, and the notice it inherited from `Controls` used to claim
+	 * otherwise right underneath the working controls.
+	 */
+	carouselControls: [
+		__('Carousel Style (Ticker, Grid, 3D Carousel)', 'b-slider'),
+		__('Effect (Default, Cards, Coverflow)', 'b-slider'),
+		MOUSE_WHEEL,
+		GRAB_CURSOR,
+	],
+
+	/** Thumbnails panel — here the direction and arrow toggles really are Premium-only. */
+	thumbnailsControls: [
+		MOUSE_WHEEL,
+		GRAB_CURSOR,
+		__('Direction (Horizontal, Vertical)', 'b-slider'),
+		__('Show Arrow/Navigation', 'b-slider'),
+	],
+
+	layoutSettings: [
+		__('Left/Right Inner Gap', 'b-slider'),
+		__('Slide Direction (Horizontal and Vertical)', 'b-slider'),
+		__('Arrow Styles', 'b-slider'),
+	],
+	sliderOptions: [
+		__('Slide On MouseWheel', 'b-slider'),
+		__('Slide on Mouse Drag', 'b-slider'),
+		__('Arrow Follow Mouse', 'b-slider'),
+	],
+
+	/** Its own panel here, rather than a line in `sliderOptions` as it was before. */
+	lazyLoad: [__('Lazy Load Images', 'b-slider')],
+
+	indicators: [__('Move From Edge', 'b-slider')],
+	video: [__('Reset On End', 'b-slider'), __('Auto Hide Control', 'b-slider')],
+
+	/* Style tab */
+	sliderStyle: [__('Margin', 'b-slider')],
+	contentStyle: [__('Animation', 'b-slider'), __('Delay', 'b-slider'), __('Duration', 'b-slider')],
+	buttonStyle: [
+		__('Typography', 'b-slider'),
+		__('Colors', 'b-slider'),
+		__('Hover Colors', 'b-slider'),
+		__('Padding', 'b-slider'),
+		__('Border', 'b-slider'),
+		__('Border Radius', 'b-slider'),
+		__('Animation', 'b-slider'),
+		__('Delay', 'b-slider'),
+		__('Duration', 'b-slider'),
+	],
+	thumbnailsStyle: [__('Position (Bottom, Top, Right, Left)', 'b-slider'), __('Height', 'b-slider')],
+	thumbnailsActive: [__('Overly Color', 'b-slider'), __('Border', 'b-slider')],
+
 	/**
 	 * The icon beside an ACF field or a badge.
 	 *
