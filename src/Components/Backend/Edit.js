@@ -51,8 +51,8 @@ const Edit = (props) => {
 		}
 	}, [attributes.sourceType, layoutType]);
 
-	// Capped the same way the front end caps it, so the preview shows what the site will show.
-	const selectedAcfFields = allowedAcfFields(postsQuery?.selectedAcfFields || [], isProActive());
+	// Filtered the same way Posts::acfFieldsToFetch filters it, so the preview shows what the site shows.
+	const selectedAcfFields = allowedAcfFields(postsQuery?.selectedAcfFields || []);
 
 	// Mirrors Posts::acfFieldsToFetch — slot fields are pulled even when not displayed. Read off
 	// FIELD_ROLES rather than written out, so a slot added there cannot be missed here.

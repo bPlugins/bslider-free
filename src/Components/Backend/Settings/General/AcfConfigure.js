@@ -1,9 +1,9 @@
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { useEffect, useState } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
 import { AccordionGroup, PanelBody } from '../../../Panel/AccordionPanel';
 import { Label } from '../../../../../../bpl-tools/Components';
-import { FIELD_ROLES, FREE_ACF_FIELD_LIMIT } from '../../../Common/single-item/AcfFields';
+import { FIELD_ROLES } from '../../../Common/single-item/AcfFields';
 import Notice from '../../Notice';
 import SelectTokenField from '../../../Panel/SelectTokenField';
 import AcfFieldRoles, { ACF_ROLES_PANEL } from './AcfFieldRoles';
@@ -28,7 +28,6 @@ const ACF_VIDEO = 'https://www.youtube.com/watch?v=Pj7veTzHbQk';
 const AcfConfigure = ({ attributes, setAttributes, updateObject, premiumProps, queriedPosts = [] }) => {
     const { postsQuery, sourceType, caption } = attributes;
     const { post_type = 'post', selectedAcfFields = [], acfFieldSettings = {}, acfDisplayStyle = 'chips' } = postsQuery;
-    const { isPremium, setIsProModalOpen } = premiumProps || {};
 
     // `null` until the request answers, so the panel says nothing rather than guessing wrong.
     const [acf, setAcf] = useState(null);
@@ -124,14 +123,6 @@ const AcfConfigure = ({ attributes, setAttributes, updateObject, premiumProps, q
      * has to land as well.
      */
     const setAcfFields = val => {
-        // Only growing past the free cap is refused. Taking a field out is always allowed, so a
-        // slider set up on a licence that has since lapsed can still be brought back under it
-        // instead of being frozen with every control rejecting the click.
-        if (!isPremium && val.length > FREE_ACF_FIELD_LIMIT && val.length > selectedAcfFields.length) {
-            setIsProModalOpen?.(true);
-            return;
-        }
-
         const removed = selectedAcfFields.filter(name => !val.includes(name));
 
         // One write: the selection and the slots it releases are the same change, and two calls
@@ -228,17 +219,6 @@ const AcfConfigure = ({ attributes, setAttributes, updateObject, premiumProps, q
                 options={acfOptions}
             />
 
-            {/* The one place the free limit is stated, so it is read while the fields are being
-                picked rather than after a click has already been refused. It also counts what is
-                used, since "up to three" on its own does not say how many are left. */}
-            {!isPremium && <small className="bsb_field_hint">
-                {sprintf(
-                    /* translators: 1: fields picked, 2: how many the free version allows. */
-                    __('Using %1$d of %2$d fields. Upgrade to Pro to display more than %2$d.', 'b-slider'),
-                    selectedAcfFields.length,
-                    FREE_ACF_FIELD_LIMIT
-                )}
-            </small>}
         </>}
 
         {/* Nothing picked, nothing to configure — the picker stays on its own until the user puts a

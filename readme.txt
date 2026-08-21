@@ -41,7 +41,7 @@ You can use bSlider for product showcases, portfolios, testimonials, or hero sec
 - **Thumbnails Layout**: Add thumbnail navigation with overlay, autoplay, and border options.
 - **Post Slider Options**: Query posts by category or tag, show excerpts, and limit content length.
 - **Default Post Types**: Build sliders using standard WordPress post types (Posts, Pages, and WooCommerce Products).
-- **ACF Fields on Slides**: Show up to three Advanced Custom Fields on each slide, placed anywhere on it.
+- **ACF Fields on Slides**: Show as many Advanced Custom Fields as you like on each slide, placed anywhere on it.
 - **ACF Display Presets**: Pick from six looks for your fields, with a per field icon, label, prefix, and suffix.
 - **ACF Content Mapping**: Use an ACF field for the slide image, title, description, button label, or button link.
 - **WooCommerce Slider**: Highlight products with content length and excerpt display controls.

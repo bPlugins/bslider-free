@@ -28,23 +28,14 @@ export const ANCHORS = [
 export const DEFAULT_ANCHOR = 'bottom-left';
 
 /**
- * How many fields a slider can display without a Pro licence.
- *
- * The cap is on the picker alone — the fields assigned to the image, title, description or button
- * slot are a separate setting and are not counted against it.
- */
-export const FREE_ACF_FIELD_LIMIT = 3;
-
-/**
  * The picked fields a slider is actually allowed to show.
  *
- * Applied wherever the selection is read rather than only where it is set, so a slider built on a
- * licence that has since lapsed falls back to the first three instead of quietly keeping the rest.
- * The front end has no licence flag of its own, so there it is `Posts::acfFieldsToFetch` that caps —
- * this is the same rule for the editor, kept here so the two cannot drift apart.
+ * There is no cap: a slider displays every field the user picked. Kept as a function, and still
+ * applied wherever the selection is read, so the editor and `Posts::acfFieldsToFetch` stay the same
+ * single rule — a slider saved under an older build with a trimmed selection is unaffected, and
+ * anything that needs to filter the selection again has one place to do it.
  */
-export const allowedAcfFields = (selected = [], isPremium) =>
-    isPremium ? selected : selected.slice(0, FREE_ACF_FIELD_LIMIT);
+export const allowedAcfFields = (selected = []) => selected;
 
 /**
  * The looks a set of fields can be given, as `bsb-acf-fields--<value>` in style.scss.
