@@ -283,7 +283,9 @@
 				"reverseDirection": false,
 				"caroDirection": "horizontal",
 				"navigation": true,
-				"pagination": true
+				"pagination": true,
+				"itemsPerSlide": 1,
+				"groupColumns": 1
 			}
 		},
 		"grid": {
@@ -354,7 +356,16 @@
 						"style": "solid",
 						"width": "0px"
 					}
-				}
+				},
+				"mode": "slider",
+				"showStage": true,
+				"showDuration": false,
+				"showPlay": false,
+				"navPosition": "overlay",
+				"cardStyle": "bare",
+				"showCardTitle": false,
+				"showCardMeta": false,
+				"showCardExcerpt": false
 			}
 		},
 		"videoConf": {
@@ -389,7 +400,8 @@
 		"title": {
 			"type": "object",
 			"default": {
-				"isVisible": true
+				"isVisible": true,
+				"tag": "h5"
 			}
 		},
 		"desc": {
@@ -409,7 +421,8 @@
 			"type": "object",
 			"default": {
 				"hover": "none",
-				"linkTarget": ""
+				"linkTarget": "",
+				"link": "none"
 			}
 		},
 		"headerNameTypo": {
