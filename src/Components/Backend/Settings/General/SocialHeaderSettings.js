@@ -1,22 +1,27 @@
 import { __ } from '@wordpress/i18n';
 import { PanelBody } from '../../../Panel/AccordionPanel';
 import { TipToggle, TipText, TipRange } from '../../../Panel/TipField';
-import { TextControl, Button, Spinner } from '@wordpress/components';
+import { TextControl, SelectControl, ToggleControl, Button, Spinner } from '@wordpress/components';
 import { MediaUpload } from '@wordpress/block-editor';
 import useFeedProfile from '../../../../hooks/useFeedProfile';
 import { fillButtonLabel, followLabel, profileLinkPlaceholder } from '../../../../utils/feedProfile';
+import { isProActive } from '../../../../utils/functions';
 import { Notice } from '../../../../../../bpl-tools/Components';
 
-const SocialHeaderSettings = ({ attributes, setAttributes, updateObject, socialFeed }) => {
+const SocialHeaderSettings = ({ attributes, setAttributes, updateObject, socialFeed, premiumProps }) => {
+    const isPro = premiumProps?.isPremium ?? isProActive();
     const { socialQuery = {} } = attributes;
     const {
         feedType = 'youtube',
         channelId = '',
         source = '',
         showHeader = false,
+        headerStyle = 'card',
+        showChannelStats = false,
         showHeaderBanner = false,
         headerBanner = '',
         headerBannerHeight = 180,
+        showFollowers = false,
         headerAvatar = '',
         headerName = '',
         headerBio = '',
@@ -24,6 +29,7 @@ const SocialHeaderSettings = ({ attributes, setAttributes, updateObject, socialF
         headerFollowText = 'Follow',
         showFollowButton = false,
         followButtonText = '',
+        followButtonAlign = 'center'
     } = socialQuery;
 
     /** The account link is shared, so it is offered as soon as anything is going to point at it. */
@@ -92,7 +98,7 @@ const SocialHeaderSettings = ({ attributes, setAttributes, updateObject, socialF
     /**
      * Whether this feed has a cover picture behind it at all.
      *
-     * YouTube alone reports one — the other readers answer with `''` deliberately, an
+     * YouTube alone reports one — `InstagramFeed` and `RssFeed` answer with `''` deliberately, an
      * Instagram profile having no cover and an RSS channel's one image already being its avatar. The
      * controls are hidden rather than left to produce nothing, so the panel does not offer a banner
      * to a feed that can never draw one.
@@ -227,13 +233,37 @@ const SocialHeaderSettings = ({ attributes, setAttributes, updateObject, socialF
 
             {!!showHeader && (
                 <>
+                    {isPro && (
+                        <SelectControl
+                            className={gap}
+                            label={__('Header Style', 'b-slider')}
+                            value={headerStyle}
+                            options={[
+                                { value: 'card', label: __('Card — tinted, with an accent edge', 'b-slider') },
+                                { value: 'panel', label: __('Panel — plain, banner joined on top', 'b-slider') }
+                            ]}
+                            onChange={val => updateObject('socialQuery', 'headerStyle', val)}
+                            help={'panel' === headerStyle
+                                ? __('The banner and the account read as one block, the way a channel page does.', 'b-slider')
+                                : undefined}
+                        />
+                    )}
 
                     {/* Only YouTube counts videos and lifetime views — see `readProfile` in each
                         reader. The toggle would be a switch for two numbers that are always 0. */}
+                    {isPro && canHaveBanner && <ToggleControl
+                        className={gap}
+                        label={__('Show Channel Stats', 'b-slider')}
+                        checked={!!showChannelStats}
+                        onChange={val => updateObject('socialQuery', 'showChannelStats', val)}
+                        help={__('Adds the video count and total views beside the subscriber count.', 'b-slider')}
+                    />}
 
-                    <Notice className="mt15" status="premium" isIcon={true}>
+                    {!isPro && (
+                        <Notice className="mt15" status="premium" isIcon={true}>
                             {__('Header Style, Show Channel Stats, and Show Subscriber/Follower Count are available in the Premium version.', 'b-slider')}
                         </Notice>
+                    )}
 
                     <div className={gap} style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
                         <MediaUpload
@@ -286,6 +316,17 @@ const SocialHeaderSettings = ({ attributes, setAttributes, updateObject, socialF
                         channel may hide its subscriber count outright, and an RSS feed has no such
                         number at all — and a switch that can only ever turn nothing on is worse
                         than no switch. */}
+                    {isPro && liveAccount.followers > 0 && (
+                        <TipToggle
+                            className={gap}
+                            label={'youtube' === feedType
+                                ? __('Show Subscriber Count', 'b-slider')
+                                : __('Show Follower Count', 'b-slider')}
+                            checked={!!showFollowers}
+                            onChange={val => updateObject('socialQuery', 'showFollowers', val)}
+                            tip={__('Read from the account on each refresh, so it stays current.', 'b-slider')}
+                        />
+                    )}
 
                     <TextControl
                         className={gap}
@@ -320,10 +361,25 @@ const SocialHeaderSettings = ({ attributes, setAttributes, updateObject, socialF
                         tip={__('Leave empty to use the label above, which follows the feed type.', 'b-slider')}
                     />
 
+                    {isPro && (
+                        <SelectControl
+                            className={gap}
+                            label={__('Button Alignment', 'b-slider')}
+                            value={followButtonAlign}
+                            options={[
+                                { label: __('Left', 'b-slider'), value: 'left' },
+                                { label: __('Center', 'b-slider'), value: 'center' },
+                                { label: __('Right', 'b-slider'), value: 'right' }
+                            ]}
+                            onChange={val => updateObject('socialQuery', 'followButtonAlign', val)}
+                        />
+                    )}
 
-                    <Notice className="mt15" status="premium" isIcon={true}>
+                    {!isPro && (
+                        <Notice className="mt15" status="premium" isIcon={true}>
                             {__('Follow Button Alignment, typography, and color options are available in the Premium version.', 'b-slider')}
                         </Notice>
+                    )}
                 </>
             )}
 

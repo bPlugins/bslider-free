@@ -1,19 +1,35 @@
 import { __, sprintf, _n } from '@wordpress/i18n';
-import { useState } from '@wordpress/element';
-import { Button, Spinner, TextControl } from '@wordpress/components';
+import { useState, useEffect } from '@wordpress/element';
+import { Button, SelectControl, Spinner, TextControl } from '@wordpress/components';
 import { AccordionGroup, PanelBody } from '../../../Panel/AccordionPanel';
-import { TipSelect, TipText } from '../../../Panel/TipField';
+import { TipSelect, TipToggle, TipRange, TipText } from '../../../Panel/TipField';
 import { feedItem } from '../../Source/source-json-item';
-import { adminUrl } from '../../../../utils/functions';
+import { isProActive, adminUrl } from '../../../../utils/functions';
 import { Notice } from '../../../../../../bpl-tools/Components';
 import PremiumPanel from '../../../../../../bpl-tools/ProControls/PremiumPanel';
 import { PremiumBadge } from '../../../../../../bpl-tools/ProControls';
 import useYouTubeKey from '../../../../hooks/useYouTubeKey';
 import useFeedChannels from '../../../../hooks/useFeedChannels';
 
+/** What `FeedSchema` can write. `video` is the one with a judgement attached — see its class note. */
+const seoSchemaOpt = [
+    { label: __('Video schema (rich results)', 'b-slider'), value: 'video' },
+    { label: __('Link list only (always safe)', 'b-slider'), value: 'list' },
+    { label: __('None', 'b-slider'), value: 'off' },
+];
+
 /* "Which videos to show" used to stand here, between the channel picker and the status line. It is in
    `SocialFiltering` now, beside "What order they come in" — the one other control that decides what order a feed
    comes out in. Keeping them apart was what let them disagree without anyone seeing it. */
+
+/** The windows a Pro licence may cache a feed for. Mirrors `SocialFeed::MIN_TTL`/`MAX_TTL`. */
+const cacheTimeOpt = [
+    { label: __('5 minutes', 'b-slider'), value: 300 },
+    { label: __('1 hour', 'b-slider'), value: 3600 },
+    { label: __('6 hours', 'b-slider'), value: 21600 },
+    { label: __('1 day', 'b-slider'), value: 86400 },
+    { label: __('1 week', 'b-slider'), value: 604800 },
+];
 
 /**
  * One numbered step of the panel.
@@ -72,10 +88,11 @@ const SocialGeneral = ({ attributes, setAttributes, updateObject, socialFeed }) 
     const { socialQuery } = attributes;
     // What each slide shows, whether it is stored, and the profile header all read their own
     // settings in their own panels now — this one is the address, the connection and the schema.
-    const { feedType = 'youtube', channelId = '', source = '', jsonRootKey = '', jsonImageKey = '', jsonTitleKey = '', jsonLinkKey = '', jsonExcerptKey = '', jsonButtonTextKey = '', jsonDateKey = '', jsonAuthorKey = '', ytQueryType = 'channel', ytSearchTerm = '' } = socialQuery || {};
+    const { feedType = 'youtube', channelId = '', source = '', cacheTime = 21600, seoSchema = 'video', jsonRootKey = '', jsonImageKey = '', jsonTitleKey = '', jsonLinkKey = '', jsonExcerptKey = '', jsonButtonTextKey = '', jsonDateKey = '', jsonAuthorKey = '', ytQueryType = 'channel', ytSearchTerm = '' } = socialQuery || {};
     const { items, error, loading, refresh } = socialFeed || {};
 
     const apiKey = useYouTubeKey();
+    const isPro = isProActive();
     const library = useFeedChannels();
 
     // Adding from here saves to the site's library and points this slider at the entry, so the same
@@ -86,20 +103,69 @@ const SocialGeneral = ({ attributes, setAttributes, updateObject, socialFeed }) 
     const [customLabel, setCustomLabel] = useState('');
     const isCustom = !channelId;
 
-    /**
-     * Nothing is written back to hold the Premium settings down.
-     *
-     * The server is where these are enforced and it does not need help: `SocialFeed::cacheTtl()`
-     * ignores a saved window without a licence, and `YouTubeFeed::items()` forces the query back to
-     * a plain channel read. The panel's part is simply not to offer them, which it does not.
-     *
-     * An effect here used to write them back on mount. It fired on every new feed slider, because
-     * `seoSchema` ships as `'video'` and this forced it to `'off'` — so opening the panel marked a
-     * clean post dirty. Worse, it cleared `ytQueryType` and `source` on a block that had been built
-     * with a licence: opening it here once destroyed the search term, and renewing did not bring it
-     * back. A free build may decline to honour a setting; it has no business deleting it.
-     */
+    const [playlists, setPlaylists] = useState([]);
+    const [playlistsLoading, setPlaylistsLoading] = useState(false);
+    const [playlistsError, setPlaylistsError] = useState('');
 
+    useEffect(() => {
+        if (!isPro) {
+            setPlaylists([]);
+            setPlaylistsError('');
+
+            let needsUpdate = false;
+            const updatedQuery = { ...(socialQuery || {}) };
+
+            if (socialQuery?.ytQueryType && socialQuery.ytQueryType !== 'channel') {
+                updatedQuery.ytQueryType = 'channel';
+                updatedQuery.source = '';
+                needsUpdate = true;
+            }
+
+            if (socialQuery?.cacheTime && socialQuery.cacheTime !== 21600) {
+                updatedQuery.cacheTime = 21600;
+                needsUpdate = true;
+            }
+
+            if (socialQuery?.seoSchema && socialQuery.seoSchema !== 'off') {
+                updatedQuery.seoSchema = 'off';
+                needsUpdate = true;
+            }
+
+            if (needsUpdate) {
+                setAttributes({
+                    socialQuery: updatedQuery
+                });
+            }
+            return;
+        }
+
+        if (feedType !== 'youtube' || ytQueryType !== 'channel' || !apiKey.hasKey) {
+            setPlaylists([]);
+            setPlaylistsError('');
+            return;
+        }
+
+        const sourceVal = channelId ? '' : source;
+        if (!channelId && !sourceVal) {
+            setPlaylists([]);
+            setPlaylistsError('');
+            return;
+        }
+
+        setPlaylistsLoading(true);
+        setPlaylistsError('');
+
+        wp.apiFetch({
+            path: `/bsb/v1/youtube-playlists?channelId=${channelId}&source=${encodeURIComponent(sourceVal)}`
+        }).then(res => {
+            setPlaylists(res.playlists || []);
+            setPlaylistsError(res.error || '');
+            setPlaylistsLoading(false);
+        }).catch(err => {
+            setPlaylistsError(err.message || __('Failed to fetch playlists.', 'b-slider'));
+            setPlaylistsLoading(false);
+        });
+    }, [feedType, ytQueryType, channelId, source, apiKey.hasKey, isPro]);
 
     /**
      * Whether this service's address may live on the slider itself.
@@ -134,7 +200,7 @@ const SocialGeneral = ({ attributes, setAttributes, updateObject, socialFeed }) 
             }
         });
     // The import's own state moved out with the panel that shows it — see SocialStore, which runs
-    // the import for itself. A second copy here drove a second import poll for nothing.
+    // `useFeedMedia` for itself. A second copy here drove a second import poll for nothing.
     const [keyInput, setKeyInput] = useState('');
     const [isKeyOpen, setIsKeyOpen] = useState(false);
 
@@ -145,6 +211,11 @@ const SocialGeneral = ({ attributes, setAttributes, updateObject, socialFeed }) 
        the note went with the control and points at Connection settings in words instead. */
 
     const feed = feedItem.find(item => item.feedType === feedType);
+
+    const currentSeoSchema = (feedType === 'rss' && seoSchema === 'video') ? 'list' : seoSchema;
+    const schemaOptions = (feedType === 'rss' || !isPro)
+        ? seoSchemaOpt.filter(opt => opt.value !== 'video')
+        : seoSchemaOpt;
 
 
     /**
@@ -194,6 +265,27 @@ const SocialGeneral = ({ attributes, setAttributes, updateObject, socialFeed }) 
             />
         ) : (
             <>
+                {feedType === 'youtube' && isPro && (
+                    <TipSelect
+                        className={gap}
+                        label={__('Query Type', 'b-slider')}
+                        value={ytQueryType}
+                        options={[
+                            { value: 'channel', label: __('Channel or Playlist', 'b-slider') },
+                            { value: 'search', label: __('YouTube Search', 'b-slider') }
+                        ]}
+                        onChange={val => {
+                            setAttributes({
+                                socialQuery: {
+                                    ...(attributes.socialQuery || {}),
+                                    ytQueryType: val,
+                                    ...(val === 'search' ? { channelId: '', source: ytSearchTerm } : { source: '' })
+                                }
+                            });
+                        }}
+                        tip={__('Choose whether to load videos from a channel/playlist or by searching a keyword.', 'b-slider')}
+                    />
+                )}
 
                 {feedType === 'youtube' && ytQueryType === 'search' ? (
                     <TipText
@@ -243,7 +335,7 @@ const SocialGeneral = ({ attributes, setAttributes, updateObject, socialFeed }) 
                                 }
 
                                 // A saved channel owns the address, so the slider's own copy is cleared — left
-                                // behind it would stay in the cache key and in the store's reach after the switch.
+                                // behind it would stay in the cache key and in `FeedStore`'s reach after the switch.
                                 setAttributes({
                                     socialQuery: {
                                         ...(attributes.socialQuery || {}),
@@ -298,9 +390,9 @@ const SocialGeneral = ({ attributes, setAttributes, updateObject, socialFeed }) 
                         </p>}
 
                         {/* "Allowed Media Types" stood here and has moved to Social Filtering. It picks
-                            which of an account's posts are fetched at all, the same sort of question as a
-                            keyword or an age limit — and not one this step, about the account's own
-                            address, was ever asking. */}
+                            which of an account's posts are fetched at all — `InstagramFeed::items()`
+                            takes the three as filters, the same as keywords or an age limit do — which
+                            is a question this step, about the account's own address, was never asking. */}
 
                         {showCustom && (
                             <>
@@ -355,8 +447,31 @@ const SocialGeneral = ({ attributes, setAttributes, updateObject, socialFeed }) 
 
                         {feedType === 'youtube' && ytQueryType === 'channel' && apiKey.hasKey && (
                             <>
+                                {isPro && playlistsLoading && (
+                                    <p className="bsb_feed_note">
+                                        <Spinner /> {__('Loading playlists…', 'b-slider')}
+                                    </p>
+                                )}
 
+                                {isPro && !playlistsLoading && playlists.length > 0 && (
+                                    <TipSelect
+                                        className={gap}
+                                        label={__('Channel Playlist', 'b-slider')}
+                                        value={socialQuery?.ytPlaylistId || ''}
+                                        options={[
+                                            { value: '', label: __('— All Uploads (Default) —', 'b-slider') },
+                                            ...playlists.map(p => ({ value: p.id, label: p.title }))
+                                        ]}
+                                        onChange={val => updateObject('socialQuery', 'ytPlaylistId', val)}
+                                        tip={__('Select a specific playlist from this channel to load videos from.', 'b-slider')}
+                                    />
+                                )}
 
+                                {isPro && playlistsError && (
+                                    <p className="bsb_feed_note is-error">
+                                        {playlistsError}
+                                    </p>
+                                )}
 
                             </>
                         )}
@@ -458,7 +573,7 @@ const SocialGeneral = ({ attributes, setAttributes, updateObject, socialFeed }) 
                             ) : null
                         )}
                         initialOpen={false}
-                        {...(feedType !== 'youtube' ? { badge: <PremiumBadge /> } : {})}
+                        {...(!isPro && feedType !== 'youtube' ? { badge: <PremiumBadge /> } : {})}
                     >
                     {feedType === 'youtube' ? (
                         apiKey.loading ? <p className='bsb_feed_note'><Spinner /> {__('Checking…', 'b-slider')}</p> : <>
@@ -516,14 +631,35 @@ const SocialGeneral = ({ attributes, setAttributes, updateObject, socialFeed }) 
                                 </div>
                             </>}
 
+                            {isPro && (
+                                <TipSelect
+                                    className={gap}
+                                    label={__('Feed Cache Time', 'b-slider')}
+                                    value={cacheTime}
+                                    options={cacheTimeOpt}
+                                    onChange={val => updateObject('socialQuery', 'cacheTime', parseInt(val))}
+                                    tip={__('How long a fetched feed is reused before it is read again.', 'b-slider')}
+                                />
+                            )}
                         </>
                     ) : (
-                        <PremiumPanel
-                            title={__('Feed Cache Settings', 'b-slider')}
-                            description={__('Control feed cache time to optimize performance and prevent exceeding API rate limits.', 'b-slider')}
-                            pricingUrl={adminUrl()}
-                            buttonLabel={__('Get Pro', 'b-slider')}
-                        />
+                        isPro ? (
+                            <TipSelect
+                                className={gap}
+                                label={__('Feed Cache Time', 'b-slider')}
+                                value={cacheTime}
+                                options={cacheTimeOpt}
+                                onChange={val => updateObject('socialQuery', 'cacheTime', parseInt(val))}
+                                tip={__('How long a fetched feed is reused before it is read again.', 'b-slider')}
+                            />
+                        ) : (
+                            <PremiumPanel
+                                title={__('Feed Cache Settings', 'b-slider')}
+                                description={__('Control feed cache time to optimize performance and prevent exceeding API rate limits.', 'b-slider')}
+                                pricingUrl={adminUrl()}
+                                buttonLabel={__('Get Pro', 'b-slider')}
+                            />
+                        )
                     )}
 
                     {/* "YouTube Thumbnail Quality" stood here and has moved to Slides → The picture,
@@ -540,14 +676,24 @@ const SocialGeneral = ({ attributes, setAttributes, updateObject, socialFeed }) 
                         className='bPlPanelBody bsb_feed_panel'
                         title={stepTitle(__('SEO', 'b-slider'))}
                         initialOpen={false}
-                        badge={<PremiumBadge />}
+                        {...(!isPro ? { badge: <PremiumBadge /> } : {})}
                     >
-                    <PremiumPanel
-                        title={__('SEO Video Schema & Structured Data', 'b-slider')}
-                        description={__('Add rich results (JSON-LD) structured data to help search engines understand your feed videos.', 'b-slider')}
-                        pricingUrl={adminUrl()}
-                        buttonLabel={__('Get Pro', 'b-slider')}
-                    />
+                    {isPro ? (
+                        <TipSelect
+                            label={__('Structured Data (JSON-LD)', 'b-slider')}
+                            value={currentSeoSchema}
+                            options={schemaOptions}
+                            onChange={val => updateObject('socialQuery', 'seoSchema', val)}
+                            tip={__('Helps search engines read the feed.', 'b-slider')}
+                        />
+                    ) : (
+                        <PremiumPanel
+                            title={__('SEO Video Schema & Structured Data', 'b-slider')}
+                            description={__('Add rich results (JSON-LD) structured data to help search engines understand your feed videos.', 'b-slider')}
+                            pricingUrl={adminUrl()}
+                            buttonLabel={__('Get Pro', 'b-slider')}
+                        />
+                    )}
                     </PanelBody>
                 )}
             </AccordionGroup>
@@ -557,12 +703,17 @@ const SocialGeneral = ({ attributes, setAttributes, updateObject, socialFeed }) 
             {__('This feed type is not available yet.', 'b-slider')}
         </p>}
 
-        {feedType === 'youtube' && (
+        {!isPro && feedType === 'youtube' && (
             <Notice className="mt15" status="premium" isIcon={true}>
                 {__('YouTube Search, Channel Playlist, and Feed Cache Time are available in the Premium version.', 'b-slider')}
             </Notice>
         )}
-        {(feedType === 'rss' || feedType === 'json') && (
+        {!isPro && feedType === 'instagram' && (
+            <Notice className="mt15" status="premium" isIcon={true}>
+                {__('Instagram Feed and Feed Cache Time are available in the Premium version.', 'b-slider')}
+            </Notice>
+        )}
+        {!isPro && (feedType === 'rss' || feedType === 'json') && (
             <Notice className="mt15" status="premium" isIcon={true}>
                 {__('Feed Cache Time is available in the Premium version.', 'b-slider')}
             </Notice>

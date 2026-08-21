@@ -1,37 +1,30 @@
-import { useState, useEffect } from 'react';
 import { placeholderImg, play } from '../../../../utils/icons';
-import { bsb_open_video_popup } from '../../../../utils/config';
-import { useSelect } from '@wordpress/data';
+import { getProvider, getYouTubeId, getVimeoId } from '../../../../utils/functions';
 
-const CheckPopUp = ({ sliders, videoRefs, attributes, id, isBackEnd }) => {
+const CheckPopUp = ({ sliders, videoRefs, attributes, id, }) => {
     const { videoConf } = attributes;
     const { isPopup, icon } = videoConf;
-
-    const isSelected = useSelect(
-        select => isBackEnd ? select('core/block-editor').isBlockSelected(id) : false,
-        [isBackEnd, id]
-    );
-
-    // Track whether the block has already received its first click.
-    // We can't rely on isSelected inside the click handler because Gutenberg
-    // updates the store on mousedown, making isSelected already true by the
-    // time onClick fires on the very first click.
-    const [blockActivated, setBlockActivated] = useState(false);
-
-    useEffect(() => {
-        if (!isSelected) setBlockActivated(false);
-    }, [isSelected]);
 
     return <div className="carousel-inner">
         {sliders?.map((slider, index) => {
             const { img, video } = slider || {};
             const posterImage = img?.url && img?.url;
+            const provider = getProvider(video?.url);
 
-            return !isPopup ? <div ref={(el) => (videoRefs.current[index] = el)} key={index} className={`videoItem carousel-item ${index === 0 ? 'active' : ''}`} >
-                <video controls poster={posterImage} className="bsbvid" id="player">
-                    <source src={video?.url} type="video/mp4" /></video>
-            </div> :
-                <a key={index} data-fancybox={`${id}-video-gallery`} data-caption="" className={`carousel-item videoItem lightboxArea ${index === 0 ? 'active' : ''}`} href={video?.url} data-type={'html5video'} onClick={isBackEnd ? (e) => { e.preventDefault(); if (blockActivated) { e.stopPropagation(); bsb_open_video_popup(sliders, index, attributes); } else { setBlockActivated(true); } } : undefined}>
+            return !isPopup ? (
+                <div ref={(el) => (videoRefs.current[index] = el)} key={index} className={`videoItem carousel-item ${index === 0 ? 'active' : ''}`} >
+                    {provider === 'youtube' ? (
+                        <div className="plyr__video-embed" data-plyr-provider="youtube" data-plyr-embed-id={getYouTubeId(video?.url)}></div>
+                    ) : provider === 'vimeo' ? (
+                        <div className="plyr__video-embed" data-plyr-provider="vimeo" data-plyr-embed-id={getVimeoId(video?.url)}></div>
+                    ) : (
+                        <video controls poster={posterImage} className="bsbvid" id="player">
+                            <source src={video?.url} type="video/mp4" />
+                        </video>
+                    )}
+                </div>
+            ) : (
+                <a data-fancybox={`${id}-video-gallery`} data-caption="" className={`carousel-item videoItem lightboxArea ${index === 0 ? 'active' : ''}`} href={video?.url} data-type={provider === 'html5' ? 'html5video' : ''}>
                     <div className={`contentArea`}>
                         <div className="img">
                             <img className="rounded" src={posterImage || placeholderImg} alt={img?.caption || img?.alt || img?.title} />
@@ -43,6 +36,7 @@ const CheckPopUp = ({ sliders, videoRefs, attributes, id, isBackEnd }) => {
                         </div>
                     </div>
                 </a>
+            );
         })}
     </div>
 }

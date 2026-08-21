@@ -1,7 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import arrow from './arrows';
 
-import { carousel, grid, image, post_thumbnails, slider, socialFeed, video, woo, wordpress } from './icons';
+import { carousel, grid, image, listLayout, post_thumbnails, slider, socialFeed, video, woo, wordpress } from './icons';
 
 
 
@@ -37,7 +37,17 @@ export const selectLayoutOpt = [
     { label: 'Default', value: 'default', icon: slider(24, 24) },
     { label: 'Carousel', value: 'carousel', icon: carousel(24, 24) },
     { label: 'Grid', value: 'grid', icon: grid(24, 24) },
-    { label: 'Thumbnails', value: 'thumbnails', icon: post_thumbnails(24, 24) }
+    { label: 'Thumbnails', value: 'thumbnails', icon: post_thumbnails(24, 24) },
+    /**
+     * A YouTube channel's own layout, and offered nowhere else.
+     *
+     * `feedOnly` is read by both pickers — the sidebar tiles in `General` and the wizard cards in
+     * `SelectLayout` — so the condition lives with the layout it belongs to instead of being written
+     * out twice and drifting. A single video is not a channel and an RSS feed is not videos, so
+     * neither gets it; `Layout` also falls back at render time for a slider whose feed changed after
+     * the fact.
+     */
+    { label: 'List', value: 'list', icon: listLayout(24, 24), feedOnly: 'youtube' }
 ]
 
 export const contentPosition = [
@@ -53,15 +63,10 @@ export const sourceTypeOpt = [
     { label: 'Social Feeds', value: 'social', icon: socialFeed(24, 24) }
 ]
 
-/**
- * The layouts a slider may pick, given what it is reading.
- *
- * A feed gets Default and nothing else here — the other four are Premium, which `ProLayoutsPromo`
- * says beside both pickers. Every other source keeps the full list it has always had.
- */
-export const layoutsFor = sourceType => 'social' === sourceType
-    ? selectLayoutOpt.filter(opt => 'default' === opt.value)
-    : selectLayoutOpt
+/** The layouts a slider may pick, given what it is reading. See `feedOnly` above. */
+export const layoutsFor = (sourceType, feedType) => selectLayoutOpt.filter(opt =>
+    !opt.feedOnly || ('social' === sourceType && opt.feedOnly === feedType)
+)
 
 /**
  * The Plyr control buttons the free build can toggle, in the order they are shown.
@@ -178,3 +183,28 @@ export const emUnit = (def = 0) => ({ value: 'em', label: 'em', default: def });
 export const remUnit = (def = 0) => ({ value: 'rem', label: 'rem', default: def });
 export const vwUnit = (def = 0) => ({ value: 'vw', label: 'vw', default: def });
 export const vhUnit = (def = 0) => ({ value: 'vh', label: 'vh', default: def });
+
+/**
+ * One of the orderings above, or the default — the editor's answer to `Posts::orderby()`.
+ *
+ * The preview is fetched through core's own posts endpoint, which validates `orderby` against a
+ * fixed list and rejects the whole request over an unrecognised one. So a slider carrying a value
+ * this build no longer offers — saved by a newer version, written into the markup by hand, or left
+ * behind when an option was withdrawn — would not merely sort oddly: the editor would show no
+ * slides at all while the site rendered them fine, since the front end quietly falls back.
+ *
+ * It falls back here too, so the two agree and one stale value cannot empty the preview.
+ */
+export const safeOrderBy = orderby =>
+    postsOrdersBy.some(option => option.value === orderby) ? orderby : 'date';
+
+export const titleTag = [
+    { label: __('H1', 'b-slider'), value: 'h1' },
+    { label: __('H2', 'b-slider'), value: 'h2' },
+    { label: __('H3', 'b-slider'), value: 'h3' },
+    { label: __('H4', 'b-slider'), value: 'h4' },
+    { label: __('H5', 'b-slider'), value: 'h5' },
+    { label: __('H6', 'b-slider'), value: 'h6' },
+    { label: __('P', 'b-slider'), value: 'p' },
+    { label: __('Div', 'b-slider'), value: 'div' }
+]

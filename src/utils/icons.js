@@ -1,20 +1,5 @@
 
 
-/**
- * The empty slider drawn for a query that returned nothing.
- *
- * A slide frame with the two neighbours a carousel would have shown beside it, faded back. Stroked
- * in `currentColor` so the surrounding text colour carries it — the block lands in themes whose
- * background it cannot know.
- */
-export const emptySliderIcon = <svg xmlns="http://www.w3.org/2000/svg" width="52" height="52" viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">
-	<rect x="2.5" y="15" width="6" height="18" rx="2" opacity="0.4" />
-	<rect x="39.5" y="15" width="6" height="18" rx="2" opacity="0.4" />
-	<rect x="12.5" y="9.5" width="23" height="29" rx="3.5" />
-	<circle cx="19.5" cy="19" r="2.25" />
-	<path d="M14 32.5 20.5 26l4.5 4.5 3.5-3 5.5 5" />
-</svg>;
-
 export const noticeIcon = <svg xmlns="http://www.w3.org/2000/svg" fill="#000000" width="20px" height="20px" viewBox="0 0 36 36">
 	<path d="M18,21.32a1.3,1.3,0,0,0,1.3-1.3V14a1.3,1.3,0,1,0-2.6,0v6A1.3,1.3,0,0,0,18,21.32Z"></path><circle cx="17.95" cy="24.27" r="1.5"></circle><path d="M30.33,25.54,20.59,7.6a3,3,0,0,0-5.27,0L5.57,25.54A3,3,0,0,0,8.21,30H27.69a3,3,0,0,0,2.64-4.43Zm-1.78,1.94a1,1,0,0,1-.86.49H8.21a1,1,0,0,1-.88-1.48L17.07,8.55a1,1,0,0,1,1.76,0l9.74,17.94A1,1,0,0,1,28.55,27.48Z"></path>
 	<rect x="0" y="0" width="36" height="36" fillOpacity="0" /></svg>;
@@ -68,7 +53,7 @@ export const slider = (width, height) => <svg xmlns="http://www.w3.org/2000/svg"
 
 export const loaderIcon = <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 200 200"><circle fill="none" strokeOpacity="1" stroke="#000" strokeWidth=".5" cx="100" cy="100" r="0"><animate attributeName="r" calcMode="spline" dur="2" values="1;80" keyTimes="0;1" keySplines="0 .2 .5 1" repeatCount="indefinite"></animate><animate attributeName="stroke-width" calcMode="spline" dur="2" values="0;25" keyTimes="0;1" keySplines="0 .2 .5 1" repeatCount="indefinite"></animate><animate attributeName="stroke-opacity" calcMode="spline" dur="2" values="1;0" keyTimes="0;1" keySplines="0 .2 .5 1" repeatCount="indefinite"></animate></circle></svg>;
 
-export const placeholderImg = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='600' viewBox='0 0 800 600'%3E%3Crect width='800' height='600' fill='%23cccccc'/%3E%3Ctext x='400' y='300' font-family='sans-serif' font-size='24' text-anchor='middle' fill='%23666666' dy='.3em'%3EImage%3C/text%3E%3C/svg%3E";
+export const placeholderImg = 'https://bblockswp.com/wp-content/demo/img/green-hill.jpg';
 
 export const play = <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" viewBox="0 0 15 15" fill="#fff">
 	<path d="M4.79062 2.09314C4.63821 1.98427 4.43774 1.96972 4.27121 2.05542C4.10467 2.14112 4 2.31271 4 2.5V12.5C4 12.6873 4.10467 12.8589 4.27121 12.9446C4.43774 13.0303 4.63821 13.0157 4.79062 12.9069L11.7906 7.90687C11.922 7.81301 12 7.66148 12 7.5C12 7.33853 11.922 7.18699 11.7906 7.09314L4.79062 2.09314Z" fill="#fff" /></svg>
@@ -128,4 +113,24 @@ export const instagram = <svg xmlns='http://www.w3.org/2000/svg' width='24px' he
 /** The feed mark, for the button under a slider reading an RSS or Atom feed. */
 export const rss = <svg xmlns='http://www.w3.org/2000/svg' width='24px' height='24px' viewBox='0 0 24 24' fill='currentColor'>
 	<path d='M5 3c9.389 0 16 6.611 16 16h-3c0-7.732-5.268-13-13-13V3zm0 7c4.963 0 9 4.037 9 9h-3c0-3.309-2.691-6-6-6v-3zm2.5 6a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5z' />
+</svg>;
+
+export const externalLink = <svg xmlns='http://www.w3.org/2000/svg' width='24px' height='24px' viewBox='0 0 24 24' fill='currentColor'>
+	<path d='M14 3h7v7h-2V6.41l-9.29 9.3-1.42-1.42 9.3-9.29H14V3zM5 5h4v2H5v12h12v-4h2v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z' />
+</svg>;
+
+/**
+ * The List layout's own mark: one stage with a run of rows beneath it.
+ *
+ * Drawn on the same 64-unit grid as the other layout icons so the picker's cards stay one set.
+ */
+export const listLayout = (width, height) => <svg xmlns="http://www.w3.org/2000/svg" width={width} height={height} viewBox="0 0 64 64">
+	<rect x="5" y="6" width="54" height="26" rx="3" />
+	<path d="M28 13l10 6-10 6z" fill="white" />
+	<rect x="5" y="38" width="16" height="9" rx="2" />
+	<rect x="25" y="39" width="34" height="3" rx="1.5" />
+	<rect x="25" y="45" width="22" height="3" rx="1.5" />
+	<rect x="5" y="52" width="16" height="9" rx="2" />
+	<rect x="25" y="53" width="30" height="3" rx="1.5" />
+	<rect x="25" y="59" width="18" height="3" rx="1.5" />
 </svg>;

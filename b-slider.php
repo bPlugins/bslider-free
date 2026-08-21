@@ -58,6 +58,23 @@
      * Defined so the shared feed classes can ask the same question in both builds rather than each
      * carrying its own copy of the answer.
      */
+    /**
+     * The flags for JSON that is going to sit inside an HTML document.
+     *
+     * `&`, `<`, `>`, `'` and `"` all come out as `\u00XX`, which `JSON.parse` reads back as the
+     * characters they stand for and an HTML parser cannot act on at all.
+     *
+     * **Why this is needed, in the one case that proved it.** A YouTube title arrives from the API with
+     * HTML entities already in it — `&quot;` around a quoted word is the common one. Printed into the
+     * page, `esc_html()` leaves that entity alone (it does not double-encode), the browser decodes it
+     * back to a bare `"` *inside* a JSON string, and the feed fails to parse with "Expected ',' or '}'".
+     * One punctuation mark in one video title took out every slide in the slider. With these flags there
+     * is no `&` in the output for a browser to decode, so the class of bug is gone rather than patched.
+     */
+    if ( ! defined( 'BSB_JSON_IN_HTML' ) ) {
+        define( 'BSB_JSON_IN_HTML', JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT );
+    }
+
     if ( ! function_exists( 'b_slider_is_premium' ) ) {
         function b_slider_is_premium() {
             return false;
@@ -92,6 +109,7 @@
         private function __construct(){
 
             $this->load_classes();
+            add_action( 'enqueue_block_editor_assets', [$this, 'enqueueBlockEditorAssets'] );
             add_action('enqueue_block_assets', [$this, 'enqueueBlockAssets']);
             add_action('admin_enqueue_scripts', [$this, 'adminEnqueueScripts']);
             add_action('init', [$this, 'onInit']);
@@ -148,6 +166,17 @@
         }
 
         // Enqueue Block assets 
+        /**
+         * Tell the editor which build it is running in.
+         *
+         * `isProActive()` and the panels read `bsbpipecheck`. It is always false here, and it is
+         * declared rather than left undefined because the Settings panel reads the bare name — a
+         * missing global is a ReferenceError that takes the whole inspector down, not a falsy value.
+         */
+        public function enqueueBlockEditorAssets() {
+            wp_add_inline_script( 'bsb-slider-editor-script', "const bsbpipecheck=" . wp_json_encode( b_slider_is_premium() ) . ';', 'before' );
+        }
+
         public function enqueueBlockAssets(){ 
             wp_register_style('bootstrap', B_SLIDER_ASSETS_DIR . 'css/bootstrap.min.css', [], B_SLIDER_PLUGIN_VERSION);
             wp_register_style('b-slider-plyr-style', B_SLIDER_ASSETS_DIR . 'css/plyr.min.css', [], B_SLIDER_PLUGIN_VERSION);

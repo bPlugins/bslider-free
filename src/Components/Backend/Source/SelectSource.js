@@ -47,18 +47,44 @@ const SelectSource = (props) => {
     }, []);
 
     const handleMainSourceSelect = (item) => {
+        /**
+         * Settings that belong to the source being left behind.
+         *
+         * A feed slider carries a card layout, a caption mode, play-icon colours and a preset tick that
+         * were chosen for the *previous* source. Left standing, picking YouTube shows the old source's
+         * styling over the new feed's items — which reads as the wrong data having loaded. `layoutType`
+         * is cleared for the same reason it is not written in `handleFeedSelect`: this step names the
+         * source, and `SelectLayout` is what names the layout afterwards.
+         */
+        const resets = {
+            layoutType: '',
+            cardLayout: false,
+            cardBgColor: '',
+            cardPadding: { top: '16px', right: '16px', bottom: '16px', left: '16px' },
+            cardRadius: { top: '8px', right: '8px', bottom: '8px', left: '8px' },
+            SliderOverly: '#59595952',
+            caption: { display: 'always', background: 'solid' },
+            playIconColor: '',
+            playIconBg: '',
+            playIconHoverBg: '',
+            socialQuery: {
+                ...(attributes?.socialQuery || {}),
+                activePreset: ''
+            }
+        };
+
         if (item.sourceType === 'post_types') {
             setIsPostTypesView(true);
         } else if (item.sourceType === 'social') {
             setIsFeedsView(true);
         } else if (item.sourceType === 'posts') {
             updateObject('postsQuery', 'post_type', 'post');
-            setAttributes({ sourceType: 'posts' });
+            setAttributes({ ...resets, sourceType: 'posts' });
         } else if (item.sourceType === 'woo') {
             updateObject('postsQuery', 'post_type', 'product');
-            setAttributes({ sourceType: 'woo' });
+            setAttributes({ ...resets, sourceType: 'woo' });
         } else {
-            setAttributes({ sourceType: item.sourceType });
+            setAttributes({ ...resets, sourceType: item.sourceType });
         }
     };
 
@@ -68,12 +94,38 @@ const SelectSource = (props) => {
     const lockedPostTypes = fetchedPostTypes.filter(isLocked);
 
     const handlePostTypeSelect = (postTypeSlug) => {
+        /**
+         * Settings that belong to the source being left behind.
+         *
+         * A feed slider carries a card layout, a caption mode, play-icon colours and a preset tick that
+         * were chosen for the *previous* source. Left standing, picking YouTube shows the old source's
+         * styling over the new feed's items — which reads as the wrong data having loaded. `layoutType`
+         * is cleared for the same reason it is not written in `handleFeedSelect`: this step names the
+         * source, and `SelectLayout` is what names the layout afterwards.
+         */
+        const resets = {
+            layoutType: '',
+            cardLayout: false,
+            cardBgColor: '',
+            cardPadding: { top: '16px', right: '16px', bottom: '16px', left: '16px' },
+            cardRadius: { top: '8px', right: '8px', bottom: '8px', left: '8px' },
+            SliderOverly: '#59595952',
+            caption: { display: 'always', background: 'solid' },
+            playIconColor: '',
+            playIconBg: '',
+            playIconHoverBg: '',
+            socialQuery: {
+                ...(attributes?.socialQuery || {}),
+                activePreset: ''
+            }
+        };
+
         if (postTypeSlug === 'product') {
             updateObject('postsQuery', 'post_type', 'product');
-            setAttributes({ sourceType: 'woo' });
+            setAttributes({ ...resets, sourceType: 'woo' });
         } else {
             updateObject('postsQuery', 'post_type', postTypeSlug);
-            setAttributes({ sourceType: 'posts' });
+            setAttributes({ ...resets, sourceType: 'posts' });
         }
     };
 
@@ -116,7 +168,17 @@ const SelectSource = (props) => {
                 // Only YouTube reports a banner, so leaving it set means the old channel's cover over
                 // the new service's posts — or a toggle that is on for a feed with nothing to draw.
                 headerBanner: '',
-                showHeaderBanner: false
+                showHeaderBanner: false,
+                /**
+                 * The preset tick too.
+                 *
+                 * Two presets are offered on more than one service, so the id alone still matches
+                 * after a switch — and the card would show a tick for settings that were applied to
+                 * the *other* service's branch. What is actually on the slider is the old feed's
+                 * ratio, its stats toggle, its button colour. Clearing it is the honest answer: no
+                 * preset has been applied to this feed yet.
+                 */
+                activePreset: ''
             }
         });
     };

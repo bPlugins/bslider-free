@@ -1,4 +1,4 @@
-import { SelectControl, ToggleControl, RangeControl, TextControl } from '@wordpress/components';
+import { SelectControl, ToggleControl, RangeControl, TextControl, ComboboxControl } from '@wordpress/components';
 import HelpTip from './HelpTip';
 
 /**
@@ -26,6 +26,12 @@ const withTip = (label, tip, tipLabel) => (!tip ? label : <>
 export const TipSelect = ({ tip, tipLabel, label, ...props }) => (
     <SelectControl label={withTip(label, tip, tipLabel)} {...props} />
 );
+
+/** A combobox (searchable select), with the mark in its label. */
+export const TipCombobox = ({ tip, tipLabel, label, ...props }) => {
+    const Component = ComboboxControl || SelectControl;
+    return <Component label={withTip(label, tip, tipLabel)} {...props} />;
+};
 
 /** A text field, the same way. */
 export const TipText = ({ tip, tipLabel, label, ...props }) => (

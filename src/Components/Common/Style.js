@@ -1,13 +1,68 @@
 import { getBoxValue } from '../../../../bpl-tools/utils/functions';
 import { getTypoCSS, getColorsCSS } from '../../../../bpl-tools/utils/getCSS';
 import arrows from '../../utils/arrows';
+import { playerVars } from '../../utils/config';
+import { isAutoGridHeight } from '../../utils/functions';
+
+/**
+ * What a slide falls back to when every height it could take is empty. The same 450px `block.json`
+ * ships as the default, so a slider that has lost its height looks like a fresh one rather than
+ * like a bug.
+ */
+const HEIGHT_FALLBACK = '450px';
 
 const Style = ({ attributes, clientId, postsCount, products }) => {
-	const { badgeStyle = {}, sliders, slideInnerGap, slideInnerGapDevice, titleTypo, titleColor, descTypo, descColor, titleMargin, descMargin, arrow, arrowStyle, indicator, SliderOverly, height, sliderHeight, borderRadius, arrowWidth, deviceArrowWidth, arrowHeight, deviceArrowHeight, arrowRadius, btnColors, btnHovColors, btnPadding, btnBorder, btnRadius, direction, columnGap, rowGap, grid, arrowBorder, thumbnails, sourceType, carousel, caption, image, title, desc, button, postsQuery, socialQuery, layoutType } = attributes;
+	const { badgeStyle = {}, listLayout = {}, sliders, slideInnerGap, slideInnerGapDevice, titleTypo, titleColor, descTypo, descColor, titleMargin, descMargin, arrow, arrowStyle, indicator, SliderOverly, height, sliderHeight, borderRadius, margin, arrowWidth, deviceArrowWidth, arrowHeight, deviceArrowHeight, arrowRadius, btnColors, btnHovColors, btnTypo, btnPadding, btnBorder, btnRadius, direction, titleAnimation, descAnimation, btnAnimation, columnGap, rowGap, grid, arrowBorder, thumbnails, sourceType, carousel, caption, image, socialQuery, headerNameTypo, headerNameColor, headerBioTypo, headerBioColor, headerFollowersTypo, headerFollowersColor, headerBtnTypo, headerBtnColors, title, desc, button, layoutType, postsQuery = {}, likesCommentsColor, likesCommentsTypo, playIconColor, playIconBg, playIconHoverBg, cardLayout, cardBgColor, cardPadding, cardRadius } = attributes;
+	const isPostSource = sourceType === 'posts' || sourceType === 'woo';
 	const { loadMoreBtn } = grid;
 	const { overly, height: thumbnailsHeight, width: thumbnailsWidth, active } = thumbnails;
 	const { carouselStyle } = carousel;
 	const isVertical = 'vertical' === indicator?.direction;
+
+	/** A grid that sizes its cards from the column rather than from a height. See the helper. */
+	const isAutoGrid = isAutoGridHeight(attributes);
+
+	/**
+	 * The shape those cards take.
+	 *
+	 * A ratio and not a length, which is the whole point: the column already fixes the width, so a ratio
+	 * settles the height without anybody maintaining a pixel value per breakpoint. `original` opts out and
+	 * lets each picture keep its own shape.
+	 *
+	 * Only ever read when `isAutoGrid` — a slider with a height set is in fixed frames and this says
+	 * nothing about it.
+	 */
+	const gridRatio = attributes?.gridItemRatio || '4/3';
+
+	/**
+	 * The height a slide gets at each width.
+	 *
+	 * `auto` rather than a length for an automatic grid, and it is set here rather than overridden further
+	 * down on purpose: the height is written into four rules, two of them inside media queries, and a
+	 * later rule cannot undo a media query's value at a narrower width. Only one layout is ever on screen,
+	 * so a grid's `auto` reaches nothing else.
+	 */
+	/**
+	 * A last resort behind every one of them, because an empty string here is not a missing height —
+	 * it is `height: ;`, which the browser throws away along with the rest of the declaration.
+	 *
+	 * That is what stacked the slides on top of each other. `.item` is absolutely positioned in the
+	 * default and carousel layouts, so with no height on the box that contains them the box collapses
+	 * to nothing and every slide draws over the last. It took a particular history to reach — a grid
+	 * where the height control shows empty, a value typed and cleared, then a switch back to Default,
+	 * which leaves `sliderHeight.desktop` as `''` — but nothing warned, nothing recovered, and the
+	 * only cure was deleting the block.
+	 *
+	 * `'auto'` is deliberately not the fallback: it is right for a grid sizing from its ratio and
+	 * wrong for a layout whose slides are stacked, which is the case this exists to catch.
+	 */
+	const heightOr = (...values) => values.find(value => value && String(value).trim()) || HEIGHT_FALLBACK;
+
+	const itemHeight = {
+		desktop: isAutoGrid ? 'auto' : heightOr(sliderHeight?.desktop, height),
+		tablet: isAutoGrid ? 'auto' : heightOr(sliderHeight?.tablet, sliderHeight?.desktop, height),
+		mobile: isAutoGrid ? 'auto' : heightOr(sliderHeight?.mobile, sliderHeight?.tablet, sliderHeight?.desktop, height)
+	};
 
 
 	const leftCursor = encodeURIComponent(arrows[arrowStyle].left(arrow?.size, arrow?.color, direction))
@@ -17,6 +72,29 @@ const Style = ({ attributes, clientId, postsCount, products }) => {
 	const rightCursor = encodeURIComponent(arrows[arrowStyle].right(arrow?.size, arrow?.color, direction))
 		.replace(/'/g, '%27')
 		.replace(/"/g, '%22');
+
+	/**
+	 * Every `<p>` inside a slider is a slide description — except the plugin's own messages: the
+	 * editor's empty state and the front end's no-posts line.
+	 *
+	 * They have to be excluded here rather than overridden in the stylesheet. This selector is an ID
+	 * and everything in editor.scss is a class, so the description colour won every time: an empty
+	 * state explaining how to set a feed up was painted in whatever colour the slide captions use,
+	 * which for a white-on-image slider meant white text on a white panel.
+	 */
+	// Each exclusion is a plain class, not `:not(.bsbEmptyState p)`. A `:not()` holding a complex
+	// selector is newer CSS, and a selector a browser cannot parse takes its whole rule down with
+	// it — so the descriptions would lose their colour and type outright rather than degrade. These
+	// three are every `<p>` NoPosts renders; there is nothing else to exclude.
+	// `.bsb-profile-bio` joined the list when the Profile Header arrived: it is a `<p>` inside the
+	// slider that is not a slide's description, so it was being painted in the caption colour and
+	// its own `#666` in style.scss could not win against an ID. On a slider with white captions the
+	// bio was white text on the header's own pale card — there, but unreadable.
+	// `.bsb-profile-followers` is the second one, and it was missed when the stats line was added.
+	// Same `<p>`, same header, same outcome — and it is also why the Stats Color control appeared to
+	// do nothing: this selector carries an ID and five classes, so it beat the single-class rule that
+	// control writes. Excluding it here is what lets that control reach the line at all.
+	const descText = `#bsbCarousel-${clientId} p:not(.bsbEmptyBody):not(.bsbEmptyNote):not(.bsbNoPosts):not(.bsb-profile-bio):not(.bsb-profile-followers)`;
 
 	/**
 	 * Everything laid over a slide's picture.
@@ -42,6 +120,15 @@ const Style = ({ attributes, clientId, postsCount, products }) => {
 	]);
 
 	/**
+	 * The caption, shown always, on hover, or not at all.
+	 *
+	 * The hover rules sit inside `@media (hover: hover)` and that is not a nicety — it is the whole
+	 * difference between a design choice and a bug report. A phone has no pointer, so `:hover` there
+	 * either never fires or sticks after a tap; without the guard, every visitor on a phone would get
+	 * a slider whose titles and buttons they can never see. Inside the guard, a touch device simply
+	 * keeps the caption, which is the right answer and needs no second setting.
+	 */
+	/**
 	 * Whether this slider has captions to reveal at all.
 	 *
 	 * A `video` slider renders a player, not a slide with words over it, and its settings panel says
@@ -52,45 +139,106 @@ const Style = ({ attributes, clientId, postsCount, products }) => {
 	const hasCaption = 'video' !== sourceType;
 
 	/**
+	 * Where each entrance effect starts from, as a resting state rather than as keyframes.
+	 *
+	 * The values are animate.css's own first frames — `fadeInLeft` begins one width to the left at zero
+	 * opacity, `zoomIn` at 30%, the `slideIn*` family travels without fading — so a caption revealed on
+	 * hover arrives exactly as it does anywhere else. What changes is only how it is driven.
+	 *
+	 * Written as `translate` and `scale`, never `transform`: the whole reason the caption used to jump
+	 * to a corner was one property being asked to do both positioning and motion.
+	 */
+	const restingFrom = {
+		fadeInLeft: { opacity: 0, translate: '-100% 0' },
+		fadeInRight: { opacity: 0, translate: '100% 0' },
+		fadeInUp: { opacity: 0, translate: '0 100%' },
+		fadeInDown: { opacity: 0, translate: '0 -100%' },
+		fadeIn: { opacity: 0 },
+		zoomIn: { opacity: 0, scale: '0.3' },
+		slideInDown: { translate: '0 -100%' },
+		slideInUp: { translate: '0 100%' },
+		slideInLeft: { translate: '-100% 0' },
+		slideInRight: { translate: '100% 0' },
+	};
+
+	/**
 	 * The title, description and button, coming in when a slide is pointed at and leaving the same way.
 	 *
-	 * **The timings are fixed here, and that is deliberate.** Choosing the caption's effect, delay and
-	 * duration is a Pro setting — this build writes the same three animate.css classes on every slider
-	 * (`fadeInLeft`, `fadeInRight`, `zoomIn`, see `classProps` in Default) and the same delays into the
-	 * rules above. The values below are those, so a caption revealed on hover arrives exactly as it does
-	 * anywhere else, and no control leaks in that this build does not offer.
+	 * Driven by transitions here, and by the animate.css keyframes everywhere else — because an
+	 * animation only knows how to arrive. It runs once when its element appears, which for a caption
+	 * revealed on hover is while the slider is still loading behind `opacity: 0`: the animation somebody
+	 * chose in the Style tab played out to nobody and `animation-fill-mode: both` held it on its last
+	 * frame, so hovering revealed a caption already fully formed. And there is no honest way to play
+	 * keyframes backwards on the way out — flipping `animation-direction` on a finished animation does
+	 * not restart it, it simply jumps to the other end.
 	 *
-	 * **Why transitions rather than the keyframes.** An animation only knows how to arrive. It runs once
-	 * when its element appears, which for a caption revealed on hover is while the slider is still
-	 * loading behind `opacity: 0`: it plays out to nobody and `animation-fill-mode: both` holds it on its
-	 * last frame, so hovering would reveal a caption already fully formed. A transition is a rule about
-	 * the distance between two states, so it is travelled in whichever direction the pointer moves — one
-	 * declaration gets the arrival, the departure, and an interruption half way through either.
+	 * A transition has no such problem: it is a rule about the distance between two states, so it is
+	 * travelled in whichever direction the pointer moves. One declaration gets the arrival, the
+	 * departure, and an interruption half way through either — hover away mid-entrance and it turns
+	 * around from where it got to, which is the one thing keyframes cannot do at all.
 	 *
-	 * The delay lives on the hover rule alone, so the stagger plays on the way in and the caption still
-	 * leaves at once when the pointer goes. A 1.4s delay on the way out is not a stagger, it is a slider
-	 * that looks stuck.
+	 * So no second set of options for leaving. The exit is the entrance read backwards, which is what
+	 * "the same way it came" means; a separate exit effect would be a different feature, not this one.
 	 *
-	 * Scoped to `.carousel-caption`, the default layout's caption and the only place these animations
-	 * exist at all — the grid, thumbnail and carousel layouts have never animated the caption's parts.
-	 * Their captions still reveal as a whole, through `overlaid`.
+	 * The delay lives on the hover rule alone, so the stagger somebody set up plays on the way in and
+	 * the caption still leaves at once when the pointer goes. A 1.4s delay on the way out is not a
+	 * stagger, it is a slider that looks stuck.
+	 *
+	 * The desc is reached as `p.animate__animated`: it is the only paragraph in a slide carrying that
+	 * class, and unlike the title and the button it has no class of its own to name — the same reason
+	 * `descText` above is written the way it is.
 	 */
-	const captionParts = [];
-	if (caption?.hoverTitle !== false) {
-		captionParts.push(['.carousel-caption .bsbTitle', 'opacity: 0; translate: -100% 0;', 0]);
-	}
-	if (caption?.hoverDesc !== false) {
-		captionParts.push(['.carousel-caption p.animate__animated', 'opacity: 0; translate: 100% 0;', 0.7]);
-	}
-	if (caption?.hoverBtn !== false) {
-		captionParts.push(['.carousel-caption .carousel-button', 'opacity: 0; scale: 0.3;', 1.4]);
-	}
+	/**
+	 * The three, as `[selector, its animation settings]`.
+	 *
+	 * Scoped to `.carousel-caption`, which is the default layout's caption and the only place these
+	 * animations exist at all: `Default` is the one layout that puts the animate.css classes on the
+	 * title, the description and the button — see its `classProps`. The grid, thumbnail and carousel
+	 * layouts have never animated them, and reaching into those from here would be inventing motion
+	 * nothing in their own markup asked for. Their captions still reveal as a whole, through `overlaid`.
+	 */
+	const captionParts = [
+		caption?.hoverTitle !== false && ['.carousel-caption .bsbTitle', titleAnimation],
+		caption?.hoverDesc !== false && ['.carousel-caption p.animate__animated', descAnimation],
+		caption?.hoverBtn !== false && ['.carousel-caption .carousel-button', btnAnimation],
+	].filter(Boolean);
 
-	const hoverMotionCSS = captionParts.map(([selector, resting, delay]) => `		/* At rest, and the way back: no delay, so the caption leaves as soon as the pointer does. */
+	const hoverMotionCSS = captionParts.map(([selector, animation]) => {
+		/*
+		 * A plain fade for anything the table does not name.
+		 *
+		 * The table covers every option the panel offers — `contentAniOption`, all ten of them — but an
+		 * effect can reach here from outside that list: a slider saved when the list was different, or a
+		 * value set in code. Falling through with nothing would put that slider back where this started,
+		 * with keyframes playing to nobody behind a hidden caption. A fade is the one motion that is
+		 * right for every effect name there could ever be, and it still reverses on the way out.
+		 *
+		 * An *empty* effect is a different answer: nothing was chosen, `Default` renders no animate class
+		 * for it, and the caption's own reveal is the whole of what was asked for.
+		 */
+		const from = restingFrom[animation?.effect] || (animation?.effect ? { opacity: 0 } : null);
+
+		if (! from) {
+			return '';
+		}
+
+		// Read through `Number.isFinite` rather than with `||`: the panel's own minimum is 0, and a
+		// duration of 0 means a caption that appears with no motion at all — it has to survive as itself
+		// instead of being taken for missing and replaced by the default.
+		const duration = Number.isFinite(Number(animation?.duration)) ? Number(animation.duration) : 0.7;
+		const delay = Number(animation?.delay) || 0;
+
+		const resting = [
+			undefined === from.opacity ? '' : `opacity: ${from.opacity};`,
+			from.translate ? `translate: ${from.translate};` : '',
+			from.scale ? `scale: ${from.scale};` : '',
+		].filter(Boolean).join('\n\t\t\t');
+
+		return `		/* At rest, and the way back: no delay, so the caption leaves as soon as the pointer does. */
 		#bsbCarousel-${clientId} .item ${selector} {
 			animation: none;
 			${resting}
-			transition: opacity 0.7s ease, translate 0.7s ease, scale 0.7s ease;
+			transition: opacity ${duration}s ease, translate ${duration}s ease, scale ${duration}s ease;
 		}
 
 		#bsbCarousel-${clientId} .item:hover ${selector},
@@ -99,70 +247,15 @@ const Style = ({ attributes, clientId, postsCount, products }) => {
 			translate: none;
 			scale: none;
 			transition-delay: ${delay}s;
-		}`).join('\n\n');
+		}`;
+	}).filter(Boolean).join('\n\n');
 
 	/**
-	 * Where an animate.css effect begins, as a resting state rather than as keyframes.
-	 *
-	 * These are the effects' own first frames — `fadeInUp` starts one height below at zero opacity,
-	 * `zoomIn` at 30% — so an element revealed on hover arrives exactly as it does anywhere else. What
-	 * changes is only how it is driven.
-	 *
-	 * Written as `translate` and `scale`, never `transform`: one property asked to do both positioning
-	 * and motion is how a caption ends up jumping to a corner.
+	 * The badges and ACF fields, revealed on hover.
 	 */
-	const restingFrom = {
-		fadeInLeft: 'opacity: 0; translate: -100% 0;',
-		fadeInRight: 'opacity: 0; translate: 100% 0;',
-		fadeInUp: 'opacity: 0; translate: 0 100%;',
-		fadeInDown: 'opacity: 0; translate: 0 -100%;',
-		fadeIn: 'opacity: 0;',
-		zoomIn: 'opacity: 0; scale: 0.3;',
-		slideInDown: 'translate: 0 -100%;',
-		slideInUp: 'translate: 0 100%;',
-		slideInLeft: 'translate: -100% 0;',
-		slideInRight: 'translate: 100% 0;',
-	};
-
-	/**
-	 * The badges and ACF fields, revealed on hover the same way the caption's parts are.
-	 *
-	 * **The bug this fixes.** Everything on `.bsb-acf-layer` arrived with an animate.css class and an
-	 * inline `animation-delay`, which is a keyframe animation — and a keyframe animation runs once, when
-	 * its element appears. `.animate__animated` also carries `animation-fill-mode: both`, so it is held
-	 * on its last frame afterwards. On a slider revealing its caption on hover that means the first hover
-	 * looked right (the animation was still playing) and every hover after it showed the badges simply
-	 * appearing, already in place. The caption's own title, description and button never had this problem
-	 * because `hoverMotionCSS` above had already replaced their keyframes with transitions; the badge
-	 * layer was left out.
-	 *
-	 * So the keyframes go here too, and the same transition takes over. A transition is a rule about the
-	 * distance between two states, so it is travelled in whichever direction the pointer moves — every
-	 * hover, in both directions, and interruptible half way through either.
-	 *
-	 * **The delay comes in on a custom property**, because only `AcfFields` knows it: the stagger that
-	 * makes three badges cascade is `base + index × step`, counted per badge as they are rendered. The
-	 * value is set inline there and read here, so the cascade survives the change of mechanism.
-	 */
-	const badgeEffect = attributes?.badgeAnimation?.effect;
-	const badgeDuration = Number.isFinite(Number(attributes?.badgeAnimation?.duration))
-		? Number(attributes.badgeAnimation.duration)
-		: 0.6;
-
-	const isPostSource = sourceType === 'posts' || sourceType === 'woo';
 
 	const selectedAcfFields = postsQuery?.selectedAcfFields || [];
 	const acfFieldSettings = postsQuery?.acfFieldSettings || {};
-	/**
-	 * The badges, read from whichever query holds them.
-	 *
-	 * A feed slider keeps them on `socialQuery` and a post or product slider on `postsQuery` — the
-	 * same split `PostBadges` writes by. Reading only one of the two left a feed slider's badges
-	 * unstyled while its panel showed them turned on.
-	 */
-	const badgeQuery = ('social' === sourceType ? socialQuery : postsQuery) || {};
-	const badgeSettings = badgeQuery?.badgeSettings || {};
-	const selectedBadges = badgeQuery?.selectedBadges || [];
 
 	// Create a unique set of all possible active ACF field names
 	const activeFieldNames = new Set([
@@ -182,25 +275,27 @@ const Style = ({ attributes, clientId, postsCount, products }) => {
 		}
 	});
 
+	const selectedBadges = (sourceType === 'social' ? socialQuery?.selectedBadges : postsQuery?.selectedBadges) || [];
+	const badgeSettings = (sourceType === 'social' ? socialQuery?.badgeSettings : postsQuery?.badgeSettings) || {};
+
 	/**
 	 * Only for badges actually chosen.
 	 *
 	 * A badge's element carries `bsb-acf-field-<name>` and the four names — date, author, price,
 	 * sale — are ordinary words a site may well have used for an ACF field, so these selectors match
-	 * such a field too. Emitted for a badge that is not on the slide, the rule has nothing of its
-	 * own to style and quietly takes the field instead, hiding it until the pointer arrives however
-	 * its own panel was set.
+	 * such a field too. Emitted for a badge that is not on the slide, the rule has nothing of its own
+	 * to style and quietly takes the field instead, hiding it until the pointer arrives however its
+	 * own panel was set.
+	 *
+	 * Read off `selectedBadges` above rather than `postsQuery` directly, so it answers for a feed's
+	 * badges as well as a post slider's.
 	 */
-	const badgeOn = name => !!selectedBadges.includes(name);
+	const badgeOn = name => selectedBadges.includes(name);
 
-	/* A feed slide carries a date and an author too, so both are offered for a feed exactly as they
-	   are for a post — see `allowedBadges` in `PostBadges`. */
-	const hasDateAuthor = 'posts' === sourceType || 'social' === sourceType;
-
-	if (hasDateAuthor && badgeOn('date') && badgeSettings?.date?.hoverOnly !== false) {
+	if ((sourceType === 'posts' || sourceType === 'social') && badgeOn('date') && badgeSettings?.date?.hoverOnly !== false) {
 		hoverAcfSelectors.push(`#bsbCarousel-${clientId} .item .bsb-acf-field-date`);
 	}
-	if (hasDateAuthor && badgeOn('author') && badgeSettings?.author?.hoverOnly !== false) {
+	if ((sourceType === 'posts' || sourceType === 'social') && badgeOn('author') && badgeSettings?.author?.hoverOnly !== false) {
 		hoverAcfSelectors.push(`#bsbCarousel-${clientId} .item .bsb-acf-field-author`);
 	}
 	if (sourceType === 'woo' && badgeOn('price') && badgeSettings?.price?.hoverOnly !== false) {
@@ -213,17 +308,28 @@ const Style = ({ attributes, clientId, postsCount, products }) => {
 	const hasAlwaysVisibleField = 
 		(title?.isVisible !== false && caption?.hoverTitle === false) ||
 		(desc?.isVisible !== false && caption?.hoverDesc === false) ||
-		(isPostSource && button?.isVisible !== false && caption?.hoverBtn === false) ||
-		(hasDateAuthor && badgeOn('date') && badgeSettings?.date?.hoverOnly === false) ||
-		(hasDateAuthor && badgeOn('author') && badgeSettings?.author?.hoverOnly === false) ||
-		(sourceType === 'woo' && badgeOn('price') && badgeSettings?.price?.hoverOnly === false) ||
-		(sourceType === 'woo' && badgeOn('sale') && badgeSettings?.sale?.hoverOnly === false) ||
+		((isPostSource || sourceType === 'social') && button?.isVisible !== false && caption?.hoverBtn === false) ||
+		((sourceType === 'posts' || sourceType === 'social') && selectedBadges.includes('date') && badgeSettings?.date?.hoverOnly === false) ||
+		((sourceType === 'posts' || sourceType === 'social') && selectedBadges.includes('author') && badgeSettings?.author?.hoverOnly === false) ||
+		(sourceType === 'woo' && selectedBadges.includes('price') && badgeSettings?.price?.hoverOnly === false) ||
+		(sourceType === 'woo' && selectedBadges.includes('sale') && badgeSettings?.sale?.hoverOnly === false) ||
 		hasAlwaysVisibleAcf;
+
+	const badgeFrom = restingFrom[attributes?.badgeAnimation?.effect] || { opacity: 0 };
+	const badgeDuration = Number.isFinite(Number(attributes?.badgeAnimation?.duration))
+		? Number(attributes.badgeAnimation.duration)
+		: 0.6;
+
+	const badgeResting = [
+		undefined === badgeFrom.opacity ? '' : `opacity: ${badgeFrom.opacity};`,
+		badgeFrom.translate ? `translate: ${badgeFrom.translate};` : '',
+		badgeFrom.scale ? `scale: ${badgeFrom.scale};` : '',
+	].filter(Boolean).join('\n\t\t\t');
 
 	const layerMotionCSS = hoverAcfSelectors.length === 0 ? '' : `		/* At rest, and the way back: no delay, so they leave as soon as the pointer does. */
 		${hoverAcfSelectors.join(',\n\t\t')} {
 			animation: none;
-			${restingFrom[badgeEffect] || 'opacity: 0;'}
+			${badgeResting}
 			transition: opacity ${badgeDuration}s ease, translate ${badgeDuration}s ease, scale ${badgeDuration}s ease;
 		}
 
@@ -283,21 +389,6 @@ const Style = ({ attributes, clientId, postsCount, products }) => {
 			opacity: 1;
 		}`;
 
-	const reducedSelectors = [
-		...overlaid,
-		...captionParts.map(([selector]) => `#bsbCarousel-${clientId} .item ${selector}`),
-		`#bsbCarousel-${clientId} .item .bsb-acf-item`
-	];
-
-	/**
-	 * The caption, shown always, on hover, or not at all.
-	 *
-	 * The hover rules sit inside `@media (hover: hover)` and that is not a nicety — it is the whole
-	 * difference between a design choice and a bug report. A phone has no pointer, so `:hover` there
-	 * either never fires or sticks after a tap; without the guard, every visitor on a phone would get
-	 * a slider whose titles and buttons they can never see. Inside the guard, a touch device simply
-	 * keeps the caption, which is the right answer and needs no second setting.
-	 */
 	const captionCSS = !hasCaption ? '' : 'hidden' === caption?.display
 		? `${overlaid.join(',\n\t')} { display: none; }`
 		: 'hover' === caption?.display
@@ -311,7 +402,9 @@ ${layerMotionCSS}
 	/* Somebody who has asked their system for less movement gets the fade and none of the travel —
 	   the caption as a whole, the title, description and button inside it, and the badges over it. */
 	@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: reduce) {
-		${reducedSelectors.join(',\n\t\t')} {
+		${overlaid.join(',\n\t\t')},
+		${captionParts.map(([selector]) => `#bsbCarousel-${clientId} .item ${selector}`).join(',\n\t\t')},
+		#bsbCarousel-${clientId} .item .bsb-acf-item {
 			translate: none;
 			scale: none;
 			transition: opacity .2s ease;
@@ -371,7 +464,7 @@ ${layerMotionCSS}
 
 	const overlayPaint = 'none' === caption?.background
 		? 'transparent'
-		: 'gradient' === caption?.background && !captionCentred
+		: 'gradient' === caption?.background && ! captionCentred
 			? `linear-gradient(to ${captionAtTop ? 'bottom' : 'top'}, ${SliderOverly} 0%, ${fadeOut(SliderOverly)} 65%)`
 			: SliderOverly;
 
@@ -392,19 +485,23 @@ ${layerMotionCSS}
 		grayscale: { rest: 'scale(1)', hover: 'scale(1)', filter: 'grayscale(1)' },
 	}[image?.hover];
 
-	const imageCSS = (!imageEffect || !hasCaption) ? '' : `@media (hover: hover) and (pointer: fine) {
+	const imageCSS = ( ! imageEffect || ! hasCaption ) ? '' : `@media (hover: hover) and (pointer: fine) {
 		#bsbCarousel-${clientId} .item > .img {
 			overflow: hidden;
 		}
 
-		#bsbCarousel-${clientId} .item > .img img {
+		/* Every hover selector here excludes the blurred backdrop copy — see \`feedPicture\`. It carries
+		   a \`transform\` and a \`filter\` of its own that are the whole of what it is, and a zoom effect
+		   would overwrite both: the blur would snap off and the copy would shrink back inside the
+		   slide, showing its own faded edges. The picture in front still zooms. */
+		#bsbCarousel-${clientId} .item > .img img:not(.bsb-feed-blur) {
 			transform: ${imageEffect.rest};
 			${imageEffect.filter ? `filter: ${imageEffect.filter};` : ''}
 			transition: transform .6s ease, filter .6s ease;
 		}
 
-		#bsbCarousel-${clientId} .item:hover > .img img,
-		#bsbCarousel-${clientId} .item:focus-within > .img img {
+		#bsbCarousel-${clientId} .item:hover > .img img:not(.bsb-feed-blur),
+		#bsbCarousel-${clientId} .item:focus-within > .img img:not(.bsb-feed-blur) {
 			transform: ${imageEffect.hover};
 			${imageEffect.filter ? 'filter: none;' : ''}
 		}
@@ -412,11 +509,197 @@ ${layerMotionCSS}
 
 	/* The colour change is not movement, so it stays; the scaling goes. */
 	@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: reduce) {
-		#bsbCarousel-${clientId} .item > .img img,
-		#bsbCarousel-${clientId} .item:hover > .img img,
-		#bsbCarousel-${clientId} .item:focus-within > .img img {
+		#bsbCarousel-${clientId} .item > .img img:not(.bsb-feed-blur),
+		#bsbCarousel-${clientId} .item:hover > .img img:not(.bsb-feed-blur),
+		#bsbCarousel-${clientId} .item:focus-within > .img img:not(.bsb-feed-blur) {
 			transform: none;
 		}
+	}`;
+
+	/**
+	 * How a feed slide's picture is fitted to its slide — the Image Fit setting.
+	 *
+	 * A slide is sized by Slider Height against whatever width the layout gives it, so it is almost never
+	 * the shape of the picture inside it: a YouTube frame is 16:9, an Instagram post is 1:1 or 4:5. One of
+	 * three things has to happen, and the setting says which.
+	 *
+	 * `cover` fills the slide and crops the overflow. On a video thumbnail that crop takes the title text
+	 * and the faces, which sit near the edges, so it is not the default here.
+	 *
+	 * `contain` fits the whole frame inside, centred, uncropped — and leaves bars where the shapes
+	 * disagree. This is what the slider did before the setting existed.
+	 *
+	 * `blur` is `contain` with those bars filled: a second copy of the same picture sits behind it,
+	 * covering the slide, enlarged and blurred. Nothing is cropped and nothing is empty. The copy is
+	 * drawn by `PostItem` — see `.bsb-feed-blur` — with the same `src` and `srcset` as the picture in
+	 * front of it, so the browser picks the same candidate and fetches it once.
+	 *
+	 * Only for a feed: an image or a post slider shows a picture chosen to fill its slide, and cropping
+	 * one to the slide's shape is what filling it means. Those keep `cover` and never reach this.
+	 *
+	 * Two selectors for the fit, because the swiper layouts have a `cover` rule of their own and it is
+	 * the more specific of the two. This is that selector again, further down the stylesheet, so it wins
+	 * on order rather than with an `!important`.
+	 */
+	const imageFit = socialQuery?.imageFit || 'blur';
+
+	/**
+	 * The rules that let a picture set its own card's height — see `isAutoGrid`.
+	 *
+	 * The height itself is already `auto` by the time this is reached; what is left is everything that
+	 * was holding the picture to a box it no longer has:
+	 *
+	 * - `.item > .img` and the popup anchor inside it are both `height: 100%` in the stylesheet, and
+	 *   100% of an `auto` parent is `auto` anyway — written out because relying on that is the kind of
+	 *   thing a later stylesheet change quietly breaks.
+	 * - `.bsbCarousel .item > .img img` sets width and height to 100% with `!important`. An ID beats
+	 *   any number of classes, so `!important` here is answering that one and nothing else.
+	 * - `align-items: start` on the grid. `.item` *is* the grid child, and a grid stretches its children
+	 *   to the tallest in the row by default — so a card would still be pulled to its neighbour's height,
+	 *   with its picture sitting at the top of a taller box. This is what makes each card end where its
+	 *   own picture ends.
+	 *
+	 * The blurred backdrop is excluded, as it is everywhere else. It has no work to do here — with the
+	 * box the shape of the picture there is nothing left over to fill — and its own rules keep it
+	 * covering the picture exactly, out of sight.
+	 *
+	 * `width`/`height` attributes on the `<img>` give the browser the ratio before the file lands, so the
+	 * grid is laid out once rather than reflowing as each picture arrives. `PostItem` sets them wherever
+	 * the feed reports dimensions.
+	 */
+	const autoGridPicture = ! isAutoGrid ? '' : `
+	/**
+	 * \`start\`, so the ratio below is the thing that decides a card's height.
+	 *
+	 * \`.item\` *is* the grid child, and a grid stretches its children to the tallest in the row by
+	 * default — which hands the item a definite height and makes \`aspect-ratio\` a suggestion the
+	 * browser then ignores. It is what made a card get pulled to its neighbour's height with its
+	 * picture stranded at the top of a taller box.
+	 */
+	#bsbCarousel-${clientId} .grid {
+		align-items: start;
+	}
+
+	${'original' === gridRatio ? `
+	/* Every card its own picture's shape. Nothing is cropped and nothing is padded, and no two cards
+	   need agree — the price is a ragged bottom edge where a feed mixes shapes. */
+	#bsbCarousel-${clientId} .grid .item > .img,
+	#bsbCarousel-${clientId} .grid .item > .img > a {
+		height: auto;
+	}
+
+	#bsbCarousel-${clientId} .grid .item > .img img:not(.bsb-feed-blur) {
+		width: 100% !important;
+		height: auto !important;
+		display: block;
+	}` : `
+	/**
+	 * One shape for every card, and the height comes out of the column's own width.
+	 *
+	 * This is the answer to a grid whose cards were far shorter than the fixed height they replaced: a
+	 * 16:9 thumbnail in a 380px column is 214px tall against the 450px it used to be, which is correct
+	 * arithmetic and a worse-looking grid — and it left the caption, laid over the picture, almost no
+	 * room. A ratio keeps what mattered about \`auto\` — no pixel height to maintain, and every card
+	 * resizing with its column on every screen — while putting how tall back in somebody's hands.
+	 *
+	 * The picture fills the box, so Image Fit means exactly what it means everywhere else: \`cover\`
+	 * crops to the shape, \`contain\` fits inside it, \`blur\` fills what is left with the picture itself.
+	 * A feed whose shape differs from the chosen one is that setting's business, not this one's.
+	 */
+	#bsbCarousel-${clientId} .grid .item {
+		aspect-ratio: ${gridRatio};
+		height: auto;
+	}
+
+	#bsbCarousel-${clientId} .grid .item > .img,
+	#bsbCarousel-${clientId} .grid .item > .img > a {
+		height: 100%;
+	}`}`;
+
+	const feedPicture = 'social' !== sourceType || 'cover' === imageFit ? '' : `
+	#bsbCarousel-${clientId} .item > .img img:not(.bsb-feed-blur),
+	#bsbCarousel-${clientId} .swiper .swiper-wrapper .swiper-slide .item > .img img:not(.bsb-feed-blur) {
+		object-fit: contain;
+	}
+
+	${'blur' !== imageFit ? '' : `
+	/* The wrapper the copy is positioned against. It is the picture's own box in every layout, which
+	   the slide is not: a caption laid over the slide is a sibling of this, and a backdrop sized to
+	   the slide would paint over nothing else but would still be the wrong box to reason about. */
+	#bsbCarousel-${clientId} .item > .img {
+		position: relative;
+		overflow: hidden;
+		/* A stacking context, and that is the whole reason the \`z-index\` is here rather than left at
+		   \`auto\`. The backdrop and the picture are ordered against each other below with 0 and 1, and
+		   without a context of their own to sit in those numbers are measured against the slide's —
+		   where the 1 lifts the picture over the slider's overlay colour, which is \`.item::after\` at
+		   \`auto\`. The overlay vanished behind the picture. Held in here, the pair keep their order
+		   and the whole \`.img\` stays a single layer the overlay still paints on top of. */
+		z-index: 0;
+	}
+
+	#bsbCarousel-${clientId} .item > .img > img.bsb-feed-blur {
+		position: absolute;
+		inset: 0;
+		width: 100% !important;
+		height: 100% !important;
+		/* Beats the \`contain\` above, which matches this element too by way of the layouts' own
+		   \`.img img\` rules — the copy is the one picture here that must fill its box. */
+		object-fit: cover !important;
+		/* Scaled up before it is blurred: a blur samples past the edges of what it is given and fades
+		   out there, so an unscaled copy would show a soft transparent border all the way round. */
+		transform: scale(1.15);
+		filter: blur(22px) saturate(1.3) brightness(0.85);
+		z-index: 0;
+		pointer-events: none;
+	}
+
+	/* Above the backdrop. The popup's anchor is already positioned — see \`.bsbFeedPlay\` — but a slide
+	   that only shows a picture puts a bare, unpositioned \`<img>\` here, and an unpositioned element
+	   paints below a positioned one however they are ordered in the markup. */
+	#bsbCarousel-${clientId} .item > .img > img:not(.bsb-feed-blur),
+	#bsbCarousel-${clientId} .item > .img > a {
+		position: relative;
+		z-index: 1;
+	}`}`;
+
+	/**
+	 * The player's colours, for the players that live inside the slider.
+	 *
+	 * Two custom properties Plyr's own stylesheet already reads, so this feeds its rules rather than
+	 * fighting them — see `playerVars`. Set on the slider's root, because a property set there is
+	 * inherited by every player under it however the layouts nest them.
+	 *
+	 * The lightbox's player is not under here and cannot be reached this way. It is handed the same two
+	 * values on the overlay element instead, from the same function, in `bsb_fancybox_options`.
+	 */
+	/**
+	 * Every List layout setting, as custom properties on the slider's own root.
+	 *
+	 * Properties rather than rules, so the stylesheet holds the shapes once and this holds only the
+	 * numbers. Changing "rows in view" then costs one variable instead of a new selector — and because
+	 * the list reads them through `var()`, nothing in the layout re-renders to pick a change up.
+	 *
+	 * Only written for the layout it belongs to: a grid slider carrying a dozen unread variables would
+	 * be a dozen lines in every page's head for nothing.
+	 */
+	const listCSS = 'list' !== attributes?.layoutType ? '' : `
+	#bsbCarousel-${clientId} .bsbList {
+		--bsb-list-rows: ${listLayout.rows ?? 4};
+		--bsb-list-thumb-w: ${listLayout.thumbWidth ?? 168}px;
+		--bsb-list-thumb-ratio: ${listLayout.thumbRatio || '16/9'};
+		--bsb-list-row-gap: ${listLayout.rowGap ?? 8}px;
+		--bsb-list-row-pad: ${listLayout.rowPadding ?? 8}px;
+		--bsb-list-row-radius: ${listLayout.rowRadius ?? 10}px;
+		--bsb-list-title-lines: ${listLayout.titleLines ?? 2};
+		--bsb-list-stage-ratio: ${listLayout.stageRatio || '16/9'};
+		--bsb-list-row-bg: ${listLayout.rowBg || 'transparent'};
+		--bsb-list-row-hover: ${listLayout.rowHoverBg || 'rgba(0,0,0,0.05)'};
+		--bsb-list-row-active: ${listLayout.rowActiveBg || 'rgba(24,108,245,0.10)'};
+		--bsb-list-title: ${listLayout.rowTitleColor || '#111827'};
+		--bsb-list-meta: ${listLayout.rowMetaColor || '#6b7280'};
+		--bsb-list-bar: ${listLayout.activeBarColor || '#ff0000'};
+		--bsb-list-watched: ${listLayout.watchedColor || '#16a34a'};
 	}`;
 
 	/**
@@ -429,42 +712,15 @@ ${layerMotionCSS}
 	 * `.bsb-acf-item`, which both wear. The `--badge` class stays for anything that really is badge-only.
 	 *
 	 * Written after the preset rules in `style.scss` and with the slider's id in front of them, so a
-	 * chosen colour beats the preset's own — which is what "the user picked this" has to mean.
+	 * chosen colour beats the preset's own — which is what "the user picked this" has to mean. The
+	 * background is left out when it is empty rather than written as `none`, so a preset that draws no chip
+	 * keeps its own answer.
 	 */
-	const bStyle = {
-		typo: {
-			fontSize: {
-				desktop: 12,
-				tablet: 12,
-				mobile: 11,
-				...(badgeStyle?.typo?.fontSize || {})
-			},
-			fontWeight: 500,
-			lineHeight: '150%',
-			...(badgeStyle?.typo || {})
-		},
-		colors: {
-			color: '#ffffff',
-			bg: 'rgba(0,0,0,0.65)',
-			...(badgeStyle?.colors || {})
-		}
-	};
-
 	const badgeItem = `#bsbCarousel-${clientId} .bsb-acf-item`;
 
-	/**
-	 * The colours are written only once one has been picked.
-	 *
-	 * They used to be written every time, defaults and all, which at this selector's specificity
-	 * meant the chip's own preset never got a say: an outline or plain field was painted back to the
-	 * filled black chip it was chosen instead of. Harmless while this rule reached badges only,
-	 * since a badge and the default preset agree — but the rule reaches ACF fields now, and those
-	 * are where the presets are actually used. `style.scss` already carries the same default look,
-	 * so nothing changes for a slider that never chose a colour.
-	 */
 	const badgeCSS = `
-	${getTypoCSS('', bStyle.typo)?.googleFontLink || ''}
-	${getTypoCSS(badgeItem, bStyle.typo)?.styles || ''}
+	${getTypoCSS('', badgeStyle?.typo)?.googleFontLink || ''}
+	${getTypoCSS(badgeItem, badgeStyle?.typo)?.styles || ''}
 
 	${badgeItem} {
 		${badgeStyle?.colors?.color ? `color: ${badgeStyle.colors.color};` : ''}
@@ -475,38 +731,93 @@ ${layerMotionCSS}
 		${postsQuery?.badgeSettings?.price?.showSaleOnly === true ? 'display: none !important;' : ''}
 	}`;
 
+	const playerColors = Object.entries(playerVars(attributes?.videoConf))
+		.filter(([, value]) => value)
+		.map(([prop, value]) => `\t\t${prop}: ${value};`)
+		.join('\n');
+
 	return <style dangerouslySetInnerHTML={{
 		__html: `
 	${getTypoCSS('', loadMoreBtn?.typo)?.googleFontLink}
 	${getTypoCSS('', titleTypo)?.googleFontLink}
 	${getTypoCSS('', descTypo)?.googleFontLink}
-	 
+	${getTypoCSS('', btnTypo)?.googleFontLink}
 	${getTypoCSS(`#bsbCarousel-${clientId} .grid-wrapper .load-more button`, loadMoreBtn?.typo)?.styles}
 	${getTypoCSS(`#bsbCarousel-${clientId} .bsbTitle`, titleTypo)?.styles}
-	${getTypoCSS(`#bsbCarousel-${clientId} p`, descTypo)?.styles}
+	${getTypoCSS(descText, descTypo)?.styles}
+	${getTypoCSS(`#bsbCarousel-${clientId} .carousel-button a`, btnTypo)?.styles}
+
+	#bsbCarousel-${clientId} {
+${playerColors}
+	}
+	${listCSS}
 	${badgeCSS}
+
+	#bsbCarousel-${clientId} .bsbCarousel {
+		margin:${getBoxValue(margin)};
+	}
 
 	#bsbCarousel-${clientId} .grid {
 		grid-gap: ${rowGap} ${columnGap};
 	}
 
+	${getTypoCSS(`#bsbCarousel-${clientId} .bsb-profile-name`, headerNameTypo)?.styles}
+	${getTypoCSS(`#bsbCarousel-${clientId} .bsb-profile-bio`, headerBioTypo)?.styles}
+	${getTypoCSS(`#bsbCarousel-${clientId} .bsb-profile-followers`, headerFollowersTypo)?.styles}
+	${getTypoCSS(`#bsbCarousel-${clientId} .bsb-follow-btn`, headerBtnTypo)?.styles}
+
+	/*
+	 * The profile header's own colours.
+	 *
+	 * Written through the same ID selector the captions use, and that is the point: the caption
+	 * rule reaches every paragraph in the slider, so the header's bio had to be excluded from it —
+	 * see descText — and then needed a colour of its own to fall back to. A class in style.scss
+	 * could never have provided one, because an ID beats a class wherever the two meet.
+	 *
+	 * The name is left alone when nothing is chosen. An unset colour inherits the page, which suits
+	 * a header sitting on the site's own background better than any value that could be guessed.
+	 */
+	${headerNameColor ? `#bsbCarousel-${clientId} .bsb-profile-name { color: ${headerNameColor}; }` : ''}
+
+	#bsbCarousel-${clientId} .bsb-profile-bio {
+		color: ${headerBioColor || '#666666'};
+	}
+
+	/**
+	 * The stats line: "199K Subscribers, 1.1K Videos, 4.6M Views".
+	 *
+	 * Written only when the user has picked a colour. Printing the grey fallback unconditionally is
+	 * what made the card style's accented figures both unreachable and undefeatable at once: this
+	 * rule is ID-scoped, so it beat the stylesheet's dark-mode grey even on a slider nobody had
+	 * touched, while the figures inside kept their own accent rule and ignored it. Silent here means
+	 * the stylesheet decides, which is what the two header styles are for.
+	 *
+	 * The custom property is read by those figures — see the strong rule under
+	 * .bsb-profile-followers in style.scss. Without it the card style goes on painting them accent.
+	 */
+	${headerFollowersColor ? `#bsbCarousel-${clientId} .bsb-profile-followers { color: ${headerFollowersColor}; --bsb-stats-color: ${headerFollowersColor}; }` : ''}
+
+	#bsbCarousel-${clientId} .bsb-follow-btn {
+		${getColorsCSS(headerBtnColors)};
+	}
+
 	#bsbCarousel-${clientId} .bsbTitle{
 		color: ${titleColor};
 		margin: ${getBoxValue(titleMargin)};
-		animation-delay: 0s;
-		animation-duration: 0.7s;
+		animation-delay: ${titleAnimation?.delay}s;
+		animation-duration: ${titleAnimation?.duration}s;
 	}
 
-	#bsbCarousel-${clientId} p {
+	${descText} {
 		color: ${descColor};
 		margin: ${getBoxValue(descMargin)};
-		animation-delay: 0.7s;
-		animation-duration: 0.7s;
+		animation-delay: ${descAnimation?.delay}s;
+		animation-duration: ${descAnimation?.duration}s;
 	}
 
 	#bsbCarousel-${clientId} .carousel-button {
-		animation-delay: 1.4s;
-		animation-duration: 0.7s;
+		animation-delay: ${btnAnimation?.delay}s;
+		animation-duration: ${btnAnimation?.duration}s;
 	}
 
 	#bsbCarousel-${clientId} .carousel-button a {
@@ -526,7 +837,7 @@ ${layerMotionCSS}
 	#bsbCarousel-${clientId} .videoItem,
 	#bsbCarousel-${clientId} .thumbnails .side-by-side .bsb-slider-thumbnail{
 		position:relative;
-		height: ${sliderHeight?.desktop || height};
+		height: ${itemHeight.desktop};
 		border-radius: ${getBoxValue(borderRadius)};
 		box-sizing: border-box;
 		overflow: hidden;
@@ -560,17 +871,23 @@ ${layerMotionCSS}
 		height:100%;
 	}
 
-	#bsbCarousel-${clientId} .swiper .swiper-wrapper .swiper-slide .item img{
+	/* The slide's own picture. This was .item img, which also caught an image placed in the title
+	   or the description and sized it to the whole slide. */
+	#bsbCarousel-${clientId} .swiper .swiper-wrapper .swiper-slide .item > .img img{
 		width:100%;
 		height:100%;
 		object-fit:cover;
 	}
 
-	#bsbCarousel-${clientId} .item, 
+	${feedPicture}
+
+	${autoGridPicture}
+
+	#bsbCarousel-${clientId} .item,
 	#bsbCarousel-${clientId} .videoItem,
 	#bsbCarousel-${clientId} .carousel .swiper,
 	#bsbCarousel-${clientId} .thumbnails .bsb-main-carousel-wrapper .bsb-main-slider{
-		height: ${sliderHeight?.desktop || height};
+		height: ${itemHeight.desktop};
 	}
 
 	#bsbCarousel-${clientId} .bsbButtonDesign .bsbArrowButton {
@@ -658,8 +975,15 @@ ${layerMotionCSS}
 	}
 
 	#bsbCarousel-${clientId} .carousel-indicators {
-    	grid-template-${isVertical ? 'rows' : 'columns'}: repeat(${sourceType === "posts" ? postsCount : sourceType === "woo" ? products?.length : sliders?.length}, minmax(auto, ${isVertical ? indicator?.height : indicator?.width}));
+    	grid-template-${isVertical ? 'rows' : 'columns'}: repeat(${("posts" === sourceType || "social" === sourceType) ? postsCount : sourceType === "woo" ? products?.length : sliders?.length}, minmax(auto, ${isVertical ? indicator?.height : indicator?.width}));
 		padding: ${isVertical ? '5% 0' : '0 5%'};
+	}
+
+	#bsbCarousel-${clientId} .horizontal button {
+		transform: translateY(${indicator?.moveFromEdge});
+	}
+	#bsbCarousel-${clientId} .vertical button {
+		transform: translateX(${indicator?.moveFromEdge});
 	}
 
 	#bsbCarousel-${clientId} .carousel-indicators {
@@ -695,13 +1019,13 @@ ${layerMotionCSS}
 
 	@media (max-width: 768px) {
 		#bsbCarousel-${clientId} .item, #bsbCarousel-${clientId} .videoItem {
-			height: ${sliderHeight?.tablet || sliderHeight?.desktop || height};
+			height: ${itemHeight.tablet};
 		}
 	}
 
 	@media (max-width: 576px) { 
 		#bsbCarousel-${clientId} .item, #bsbCarousel-${clientId} .videoItem { 
-			height: ${sliderHeight?.mobile || sliderHeight?.tablet || sliderHeight?.desktop || height};
+			height: ${itemHeight.mobile};
 		}
 	}
 
@@ -741,19 +1065,19 @@ ${layerMotionCSS}
 		${(arrow?.visibility && carouselStyle !== "ticker") ? `width:calc(100% - (${deviceArrowWidth?.desktop} + ${deviceArrowWidth?.desktop} + 10px));` : ''}
 	}
 
-	#bsbCarousel-${clientId} .grid-wrapper .pagination button, #bsbCarousel-${clientId} .grid-wrapper .load-more button{
+	#bsbCarousel-${clientId} .grid-wrapper .pagination button, #bsbCarousel-${clientId} .grid-wrapper .load-more button, #bsbCarousel-${clientId} .thumbs-as-grid .load-more button{
  		${getColorsCSS(loadMoreBtn?.colors)};
 		padding: ${getBoxValue(loadMoreBtn?.padding || {})};
 		border: ${getBoxValue(loadMoreBtn?.border || {})};
 		border-radius:${getBoxValue(loadMoreBtn?.radius)};
 	}
 
-	#bsbCarousel-${clientId} .grid-wrapper .button_area{
+	#bsbCarousel-${clientId} .grid-wrapper .button_area, #bsbCarousel-${clientId} .thumbs-as-grid .button_area{
 		text-align: ${loadMoreBtn?.align};
 		justify-content: ${loadMoreBtn?.align};
 	}
 
-	#bsbCarousel-${clientId} .grid-wrapper .pagination button:hover, #bsbCarousel-${clientId} .grid-wrapper .load-more button:hover{
+	#bsbCarousel-${clientId} .grid-wrapper .pagination button:hover, #bsbCarousel-${clientId} .grid-wrapper .load-more button:hover, #bsbCarousel-${clientId} .thumbs-as-grid .load-more button:hover{
 		${getColorsCSS(loadMoreBtn?.hovColors)};
 	}
 
@@ -768,6 +1092,98 @@ ${layerMotionCSS}
 	#bsbCarousel-${clientId} .bsb-main-carousel-wrapper.side-by-side .carousel-wrapper{
 		width: calc( 100% - ${thumbnailsWidth?.desktop} );
 	}
+
+	${'social' !== sourceType ? '' : `
+	#bsbCarousel-${clientId} .bsb-social-post-stats {
+		${likesCommentsColor ? `color: ${likesCommentsColor};` : ''}
+	}
+	${getTypoCSS(`#bsbCarousel-${clientId} .bsb-social-post-stats .bsb-stat-count`, likesCommentsTypo)?.styles}
+
+	#bsbCarousel-${clientId} .bsbFeedPlayIcon,
+	#bsbCarousel-${clientId} .bsb-thumb-play {
+		${playIconColor ? `color: ${playIconColor} !important;` : ''}
+		${playIconBg ? `background: ${playIconBg} !important;` : ''}
+	}
+	#bsbCarousel-${clientId} .bsbFeedPlayIcon svg,
+	#bsbCarousel-${clientId} .bsb-thumb-play::after {
+		${playIconColor ? `stroke: ${playIconColor} !important; fill: ${playIconColor} !important;` : ''}
+	}
+	#bsbCarousel-${clientId} .bsbFeedPlay:hover .bsbFeedPlayIcon,
+	#bsbCarousel-${clientId} .bsb-thumb-cell:hover .bsb-thumb-play,
+	#bsbCarousel-${clientId} .single_thumbnails:hover .bsb-thumb-play {
+		${playIconHoverBg ? `background: ${playIconHoverBg} !important;` : ''}
+	}
+
+	#bsbCarousel-${clientId} .bsbSlideActions {
+		${(() => {
+			const pos = socialQuery?.hoverActionsPosition || 'top-right';
+			if (pos === 'top-left') {
+				return 'top: 10px !important; left: 10px !important; right: auto !important; bottom: auto !important;';
+			} else if (pos === 'bottom-right') {
+				return 'bottom: 10px !important; right: 10px !important; top: auto !important; left: auto !important;';
+			} else if (pos === 'bottom-left') {
+				return 'bottom: 10px !important; left: 10px !important; top: auto !important; right: auto !important;';
+			}
+			return 'top: 10px !important; right: 10px !important; left: auto !important; bottom: auto !important;';
+		})()}
+	}
+	`}
+
+	${'hover' === caption?.display ? `
+	#bsbCarousel-${clientId} .item .content-area {
+		display: flex !important;
+		align-items: center !important;
+		justify-content: center !important;
+		background: rgba(0, 0, 0, 0.75) !important;
+	}
+	` : ''}
+
+	${(cardLayout && caption?.display !== 'hover') ? `
+	#bsbCarousel-${clientId} .item {
+		display: flex !important;
+		flex-direction: column !important;
+		height: auto !important;
+		aspect-ratio: auto !important;
+		${cardBgColor ? `background-color: ${cardBgColor} !important;` : 'background-color: #f3f4f6 !important;'}
+		${cardRadius ? `
+			border-radius: ${cardRadius.top || '0px'} ${cardRadius.right || '0px'} ${cardRadius.bottom || '0px'} ${cardRadius.left || '0px'} !important;
+		` : ''}
+		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03) !important;
+		overflow: hidden !important;
+	}
+
+	#bsbCarousel-${clientId} .carousel-item:not(.active):not(.carousel-item-next):not(.carousel-item-prev):not(.carousel-item-start):not(.carousel-item-end) {
+		display: none !important;
+	}
+
+	#bsbCarousel-${clientId} .item > .img,
+	#bsbCarousel-${clientId} .item > .img > a {
+		height: auto !important;
+		aspect-ratio: 1/1 !important;
+		width: 100% !important;
+	}
+
+	#bsbCarousel-${clientId} .item .content-area {
+		position: static !important;
+		display: flex !important;
+		flex-direction: column !important;
+		align-items: center !important;
+		justify-content: center !important;
+		width: 100% !important;
+		height: auto !important;
+		text-align: center !important;
+		${cardPadding ? `
+			padding: ${cardPadding.top || '16px'} ${cardPadding.right || '16px'} ${cardPadding.bottom || '16px'} ${cardPadding.left || '16px'} !important;
+		` : 'padding: 16px !important;'}
+	}
+
+	#bsbCarousel-${clientId} .item .captionContent {
+		position: static !important;
+		transform: none !important;
+		width: 100% !important;
+		max-width: 100% !important;
+	}
+	` : ''}
 
 	`.replace(/\s+/g, ' ')
 	}} />

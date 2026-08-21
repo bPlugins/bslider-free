@@ -1,3 +1,21 @@
+/**
+ * One glyph, as a mask.
+ *
+ * Written here rather than as inline SVG in the markup because the share panel's markup is carried
+ * in a `data-src` attribute on every slide's anchor — five icons across twenty slides would be the
+ * same paths repeated a hundred times in the page source. As a mask the shape is stated once and
+ * the colour comes from whatever `background` the element carries, so one rule recolours the set.
+ *
+ * The `d` is single-quoted inside the SVG so it cannot collide with the quotes the compiler puts
+ * around the URL, and the angle brackets are escaped because a raw `<` is not valid in a URL.
+ */
+@mixin bsb-share-mask($path) {
+    $svg: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"%3E%3Cpath fill="black" d=' + "'" + $path + "'" + '/%3E%3C/svg%3E';
+
+    -webkit-mask-image: url($svg);
+    mask-image: url($svg);
+}
+
 .wp-block-bsb-slider {
     * {
         box-sizing: border-box;
@@ -7,22 +25,34 @@
         text-decoration: none;
     }
 
+    .bsbNoPosts {
+        color: red;
+        text-align: center;
+        font-size: 20px;
+    }
+
     /**
-     * A slide whose whole picture is the link — `Open in a new tab` sits under it in the Slide Content
-     * panel, and the link itself is unconditional. See `LinkedPicture`.
+     * A slide whose picture is a play button — the caption must not stand in front of it.
      *
      * The caption is not a strip under the slide, it is a panel laid over it: `.carousel-caption` is
-     * absolutely positioned across the middle 70% and `.content-area` across the whole of it. So
-     * without this the link would look broken in exactly the way it was meant to fix — the caption
-     * covers the whole slide, so only the button would answer a click and the picture around it would
-     * not, which is the complaint the link exists to answer.
+     * absolutely positioned across the middle 70% and `.content-area` across the whole of it. So the
+     * click that was meant for the video landed on the title instead, and the popup never opened. It
+     * took loading the real page to see it — the markup and the lightbox were both correct, and
+     * nothing about either says the caption is on top.
      *
      * The same shape of answer `.bsb-acf-layer` already uses: the layer stops taking clicks, and
      * whatever inside it is genuinely meant to be clicked takes them back.
      *
-     * The class is not written on a slide that has no link to protect, so a slider with none keeps its
-     * caption exactly as interactive as it always was.
+     * `.is-linked` is the same problem arriving from the other direction — a post or product slide
+     * whose whole picture is the link, which is `Clicking the picture` in the Slide Content panel.
+     * Without this the setting would look broken in exactly the way it was meant to fix: the caption
+     * covers the whole slide, so only the button would answer a click and the picture around it
+     * would not, which is the complaint the setting exists to answer.
+     *
+     * Neither class is written on a slide that has no such click to protect, so a slider that never
+     * asked for one keeps its caption exactly as interactive as it always was.
      */
+    .item.is-playable,
     .item.is-linked {
 
         /**
@@ -30,7 +60,12 @@
          *
          * `Style.js` lays `.item:after` across the whole slide to paint the overlay colour. A
          * pseudo-element is not an element, so hit-testing credits it to whatever it belongs to —
-         * every click on a slide arrives with `.item` as its target, never the anchor inside it.
+         * every click on a slide was arriving with `.item` as its target, never the anchor inside it,
+         * and Fancybox's `closest()` looked for its trigger, found nothing and let the click go.
+         *
+         * It took a browser to see this. The markup was right, the lightbox was right, and the
+         * anchor's own `pointer-events` was `auto` — the culprit does not appear in the element tree
+         * at all. Only `elementFromPoint` naming `.item` gave it away.
          *
          * Nothing is lost by making it transparent to clicks: it paints a colour and that is all.
          */
@@ -52,10 +87,21 @@
     }
 
     /**
-     * The anchor that wraps a slide's picture — see `LinkedPicture`.
+     * A feed slide that opens its video in the lightbox.
      *
-     * It sits inside `.img` rather than around it, because the picture is sized by `.item > .img img`
-     * and a wrapper outside that box takes it out of the rule's reach.
+     * Its own classes rather than the video source's `.play` markup: that one is styled through
+     * `.lightboxArea .contentArea .img .play`, and matching it here would mean putting a `.contentArea`
+     * between `.item` and `.img` — which is exactly the nesting `.item > .img img` relies on to size the
+     * slide picture. Two small rules cost less than rearranging the DOM every layout renders.
+     */
+    .bsbFeedPlay,
+    /**
+     * A post or product slide whose picture is the link — the `Clicking the picture` setting.
+     *
+     * Sharing the rule rather than repeating it: the two anchors differ only in what a click does,
+     * and both sit in the same place in the same box with the same picture inside. The `position`
+     * earns its keep here too — `Style.js` puts `.item > .img > a` above the blurred backdrop by
+     * `z-index`, and a `z-index` on a static element is ignored.
      */
     .bsbSlideLink {
         display: block;
@@ -89,74 +135,335 @@
         cursor: pointer;
     }
 
-    /**
-     * The placeholder a query with no results falls back to.
-     *
-     * It carries no colours of its own. A block drops into a theme whose background it cannot know,
-     * and a fixed palette is wrong against half of them — the light card that reads well on a white
-     * page turns into a bright slab on a dark one. So the frame is mixed out of `currentColor`,
-     * which the theme has already set to something legible against its own background, and it
-     * follows a light or dark theme without being told which it is in.
-     *
-     * `color-mix` is stated second on purpose: the plain `rgba` above it is what older browsers
-     * keep, a neutral grey that holds up either way, and only browsers that understand the mix take
-     * the adaptive one.
-     */
-    .bsbNoPosts {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        box-sizing: border-box;
-        width: 100%;
-        min-height: 220px;
-        margin: 0;
-        padding: 40px 24px;
-        border: 1px dashed rgba(125, 135, 150, 0.4);
-        border-radius: 12px;
-        background: rgba(125, 135, 150, 0.06);
-        text-align: center;
+    .bsbFeedPlayIcon {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        display: grid;
+        place-items: center;
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        /* Dark enough to hold a white glyph over any frame — a YouTube thumbnail can be any colour at
+           its centre, so the badge brings its own contrast rather than trusting the picture. */
+        background: rgba(17, 17, 17, 0.62);
+        color: #fff;
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.3s ease, background 0.2s ease, transform 0.2s ease;
 
-        /**
-         * The adaptive colours, behind a support test rather than stated twice.
-         *
-         * Declaring a fallback and an override back to back is the usual way, but cssnano folds
-         * `border` and `border-color` back into one shorthand and keeps only the last — which threw
-         * the fallback away and left older browsers with no border at all. It will not fold across
-         * an `@supports`, so the two stay separate through the build.
-         */
-        @supports (border-color: color-mix(in srgb, currentColor 22%, transparent)) {
-            border-color: color-mix(in srgb, currentColor 22%, transparent);
-            background: color-mix(in srgb, currentColor 4%, transparent);
+        /* The icon carries `fill="#fff"` on its own path, so there is no colour to set here — only the
+           size, which overrides the width and height attributes it also ships with. */
+        svg {
+            width: 26px;
+            height: 26px;
+            /* Nudged right: a triangle's visual centre sits left of its bounding box. */
+            margin-left: 3px;
         }
     }
 
-    .bsbNoPostsIcon {
+    .bsbFeedPlay:hover .bsbFeedPlayIcon {
+        opacity: 1;
+        background: #ff0000;
+        transform: translate(-50%, -50%) scale(1.08);
+    }
+
+    /**
+     * The badge for a video the page cannot play — see `playsHere` in PostItem.
+     *
+     * A square-ish glyph, not a triangle, so the nudge the triangle needs comes off; and Instagram's
+     * own magenta on hover rather than YouTube's red, which would be claiming the wrong service.
+     */
+    .bsbFeedPlayIcon.is-external svg {
+        margin-left: 0;
+    }
+
+    .bsbFeedPlay:hover .bsbFeedPlayIcon.is-external {
+        background: #d62976;
+    }
+
+
+    /**
+     * The muted preview that plays under the cursor — see `HoverPreview`.
+     *
+     * **Why the picture box needs positioning at all.** The preview is laid over the slide's own
+     * thumbnail with `inset: 0`, and an absolutely positioned element measures that against its
+     * nearest positioned ancestor. With Image Fit set to `blur`, `Style.js` already makes `.img`
+     * relative for the backdrop; with `cover` or `contain` it does not, and without this the preview
+     * would size itself to the whole slider instead of the slide. Scoped to the slides that have one,
+     * so no layout changes for a slider that never asked for a preview.
+     */
+    .img.has-hover-preview {
+        position: relative;
+    }
+
+    /* The same need, for the slide that has quick actions but no preview — a slider can have one without
+       the other. Written as its own rule and not added to the list above: an unsupported selector
+       invalidates the whole list it appears in, and this one is newer than the browsers the preview has
+       to keep working in. */
+    .item > .img:has(.bsbSlideActions) {
+        position: relative;
+    }
+
+    /**
+     * The layer the preview lives in.
+     *
+     * Above the blurred backdrop (0) and the thumbnail (1) that `Style.js` orders under the `blur`
+     * fit. The play badge is faded out rather than raised over this — see `.is-previewing`.
+     *
+     * It takes no pointer events, and the picture inside it takes none either: the cursor belongs to
+     * the slide. An iframe that took it would swallow the click the popup is waiting for, and would
+     * fire `mouseleave` on the slide the instant it appeared over it — stopping the preview that had
+     * just started. The speaker button takes them back, because it is the one thing in here that is
+     * meant to be pressed.
+     */
+    .bsbHoverPreviewBox {
+        position: absolute;
+        inset: 0;
+        z-index: 2;
+        display: grid;
+        place-items: center;
+        overflow: hidden;
+        pointer-events: none;
+    }
+
+    .bsbHoverPreview {
+        width: 100%;
+        height: 100%;
+        border: 0;
+        display: block;
+        grid-area: 1 / 1;
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    /* Faded in when there is a frame to show, so the slide never flashes a black box on its way in.
+       The thumbnail underneath is what fills the gap. */
+    .bsbHoverPreview.is-ready {
+        opacity: 1;
+    }
+
+    /* The same fit the thumbnail was given, so the preview does not jump to a different shape than the
+       frame it replaces. Meaningful for a `<video>` only; an embed is shaped by its box instead. */
+    .bsbHoverPreviewBox.is-fit-cover video.bsbHoverPreview {
+        object-fit: cover;
+    }
+
+    .bsbHoverPreviewBox.is-fit-contain video.bsbHoverPreview {
+        object-fit: contain;
+    }
+
+    /**
+     * A YouTube embed, shaped by its rectangle rather than by `object-fit`.
+     *
+     * `object-fit` cannot reach inside a cross-origin iframe — the player is another document and it
+     * letterboxes the video within whatever rectangle it is handed. So the rectangle is what gets
+     * shaped: under `contain` and `blur` the iframe is a centred 16:9 frame, which leaves the bars
+     * either side of it showing the blurred backdrop or the slide rather than the player's own black.
+     *
+     * Under `cover` it fills the slide instead, which is the rule above. The thumbnail beneath it is
+     * cropped to fill there, so a centred frame would be a preview visibly smaller than the still it
+     * replaced.
+     */
+    .bsbHoverPreviewBox.is-fit-contain iframe.bsbHoverPreview {
+        height: auto;
+        /* Clamped for a slide wider than widescreen, where a derived height would overflow. There the
+           ratio gives way and the player letterboxes inside, which is the same result by a shorter
+           route. */
+        max-height: 100%;
+        aspect-ratio: 16 / 9;
+    }
+
+    /**
+     * The speaker: the only part of a preview a visitor can press.
+     *
+     * **Why it exists.** A preview has to start muted — every browser refuses to start a video with
+     * sound behind it without a gesture, and a refused start leaves a still frame rather than a silent
+     * video. This is that gesture, in the place YouTube's own hover preview puts it.
+     *
+     * `pointer-events` back on, against the box's `none`. `grid-area` keeps it out of the centring flow
+     * the box uses for the picture — it is positioned in the corner instead.
+     */
+    /**
+     * The quick actions on a thumbnail: send this video to the corner, or go to the original.
+     *
+     * Hidden until the cursor is on the slide, which is what keeps a grid of twelve from looking like a
+     * control panel — and shown on `focus-within` too, so they are reachable by keyboard.
+     *
+     * `z-index: 3` puts them over the preview (2), the thumbnail (1) and the backdrop (0), and
+     * `pointer-events` are theirs alone: the box they sit in passes the cursor through to the picture,
+     * so a click anywhere else still does whatever the slider is set to do.
+     */
+    .bsbSlideActions {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        /**
+         * Above the arrows, which is the whole reason these moved out of the picture box.
+         *
+         * The default layout lays two invisible 90px-wide, full-height buttons over the sides of the
+         * slide at `z-index: 1`, and `Style.js` gives `.img` a `z-index` of its own for the blurred
+         * backdrop — making it a stacking context nothing inside can escape. So a control in the corner
+         * of the picture was a control the arrow took every click from. Out here, `5` settles it.
+         */
+        z-index: 5;
         display: flex;
-        margin-bottom: 14px;
-        opacity: 0.45;
+        flex-direction: column;
+        gap: 6px;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+        pointer-events: none;
     }
 
-    /* `color: inherit` over the theme's own heading colour, which is the one point here that has to
-       stay fully legible. */
-    .bsbNoPostsTitle {
-        margin: 0 0 6px;
-        padding: 0;
-        color: inherit;
-        font-size: 17px;
-        font-weight: 600;
-        line-height: 1.4;
+    /**
+     * Only where there is a cursor to hover with. On a phone the actions would either never appear or
+     * appear on the tap that was meant for the slide, so there they stay out of the way entirely.
+     *
+     * `.is-shown` and not `.item:hover`: the arrows sit over the corners of the slide from outside it, so
+     * `:hover` dropped exactly as the cursor arrived at a button and the button stopped taking clicks —
+     * see `hovered` in HoverPreview. The class is set by handlers that include the buttons' own.
+     */
+    @media (hover: hover) and (pointer: fine) {
+        .bsbSlideActions.is-shown {
+            opacity: 1;
+            pointer-events: auto;
+        }
     }
 
-    /* Held to a readable measure — the editor hint is a full sentence, and across a wide slider it
-       would otherwise run as one long line. */
-    .bsbNoPostsText {
-        max-width: 46ch;
-        margin: 0;
+    .bsbSlideAction {
+        display: grid;
+        place-items: center;
+        width: 32px;
+        height: 32px;
         padding: 0;
-        font-size: 13px;
-        line-height: 1.6;
-        opacity: 0.7;
+        border: 0;
+        border-radius: 50%;
+        background: rgba(17, 17, 17, 0.72);
+        color: #fff;
+        cursor: pointer;
+        transition: background 0.2s ease, transform 0.2s ease;
+
+        svg {
+            width: 17px;
+            height: 17px;
+            /* The shared `externalLink` icon carries its own fill; the corner-player glyph is drawn from
+               `currentColor`. Both are sized here and neither is recoloured. */
+            fill: currentColor;
+        }
+
+        &:hover,
+        &:focus-visible {
+            background: #ff0000;
+            transform: scale(1.08);
+        }
+    }
+
+    /**
+     * The speaker sits at the bottom now, because the actions took the top corner.
+     *
+     * Two round buttons in the same corner is a stack of controls a cursor has to pick its way through,
+     * and the one that was there first is the one that moves: the actions are what a visitor reaches for
+     * on a still thumbnail, so they get the corner the eye goes to.
+     */
+    .bsbHoverSound {
+        position: absolute;
+        right: 10px;
+        bottom: 10px;
+        /* The same fight as the actions above, and the same answer. */
+        z-index: 5;
+        pointer-events: auto;
+        display: grid;
+        place-items: center;
+        width: 34px;
+        height: 34px;
+        padding: 0;
+        border: 0;
+        border-radius: 50%;
+        /* Its own contrast, like the play badge: a video frame can be any colour behind it. */
+        background: rgba(17, 17, 17, 0.62);
+        color: #fff;
+        cursor: pointer;
+        transition: background 0.2s ease, transform 0.2s ease;
+
+        svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        &:hover,
+        &:focus-visible {
+            background: rgba(17, 17, 17, 0.85);
+            transform: scale(1.08);
+        }
+    }
+
+    /**
+     * A slide that previews under the cursor carries no play badge at all.
+     *
+     * The badge answers "does this play?", and on a slide that plays the moment it is rested on, the
+     * hover itself answers it better — which is why YouTube's own grid shows a bare thumbnail. Left on,
+     * it is a triangle sitting over a picture that is about to start playing behind it.
+     *
+     * **Which is why the media query is the whole point, not a refinement.** Where a preview cannot run,
+     * the badge is the only thing telling a visitor the slide holds a video, and taking it away there
+     * would leave a photo that silently happens to be a film. So it goes only where the preview will
+     * actually happen: a pointer that can hover, and no request for reduced motion — the two conditions
+     * `mayPreview` checks before it starts anything. A phone keeps its badge. The third condition, the
+     * editor canvas, is settled in `PostItem`: it decides whether this class is written at all.
+     */
+    @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+        .img.has-hover-preview .bsbFeedPlayIcon {
+            display: none;
+        }
+    }
+
+    /**
+     * And where the badge does show, it steps aside while the preview plays.
+     *
+     * The case the rule above leaves: a visitor who has asked for reduced motion still gets no preview
+     * and keeps the badge, but a `<video>` that a browser starts anyway — a stored feed on a machine
+     * that ignores the preference — should not be playing behind a play triangle. Cheap insurance
+     * rather than a second mechanism.
+     */
+    .img.is-previewing .bsbFeedPlayIcon {
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    /**
+     * An image inside a slide's caption.
+     *
+     * The title, the description and the button are all written into the page as HTML, so anything can
+     * end up in them — and a logo or a badge in the title is a normal thing to want. Nothing bounded
+     * it. The slide picture's own rule used to reach every `img` in the slide and stretch it to the
+     * full width and height of the slide with `!important`; once that was narrowed to `> .img img`,
+     * the caption image stopped being stretched but then rendered at its natural size, which for
+     * anything off a camera or a screenshot is still several times the height of the caption.
+     *
+     * So it is tied to the text it sits in. `em` and not pixels, because the title's font size is the
+     * user's own setting — raise the title and the logo beside it keeps up, with no second control to
+     * find and no per-slide fiddling.
+     */
+    .captionContent {
+        img {
+            /* `auto` against the intrinsic width, so capping the height cannot squash it. */
+            width: auto;
+            height: auto;
+            max-width: 100%;
+            /* About two lines of the text it sits beside: room for a logo, not enough to take over
+               the slide. */
+            max-height: 2em;
+            vertical-align: middle;
+        }
+
+        /* The description and the button are body copy rather than a heading, so an image among them
+           stays nearer to the line it interrupts. */
+        p img,
+        .carousel-button img {
+            max-height: 1.5em;
+        }
     }
 
     /**
@@ -249,11 +556,11 @@
                 opacity: 0.95;
 
                 del {
-                    text-decoration: line-through;
                     opacity: 0.6;
-                    margin-right: 6px;
+                    text-decoration: line-through;
+                    margin-right: 8px;
+                    font-weight: normal;
                 }
-
                 ins {
                     text-decoration: none;
                     font-weight: bold;
@@ -261,16 +568,37 @@
             }
         }
 
+        /**
+         * A badge's icon, at the badge's own size whatever it is made of.
+         *
+         * Three things can end up in here and only one of them sizes itself: an emoji or a character,
+         * which is text and follows the type size; an `<svg>` chosen from the icon library; and an
+         * `<img>` that WordPress put there. The two below are what pin the other two down.
+         */
         .bsb-acf-icon {
             font-style: normal;
             line-height: 1;
 
             /* Held to the badge's own type size, and kept from being squeezed by the pill's flex
-               row — the icon is one character, and it has no business growing or shrinking. */
+               row — the icon is one character wide, and it has no business growing or shrinking. */
             font-size: 1em;
             display: inline-flex;
             align-items: center;
             flex: 0 0 auto;
+
+            /**
+             * The icon library's `<svg>` carries a `viewBox` and no `width` or `height` — see the
+             * icon sets in `bpl-tools`. An inline svg with neither takes the default size of a
+             * replaced element, 300×150px, so every chosen icon came out the size of a slide rather
+             * than the size of the badge it sits in. `1em` is what the character branch of this
+             * setting already draws at, so the two ways of picking an icon now agree.
+             */
+            svg {
+                width: 1em;
+                height: 1em;
+                display: block;
+                fill: currentColor;
+            }
         }
 
         /**
@@ -279,8 +607,7 @@
          * **Why one appears at all.** The Icon, Prefix and Suffix boxes take an emoji, and on the
          * front end WordPress's emoji script watches the page and swaps an emoji it thinks the
          * browser cannot draw for `<img class="emoji">`. The block editor's canvas does not run that
-         * script, so this only ever happened on the front end — which is exactly where it was
-         * reported.
+         * script, so this one only ever shows on the front end.
          *
          * **Why it came out enormous.** Every image inside a slide is the slide's picture as far as
          * `.bsbCarousel .item img` below is concerned: `width: 100% !important; height: 100%`. The
@@ -824,7 +1151,12 @@
                 }
             }
 
-            img {
+            /* The slide's own picture, and only that.
+               This was `img`, which reached every image inside the slide — and with `!important` on
+               both dimensions, an image put in the title or the description was stretched to the full
+               size of the slide. `> .img` is the wrapper the layouts render the slide picture in, so
+               nothing in the caption is touched. */
+            > .img img {
                 width: 100% !important;
                 height: 100% !important;
                 object-fit: cover;
@@ -922,7 +1254,8 @@
 
         @media all and (max-width: 767px) {
             .item {
-                img {
+                /* Same narrowing as above — a caption image must not be given the slide's height. */
+                > .img img {
                     height: 100%;
                 }
             }
@@ -941,6 +1274,12 @@
 
                     .swiper-slide {
                         height: 100%;
+
+                        .bsb-carousel-group {
+                            width: 100%;
+                            height: 100%;
+                            display: grid;
+                        }
 
                         &.center {
                             display: flex;
@@ -1024,6 +1363,13 @@
                 display: flex;
                 justify-content: center;
                 margin-top: 20px;
+                /* The pager is a window now — see `usePagination` in Grid — so it is about nine buttons
+                   rather than one per page. Nine still does not fit a narrow column or a phone, and a
+                   centred nowrap row does not fold: it runs off both edges at once, which is unreachable
+                   rather than merely ugly. `row-gap` only, so the horizontal rhythm the margins below set
+                   is left exactly as it was. */
+                flex-wrap: wrap;
+                row-gap: 10px;
 
                 &__button {
                     cursor: pointer;
@@ -1040,11 +1386,64 @@
                 }
             }
 
+            /* The Load More button.
+             *
+             * Everything here is a floor, not a ceiling: `Style.js` prints the colours, padding,
+             * radius and typography from the `loadMoreBtn` attribute into an inline `<style>` that
+             * comes after this file, so anything the user sets in the panel still wins. What was
+             * missing was the part no attribute covers — the button was inheriting the browser's
+             * default chrome for its shape and its font, which is why it looked unfinished beside
+             * the grid rather than part of it. */
             .load-more {
-                margin-top: 20px;
+                display: flex;
+                justify-content: center;
+                margin-top: 24px;
 
                 button {
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 8px;
+                    min-height: 42px;
+                    /* The panel's own default is 25px, which is a heading rather than a button. This
+                       is what applies until somebody changes it. */
+                    font-size: 15px;
+                    font-weight: 600;
+                    line-height: 1.4;
+                    font-family: inherit;
+                    letter-spacing: 0.2px;
                     cursor: pointer;
+                    transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+                    -webkit-appearance: none;
+                    appearance: none;
+
+                    &:hover {
+                        box-shadow: 0 2px 10px rgba(15, 23, 42, 0.12);
+                    }
+
+                    &:focus-visible {
+                        outline: 2px solid currentColor;
+                        outline-offset: 2px;
+                    }
+
+                    /* While a page is on its way. The button keeps its size so the grid below does
+                       not jump as the label is swapped for the spinner. */
+                    &:disabled {
+                        opacity: 0.65;
+                        cursor: default;
+                        box-shadow: none;
+                    }
+
+                    .loader {
+                        display: inline-flex;
+                        align-items: center;
+
+                        svg {
+                            width: 18px;
+                            height: 18px;
+                            animation: bsbLoadMoreSpin 0.8s linear infinite;
+                        }
+                    }
                 }
             }
         }
@@ -1306,12 +1705,508 @@
     display: none;
 }
 
-/* ═══ External feeds ═════════════════════════════════════════════════════════════════════════
+/**
+ * The lightbox pane a feed slide plays in.
  *
- * The header card above the slides and the follow button under them. The channel-page header
- * (`is-panel`), the mini player and the List layout are Premium and have no rules here.
+ * Top level, and it has to be: Fancybox appends its overlay to `body`, so the pane is never inside
+ * `.wp-block-bsb-slider` to be reached from there.
+ *
+ * Both classes on one element is not an accident. Fancybox parses the markup `PostItem` hands it and,
+ * when it is a single element, makes that element the pane itself and adds `.fancybox__content` to it.
+ * Give it two roots and it wraps them in a bare div instead — then this rule matches nothing and the
+ * pane opens with no width at all.
  */
+.fancybox__content.bsbFeedPlyr {
+    display: block;
+    width: 90vw;
+    max-width: 1100px;
+    padding: 0;
+    background: #000;
 
+    .plyr {
+        --plyr-color-main: #ff0000;
+        width: 100%;
+    }
+}
+
+/**
+ * A feed post opened as a pane: the picture on one side, what was written on the other.
+ *
+ * Same single-root rule as the player above — Fancybox promotes one root element to the pane
+ * itself, which is why `.fancybox__content` and `.bsbFeedPost` are the same element here.
+ */
+.fancybox__content.bsbFeedPost {
+    display: grid;
+    /* The picture takes what it needs and the words take a readable column beside it, rather than
+       each taking half — a portrait photo beside 380px of text is the shape of the thing. */
+    grid-template-columns: minmax(0, 1fr) minmax(300px, 380px);
+    width: 92vw;
+    max-width: 1100px;
+    max-height: 88vh;
+    padding: 0;
+    overflow: hidden;
+    border-radius: 8px;
+    background: #fff;
+    color: #262626;
+
+    & > .f-button.is-close-btn,
+    & > .fancybox__button--close {
+        top: 10px !important;
+        right: 10px !important;
+        color: #262626 !important;
+        --fancybox-color: #262626 !important;
+        background: rgba(255, 255, 255, 0.7) !important;
+        border-radius: 50% !important;
+        width: 32px !important;
+        height: 32px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1) !important;
+        transition: background-color 0.2s ease !important;
+        z-index: 99999 !important;
+
+        &:hover {
+            background: rgba(255, 255, 255, 0.9) !important;
+        }
+    }
+
+    .bsbFeedPostMedia {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 0;
+        background: #000;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+
+        /* Instagram's own player is a white card, so the black behind it — right for a photograph
+           letterboxed into the pane — would only frame it in a border it does not want. */
+        &.has-embed {
+            background: #fff;
+        }
+
+        .bsbFeedPostMediaScroller {
+            width: 100%;
+            max-width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 0;
+
+            /* An album, as a strip that snaps. No carousel, no buttons, no state to keep in step with
+               the pane — a scrollable row already swipes on a phone and scrolls on a desktop. */
+            &.is-gallery {
+                display: flex;
+                flex-direction: row;
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                scroll-snap-type: x mandatory;
+                scrollbar-width: none; /* Hide scrollbar in Firefox */
+
+                /* Let the browser handle horizontal swipe gestures on this element, so Fancybox's
+                   carousel — which listens for the same gesture to switch between posts — does not
+                   steal the drag from the album strip. Without this, swiping through an album's
+                   photos slides the lightbox to the next post instead. */
+                touch-action: pan-x;
+
+                &::-webkit-scrollbar {
+                    display: none; /* Hide scrollbar in Chrome/Safari */
+                }
+
+                .bsbFeedPostMediaItem {
+                    flex: 0 0 100%;
+                    width: 100%;
+                    max-width: 100%;
+                    height: 100%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    scroll-snap-align: center;
+                }
+            }
+        }
+
+        .bsbGalleryBtn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(4px);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            outline: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            font-family: Arial, sans-serif;
+            line-height: 1;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 10;
+            user-select: none;
+
+            &:hover {
+                background: rgba(0, 0, 0, 0.7);
+                border-color: rgba(255, 255, 255, 0.5);
+                transform: translateY(-50%) scale(1.1);
+            }
+
+            &:active {
+                transform: translateY(-50%) scale(0.95);
+            }
+
+            &.is-prev {
+                left: 15px;
+            }
+
+            &.is-next {
+                right: 15px;
+            }
+        }
+    }
+
+    /**
+     * Dot indicators for the album gallery scroller inside the lightbox pane.
+     *
+     * Centred at the bottom of the media area, one dot per photo. The active dot is white and
+     * slightly larger; the rest are dimmed. Updated by an IntersectionObserver wired up in the
+     * markup — see `galleryDots` in PostItem.
+     */
+    .bsbGalleryDots {
+        position: absolute;
+        bottom: 14px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 10px;
+        border-radius: 12px;
+        background: rgba(0, 0, 0, 0.4);
+        backdrop-filter: blur(4px);
+        z-index: 10;
+    }
+
+    .bsbGalleryDot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.45);
+        transition: background 0.2s ease, transform 0.2s ease;
+
+        &.is-active {
+            background: #fff;
+            transform: scale(1.25);
+        }
+    }
+
+    /**
+     * The "1 / 3" counter in the top-right corner of the lightbox media area.
+     *
+     * Updated by the IntersectionObserver wired up in config.js as the visitor scrolls
+     * through the album's photos.
+     */
+    .bsbGalleryCounter {
+        position: absolute;
+        top: 14px;
+        right: 14px;
+        padding: 5px 12px;
+        border-radius: 14px;
+        background: rgba(0, 0, 0, 0.55);
+        backdrop-filter: blur(4px);
+        color: #fff;
+        font-size: 14px;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        line-height: 1;
+        z-index: 10;
+        pointer-events: none;
+        user-select: none;
+    }
+
+    .bsbFeedPostImg,
+    .bsbFeedPostVideo {
+        display: block;
+        max-width: 100%;
+        max-height: 100%;
+        width: auto;
+        height: auto;
+        /* `contain`, not `cover`: this is the post being looked at, so none of it is cropped away. */
+        object-fit: contain;
+    }
+
+    /**
+     * Instagram's embedded player, standing in for a video Instagram would not hand over.
+     *
+     * A stated height rather than `100%`, which is the one thing that does not work here: the pane is
+     * a grid whose row is sized by its content, so a percentage height inside it resolves against
+     * nothing and the iframe collapses to zero. `min()` keeps it inside the pane's own `88vh` on a
+     * short window and stops it growing taller than a Reel needs on a tall one.
+     */
+    .bsbFeedPostEmbed {
+        display: block;
+        width: 100%;
+        height: min(84vh, 700px);
+        border: 0;
+        background: #fff;
+    }
+
+    /**
+     * What to say when the video will not load.
+     *
+     * Kept out of the way until it is needed — the `onerror` on the video puts `has-dead-video` on
+     * the pane. Instagram's video URLs are signed and expire in about a day, so a stored feed that
+     * syncs less often than that will hand a visitor a link that has run out. A still that does
+     * nothing when pressed looks like a broken plugin; a sentence and a way through does not.
+     */
+    .bsbFeedPostDead {
+        display: none;
+        position: absolute;
+        left: 50%;
+        bottom: 16px;
+        transform: translateX(-50%);
+        max-width: calc(100% - 32px);
+        padding: 8px 14px;
+        border-radius: 999px;
+        background: rgba(0, 0, 0, 0.72);
+        color: #fff;
+        font-size: 13px;
+        text-align: center;
+        text-decoration: none;
+    }
+
+    &.has-dead-video .bsbFeedPostDead {
+        display: block;
+    }
+
+    .bsbFeedPostSide {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        min-width: 0;
+        padding: 18px;
+        overflow-y: auto;
+    }
+
+    .bsbFeedPostHead {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid #efefef;
+    }
+
+    .bsbFeedPostAvatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
+    .bsbFeedPostHandle {
+        font-weight: 600;
+        font-size: 14px;
+    }
+
+    .bsbFeedPostCaption {
+        font-size: 14px;
+        line-height: 1.6;
+        /* A caption arrives with the line breaks it was written with, and long tags must not push
+           the column wider than the pane. */
+        overflow-wrap: anywhere;
+
+        a {
+            color: #00376b;
+            text-decoration: none;
+        }
+    }
+
+    .bsbFeedPostMeta {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        font-size: 13px;
+        color: #737373;
+    }
+
+    /**
+     * The like and comment counts, in their own right.
+     *
+     * They had no rule at all and took the row's grey, which at 13px on white is about 4.6:1 — a
+     * figure that passes a contrast check and still reads as disabled text. A count is the one
+     * thing in this row somebody is actually looking for, so it takes the pane's own text colour
+     * and a little weight, the way Instagram sets its own.
+     *
+     * The date keeps the quiet grey, stated here rather than inherited so the two cannot drift.
+     */
+    .bsbFeedPostStat {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        color: #262626;
+        font-weight: 600;
+    }
+
+    .bsbFeedPostDate {
+        color: #737373;
+    }
+
+    .bsbFeedPostCaption,
+    .bsbFeedPostHandle {
+        color: #262626;
+    }
+
+    /**
+     * Somewhere to send the post.
+     *
+     * A `<details>`, so the open and shut of it costs no JavaScript and answers the keyboard on its
+     * own. The menu is taken out of the flow so opening it does not shove the caption about.
+     */
+    .bsbFeedPostShare {
+        position: relative;
+        margin-left: auto;
+
+        > summary {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+            list-style: none;
+            user-select: none;
+
+            /* Safari draws its own triangle through a pseudo-element that `list-style` misses. */
+            &::-webkit-details-marker {
+                display: none;
+            }
+
+            &::before {
+                content: '';
+                width: 15px;
+                height: 15px;
+                background: currentColor;
+                @include bsb-share-mask('M13 4.5 8 1v2.2C4 3.6 1.5 6 1 10c1.6-2 3.8-2.9 7-2.8V9.5z');
+            }
+        }
+    }
+
+    .bsbFeedPostShareMenu {
+        position: absolute;
+        right: 0;
+        bottom: calc(100% + 8px);
+        z-index: 2;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        padding: 7px 9px;
+        border: 1px solid #e6e6e6;
+        border-radius: 8px;
+        background: #fff;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.14);
+    }
+
+    /**
+     * The services, drawn from the stylesheet rather than from the markup.
+     *
+     * Every slide carries the pane's markup in an attribute, so a set of inline SVGs would be
+     * repeated once per slide in the page source. Here each glyph is written once and worn as a
+     * mask, which also means `currentColor` paints it and dark mode needs no second set.
+     */
+    .bsbShareBtn {
+        width: 22px;
+        height: 22px;
+        /* The glyph is a mask over a solid fill, so the colour comes from here and the shape from
+           the modifier below. One property to recolour them all, dark mode included. */
+        background: #262626;
+        -webkit-mask: center / contain no-repeat;
+        mask: center / contain no-repeat;
+        transition: opacity 0.15s ease;
+
+        &:hover {
+            opacity: 0.6;
+        }
+
+        &.is-facebook {
+            @include bsb-share-mask('M9.1 15.2V9.4H7V7h2.1V5.4C9.1 3.4 10.3 2.3 12.1 2.3c.6 0 1.3.05 1.9.13v2.2h-1.1c-1 0-1.3.5-1.3 1.2V7h2.3l-.4 2.4h-1.9v5.8z');
+        }
+
+        &.is-x {
+            @include bsb-share-mask('M12.6 2h2.3l-5 5.7L15.8 15h-4.6l-3.2-4.2L4.2 15H1.9l5.4-6.1L1.5 2h4.7l2.9 3.9zm-.8 11.6h1.3L5.3 3.3H3.9z');
+        }
+
+        &.is-linkedin {
+            @include bsb-share-mask('M4.3 14H1.8V6.3h2.5zM3 5.2a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3M14.2 14h-2.5v-3.8c0-.9 0-2.1-1.3-2.1s-1.5 1-1.5 2V14H6.4V6.3h2.4v1h.04c.3-.6 1.1-1.3 2.3-1.3 2.5 0 3 1.6 3 3.8z');
+        }
+
+        &.is-pinterest {
+            @include bsb-share-mask('M8 1.3a6.7 6.7 0 0 0-2.4 13c-.06-.5-.1-1.3.02-1.9l.8-3.3s-.2-.4-.2-1c0-.95.55-1.7 1.2-1.7.6 0 .85.4.85.9 0 .55-.35 1.4-.55 2.2-.15.65.35 1.2 1 1.2 1.2 0 2.1-1.3 2.1-3.1 0-1.6-1.2-2.8-2.8-2.8a2.95 2.95 0 0 0-3.1 3c0 .6.2 1.2.5 1.5.06.07.07.13.05.2l-.2.75c-.03.12-.1.15-.22.09-.8-.37-1.3-1.55-1.3-2.5 0-2 1.5-3.9 4.3-3.9 2.2 0 4 1.6 4 3.7 0 2.2-1.4 4-3.4 4-.65 0-1.3-.35-1.5-.75l-.4 1.6c-.15.6-.55 1.3-.85 1.75A6.7 6.7 0 1 0 8 1.3');
+        }
+
+        &.is-email {
+            @include bsb-share-mask('M2 3h12a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1m0 1.6V12h12V4.6L8 8.7z');
+        }
+    }
+
+    .bsbShareClose {
+        margin-left: 2px;
+        padding: 0 4px;
+        border: 0;
+        background: none;
+        color: #737373;
+        font-size: 17px;
+        line-height: 1;
+        cursor: pointer;
+    }
+
+    .bsbFeedPostLink {
+        margin-top: auto;
+        padding-top: 12px;
+        border-top: 1px solid #efefef;
+        font-size: 13px;
+        font-weight: 600;
+        color: #00376b;
+        text-decoration: none;
+    }
+}
+
+/**
+ * Narrow screens, where two columns is not a layout.
+ *
+ * Stacked, with the picture capped so the caption is not pushed off the bottom of a phone — the
+ * words are half the reason the pane was opened.
+ */
+@media (max-width: 782px) {
+
+    .fancybox__content.bsbFeedPost {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-rows: auto minmax(0, 1fr);
+        width: 94vw;
+
+        .bsbFeedPostImg,
+        .bsbFeedPostVideo {
+            max-height: 45vh;
+        }
+
+        /* Taller than the still it replaces: Instagram's embed carries its own header, caption and
+           footer around the video, and 45vh would leave the player itself a strip. */
+        .bsbFeedPostEmbed {
+            height: 62vh;
+        }
+    }
+}
+
+.plyr--hide-duration {
+    .plyr__time--duration {
+        display: none !important;
+    }
+}
 
 /**
  * Each service's own colours, in one place.
@@ -1348,6 +2243,97 @@
     --bsb-feed-tint-dark: rgba(242, 101, 34, 0.12);
 }
 
+/* ── The panel header ────────────────────────────────────────────────────────────────────────
+ *
+ * The channel-page arrangement, as against the tinted card: the banner is a block of its own, and
+ * the account sits on a plain surface under it — no accent edge, no wash, no blur. Same markup as
+ * the card, so the two are one switch apart and nothing typed is lost by moving between them.
+ */
+.bsb-social-profile-banner.is-panel {
+    margin-bottom: 0;
+    border-radius: var(--bsb-radius-lg, 12px) var(--bsb-radius-lg, 12px) 0 0;
+
+    /* The card's own rule lifts the header up under the banner to close the seam. Here the two are
+       genuinely one block, so there is nothing to pull. */
+    + .bsb-social-profile-header.is-panel {
+        margin-top: 0;
+        border-top: 0;
+        border-radius: 0 0 var(--bsb-radius-lg, 12px) var(--bsb-radius-lg, 12px);
+    }
+}
+
+.bsb-social-profile-header.is-panel {
+    padding: 18px 20px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    /* The accent edge belongs to the card. A channel page has a plain surface under its banner. */
+    border-left: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: var(--bsb-radius-lg, 12px);
+    background: var(--bsb-panel-surface, #fbfbfb);
+    backdrop-filter: none;
+
+    .bsb-profile-info-wrap {
+        gap: 18px;
+    }
+
+    /* Larger, and without the ring — the picture is the channel's mark here rather than a chip on
+       a tinted card, and at this size a coloured halo reads as a border nobody asked for. */
+    .bsb-profile-avatar {
+        width: 78px;
+        height: 78px;
+        border: 0;
+        box-shadow: none;
+    }
+
+    .bsb-profile-name {
+        font-size: 20px;
+        font-weight: 700;
+    }
+
+    .bsb-profile-followers {
+        margin-top: 4px;
+        font-size: 14px;
+
+        strong {
+            /* One weight for the whole line. The card colours its number in the service's accent;
+               against a plain panel that makes three red numbers where the button is the only thing
+               that should be red. */
+            color: inherit;
+            font-weight: 600;
+        }
+    }
+
+    /* Square and filled, which is what a Subscribe button looks like. */
+    .bsb-follow-btn {
+        padding: 10px 22px;
+        border-radius: 3px;
+        font-size: 14px;
+        font-weight: 600;
+        letter-spacing: 0.4px;
+        text-transform: uppercase;
+    }
+
+    @media (prefers-color-scheme: dark) {
+        border-color: rgba(255, 255, 255, 0.1);
+        border-left-color: rgba(255, 255, 255, 0.1);
+        background: var(--bsb-panel-surface, rgba(255, 255, 255, 0.03));
+    }
+
+    /* The button under the name rather than off the end of it, once the line would otherwise wrap. */
+    @media (max-width: 576px) {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 14px;
+    }
+}
+
+/* The channel banner, above the card.
+ *
+ * Its height is set inline from `headerBannerHeight` — the picture is a fixed strip and the source is
+ * far wider than it, so the crop is `cover` and the interesting part of a channel banner (which sits
+ * in the middle, by YouTube's own safe area) stays in view at every width.
+ *
+ * `margin-bottom` matches the card's, and is dropped when the card follows: the two are one block and
+ * a gap between them would read as two. */
 .bsb-social-profile-banner {
     overflow: hidden;
     margin-bottom: 20px;
@@ -1567,5 +2553,1085 @@
 
     &.is-right {
         justify-content: flex-end;
+    }
+}
+
+/**
+ * The mini player: a video that keeps playing in a corner while the page is used.
+ *
+ * **Top level, and it has to be.** The dock is appended to `body` so it can outlive scrolling and sit
+ * above everything — see the note in `miniPlayer.js` for why the player is never moved between parents.
+ * A rule nested inside `.wp-block-bsb-slider` would never match it.
+ *
+ * Two states on one element: docked in one of four corners, or `is-expanded` over the middle of the
+ * page. Both are the same DOM with a different class, which is the whole reason the video survives the
+ * change — moving an iframe reloads it and restarts what was playing.
+ */
+.bsbMiniPlayer {
+    position: fixed;
+    /* Above a sticky header and a cookie bar, below nothing a visitor would want to reach past it.
+       Fancybox sits at 1050 and the two are never open together — `mini` mode does not bind it. */
+    z-index: 99998;
+    width: min(400px, calc(100vw - 32px));
+    background: #101010;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+    /* The size and corner change together, so they are animated together. `transform` is not in here:
+       an animated scale on a playing video costs a repaint of every frame. */
+    transition: width 0.28s ease, inset 0.28s ease, border-radius 0.28s ease;
+
+    /* Each corner as an `inset`, so one property carries the whole position and the transition above
+       has a single thing to interpolate. */
+    &.is-pos-bottom-right { inset: auto 16px 16px auto; }
+    &.is-pos-bottom-left { inset: auto auto 16px 16px; }
+    &.is-pos-top-right { inset: 16px 16px auto auto; }
+    &.is-pos-top-left { inset: 16px auto auto 16px; }
+
+    /**
+     * Expanded: centred, and as wide as the page can comfortably give it.
+     *
+     * `inset` with all four sides plus `margin: auto` rather than a `translate`, so it stays in the same
+     * layout mode as the docked state — a transform here would blur the player's text on some displays
+     * mid-transition, and would not animate against `inset` in the first place.
+     */
+    &.is-expanded {
+        inset: 0;
+        /**
+         * Three limits, and the third is the one that is easy to forget.
+         *
+         * The stage is locked to 16:9, so width decides height — and on a laptop in landscape a
+         * 1000px-wide player is 563px of video plus its bar, which is taller than the window it is
+         * being centred in. The result is a player with its title bar and its controls below the fold,
+         * so the way out of the expanded state is off screen. Deriving a third cap from the viewport
+         * height keeps the whole thing, bar included, inside the window at any shape.
+         *
+         * `100px` is the bar plus the breathing room either side of it.
+         */
+        width: min(1000px, calc(100vw - 48px), calc((100vh - 100px) * 16 / 9));
+        height: fit-content;
+        margin: auto;
+        border-radius: 12px;
+    }
+}
+
+/** The video, always widescreen: the stage keeps the shape so the bar below never squeezes it. */
+.bsbMiniStage {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    background: #000;
+
+    .plyr {
+        width: 100%;
+        height: 100%;
+    }
+}
+
+.bsbMiniBar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    background: #101010;
+}
+
+/**
+ * The title, which is also the way to the original.
+ *
+ * One line and clipped: a dock is 400px wide and a video title is not, and a title that wrapped to
+ * three lines would push the player's own height around every time the video changed.
+ */
+.bsbMiniTitle {
+    flex: 1 1 auto;
+    min-width: 0;
+    color: #fff;
+    font-size: 13px;
+    line-height: 1.35;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-decoration: none;
+
+    &:hover,
+    &:focus-visible {
+        text-decoration: underline;
+    }
+}
+
+.bsbMiniBtn {
+    flex: 0 0 auto;
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: #fff;
+    cursor: pointer;
+    transition: background 0.2s ease;
+
+    svg {
+        width: 17px;
+        height: 17px;
+    }
+
+    &:hover,
+    &:focus-visible {
+        background: rgba(255, 255, 255, 0.16);
+    }
+}
+
+/**
+ * The dim behind an expanded player, and the way out of it.
+ *
+ * Present but transparent while docked rather than absent, so there is something to fade — and
+ * `visibility` alongside the opacity, because a transparent sheet over the whole page would still be
+ * swallowing every click meant for the article underneath.
+ */
+.bsbMiniBackdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 99997;
+    background: rgba(0, 0, 0, 0.72);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.28s ease, visibility 0.28s ease;
+
+    &.is-shown {
+        opacity: 1;
+        visibility: visible;
+    }
+}
+
+/**
+ * On a phone the dock spans the bottom, whichever corner was chosen.
+ *
+ * A 400px card in a corner of a 390px screen is the whole screen with a margin, and the four-corner
+ * setting stops meaning anything at that width. So the answer there is the one every video app gives:
+ * a bar across the bottom, square with the edges it touches.
+ */
+@media (max-width: 600px) {
+    .bsbMiniPlayer,
+    .bsbMiniPlayer.is-pos-bottom-right,
+    .bsbMiniPlayer.is-pos-bottom-left,
+    .bsbMiniPlayer.is-pos-top-right,
+    .bsbMiniPlayer.is-pos-top-left {
+        inset: auto 0 0 0;
+        width: 100%;
+        border-radius: 10px 10px 0 0;
+    }
+
+    .bsbMiniPlayer.is-expanded {
+        inset: 0;
+        width: 100%;
+        border-radius: 0;
+    }
+}
+
+/** Somebody who has asked for less movement gets the state, not the journey to it. */
+@media (prefers-reduced-motion: reduce) {
+    .bsbMiniPlayer,
+    .bsbMiniBackdrop {
+        transition: none;
+    }
+}
+
+/**
+ * The List layout: a stage above, the channel listed below.
+ *
+ * Every number in here comes from a custom property `Style.js` writes per slider — see `listCSS`. The
+ * shapes are stated once, the settings are the variables, so a change in the panel is one value and not a
+ * new rule. Defaults are spelled out in the `var()` fallbacks so the layout still draws if a slider is
+ * ever rendered without them.
+ */
+.wp-block-bsb-slider .bsbList {
+    display: grid;
+    gap: 16px;
+
+    /**
+     * Two columns on a wide screen when the list is set beside the video.
+     *
+     * `minmax(0, …)` on the first track, because a grid child's minimum is its content and a video's
+     * intrinsic width would otherwise push the list off the row.
+     */
+    &.is-beside {
+        grid-template-columns: minmax(0, 1fr);
+
+        @media (min-width: 1024px) {
+            grid-template-columns: minmax(0, 1.9fr) minmax(300px, 1fr);
+            align-items: start;
+
+            .bsbListStage {
+                grid-column: 1;
+                grid-row: 1;
+            }
+
+            .bsbListStageMeta {
+                grid-column: 1;
+                grid-row: 2;
+            }
+
+            /* The list spans both rows of the left column, so it is as tall as the video and its title
+               together rather than leaving a gap under itself. */
+            .bsbListPanel {
+                grid-column: 2;
+                grid-row: 1 / span 2;
+            }
+        }
+    }
+
+    /* Held at the top of the screen while the page scrolls past. `align-self: start` is what makes
+       `position: sticky` mean anything inside a grid — a stretched item has nowhere to stick. */
+    &.has-sticky-stage .bsbListStage {
+        position: sticky;
+        top: 16px;
+        align-self: start;
+        z-index: 2;
+    }
+}
+
+.wp-block-bsb-slider .bsbListStage {
+    position: relative;
+    aspect-ratio: var(--bsb-list-stage-ratio, 16 / 9);
+    background: #000;
+    border-radius: 12px;
+    overflow: hidden;
+
+    .plyr,
+    .bsbListVideo {
+        width: 100%;
+        height: 100%;
+    }
+}
+
+/**
+ * The stage before anybody has pressed anything: the thumbnail, and a play button over it.
+ *
+ * A real `<button>`, so it answers the keyboard and announces itself — this is the one control that
+ * turns a picture into a player, and the whole layout's promise not to touch YouTube before it is
+ * pressed rests on it being the only way in.
+ */
+.wp-block-bsb-slider .bsbListPoster {
+    display: block;
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    background: #000;
+    cursor: pointer;
+
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+
+    .bsbListPlay {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        display: grid;
+        place-items: center;
+        width: 72px;
+        height: 72px;
+        border-radius: 50%;
+        background: rgba(17, 17, 17, 0.62);
+        color: #fff;
+        transition: background 0.2s ease, transform 0.2s ease;
+
+        svg {
+            width: 32px;
+            height: 32px;
+            margin-left: 4px;
+        }
+    }
+
+    &:hover .bsbListPlay,
+    &:focus-visible .bsbListPlay {
+        background: #ff0000;
+        transform: translate(-50%, -50%) scale(1.06);
+    }
+
+    .bsbListEditorNote {
+        position: absolute;
+        bottom: 12px;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 4px 10px;
+        border-radius: 999px;
+        background: rgba(17, 17, 17, 0.72);
+        color: #fff;
+        font-size: 12px;
+        white-space: nowrap;
+    }
+}
+
+.wp-block-bsb-slider .bsbListStageMeta {
+    .bsbListStageTitle {
+        margin: 0 0 4px;
+        color: var(--bsb-list-title, #111827);
+        font-size: 18px;
+        line-height: 1.35;
+    }
+
+    .bsbListStageFacts {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        color: var(--bsb-list-meta, #6b7280);
+        font-size: 13px;
+
+        a {
+            color: inherit;
+            text-decoration: underline;
+        }
+    }
+}
+
+.wp-block-bsb-slider .bsbListFilter {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+
+    input {
+        flex: 1 1 auto;
+        min-width: 0;
+        padding: 8px 12px;
+        border: 1px solid rgba(0, 0, 0, 0.14);
+        border-radius: 999px;
+        background: transparent;
+        color: var(--bsb-list-title, #111827);
+        font-size: 14px;
+    }
+
+    .bsbListCount {
+        flex: 0 0 auto;
+        color: var(--bsb-list-meta, #6b7280);
+        font-size: 12px;
+        white-space: nowrap;
+    }
+}
+
+/**
+ * The list itself, exactly as tall as the rows asked for.
+ *
+ * The height is derived rather than set: rows × (thumbnail height + padding) + the gaps between them. So
+ * "rows in view" stays true whatever the thumbnail width or the padding is, and nobody has to keep a
+ * pixel height in step with three other settings.
+ *
+ * `overscroll-behavior` so reaching the end of the list does not carry on into the page — a list inside
+ * an article should not steal the scroll it did not need.
+ */
+.wp-block-bsb-slider .bsbListRows {
+    display: flex;
+    flex-direction: column;
+    gap: var(--bsb-list-row-gap, 8px);
+    max-height: calc(
+        (var(--bsb-list-thumb-w, 168px) / (var(--bsb-list-thumb-ratio, 16 / 9)) + var(--bsb-list-row-pad, 8px) * 2) * var(--bsb-list-rows, 4)
+        + var(--bsb-list-row-gap, 8px) * (var(--bsb-list-rows, 4) - 1)
+    );
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+}
+
+.wp-block-bsb-slider .bsbListRow {
+    display: flex;
+    gap: 12px;
+    position: relative;
+    padding: var(--bsb-list-row-pad, 8px);
+    border-radius: var(--bsb-list-row-radius, 10px);
+    background: var(--bsb-list-row-bg, transparent);
+    cursor: pointer;
+    transition: background 0.18s ease;
+
+    &:hover {
+        background: var(--bsb-list-row-hover, rgba(0, 0, 0, 0.05));
+    }
+
+    &:focus-visible {
+        outline: 2px solid var(--bsb-list-bar, #ff0000);
+        outline-offset: 2px;
+    }
+
+    /* The playing row, and the bar that says so — drawn as a pseudo-element so the row's own padding and
+       radius are unaffected by it. */
+    &.is-active {
+        background: var(--bsb-list-row-active, rgba(24, 108, 245, 0.1));
+
+        &::before {
+            content: '';
+            position: absolute;
+            top: var(--bsb-list-row-pad, 8px);
+            bottom: var(--bsb-list-row-pad, 8px);
+            left: 0;
+            width: 3px;
+            border-radius: 0 3px 3px 0;
+            background: var(--bsb-list-bar, #ff0000);
+        }
+    }
+
+    &.is-watched .bsbListRowTitle {
+        opacity: 0.72;
+    }
+}
+
+.wp-block-bsb-slider .bsbListThumb {
+    position: relative;
+    flex: 0 0 auto;
+    width: var(--bsb-list-thumb-w, 168px);
+    aspect-ratio: var(--bsb-list-thumb-ratio, 16 / 9);
+    border-radius: 8px;
+    overflow: hidden;
+    background: #000;
+
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+
+    .bsbListDuration {
+        position: absolute;
+        right: 4px;
+        bottom: 4px;
+        padding: 1px 5px;
+        border-radius: 4px;
+        background: rgba(0, 0, 0, 0.8);
+        color: #fff;
+        font-size: 11px;
+        font-weight: 600;
+        line-height: 1.5;
+    }
+
+    /* How far into the video the visitor got, in the one place every player puts it. */
+    .bsbListProgress {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 3px;
+        background: rgba(255, 255, 255, 0.3);
+
+        &::after {
+            content: '';
+            display: block;
+            width: var(--bsb-list-seen, 0%);
+            height: 100%;
+            background: var(--bsb-list-bar, #ff0000);
+        }
+    }
+}
+
+.wp-block-bsb-slider .bsbListRowBody {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+/* Cut to the chosen number of lines, so every row is the same height whatever a channel titles its
+   videos. `-webkit-line-clamp` is the only thing that does this and is supported everywhere. */
+.wp-block-bsb-slider .bsbListRowTitle {
+    display: -webkit-box;
+    -webkit-line-clamp: var(--bsb-list-title-lines, 2);
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    color: var(--bsb-list-title, #111827);
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.35;
+}
+
+.wp-block-bsb-slider .bsbListRowMeta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    color: var(--bsb-list-meta, #6b7280);
+    font-size: 12px;
+
+    .bsbListWatched {
+        color: var(--bsb-list-watched, #16a34a);
+        font-weight: 600;
+    }
+}
+
+.wp-block-bsb-slider .bsbListUpNext {
+    align-self: flex-start;
+    margin-top: 2px;
+    padding: 1px 8px;
+    border-radius: 999px;
+    border: 1px solid currentColor;
+    color: var(--bsb-list-bar, #ff0000);
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.wp-block-bsb-slider .bsbListEmpty {
+    margin: 8px 2px;
+    color: var(--bsb-list-meta, #6b7280);
+    font-size: 13px;
+}
+
+/* Premium styling for ComboboxControl (Timezone search dropdown) */
+.components-combobox-control {
+    margin-bottom: 15px;
+
+    .components-combobox-control__input-container {
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        transition: border-color 0.2s, box-shadow 0.2s;
+        background-color: #fff;
+
+        &:focus-within {
+            border-color: #8344c5;
+            box-shadow: 0 0 0 1px #8344c5;
+        }
+
+        input.components-combobox-control__input {
+            padding: 8px 12px;
+            font-size: 13px;
+            color: #333;
+            border: none !important;
+            box-shadow: none !important;
+            background: transparent;
+        }
+
+        .components-combobox-control__suggestions-indicator {
+            color: #777;
+            padding-right: 8px;
+        }
+    }
+}
+
+/* Style the suggestion popup menu list */
+.components-combobox-control__suggestions-list,
+.components-form-token-field__suggestions-list {
+    border-radius: 6px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid #eaeaea;
+    background-color: #fff;
+    max-height: 200px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #ccc transparent;
+
+    &::-webkit-scrollbar {
+        width: 6px;
+    }
+    &::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    &::-webkit-scrollbar-thumb {
+        background-color: #ccc;
+        border-radius: 6px;
+    }
+
+    .components-form-token-field__suggestion {
+        padding: 8px 12px;
+        font-size: 13px;
+        color: #444;
+        transition: background-color 0.15s, color 0.15s;
+        cursor: pointer;
+
+        &.is-selected,
+        &:hover {
+            background-color: #8344c5 !important;
+            color: #fff !important;
+        }
+    }
+}
+
+
+
+
+/* ── Thumbnails layout: the grid mode ────────────────────────────────────────────────────────
+ *
+ * The strip under the stage, laid out as a wrapping page instead of a scrolling row. Same
+ * thumbnails and the same stage — only the arrangement differs — so everything here hangs off
+ * `.thumbs-as-grid` and the slider mode is left exactly as it was.
+ */
+.bsb-thumbnail-grid {
+    display: grid;
+    align-items: start;
+    grid-template-columns: repeat(var(--bsb-thumb-cols, 3), minmax(0, 1fr));
+    column-gap: var(--bsb-thumb-col-gap, 20px);
+    row-gap: var(--bsb-thumb-row-gap, 20px);
+    margin-top: 16px;
+
+    @media (max-width: 1024px) {
+        grid-template-columns: repeat(var(--bsb-thumb-cols-tablet, 2), minmax(0, 1fr));
+    }
+
+    @media (max-width: 576px) {
+        grid-template-columns: repeat(var(--bsb-thumb-cols-mobile, 1), minmax(0, 1fr));
+    }
+
+    /* A button, so it is reachable by keyboard and announces itself — but with none of a button's
+       own chrome, since what the user sees is the picture. */
+    .bsb-thumb-cell {
+        display: block;
+        width: 100%;
+        padding: 0;
+        border: 0;
+        background: none;
+        cursor: pointer;
+        appearance: none;
+        text-align: left;
+
+        .img {
+            position: relative;
+            display: block;
+            overflow: hidden;
+            border-radius: var(--bsb-radius-md, 8px);
+            /* Reserved before the picture arrives, so a grid of twelve does not reflow as each
+               one loads — the thumbnails are 16:9 at the source. */
+            aspect-ratio: 16 / 9;
+            background: rgba(0, 0, 0, 0.06);
+        }
+
+        img {
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        &:hover img,
+        &:focus-visible img {
+            transform: scale(1.04);
+        }
+
+        /* The still holds steady while a preview is playing over it: a picture creeping outwards
+           behind a video that has just appeared reads as two things moving at once. */
+        &:has(.bsbHoverPreviewBox):hover img {
+            transform: none;
+        }
+
+        &:focus-visible .img {
+            outline: 2px solid var(--bsb-feed-accent, #186cf5);
+            outline-offset: 2px;
+        }
+
+        /* The one on the stage. A ring rather than a filter: dimming the other eleven makes the grid
+           look disabled, while marking the current one says the same thing quietly. */
+        &.is-active .img {
+            box-shadow: 0 0 0 3px var(--bsb-feed-accent, #ff0000);
+        }
+    }
+}
+
+/* Social Post Statistics (Likes/Comments) and Source Icon styles */
+.bsb-social-post-stats {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin-bottom: 8px;
+    width: 100%;
+    color: inherit;
+
+    .bsb-stat-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        opacity: 0.85;
+
+        svg {
+            width: 16px;
+            height: 16px;
+            display: block;
+            stroke-width: 2.25px;
+        }
+    }
+}
+
+.bsb-social-source-icon {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3;
+    color: #fff;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.4));
+
+    svg {
+        width: 18px;
+        height: 18px;
+        display: block;
+        fill: currentColor;
+    }
+}
+
+/* Show source icon only on hover! */
+.item:hover .bsb-social-source-icon,
+.item:focus-within .bsb-social-source-icon {
+    opacity: 0.9;
+}
+
+/* Grid mode: stage, then Prev/Next, then the page of thumbnails, in that order.
+ *
+ * No `!important` and nothing to fight. `Thumbnails` withholds the `top-by-bottom`/`side-by-side`
+ * pair in this mode — those exist to place a scrolling strip against the stage, and `bottom` among
+ * them means `column-reverse`, which is what used to invert this whole layout. See the note there.
+ */
+.bsb-main-carousel-wrapper.thumbs-as-grid {
+    display: flex !important;
+    flex-direction: column !important;
+
+    > .bsb-carousel-wrapper {
+        width: 100% !important;
+        order: -1 !important;
+    }
+
+    .load-more {
+        display: flex;
+        justify-content: center;
+        margin-top: 24px;
+        width: 100%;
+
+        button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-height: 42px;
+            font-size: 15px;
+            font-weight: 600;
+            line-height: 1.4;
+            font-family: inherit;
+            letter-spacing: 0.2px;
+            cursor: pointer;
+            transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+            -webkit-appearance: none;
+            appearance: none;
+
+            &:hover {
+                box-shadow: 0 2px 10px rgba(15, 23, 42, 0.12);
+            }
+
+            &:focus-visible {
+                outline: 2px solid currentColor;
+                outline-offset: 2px;
+            }
+
+            &:disabled {
+                opacity: 0.65;
+                cursor: not-allowed;
+            }
+
+            .loader {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                animation: bsbLoadMoreSpin 0.8s linear infinite;
+
+                svg {
+                    width: 16px;
+                    height: 16px;
+                    fill: currentColor;
+                }
+            }
+        }
+    }
+}
+
+/* The player stage, where a click plays in place instead of opening over the page.
+ *
+ * Its shape is reserved before anything loads — the poster, the Plyr iframe and the gap between them
+ * are all 16:9 — so pressing play swaps one for the other without the thumbnails below jumping.
+ */
+.bsb-thumb-stage {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--bsb-radius-md, 8px);
+    background: #000;
+    aspect-ratio: 16 / 9;
+
+    .bsb-thumb-stage-video-container,
+    .bsb-thumb-stage-video,
+    .plyr {
+        width: 100%;
+        height: 100%;
+    }
+
+    .bsb-thumb-stage-poster {
+        position: relative;
+        display: block;
+        width: 100%;
+        height: 100%;
+        padding: 0;
+        border: 0;
+        background: none;
+        cursor: pointer;
+        appearance: none;
+
+        img {
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+    }
+
+    /* YouTube's own proportions, so the stage reads as a video before it is one. */
+    .bsb-thumb-stage-play {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 68px;
+        height: 48px;
+        transform: translate(-50%, -50%);
+        border-radius: 12px;
+        background: rgba(0, 0, 0, 0.6);
+        transition: background 0.2s ease;
+
+        &::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-40%, -50%);
+            border-style: solid;
+            border-width: 11px 0 11px 19px;
+            border-color: transparent transparent transparent #fff;
+        }
+    }
+
+    .bsb-thumb-stage-poster:hover .bsb-thumb-stage-play,
+    .bsb-thumb-stage-poster:focus-visible .bsb-thumb-stage-play {
+        background: #ff0000;
+    }
+
+    /* Only ever drawn in the editor — see the note at its render. */
+    .bsb-thumb-stage-note {
+        position: absolute;
+        right: 10px;
+        bottom: 10px;
+        padding: 3px 8px;
+        border-radius: 4px;
+        background: rgba(0, 0, 0, 0.75);
+        color: #fff;
+        font-size: 12px;
+        line-height: 1.5;
+    }
+}
+
+/* A cell with words as well as a picture.
+ *
+ * Two arrangements. `stacked` puts the text under the still, which is what a video grid looks like;
+ * `beside` puts it to the right of a fixed-width still, which is the "up next" shape — fewer, wider
+ * cells, each readable at a glance. Both hang off the same cell, so only the axis changes.
+ */
+.bsb-thumbnail-grid.has-text {
+    .bsb-thumb-cell {
+        text-align: left;
+    }
+
+    .bsb-thumb-body {
+        display: block;
+        min-width: 0;
+    }
+
+    .bsb-thumb-title {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        font-size: 15px;
+        font-weight: 600;
+        line-height: 1.4;
+        color: var(--bsb-thumb-title-color, #0f0f0f);
+    }
+
+    .bsb-thumb-meta {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 4px 6px;
+        margin-top: 4px;
+        font-size: 13px;
+        line-height: 1.5;
+        color: var(--bsb-thumb-meta-color, #606060);
+
+        /* The dot between views and date, and only between them — never trailing when one is off. */
+        > span + span::before {
+            content: '•';
+            margin-right: 6px;
+        }
+    }
+
+    .bsb-thumb-excerpt {
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        margin-top: 6px;
+        font-size: 13px;
+        line-height: 1.5;
+        color: var(--bsb-thumb-meta-color, #606060);
+    }
+
+    @media (prefers-color-scheme: dark) {
+        .bsb-thumb-title {
+            color: var(--bsb-thumb-title-color, #f1f5f9);
+        }
+
+        .bsb-thumb-meta,
+        .bsb-thumb-excerpt {
+            color: var(--bsb-thumb-meta-color, #94a3b8);
+        }
+    }
+}
+
+/* Text under the picture. */
+.bsb-thumbnail-grid.is-stacked.has-text .bsb-thumb-body {
+    margin-top: 8px;
+}
+
+/* Text to the right of it. The still keeps a fixed width so every row's text starts on the same
+   line down the column — a percentage would make each cell's picture a different size as the grid
+   reflows, which is what makes a list like this look ragged. */
+.bsb-thumbnail-grid.is-beside.has-text {
+    .bsb-thumb-cell {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .img {
+        flex: 0 0 var(--bsb-thumb-side-width, 168px);
+        width: var(--bsb-thumb-side-width, 168px);
+    }
+
+    @media (max-width: 576px) {
+        .img {
+            flex-basis: 40%;
+            width: 40%;
+        }
+    }
+}
+
+/* With the stage hidden the grid is the whole slider, so it does not need the gap that separated
+ * the two — and the cells become links, which a browser gives an underline and a colour. */
+.bsb-main-carousel-wrapper.no-stage {
+    .bsb-thumbnail-grid {
+        margin-top: 0;
+    }
+
+    a.bsb-thumb-cell {
+        color: inherit;
+        text-decoration: none;
+    }
+}
+
+/* The length, over the corner of the picture — the place every video service puts it, so it needs
+   no label. Shared by both modes. */
+.bsb-thumb-duration {
+    position: absolute;
+    right: 6px;
+    bottom: 6px;
+    padding: 1px 5px;
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.5;
+    letter-spacing: 0.2px;
+    pointer-events: none;
+}
+
+/* The play mark, drawn rather than fetched — see the note at its render. */
+.bsb-thumb-play {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 44px;
+    height: 31px;
+    transform: translate(-50%, -50%);
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.55);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease, background 0.2s ease;
+
+    &::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-40%, -50%);
+        border-style: solid;
+        border-width: 6px 0 6px 10px;
+        border-color: transparent transparent transparent #fff;
+    }
+}
+
+.bsb-thumb-cell:hover .bsb-thumb-play,
+.single_thumbnails:hover .bsb-thumb-play {
+    opacity: 1;
+    background: #ff0000;
+}
+
+/* The slider mode's own thumbnails need the positioning context the grid cell gets from `.img`
+   above; without it a duration badge would anchor to the page. */
+.single_thumbnails .img {
+    position: relative;
+}
+
+/* Prev/Next between the stage and the grid. */
+.bsb-thumb-nav {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 14px;
+
+    .bsb-thumb-nav-btn {
+        padding: 6px 18px;
+        border: 1px solid rgba(0, 0, 0, 0.12);
+        border-radius: var(--bsb-radius-md, 8px);
+        background: #fff;
+        color: inherit;
+        font-size: 14px;
+        line-height: 1.5;
+        cursor: pointer;
+        transition: border-color 0.2s ease, background 0.2s ease;
+
+        &:hover {
+            border-color: var(--bsb-feed-accent, #186cf5);
+            background: rgba(0, 0, 0, 0.03);
+        }
+
+        /* Swiper adds this to a navigation button with nowhere left to go. */
+        &.swiper-button-disabled {
+            opacity: 0.45;
+            cursor: default;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            border-color: rgba(255, 255, 255, 0.16);
+            background: rgba(255, 255, 255, 0.04);
+        }
+    }
+}
+
+/* For the Load More button's spinner — see `.load-more button .loader` above. */
+@keyframes bsbLoadMoreSpin {
+    to {
+        transform: rotate(360deg);
     }
 }

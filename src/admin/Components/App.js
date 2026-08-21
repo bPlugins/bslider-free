@@ -5,10 +5,10 @@ import Demos from '../../../../bpl-tools/Admin/Demos';
 import Pricing from '../../../../bpl-tools/Admin/Pricing';
 import FeatureCompare from '../../../../bpl-tools/Admin/FeatureCompare';
 import OurPlugins from '../../../../bpl-tools/Admin/OurPlugins';
-import { Settings } from '../../../../bpl-tools/Admin';
 
 import Layout from './Layout';
-import { demoInfo, pricingInfo, settingsInfo, welcomeInfo } from '../utils/data';
+import Settings from './Settings';
+import { demoInfo, pricingInfo, welcomeInfo } from '../utils/data';
 
 const App = (props) => {
     const { adminUrl } = props;
@@ -22,7 +22,7 @@ const App = (props) => {
                 <Route path='pricing' element={<Pricing pricingInfo={pricingInfo} options={{}} {...props} />} />
                 <Route path='feature-comparison' element={<FeatureCompare plans={['free', 'pro']} {...props} />} />
 
-                <Route path='settings' element={<Settings {...props} {...settingsInfo} />} />
+                <Route path='settings' element={<Settings {...props} />} />
                 <Route path='our-plugins' element={<OurPlugins {...props} />} />
 
                 <Route path='*' element={<Navigate to='/welcome' replace />} />

@@ -207,3 +207,170 @@ export const sanitizeHref = (url) => {
     // Anything else -> block
     return '#';
 };
+
+export const formatPHPDate = (dateVal, formatStr, lang = document.documentElement.lang || undefined) => {
+    if (!dateVal) return '';
+    const date = new Date(dateVal);
+    if (isNaN(date.getTime())) return '';
+
+    let result = '';
+    for (let i = 0; i < formatStr.length; i++) {
+        const char = formatStr[i];
+        switch (char) {
+            case 'F':
+                result += date.toLocaleDateString(lang, { month: 'long' });
+                break;
+            case 'M':
+                result += date.toLocaleDateString(lang, { month: 'short' });
+                break;
+            case 'm':
+                result += String(date.getMonth() + 1).padStart(2, '0');
+                break;
+            case 'n':
+                result += String(date.getMonth() + 1);
+                break;
+            case 'j':
+                result += String(date.getDate());
+                break;
+            case 'd':
+                result += String(date.getDate()).padStart(2, '0');
+                break;
+            case 'Y':
+                result += String(date.getFullYear());
+                break;
+            case 'y':
+                result += String(date.getFullYear()).slice(-2);
+                break;
+            case 'g': {
+                const hours = date.getHours() % 12;
+                result += String(hours === 0 ? 12 : hours);
+                break;
+            }
+            case 'h': {
+                const hours = date.getHours() % 12;
+                result += String(hours === 0 ? 12 : hours).padStart(2, '0');
+                break;
+            }
+            case 'G':
+                result += String(date.getHours());
+                break;
+            case 'H':
+                result += String(date.getHours()).padStart(2, '0');
+                break;
+            case 'i':
+                result += String(date.getMinutes()).padStart(2, '0');
+                break;
+            case 's':
+                result += String(date.getSeconds()).padStart(2, '0');
+                break;
+            case 'a':
+                result += date.getHours() >= 12 ? 'pm' : 'am';
+                break;
+            case 'A':
+                result += date.getHours() >= 12 ? 'PM' : 'AM';
+                break;
+            case 'l':
+                result += date.toLocaleDateString(lang, { weekday: 'long' });
+                break;
+            case 'D':
+                result += date.toLocaleDateString(lang, { weekday: 'short' });
+                break;
+            case '\\':
+                if (i + 1 < formatStr.length) {
+                    result += formatStr[++i];
+                }
+                break;
+            default:
+                result += char;
+                break;
+        }
+    }
+    return result;
+};
+
+export const translateDateStr = (dateStr, translationSettings) => {
+    if (!translationSettings || !dateStr) {
+        return dateStr;
+    }
+    const pairs = translationSettings.split('||');
+    let result = dateStr;
+    pairs.forEach(pair => {
+        const parts = pair.split('->');
+        if (parts.length === 2) {
+            const key = parts[0].trim();
+            const val = parts[1].trim();
+            if (key) {
+                result = result.split(key).join(val);
+            }
+        }
+    });
+    return result;
+};
+
+export const getLocalizedDate = (post, socialQuery) => {
+    const { 
+        rssLocalTimezone = false, 
+        metaDateFormat = 'M j, Y', 
+        rssTranslateDate = ''
+    } = socialQuery || {};
+    
+    if (rssLocalTimezone && post?.dateISO) {
+        const localFormatted = formatPHPDate(post.dateISO, metaDateFormat || 'M j, Y', 'en-US');
+        return translateDateStr(localFormatted, rssTranslateDate);
+    }
+    return translateDateStr(post?.date || '', rssTranslateDate);
+};
+
+export const getProvider = (url) => {
+    if (!url) return 'html5';
+    const cleanUrl = String(url).trim();
+    if (cleanUrl.includes('youtube.com') || cleanUrl.includes('youtu.be')) return 'youtube';
+    if (cleanUrl.includes('vimeo.com')) return 'vimeo';
+    return 'html5';
+};
+
+export const getYouTubeId = (url) => {
+    if (!url) return '';
+    const cleanUrl = String(url).trim();
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+    const match = cleanUrl.match(regExp);
+    return (match && match[2].length === 11) ? match[2] : '';
+};
+
+export const getVimeoId = (url) => {
+    if (!url) return '';
+    const cleanUrl = String(url).trim();
+    const match = cleanUrl.match(/(?:vimeo\.com\/)(?:channels\/[A-z]+\/|groups\/[A-z]+\/videos\/|album\/[0-9]+\/video\/)?([0-9]+)/);
+    return match ? match[1] : '';
+};
+
+/** What `block.json` gives `height`, and so what "nobody has chosen one" looks like on that key. */
+const HEIGHT_UNSET = '450px';
+
+/**
+ * Whether a grid sizes its cards to their pictures rather than to a height somebody set.
+ *
+ * A grid column already fixes a card's width, so the picture's own proportions can settle its height —
+ * every card exactly as tall as it needs to be, whatever shape the feed sends, with nothing cropped and
+ * no bars. That is the default for a grid now. The other layouts show one slide at a time in a frame,
+ * and there a height is the only thing that can say how tall the frame is, so they are untouched.
+ *
+ * **Only where no height was chosen**, which needed no new attribute to answer. `sliderHeight` defaults
+ * to `{}`, so anything under a device key was put there by the height control. `height` is the older
+ * single-value key that control no longer writes to; a slider carrying anything but the default on it
+ * was set in a version that did, and that is just as much a choice.
+ *
+ * So an existing grid keeps the height it has, and setting Item Height is how anybody opts out —
+ * clearing it again puts the automatic sizing back.
+ *
+ * Read in two places that must agree: `Style` writes the CSS from it, and `DefaultGeneral` uses it to
+ * stop the height field claiming a value that is not in force.
+ */
+export const isAutoGridHeight = (attributes = {}) => {
+    const { layoutType, sliderHeight = {}, height = '' } = attributes;
+
+    const hasChosenHeight = !!(sliderHeight?.desktop || sliderHeight?.tablet || sliderHeight?.mobile)
+        || (!!height && HEIGHT_UNSET !== height);
+
+    return 'grid' === layoutType && !hasChosenHeight;
+};

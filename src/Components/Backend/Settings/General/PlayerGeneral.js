@@ -1,26 +1,23 @@
 import { __ } from '@wordpress/i18n';
 import { CheckboxControl, SelectControl, ToggleControl } from '@wordpress/components';
+import { useEffect } from '@wordpress/element';
 import { PanelBody } from '../../../Panel/AccordionPanel';
 import FieldGroup from '../../../Panel/FieldGroup';
-import { TipToggle, TipRange } from '../../../Panel/TipField';
+import { TipSelect, TipToggle, TipRange } from '../../../Panel/TipField';
 import { BControlPro } from '../../../../../../bpl-tools/ProControls';
 import { ColorControl, Label, Notice } from '../../../../../../bpl-tools/Components';
 import { HTML5_ONLY, PLAYER_DEFAULTS, playerConf } from '../../../../utils/config';
-
-const RATIO_OPTIONS = [
-    { label: __('From the video itself', 'b-slider'), value: '' },
-    { label: '16:9', value: '16:9' },
-    { label: '4:3', value: '4:3' },
-    { label: '1:1', value: '1:1' },
-    { label: '21:9', value: '21:9' },
-    { label: __('9:16 (vertical)', 'b-slider'), value: '9:16' }
-];
+import { isProActive } from '../../../../utils/functions';
 
 /**
- * Every button Plyr can put in the bar, in the order it draws them.
+ * The buttons Plyr can draw, in the order it draws them.
  *
- * `pro: true` marks the ones a licence buys; they are filtered out below rather than listed and
- * disabled, so the panel offers nothing that would not work if it were pressed.
+ * `pro` is which ones were behind the Pro gate before this panel existed, kept as they were — a
+ * setting does not become a Pro feature or stop being one because the panel it lives in moved.
+ *
+ * Which of them a feed cannot use is not written here: `HTML5_ONLY` says, and `plyrConfig` strips the
+ * same ones on the way to the player. A toggle that does nothing is worse than no toggle, and two
+ * lists that could disagree are worse than either.
  */
 const CONTROL_ITEMS = [
     { key: 'play-large', label: __('Play Large', 'b-slider') },
@@ -43,6 +40,18 @@ const CONTROL_ITEMS = [
 const SETTINGS_ITEMS = [
     { key: 'quality', label: __('Quality', 'b-slider') },
     { key: 'speed', label: __('Speed', 'b-slider') }
+];
+
+/** The speeds the menu can offer. Plyr accepts any number; these are the ones worth a checkbox. */
+const SPEED_CHOICES = [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2];
+
+const RATIO_OPTIONS = [
+    { label: __('From the video itself', 'b-slider'), value: '' },
+    { label: '16:9', value: '16:9' },
+    { label: '4:3', value: '4:3' },
+    { label: '1:1', value: '1:1' },
+    { label: '21:9', value: '21:9' },
+    { label: __('9:16 (vertical)', 'b-slider'), value: '9:16' }
 ];
 
 /**
@@ -79,10 +88,17 @@ const PlayerGeneral = ({ attributes, setAttributes, updateObject, premiumProps, 
         usePlyr = true,
         ytAutoplay = true,
         ytMute = false,
+        ytControls = true,
+        ytFullscreen = true,
         ytKeyboard = true,
+        ytCaptions = false,
         ytNoCookie = true,
+        ytRel = false,
+        ytLazy = true,
         igAutoplay = true,
-        igMute = true
+        igMute = true,
+        igControls = true,
+        igLoop = true
     } = socialQuery || {};
 
     const isNativeYouTube = 'social' === sourceType && 'youtube' === feedType && usePlyr === false;
@@ -92,19 +108,45 @@ const PlayerGeneral = ({ attributes, setAttributes, updateObject, premiumProps, 
     const conf = playerConf(videoConf);
     const { controls, settingsMenu } = conf;
 
-    /**
-     * Nothing is written back to hold the Premium settings down.
-     *
-     * The earlier version of this file ran an effect on mount that forced Repeat, Reset On End and
-     * the Fullscreen button to their free values. Two things were wrong with it: `videoConf` ships
-     * with `fullscreen: true`, so it fired for *every* video slider and marked a post dirty the
-     * moment its panel was opened — and it quietly rewrote a block that had been configured with a
-     * licence, so opening it here once cost settings that would not come back on renewal.
-     *
-     * The panel simply does not offer them, the way `VideoGeneral` does not offer the six Premium
-     * buttons: the controls are filtered out and a notice names them. What the free *player* honours
-     * is `plyrConfig`'s business, and it reads the same `HTML5_ONLY` list this panel does.
-     */
+    const isPro = premiumProps?.isPremium ?? isProActive();
+
+    useEffect(() => {
+        if (!isPro) {
+            let updatedConf = {};
+            let hasChanges = false;
+
+            if (conf.repeat !== false) {
+                updatedConf.repeat = false;
+                hasChanges = true;
+            }
+            if (conf.clickToPlay !== true) {
+                updatedConf.clickToPlay = true;
+                hasChanges = true;
+            }
+            if (conf.resetOnEnd !== false) {
+                updatedConf.resetOnEnd = false;
+                hasChanges = true;
+            }
+
+            const currentControls = conf.controls || {};
+            if (currentControls.fullscreen !== false) {
+                updatedConf.controls = { ...currentControls, fullscreen: false };
+                hasChanges = true;
+            }
+
+            const currentSettingsMenu = conf.settingsMenu || {};
+            if (currentSettingsMenu.speed !== false) {
+                updatedConf.settingsMenu = { ...currentSettingsMenu, speed: false };
+                hasChanges = true;
+            }
+
+            if (hasChanges) {
+                setAttributes({
+                    videoConf: { ...videoConf, ...updatedConf }
+                });
+            }
+        }
+    }, [isPro, conf.repeat, conf.clickToPlay, conf.resetOnEnd, conf.controls?.fullscreen, conf.settingsMenu?.speed]);
 
     /** One key inside one of the two nested objects — `controls` and `settingsMenu`. */
     const updateChild = (child, key, val) => setAttributes({
@@ -157,21 +199,68 @@ const PlayerGeneral = ({ attributes, setAttributes, updateObject, premiumProps, 
                         checked={ytMute}
                         onChange={val => updateObject('socialQuery', 'ytMute', val)}
                     />
-                    <ProLine>{__('Show Player Controls, Show Fullscreen Button', 'b-slider')}</ProLine>
+                    {isPro && (
+                        <>
+                            <ToggleControl
+                                className='mt15'
+                                label={__('Show Player Controls', 'b-slider')}
+                                checked={ytControls}
+                                onChange={val => updateObject('socialQuery', 'ytControls', val)}
+                            />
+                            <ToggleControl
+                                className='mt15'
+                                label={__('Show Fullscreen Button', 'b-slider')}
+                                checked={ytFullscreen}
+                                onChange={val => updateObject('socialQuery', 'ytFullscreen', val)}
+                            />
+                        </>
+                    )}
+                    {!isPro && <ProLine>{__('Show Player Controls, Show Fullscreen Button', 'b-slider')}</ProLine>}
                     <ToggleControl
                         className='mt15'
                         label={__('Enable Keyboard Shortcuts', 'b-slider')}
                         checked={ytKeyboard}
                         onChange={val => updateObject('socialQuery', 'ytKeyboard', val)}
                     />
-                    <ProLine>{__('Always Show Subtitles/Captions', 'b-slider')}</ProLine>
+                    {isPro && (
+                        <ToggleControl
+                            className='mt15'
+                            label={__('Always Show Subtitles/Captions', 'b-slider')}
+                            checked={ytCaptions}
+                            onChange={val => updateObject('socialQuery', 'ytCaptions', val)}
+                        />
+                    )}
+                    {!isPro && <ProLine>{__('Always Show Subtitles/Captions', 'b-slider')}</ProLine>}
                     <ToggleControl
                         className='mt15'
                         label={__('Privacy-Enhanced Mode', 'b-slider')}
                         checked={ytNoCookie}
                         onChange={val => updateObject('socialQuery', 'ytNoCookie', val)}
                     />
-                    <ProLine>{__('Recommend Videos from Other Channels, Lazy Load Video', 'b-slider')}</ProLine>
+                    {isPro && (
+                        <>
+                            <TipToggle
+                                className='mt15'
+                                label={__('Recommend Videos from Other Channels', 'b-slider')}
+                                checked={ytRel}
+                                onChange={val => updateObject('socialQuery', 'ytRel', val)}
+                                tip={__('If enabled, YouTube will suggest videos from other channels. If disabled, recommendations are limited to the same channel.', 'b-slider')}
+                            />
+
+                            {/* Moved from the general Lazy Load panel, where it sat beside Lazy Load Images asking a
+                                question that panel otherwise answers the same way for every source: this one
+                                parameter only ever applied to a native YouTube iframe, which is what this panel is
+                                for. `isNativeYouTube` was computed a second time over there to gate it — the same
+                                formula, kept in step by hand rather than shared. */}
+                            <ToggleControl
+                                className='mt15'
+                                label={__('Lazy Load Video', 'b-slider')}
+                                checked={ytLazy}
+                                onChange={val => updateObject('socialQuery', 'ytLazy', val)}
+                            />
+                        </>
+                    )}
+                    {!isPro && <ProLine>{__('Recommend Videos from Other Channels, Lazy Load Video', 'b-slider')}</ProLine>}
                 </PanelBody>
             ) : (
                 <PanelBody className='bPlPanelBody' title={__('Instagram Native Controls', 'b-slider')} badge={__('New', 'b-slider')} initialOpen={true}>
@@ -189,7 +278,23 @@ const PlayerGeneral = ({ attributes, setAttributes, updateObject, premiumProps, 
                         checked={igMute}
                         onChange={val => updateObject('socialQuery', 'igMute', val)}
                     />
-                    <ProLine>{__('Show Player Controls, Loop Video', 'b-slider')}</ProLine>
+                    {isPro && (
+                        <>
+                            <ToggleControl
+                                className='mt15'
+                                label={__('Show Player Controls', 'b-slider')}
+                                checked={igControls}
+                                onChange={val => updateObject('socialQuery', 'igControls', val)}
+                            />
+                            <ToggleControl
+                                className='mt15'
+                                label={__('Loop Video', 'b-slider')}
+                                checked={igLoop}
+                                onChange={val => updateObject('socialQuery', 'igLoop', val)}
+                            />
+                        </>
+                    )}
+                    {!isPro && <ProLine>{__('Show Player Controls, Loop Video', 'b-slider')}</ProLine>}
                 </PanelBody>
             )
         );
@@ -207,7 +312,10 @@ const PlayerGeneral = ({ attributes, setAttributes, updateObject, premiumProps, 
 
             <FieldGroup title={__('Playback', 'b-slider')} />
 
-            <ProLine>{__('Repeat', 'b-slider')}</ProLine>
+            {isPro && (
+                <ToggleControl className='mt15' label={__('Repeat', 'b-slider')} checked={conf.repeat} onChange={val => set('repeat', val)} />
+            )}
+            {!isPro && <ProLine>{__('Repeat', 'b-slider')}</ProLine>}
 
             <ToggleControl className='mt15' label={__('Muted', 'b-slider')} checked={conf.muted} onChange={val => set('muted', val)} />
 
@@ -235,6 +343,13 @@ const PlayerGeneral = ({ attributes, setAttributes, updateObject, premiumProps, 
                 tip={__('Where the player starts. Muted overrides it.', 'b-slider')}
             />}
 
+            {isPro && (
+                <>
+                    <TipToggle className='mt15' label={__('Click To Play', 'b-slider')} checked={conf.clickToPlay} onChange={val => set('clickToPlay', val)} tip={__('A click anywhere on the picture plays and pauses.', 'b-slider')} />
+
+                    <ToggleControl className='mt15' label={__('Reset On End', 'b-slider')} checked={conf.resetOnEnd} onChange={val => set('resetOnEnd', val)} />
+                </>
+            )}
 
             {/* There was a "Pause Others" toggle here, wired to Plyr's `autopause`. It never did
                 anything: every one of that option's six appearances in plyr.min.js is either its own
@@ -247,7 +362,10 @@ const PlayerGeneral = ({ attributes, setAttributes, updateObject, premiumProps, 
                 run. The one gap it leaves is a Video slider with Popup off, where every slide gets its own
                 inline player and a grid can show several at once — nothing pauses those. Worth fixing, but
                 unconditionally rather than as a setting: two videos playing at once is not a preference. */}
-            <ProLine>{__('Click To Play, Reset On End, Remember Settings', 'b-slider')}</ProLine>
+            {isPro && (
+                <TipToggle className='mt15' label={__('Remember Settings', 'b-slider')} checked={conf.rememberSettings} onChange={val => set('rememberSettings', val)} tip={__('Keeps the visitor’s volume and speed for the next video they play, in their own browser.', 'b-slider')} />
+            )}
+            {!isPro && <ProLine>{__('Click To Play, Reset On End, Remember Settings', 'b-slider')}</ProLine>}
 
             <TipToggle className='mt15' label={__('Play Inline', 'b-slider')} checked={conf.playsinline} onChange={val => set('playsinline', val)} tip={__('Off sends iPhones to their own full-screen player as soon as playback starts.', 'b-slider')} />
 
@@ -270,12 +388,54 @@ const PlayerGeneral = ({ attributes, setAttributes, updateObject, premiumProps, 
                 onChange={val => set('ratio', val)}
             />
 
-            <ProLine>{__('Playback Speed', 'b-slider')}</ProLine>
+            {isPro && (
+                <>
+                    <Label className='mt15 mb5'>{__('Playback Speed', 'b-slider')}</Label>
+
+                    {/**
+                     * Overridden by the browser's memory exactly as Default Volume is — `set speed` reads
+                     * `storage.get('speed')` before it falls back to `config.speed.selected` — but it goes wrong
+                     * more often, and the note says so rather than repeating the volume's wording.
+                     *
+                     * Measured in Chrome: on a clean browser, setting this to 1.5× writes `speed: 1.5` into the
+                     * `plyr` key on the first play, with the visitor having touched nothing — because moving
+                     * `playbackRate` off 1 fires `ratechange`, and that listener stores it. Change this setting
+                     * afterwards and that browser keeps 1.5× for good; the panel says 1.25× while the player runs
+                     * at 1.5×. Volume hides the same fault, since the value it seeds equals the one configured, so
+                     * nothing looks wrong until the setting is edited. This is the one people hit while authoring.
+                     */}
+                    <TipSelect
+                        value={String(conf.speed)}
+                        options={SPEED_CHOICES.map(n => ({ label: `${n}×`, value: String(n) }))}
+                        onChange={val => set('speed', Number(val))}
+                        tip={conf.rememberSettings
+                            ? __('Only applies in a browser that has not played one of these videos yet — after the first play, that browser keeps the speed it saw. Turn off Remember Settings below for this to apply every time.', 'b-slider')
+                            : __('The speed every video starts at, for every visitor.', 'b-slider')}
+                    />
+
+                    {/* Which speeds the menu lists. The one above is always in the list whether it is ticked
+                        here or not — see `plyrConfig`, where a menu without the current speed in it would show
+                        the player running at a speed it does not offer. */}
+                    <Label className='mt10 mb5'>{__('Speeds In The Menu', 'b-slider')}</Label>
+
+                    <div className='bsb_choice_row'>
+                        {SPEED_CHOICES.map(n => <CheckboxControl
+                            key={n}
+                            label={`${n}×`}
+                            checked={(conf.speedOptions || []).includes(n)}
+                            onChange={val => set('speedOptions', val
+                                ? [...new Set([...(conf.speedOptions || []), n])].sort((a, b) => a - b)
+                                : (conf.speedOptions || []).filter(s => s !== n))}
+                        />)}
+                    </div>
+                </>
+            )}
+            {!isPro && <ProLine>{__('Playback Speed', 'b-slider')}</ProLine>}
 
             <FieldGroup title={__('The control bar', 'b-slider')} />
 
             {CONTROL_ITEMS.filter(forHere('controls'))
-                .filter(({ key }) => !['settings', 'fullscreen'].includes(key))
+                .filter(({ key }) => isPro || !['settings', 'fullscreen'].includes(key))
                 .map(({ key, label, pro }) => pro
                 ? <BControlPro
                     key={key}
@@ -295,7 +455,7 @@ const PlayerGeneral = ({ attributes, setAttributes, updateObject, premiumProps, 
                 />)}
             {/* These three are filtered out of the list above rather than drawn locked, so without a
                 line here they would simply be absent with nothing to say why. */}
-            <ProLine>{__('Settings, Fullscreen buttons', 'b-slider')}</ProLine>
+            {!isPro && <ProLine>{__('Settings, Fullscreen buttons', 'b-slider')}</ProLine>}
 
             {/* The gear itself is the `settings` control above; this is what it opens. Worth saying so,
                 because an empty menu and a hidden gear look the same from the front. */}
@@ -303,7 +463,7 @@ const PlayerGeneral = ({ attributes, setAttributes, updateObject, premiumProps, 
 
             <div className='bsb_choice_row'>
                 {SETTINGS_ITEMS.filter(forHere('settings'))
-                    .filter(({ key }) => key !== 'speed')
+                    .filter(({ key }) => isPro || key !== 'speed')
                     .map(({ key, label }) => <CheckboxControl
                         key={key}
                         label={label}
@@ -311,7 +471,7 @@ const PlayerGeneral = ({ attributes, setAttributes, updateObject, premiumProps, 
                         onChange={val => updateChild('settingsMenu', key, val)}
                     />)}
             </div>
-            <ProLine>{__('Speed menu option', 'b-slider')}</ProLine>
+            {!isPro && <ProLine>{__('Speed menu option', 'b-slider')}</ProLine>}
 
             <FieldGroup title={__('The interface', 'b-slider')} />
 
@@ -324,20 +484,32 @@ const PlayerGeneral = ({ attributes, setAttributes, updateObject, premiumProps, 
 
             <ColorControl className='mb20' label={__('Icon Color', 'b-slider')} value={conf.playerIconColor} defaultColor={PLAYER_DEFAULTS.playerIconColor} onChange={val => set('playerIconColor', val)} />
 
+            {isPro && (
+                <ToggleControl className='mt15' label={__('Auto Hide Control', 'b-slider')} checked={conf.autoHideControl} onChange={val => set('autoHideControl', val)} />
+            )}
 
             <ToggleControl className='mt15' label={__('Tooltips On Controls', 'b-slider')} checked={conf.tooltipsControls} onChange={val => set('tooltipsControls', val)} />
 
+            {isPro && (
+                <TipToggle className='mt15' label={__('Tooltip On The Progress Bar', 'b-slider')} checked={conf.tooltipsSeek} onChange={val => set('tooltipsSeek', val)} tip={__('Shows the time under the pointer while scrubbing.', 'b-slider')} />
+            )}
 
             <TipToggle className='mt15' label={__('Count Time Down', 'b-slider')} checked={conf.invertTime} onChange={val => set('invertTime', val)} tip={__('Shows what is left rather than what has played.', 'b-slider')} />
 
-            <ProLine>{__('Auto Hide Control, progress tooltips, Keyboard While Focused', 'b-slider')}</ProLine>
+            {isPro && (
+                <TipToggle className='mt15' label={__('Keyboard While Focused', 'b-slider')} checked={conf.keyboardFocused} onChange={val => set('keyboardFocused', val)} tip={__('Space, arrows and the number keys work on the player the visitor has clicked into.', 'b-slider')} />
+            )}
+            {!isPro && <ProLine>{__('Auto Hide Control, progress tooltips, Keyboard While Focused', 'b-slider')}</ProLine>}
 
             {/* Only for a YouTube feed, because these are parameters in YouTube's own embed URL and the video
                 source plays a file from this site. */}
             {isFeed && ('youtube' === feedType || 'youtube_video' === feedType) && <>
                 <FieldGroup title={__('YouTube', 'b-slider')} />
 
-                <ProLine>{__('Privacy-Enhanced Mode (GDPR)', 'b-slider')}</ProLine>
+                {isPro && (
+                    <TipToggle className='mt15' label={__('Privacy-Enhanced Mode', 'b-slider')} checked={conf.ytNoCookie} onChange={val => set('ytNoCookie', val)} tip={__('YouTube stores nothing about the visitor until they press play.', 'b-slider')} />
+                )}
+                {!isPro && <ProLine>{__('Privacy-Enhanced Mode (GDPR)', 'b-slider')}</ProLine>}
 
                 <TipToggle className='mt15' label={__('Recommend Videos from Other Channels', 'b-slider')} checked={conf.ytRel} onChange={val => set('ytRel', val)} tip={__('If enabled, YouTube will suggest videos from other channels. If disabled, recommendations are limited to the same channel.', 'b-slider')} />
 

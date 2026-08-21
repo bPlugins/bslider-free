@@ -1,4 +1,4 @@
-import { withSelect, withDispatch } from '@wordpress/data';
+import { withSelect, withDispatch, dispatch as wpDispatch } from '@wordpress/data';
 import { compose } from "@wordpress/compose"
 const { dateI18n } = wp.date;
 import { useBlockProps } from '@wordpress/block-editor';
@@ -16,6 +16,7 @@ import SelectSource from './Source/SelectSource';
 import Default from '../Common/Layouts/Default';
 import ClipBoard from './ClipBoard';
 import useSocialFeed from '../../hooks/useSocialFeed';
+import { GLOBAL_SIDEBAR } from './GlobalSidebar';
 import useIframeAssetSync from '../../../../bpl-tools/hooks/useIframeAssetSync';
 // The sidebar markup leans on bpl-tools' `mt*`/`mb*` spacing classes, which live here.
 import '../../../../bpl-tools/Components/style.scss';
@@ -145,13 +146,55 @@ const Edit = (props) => {
 	const socialFeed = useSocialFeed(attributes);
 	const isSocialSource = 'social' === attributes.sourceType;
 
+	/**
+	 * Bring a named inspector panel up, from something in the canvas.
+	 *
+	 * The empty state tells the user which panel to go to; this is what lets it take them there. Two
+	 * steps, because either can already be true: the sidebar may be closed altogether, and the panel
+	 * may be in a tab that is not showing. The nonce makes each click a fresh request, so asking for
+	 * the same panel twice — with something else opened in between — works both times.
+	 */
+	const [panelRequest, setPanelRequest] = useState(null);
+
+	const openPanel = id => {
+		selectBlock(clientId);
+
+		// `core/edit-post` in the post editor, `core/edit-site` in the site editor. Neither is
+		// guaranteed to be there, so both are asked and whichever answers wins.
+		['core/edit-post', 'core/edit-site'].forEach(store => {
+			try {
+				wpDispatch(store)?.openGeneralSidebar?.('edit-post/block');
+			} catch (e) {
+				// That editor is not the one running; the other call covers it.
+			}
+		});
+
+		setPanelRequest({ id, nonce: Date.now() });
+	};
+
+	/**
+	 * Bring up bSlider's own panel — the saved channels and the API key.
+	 *
+	 * A plugin sidebar is addressed by `plugin/sidebar`, which `GLOBAL_SIDEBAR` builds from the same
+	 * two halves the registration uses, so this cannot end up naming a sidebar that does not exist.
+	 */
+	const openGlobalSettings = () => {
+		['core/edit-post', 'core/edit-site'].forEach(store => {
+			try {
+				wpDispatch(store)?.openGeneralSidebar?.(GLOBAL_SIDEBAR);
+			} catch (e) {
+				// That editor is not the one running; the other call covers it.
+			}
+		});
+	};
+
 	const displayPosts = isSocialSource ? socialFeed.items : formattedPosts;
 	const displayTotal = isSocialSource ? (socialFeed.items?.length || 0) : totalPosts;
 
-	const settingsProps = { clientId, attributes, setAttributes, updateSlider, addSlider, removeSlider, duplicateSlider, activeIndex, setActiveIndex, allCategories, multipleAttrChange, updateObject, queriedPosts: displayPosts, socialFeed };
+	const settingsProps = { clientId, attributes, setAttributes, updateSlider, addSlider, removeSlider, duplicateSlider, activeIndex, setActiveIndex, allCategories, multipleAttrChange, updateObject, queriedPosts: displayPosts, socialFeed, panelRequest };
 
 	const isOld = !layoutType && sliders[0]?.img?.url !== 'https://templates.bplugins.com/wp-content/uploads/2025/02/n-39.jpg';
-	const LayoutEl = <Layout {...{ attributes, firstPosts: displayPosts, products: displayPosts, totalPosts: displayTotal, setAttributes, commonDeProps, PostsGrid: PostsGridBack, updateObject, feedError: isSocialSource ? socialFeed.error : '', feedProfile: isSocialSource ? socialFeed.profile : null, feedLoading: isSocialSource && socialFeed.loading }} />;
+	const LayoutEl = <Layout {...{ attributes, firstPosts: displayPosts, products: displayPosts, totalPosts: displayTotal, setAttributes, commonDeProps, PostsGrid: PostsGridBack, updateObject, feedError: isSocialSource ? socialFeed.error : '', feedProfile: isSocialSource ? socialFeed.profile : null, feedLoading: isSocialSource && socialFeed.loading, onOpenPanel: openPanel, onOpenGlobal: openGlobalSettings }} />;
 
 	const shortcode = `[bsb-slider id=${currentPostId}]`;
 

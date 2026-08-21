@@ -1,36 +1,24 @@
 import { __ } from '@wordpress/i18n';
 import { PanelBody, AccordionGroup } from '../../../Panel/AccordionPanel';
 import { ToggleControl, TextControl, SelectControl, RangeControl } from '@wordpress/components';
-import { Label } from '../../../../../../bpl-tools/Components';
+import { Label, IconLibrary, Notice } from '../../../../../../bpl-tools/Components';
+import { isProActive } from '../../../../utils/functions';
 import SelectTokenField from '../../../Panel/SelectTokenField';
 import FieldGroup from '../../../Panel/FieldGroup';
 import { contentAniOption } from '../../../../utils/options';
 import AnchorPicker from './AnchorPicker';
 import PresetPicker from './PresetPicker';
-import ProNotice from '../../../Panel/ProNotice';
-import { PRO_FEATURES } from '../../../../utils/pro-features';
 
-/**
- * The date and the author, drawn over the slide as badges.
- *
- * Both are on an arranged post already — see `badgesFrom` in `AcfFields`, which is also where they are
- * rendered. Nothing is fetched for this: choosing a badge only decides whether a value the slide already
- * carries is printed on it.
- *
- * **They share the ACF fields' layer rather than opening a second one.** Two overlays over one slide
- * would anchor and animate independently, and a date in the bottom-left corner would sit above or below
- * an ACF field in the same corner depending on nothing the user could see. So the settings live beside
- * the ACF ones in `postsQuery`, and `AcfFields` merges the two sets.
- */
-const PostBadges = ({ attributes, updateObject }) => {
-    const { postsQuery, socialQuery, badgeAnimation, sourceType, caption } = attributes || {};
+const SocialBadges = ({ attributes, setAttributes, updateObject, premiumProps }) => {
+    const { sourceType, socialQuery, postsQuery, badgeAnimation, caption } = attributes || {};
+    const isPro = premiumProps?.isPremium ?? isProActive();
 
     /**
      * Which saved object this panel reads and writes.
      *
      * The same three settings, kept beside the query they belong to: a feed slider's on
-     * `socialQuery`, a post or product slider's on `postsQuery`. Writing a feed slider's badges
-     * into `postsQuery` would work and would be a lie — nothing else about that slider is in
+     * `socialQuery`, a post or product slider's on `postsQuery`. Writing a post slider's badges
+     * into `socialQuery` would work and would be a lie — nothing else about that slider is in
      * there, and the first person to go looking would not find them.
      */
     const isFeed = 'social' === sourceType;
@@ -38,7 +26,6 @@ const PostBadges = ({ attributes, updateObject }) => {
     const query = (isFeed ? socialQuery : postsQuery) || {};
 
     const { selectedBadges = [], badgeSettings = {}, badgeDisplayStyle = 'chips' } = query;
-    const { feedType = 'youtube' } = socialQuery || {};
 
     const allowedBadges = sourceType === 'woo' ? ['price', 'sale'] : ['date', 'author'];
     const activeBadges = selectedBadges.filter(badgeKey => allowedBadges.includes(badgeKey));
@@ -47,6 +34,7 @@ const PostBadges = ({ attributes, updateObject }) => {
     const handleBadgesChange = (newActive) => {
         updateObject(queryKey, 'selectedBadges', [...newActive, ...inactiveBadges]);
     };
+    const { feedType = 'youtube' } = socialQuery || {};
 
     const setBadgeSetting = (badgeKey, key, val) => {
         updateObject(queryKey, 'badgeSettings', {
@@ -64,8 +52,8 @@ const PostBadges = ({ attributes, updateObject }) => {
             title={!isFeed
                 ? __('Post Badges', 'b-slider')
                 : (feedType === 'rss' || feedType === 'json') ? __('Feed Badges', 'b-slider') : __('Social Badges', 'b-slider')}
-            /* One badge for all three names this panel goes by — it is the same panel whichever source
-               is reading it. See the `badge` prop on `PanelBody`. */
+            /* One badge for all three names this panel goes by — it is the same panel whichever source is
+               reading it. See the `badge` prop on `PanelBody`. */
             badge={__('New', 'b-slider')}
             initialOpen={false}
         >
@@ -82,15 +70,15 @@ const PostBadges = ({ attributes, updateObject }) => {
                         { label: __('Author Name', 'b-slider'), value: 'author' }
                     ]}
                 />
-                <small className="bsb_field_hint">
-                    {sourceType === 'woo' 
+                <small className="bsb_field_hint" style={{ display: 'block', marginTop: '5px', color: '#64748b' }}>
+                    {sourceType === 'woo'
                         ? __('Search or select metadata like "Product Price" or "Sale Badge" to display them as customizable badges on top of your slides.', 'b-slider')
                         : __('Search or select metadata like "Publish Date" or "Author Name" to display them as customizable badges on top of your slides.', 'b-slider')}
                 </small>
             </div>
 
             {activeBadges.length > 0 && (
-                <div className="bsb_acf_sections">
+                <div className="bsb_acf_sections" style={{ marginTop: '15px' }}>
                     <AccordionGroup>
                         {activeBadges.map(badgeKey => {
                             const badgeLabel = {
@@ -106,7 +94,7 @@ const PostBadges = ({ attributes, updateObject }) => {
                                 <PanelBody
                                     key={badgeKey}
                                     className="bPlPanelBody bsb_acf_field_panel"
-                                    panelId={`post-badge-${badgeKey}`}
+                                    panelId={`social-badge-${badgeKey}`}
                                     title={badgeLabel}
                                 >
                                     <ToggleControl
@@ -124,43 +112,94 @@ const PostBadges = ({ attributes, updateObject }) => {
                                         />
                                     )}
 
-                                    <TextControl
-                                        label={__('Icon:', 'b-slider')}
-                                        value={cfg.icon || ''}
-                                        onChange={val => setBadgeSetting(badgeKey, 'icon', val)}
-                                        placeholder='📍'
-                                        help={__('An emoji or character shown before the value.', 'b-slider')}
-                                    />
+                                    {/**
+                                      * Whether this badge waits for the pointer, asked beside the badge
+                                      * rather than in the Slide Content panel.
+                                      *
+                                      * It used to be one `caption.hoverDate` / `hoverAuthor` pair over
+                                      * there, which put a badge's setting in the caption's panel and made
+                                      * it impossible to say anything per badge. `hoverOnly` on the badge's
+                                      * own settings is the same switch where the rest of its settings are
+                                      * — see `badgeSettings` in `Style`, which reads it.
+                                      *
+                                      * Only worth asking when the caption is on hover: with the content
+                                      * always shown there is no second state to hold a badge back for.
+                                      */}
+                                    {caption?.display === 'hover' && (
+                                        <ToggleControl
+                                            className="mt15"
+                                            label={__('Show on hover only', 'b-slider')}
+                                            checked={cfg.hoverOnly !== false}
+                                            onChange={val => setBadgeSetting(badgeKey, 'hoverOnly', val)}
+                                        />
+                                    )}
+
+                                    {/**
+                                      * One value, two ways to set it.
+                                      *
+                                      * The library hands back the icon's own `<svg>` markup rather than a
+                                      * class name — which is why nothing has to be enqueued on the front
+                                      * end for these to draw: the icon travels with the slider. See
+                                      * `IconLibrary` in bpl-tools, and the `<svg` check in `AcfFields`
+                                      * that decides how a saved value is rendered.
+                                      *
+                                      * The text field stays beside it because an emoji is still the
+                                      * quickest answer for some badges, and every slider that already has
+                                      * one keeps working — the same field, either kind of value.
+                                      */}
+                                    {isPro ? (
+                                        <>
+                                            <IconLibrary
+                                                className='mt15'
+                                                label={__('Icon:', 'b-slider')}
+                                                value={cfg.icon || ''}
+                                                onChange={val => setBadgeSetting(badgeKey, 'icon', val)}
+                                            />
+
+                                            <TextControl
+                                                className='mt15'
+                                                label={__('Or type a character', 'b-slider')}
+                                                value={String(cfg.icon || '').startsWith('<svg') ? '' : (cfg.icon || '')}
+                                                onChange={val => setBadgeSetting(badgeKey, 'icon', val)}
+                                                placeholder='📍'
+                                            />
+                                        </>
+                                    ) : (
+                                        <Notice className="mt15" status="premium" isIcon={true}>
+                                            {__('Badge icons are available in the Premium version.', 'b-slider')}
+                                        </Notice>
+                                    )}
 
                                     <TextControl
+                                        className='mt15'
                                         label={__('Prefix:', 'b-slider')}
                                         value={cfg.prefix || ''}
                                         onChange={val => setBadgeSetting(badgeKey, 'prefix', val)}
                                     />
 
                                     <TextControl
+                                        className='mt15'
                                         label={__('Suffix:', 'b-slider')}
                                         value={cfg.suffix || ''}
                                         onChange={val => setBadgeSetting(badgeKey, 'suffix', val)}
                                     />
 
-                                    <div>
+                                    <div className='mt15'>
                                         <Label className="mb10">{__('Position:', 'b-slider')}</Label>
-                                        {/* Named per badge — one shared name would make both grids a single
-                                            radio group, so choosing a corner for one would clear the other. */}
                                         <AnchorPicker
-                                            name={`bsbPostBadgeAnchor-${badgeKey}`}
+                                            name={`bsbSocialBadgeAnchor-${badgeKey}`}
                                             value={anchor}
                                             onChange={val => setBadgeSetting(badgeKey, 'anchor', val)}
                                         />
                                     </div>
 
-                                    <div className="bsb_acf_offsets">
+                                    <div className="bsb_acf_offsets" style={{ display: 'flex', gap: '10px', marginTop: '15px' }}>
                                         <TextControl
                                             label={__('Offset X:', 'b-slider')}
                                             value={cfg.offsetX || ''}
                                             placeholder="0"
                                             onChange={val => setBadgeSetting(badgeKey, 'offsetX', val)}
+                                            style={{ flex: 1 }}
                                         />
 
                                         <TextControl
@@ -168,10 +207,11 @@ const PostBadges = ({ attributes, updateObject }) => {
                                             value={cfg.offsetY || ''}
                                             placeholder="0"
                                             onChange={val => setBadgeSetting(badgeKey, 'offsetY', val)}
+                                            style={{ flex: 1 }}
                                         />
                                     </div>
 
-                                    <small className="bsb_acf_hint">
+                                    <small className="bsb_acf_hint" style={{ display: 'block', margin: '5px 0 15px' }}>
                                         {__('A plain number is px. Any CSS length works, e.g. 12px, -1em or 2rem.', 'b-slider')}
                                     </small>
 
@@ -193,10 +233,10 @@ const PostBadges = ({ attributes, updateObject }) => {
                                         />
                                     )}
 
-                                    <div className="mt15">
+                                    <div className='mt15'>
                                         <Label className="mb10">{__('Style:', 'b-slider')}</Label>
                                         <PresetPicker
-                                            name={`bsbPostBadgePreset-${badgeKey}`}
+                                            name={`bsbSocialBadgePreset-${badgeKey}`}
                                             presets={['chips', 'outline', 'plain', 'ribbon']}
                                             withDefault={true}
                                             value={cfg.preset || ''}
@@ -208,7 +248,7 @@ const PostBadges = ({ attributes, updateObject }) => {
                         })}
                     </AccordionGroup>
 
-                    <div>
+                    <div style={{ marginTop: '20px' }}>
                         <Label className="mb10">{__('Default Badges Style:', 'b-slider')}</Label>
                         <PresetPicker
                             value={badgeDisplayStyle}
@@ -281,12 +321,8 @@ const PostBadges = ({ attributes, updateObject }) => {
                 </>}
             </>}
 
-            {/* Below the whole panel, not inside each badge's section — the icon field is in every
-                one of them, and a slider showing a date and an author would print the sentence
-                twice. Only once a badge is chosen, since that is when the icon field exists. */}
-            {activeBadges.length > 0 && <ProNotice className='mt10' features={PRO_FEATURES.iconLibrary} />}
         </PanelBody>
     );
 };
 
-export default PostBadges;
+export default SocialBadges;

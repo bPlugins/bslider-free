@@ -34,5 +34,19 @@ module.exports = {
 		...plugins,
 		new ESLintPlugin()
 	],
-	optimization: {}
+	/**
+	 * This block used to be `{}`, which threw away @wordpress/scripts' Terser setup along with it.
+	 * That Terser is configured for i18n: it preserves `translators:` comments through
+	 * minification and keeps `__`, `_n`, `_nx` and `_x` out of the mangler. Webpack's plain
+	 * defaults strip both, so every translator note written in JS was gone before
+	 * `wp i18n make-pot` ever read the bundle and none of them reached the .pot file.
+	 *
+	 * Its `splitChunks` is deliberately not taken: that pulls `style.scss` out of each entry into
+	 * a `style-*.css` of its own, and block.json enqueues `index.css` and `view.css` — the split
+	 * files are named in no manifest and would simply not load.
+	 */
+	optimization: {
+		concatenateModules: defaultConfig.optimization?.concatenateModules,
+		minimizer: defaultConfig.optimization?.minimizer
+	}
 };

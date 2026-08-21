@@ -10,7 +10,9 @@ const ImageIndicators = (props) => {
 
     return (() => {
         switch (sourceType) {
+            // A feed item carries a `thumbnail`, which is what the Posts indicator reads.
             case 'posts':
+            case 'social':
                 return <Posts {...{ ...props }} />;
             case 'woo':
                 return <Woo {...{ ...props }} />

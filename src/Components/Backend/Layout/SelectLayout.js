@@ -1,20 +1,20 @@
-const { __ } = wp.i18n;
+import { __ } from '@wordpress/i18n';
 import { layoutItem } from './layout-json';
+import { isProActive } from '../../../utils/functions';
 import ProLayoutsPromo from '../ProLayoutsPromo';
 
 const SelectLayout = ({ attributes, setAttributes }) => {
 
-    const { layoutType, sourceType } = attributes;
+    const { layoutType, sourceType, socialQuery } = attributes;
+    const isPro = isProActive();
 
-    /**
-     * A feed slider gets the Default layout here and the other four with a licence.
-     *
-     * Filtered rather than drawn and disabled: a card that cannot be applied is a card somebody
-     * presses and nothing happens to. `ProLayoutsPromo` below says where the rest are.
-     */
-    const cards = 'social' === sourceType
-        ? layoutItem.filter(item => 'default' === item.layoutType)
-        : layoutItem;
+    const cards = layoutItem.filter(item => {
+        const matchesFeed = !item.feedOnly || ('social' === sourceType && item.feedOnly === socialQuery?.feedType);
+        if ('social' === sourceType) {
+            return matchesFeed && (isPro || 'default' === item.layoutType);
+        }
+        return matchesFeed;
+    });
 
     return !layoutType && <div className='bsb_main_parent'>
         <div className="bsb_wizard_header_row">
@@ -49,7 +49,7 @@ const SelectLayout = ({ attributes, setAttributes }) => {
                 ))
             }
         </div>
-        {'social' === sourceType && <ProLayoutsPromo />}
+        {!isPro && 'social' === sourceType && <ProLayoutsPromo />}
     </div>
 }
 export default SelectLayout;

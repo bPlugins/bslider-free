@@ -1,4 +1,4 @@
-import { carousel, grid, post_thumbnails, slider } from '../../../utils/icons';
+import { carousel, grid, listLayout, post_thumbnails, slider } from '../../../utils/icons';
 
 export const layoutItem = [
     {
@@ -24,5 +24,13 @@ export const layoutItem = [
         title: "Thumbnails Layout",
         desc: "Slider with bottom thumbnail strip",
         layoutType: "thumbnails",
+    },
+    {
+        icon: listLayout,
+        title: "List Layout",
+        desc: "One video playing above, the channel listed below",
+        layoutType: "list",
+        // Offered only to a YouTube channel feed — `SelectLayout` reads this. See `selectLayoutOpt`.
+        feedOnly: "youtube",
     }
 ];

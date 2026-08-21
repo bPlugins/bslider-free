@@ -1,8 +1,11 @@
 import { __, sprintf } from '@wordpress/i18n';
+import { useEffect } from '@wordpress/element';
 import { PanelBody } from '../../../Panel/AccordionPanel';
-import { TipSelect, TipRange } from '../../../Panel/TipField';
+import { TipSelect, TipRange, TipText } from '../../../Panel/TipField';
 import { SelectControl, CheckboxControl } from '@wordpress/components';
 import useYouTubeKey from '../../../../hooks/useYouTubeKey';
+import useFeedChannels from '../../../../hooks/useFeedChannels';
+import { isProActive } from '../../../../utils/functions';
 import { Notice } from '../../../../../../bpl-tools/Components';
 
 /**
@@ -37,17 +40,37 @@ const videoSetOpt = [
    take things out of that set. Neither is given a heading — the order the fields sit in is the whole
    of it, and each one says what it does on its own label. */
 
-const SocialFiltering = ({ attributes, updateObject }) => {
+const SocialFiltering = ({ attributes, updateObject, premiumProps, setAttributes }) => {
     const { socialQuery } = attributes || {};
-    /**
-     * Nothing is written back to clear the Premium filters.
-     *
-     * `SocialFeed::postProcessItems()` drops the keyword and age filters without a licence, so the
-     * feed already behaves as this build says it does — and the panel does not offer them. Writing
-     * them away as well would take a keyword a licensed block had been configured with and delete
-     * it, which renewing would not undo.
-     */
+    const isPro = premiumProps?.isPremium ?? isProActive();
 
+    useEffect(() => {
+        if (!isPro) {
+            let needsUpdate = false;
+            const updatedQuery = { ...(socialQuery || {}) };
+
+            if (socialQuery?.feedAgeLimit !== 0) {
+                updatedQuery.feedAgeLimit = 0;
+                needsUpdate = true;
+            }
+
+            if (socialQuery?.keywordFilter && socialQuery.keywordFilter !== '') {
+                updatedQuery.keywordFilter = '';
+                needsUpdate = true;
+            }
+
+            if (socialQuery?.excludeKeywordFilter && socialQuery.excludeKeywordFilter !== '') {
+                updatedQuery.excludeKeywordFilter = '';
+                needsUpdate = true;
+            }
+
+            if (needsUpdate) {
+                setAttributes({
+                    socialQuery: updatedQuery
+                });
+            }
+        }
+    }, [isPro, socialQuery?.feedAgeLimit, socialQuery?.keywordFilter, socialQuery?.excludeKeywordFilter]);
     const {
         per_page = 12,
         keywordFilter = '',
@@ -60,8 +83,19 @@ const SocialFiltering = ({ attributes, updateObject }) => {
         ytQueryType = 'channel',
         igAllowImage = true,
         igAllowAlbum = true,
-        igAllowVideo = true
+        igAllowVideo = true,
+        ytPrivacyStatus = 'all',
+        channelId = '',
+        source = ''
     } = socialQuery || {};
+
+    const library = useFeedChannels();
+    const normalize = str => (str || '').trim().toLowerCase().replace(/^@/, '');
+    const currentChannel = library.channels?.find(ch => 
+        (channelId && ch.id === channelId) || 
+        (source && normalize(ch.source) === normalize(source))
+    );
+    const hasToken = !!currentChannel?.hasYtRefreshToken || !!currentChannel?.ytRefreshToken;
 
     const apiKey = useYouTubeKey();
 
@@ -220,22 +254,11 @@ const SocialFiltering = ({ attributes, updateObject }) => {
                 it governs, not a panel away from them. See `PlayerGeneral`, which now carries it in
                 both of its branches. */}
 
-
-
-
-
-            {/* Auto Timezone Conversion, Timezone Offset, Translate Date & Time, Date Format and
-                Custom Date Format stood here and have moved to their own `SocialDateTime` panel. None
-                of the five narrowed which items reach the slider — everything else in this panel does
-                — they decided how an already-chosen item's date is written, which is a separate
-                question asked in a separate place now. See that file for why it could not simply move
-                into Social Badges' Publish Date section instead. */}
-
-
             {/* Moved from Feed Settings' address step, where it sat beside the account picker asking
-                a question that step never answers. The reader takes these three exactly as it takes
-                keywords or an age limit — as a filter on what is fetched — so this is where they
-                belong: with the rest of what decides which of an account's posts reach the slider. */}
+                a question that step never answers. `InstagramFeed::items()` takes these three exactly
+                as it takes keywords or an age limit — as a filter on what is fetched — so this is
+                where they belong: with the rest of what decides which of an account's posts reach the
+                slider. */}
             {feedType === 'instagram' && (
                 <div className={gap}>
                     <div style={{ fontWeight: '500', marginBottom: '8px', fontSize: '13px', color: '#1e293b' }}>
@@ -261,6 +284,69 @@ const SocialFiltering = ({ attributes, updateObject }) => {
                 </div>
             )}
 
+            {isPro && feedType === 'youtube' && ytQueryType === 'channel' && hasToken && (
+                <TipSelect
+                    className={gap}
+                    label={__('Privacy Status Filter', 'b-slider')}
+                    value={ytPrivacyStatus}
+                    options={[
+                        { label: __('All Videos', 'b-slider'), value: 'all' },
+                        { label: __('Public Only', 'b-slider'), value: 'public' },
+                        { label: __('Unlisted Only', 'b-slider'), value: 'unlisted' },
+                        { label: __('Private Only', 'b-slider'), value: 'private' },
+                    ]}
+                    onChange={val => updateObject('socialQuery', 'ytPrivacyStatus', val)}
+                    tip={__('Filter videos by their privacy status. Unlisted and Private videos require a saved YouTube Refresh Token.', 'b-slider')}
+                />
+            )}
+
+
+            {isPro && feedType !== 'json' && (
+                <TipSelect
+                    className={gap}
+                    label={__('How recent', 'b-slider')}
+                    value={feedAgeLimit}
+                    options={[
+                        { label: __('Anytime', 'b-slider'), value: 0 },
+                        { label: __('Last 24 Hours', 'b-slider'), value: 1 },
+                        { label: __('Last 3 Days', 'b-slider'), value: 3 },
+                        { label: __('Last 7 Days', 'b-slider'), value: 7 },
+                        { label: __('Last 30 Days', 'b-slider'), value: 30 },
+                    ]}
+                    onChange={val => updateObject('socialQuery', 'feedAgeLimit', parseInt(val, 10))}
+                    tip={labels.showHelp}
+                />
+            )}
+
+            {/* Auto Timezone Conversion, Timezone Offset, Translate Date & Time, Date Format and
+                Custom Date Format stood here and have moved to their own `SocialDateTime` panel. None
+                of the five narrowed which items reach the slider — everything else in this panel does
+                — they decided how an already-chosen item's date is written, which is a separate
+                question asked in a separate place now. See that file for why it could not simply move
+                into Social Badges' Publish Date section instead. */}
+
+            {isPro && (
+                <>
+                    <TipText
+                        className={gap}
+                        label={labels.includeLabel}
+                        placeholder={__('e.g. news, sports, tech', 'b-slider')}
+                        value={keywordFilter}
+                        onChange={val => updateObject('socialQuery', 'keywordFilter', val)}
+                        tip={labels.includeHelp}
+                    />
+
+                    <TipText
+                        className={gap}
+                        label={labels.excludeLabel}
+                        placeholder={__('e.g. ad, sponsored, promo', 'b-slider')}
+                        value={excludeKeywordFilter}
+                        onChange={val => updateObject('socialQuery', 'excludeKeywordFilter', val)}
+                        tip={labels.excludeHelp}
+                    />
+                </>
+            )}
+
             {/* Last, because it is the last thing the server does — see `postProcessItems()`. It
                 counts from the top of the list every control above has finished building, so it can
                 only be understood after them. It read as "skip the first few videos of the channel"
@@ -276,7 +362,8 @@ const SocialFiltering = ({ attributes, updateObject }) => {
                 tip={labels.skipHelp}
             />
 
-            <>
+            {!isPro && (
+                <>
                     {feedType === 'youtube' && ytQueryType === 'channel' && (
                         <Notice className="mt20" status="premium" isIcon={true}>
                             {__('Privacy Status Filter, How recent (timeframe filter), and Keyword Filters (Include/Exclude) are available in the Premium version.', 'b-slider')}
@@ -293,6 +380,7 @@ const SocialFiltering = ({ attributes, updateObject }) => {
                         </Notice>
                     )}
                 </>
+            )}
         </PanelBody>
     );
 };

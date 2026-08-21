@@ -8,7 +8,7 @@
  */
 
 import { __ } from '@wordpress/i18n';
-import { sanitizeHref } from '../../../utils/functions';
+import { sanitizeHref, getLocalizedDate } from '../../../utils/functions';
 import SlideLink from './SlideLink';
 
 const MEDIA_TYPES = ['image', 'gallery'];
@@ -28,14 +28,23 @@ export const ANCHORS = [
 export const DEFAULT_ANCHOR = 'bottom-left';
 
 /**
+ * How many fields a slider can display without a Pro licence.
+ *
+ * The cap is on the picker alone — the fields assigned to the image, title, description or button
+ * slot are a separate setting and are not counted against it.
+ */
+export const FREE_ACF_FIELD_LIMIT = 3;
+
+/**
  * The picked fields a slider is actually allowed to show.
  *
- * There is no cap: a slider displays every field the user picked. Kept as a function, and still
- * applied wherever the selection is read, so the editor and `Posts::acfFieldsToFetch` stay the same
- * single rule — a slider saved under an older build with a trimmed selection is unaffected, and
- * anything that needs to filter the selection again has one place to do it.
+ * Applied wherever the selection is read rather than only where it is set, so a slider built on a
+ * licence that has since lapsed falls back to the first three instead of quietly keeping the rest.
+ * The front end has no licence flag of its own, so there it is `Posts::acfFieldsToFetch` that caps —
+ * this is the same rule for the editor, kept here so the two cannot drift apart.
  */
-export const allowedAcfFields = (selected = []) => selected;
+export const allowedAcfFields = (selected = [], isPremium) =>
+    isPremium ? selected : selected.slice(0, FREE_ACF_FIELD_LIMIT);
 
 /**
  * The looks a set of fields can be given, as `bsb-acf-fields--<value>` in style.scss.
@@ -210,8 +219,20 @@ const resolveRole = (roleKey, post, attributes, fallback, pick) => {
     return value && String(value).trim() ? value : fallback;
 };
 
-export const resolveTitle = (post, attributes) =>
-    resolveRole('title', post, attributes, post?.title, acf => acf.value);
+export const resolveTitle = (post, attributes) => {
+    let title = resolveRole('title', post, attributes, post?.title, acf => acf.value);
+    const sourceType = attributes?.sourceType;
+    if ('social' === sourceType && title) {
+        const titleLength = attributes?.socialQuery?.titleLength ?? -1;
+        if (titleLength > -1) {
+            const words = title.trim().split(/\s+/);
+            if (words.length > titleLength) {
+                title = words.slice(0, titleLength).join(' ') + '...';
+            }
+        }
+    }
+    return title;
+};
 
 /** `fallback` is whatever Excerpt already worked out from the post's excerpt or content. */
 export const resolveExcerpt = (post, attributes, fallback) =>
@@ -224,8 +245,15 @@ export const resolveExcerpt = (post, attributes, fallback) =>
  * item whose ACF field is empty reads the same as it did before the field was assigned. Callers
  * pass the label they already worked out, so a hidden button stays hidden.
  */
-export const resolveButtonText = (post, attributes, fallback) =>
-    resolveRole('buttonText', post, attributes, fallback, acf => acf.value);
+export const resolveButtonText = (post, attributes, fallback) => {
+    if (attributes?.sourceType === 'social' && post?.btnLabel) {
+        if (fallback && fallback !== 'Learn More') {
+            return fallback;
+        }
+        return post.btnLabel;
+    }
+    return resolveRole('buttonText', post, attributes, fallback, acf => acf.value);
+};
 
 /**
  * The button's URL.
@@ -261,12 +289,11 @@ export const resolveSlideImage = (post, attributes, thumbnail) => {
 };
 
 const Value = ({ acf, cfg }) => {
-    const hasHTML = acf.value && /<[a-z][\s\S]*>/i.test(String(acf.value));
-
+    const isHtml = acf.name === 'price' || acf.name === 'sale';
     return <>
         {cfg.prefix && <span className="bsb-acf-affix">{cfg.prefix}</span>}
-        {hasHTML ? (
-            <span className="bsb-acf-html-value" dangerouslySetInnerHTML={{ __html: acf.value }} />
+        {isHtml ? (
+            <span dangerouslySetInnerHTML={{ __html: acf.value }} />
         ) : (
             acf.value
         )}
@@ -275,12 +302,23 @@ const Value = ({ acf, cfg }) => {
 };
 
 const Label = ({ acf, cfg }) => {
-    const showLabelDefault = acf.name !== 'sale' && acf.name !== 'price';
-    const showLabel = cfg.showLabel !== undefined ? cfg.showLabel : showLabelDefault;
-
+    const defaultShowLabel = acf.name !== 'price' && acf.name !== 'sale' ? true : false;
     return <>
-        {cfg.icon && <span className="bsb-acf-icon">{cfg.icon}</span>}
-        {showLabel && <strong className="bsb-acf-label">{acf.label}: </strong>}
+        {cfg.icon && (String(cfg.icon).trim().startsWith('<svg')
+            /**
+             * An icon from the library is `<svg>` markup and has to be drawn as markup; an emoji is a
+             * character and has to be drawn as text. The `<svg` check is what tells them apart.
+             *
+             * **Only that one shape is trusted.** The value reaches here from a block attribute, so it is
+             * whatever an editor typed or pasted — and anything that is not an `<svg…>` goes down the text
+             * branch, where markup is printed rather than parsed. So a `<script>` in this field is a visible
+             * string, not a script.
+             */
+            ? <span className="bsb-acf-icon" dangerouslySetInnerHTML={{ __html: cfg.icon }} />
+            : <span className="bsb-acf-icon">{cfg.icon}</span>)}
+        {((cfg.showLabel === true) || (cfg.showLabel !== false && defaultShowLabel)) && (
+            <strong className="bsb-acf-label">{acf.label}: </strong>
+        )}
     </>;
 };
 
@@ -374,7 +412,7 @@ const AcfItem = ({ acf, cfg, anim = {}, isBackEnd = false, isSelected = false })
  * and wrong the moment its delay is edited.
  *
  * `stagger` then spaces the badges among themselves, so three of them cascade instead of landing as a
- * block. `custom` hands the timing over.
+ * block. `withButton` starts them alongside the button, and `custom` hands the timing over.
  *
  * Only where the caption animates at all: `classNames` arrives from the carousel layouts and not from the
  * grids, and a grid animates nothing.
@@ -402,15 +440,17 @@ export const badgeAnimation = (attributes, classNames) => {
     /**
      * Two answers: after the content, or at a number somebody chose.
      *
-     * Anything that is not `custom` waits for the content, so a slider saved with an older value lands on
-     * the default instead of on nothing.
+     * A "with the button" option sat here as a third and came out again — it is what "after the content"
+     * already does one beat later, and a setting whose result you can reach by nudging another setting is
+     * a choice that only has to be understood. Anything that is not `custom` waits for the content, so a
+     * slider saved with the old value lands on the default instead of on nothing.
      */
     const base = 'custom' === start
         ? (Number.isFinite(Number(delay)) ? Number(delay) : 0)
         : Math.max(0, ...ends);
 
     /**
-     * A caption revealed on hover is driven by transitions, not keyframes — so here the badge hands over
+     * A caption revealed on hover is driven by transitions, not keyframes — so there the badge hands over
      * its delay and nothing else.
      *
      * **Why the class has to go in that mode.** A keyframe animation runs once, when its element appears,
@@ -481,30 +521,29 @@ const anchorAnimation = (anchor, attributes, classNames) => {
  * the fields themselves take them back, so a linked field is still clickable.
  */
 const AcfFields = ({ post, attributes, classNames, isBackEnd = false, isSelected = false }) => {
-    const { layoutType, postsQuery, socialQuery, sourceType } = attributes || {};
+    const { layoutType, postsQuery = {}, sourceType } = attributes || {};
+    const isSocial = sourceType === 'social';
+    const socialQuery = attributes?.socialQuery || {};
+    const selectedBadges = socialQuery?.selectedBadges || [];
+    const settings = socialQuery?.badgeSettings || {};
+    const style = presetOf(socialQuery?.badgeDisplayStyle || 'chips');
+
+    const postsQueryBadges = postsQuery?.selectedBadges || [];
 
     /**
-     * The badges, read from whichever query holds them.
+     * The date and author badges, wherever this slider keeps their settings.
      *
-     * A feed slider keeps them on `socialQuery` and a post or product slider on `postsQuery` — the
-     * same split `PostBadges` writes by, and `Style` reads by. Reading only `postsQuery` left a feed
-     * slider's badges chosen in the panel and absent from the slide.
-     */
-    const badgeQuery = ('social' === sourceType ? socialQuery : postsQuery) || {};
-    const selectedBadges = badgeQuery?.selectedBadges || [];
-
-    /**
-     * The date and author badges, added to whatever ACF fields the post already has.
-     *
-     * They join the ACF layer rather than opening a second overlay: two layers over one slide would
-     * anchor independently, and a date in the bottom-left corner would sit underneath or on top of an
-     * ACF field in the same corner depending on nothing a user could see.
+     * A feed has nothing else to put on this layer, so for a feed these are the whole of it. A post
+     * or product slider already has one — its ACF fields — so the badges join that rather than
+     * opening a second overlay: two layers over one slide would anchor and animate independently,
+     * and a date in the bottom-left corner would sit underneath or on top of an ACF field in the
+     * same corner depending on nothing a user could see.
      */
     const badgesFrom = (chosen, into) => {
-        const isWoo = 'woo' === sourceType;
+        const isWoo = 'woo' === attributes?.sourceType;
 
         if (!isWoo && chosen.includes('date') && post?.date) {
-            into['date'] = { name: 'date', label: __('Date', 'b-slider'), type: 'text', value: post.date, isBadge: true };
+            into['date'] = { name: 'date', label: __('Date', 'b-slider'), type: 'text', value: getLocalizedDate(post, socialQuery), isBadge: true };
         }
 
         if (!isWoo && chosen.includes('author') && post?.author?.name) {
@@ -516,7 +555,7 @@ const AcfFields = ({ post, attributes, classNames, isBackEnd = false, isSelected
         }
 
         if (isWoo && chosen.includes('sale') && post?.sale) {
-            const showPercentage = badgeQuery?.badgeSettings?.sale?.showPercentage === true;
+            const showPercentage = postsQuery?.badgeSettings?.sale?.showPercentage === true;
             const value = showPercentage && post?.sale_percent ? post.sale_percent : post.sale;
             into['sale'] = { name: 'sale', label: __('Sale', 'b-slider'), type: 'text', value, isBadge: true };
         }
@@ -524,9 +563,14 @@ const AcfFields = ({ post, attributes, classNames, isBackEnd = false, isSelected
         return into;
     };
 
-    // The ACF fields first, so a badge wins a name collision — a site with a field actually
-    // called `date` would otherwise have its badge silently replaced by the field.
-    const fields = badgesFrom(selectedBadges, { ...(post?.acf_fields || {}) });
+    let fields = {};
+    if (isSocial) {
+        fields = badgesFrom(selectedBadges, fields);
+    } else {
+        // The ACF fields first, so a badge wins a name collision — a site with a field actually
+        // called `date` would otherwise have its badge silently replaced by the field.
+        fields = badgesFrom(postsQueryBadges, { ...(post?.acf_fields || {}) });
+    }
 
     if (!fields || Object.keys(fields).length === 0) {
         return null;
@@ -546,30 +590,36 @@ const AcfFields = ({ post, attributes, classNames, isBackEnd = false, isSelected
      * been given.
      *
      * So the override is narrowed to the badges that `badgesFrom` actually produced. A collision
-     * still resolves the badge's way when there really is a badge; otherwise the field keeps what
-     * it was given.
+     * still resolves the badge's way when there really is a badge; otherwise the field keeps what it
+     * was given. For a feed there are no ACF settings to merge with.
      */
     const badgeOverrides = Object.keys(fields)
-        .filter(name => fields[name]?.isBadge && (badgeQuery?.badgeSettings || {})[name])
-        .reduce((into, name) => ({ ...into, [name]: badgeQuery.badgeSettings[name] }), {});
+        .filter(name => fields[name]?.isBadge && (postsQuery?.badgeSettings || {})[name])
+        .reduce((into, name) => ({ ...into, [name]: postsQuery.badgeSettings[name] }), {});
 
-    const settings = { ...(postsQuery?.acfFieldSettings || {}), ...badgeOverrides };
+    const finalSettings = isSocial
+        ? settings
+        : { ...(postsQuery?.acfFieldSettings || {}), ...badgeOverrides };
     // A slider with no ACF fields at all is showing badges and nothing else, so the badge style is
     // the one to fall back on. With both present the ACF setting keeps the layer it already had,
     // and a badge that wants to differ says so with its own preset.
-    const style = presetOf(Object.keys(post?.acf_fields || {}).length
-        ? postsQuery?.acfDisplayStyle
-        : badgeQuery?.badgeDisplayStyle);
+    const finalStyle = isSocial
+        ? style
+        : presetOf(Object.keys(post?.acf_fields || {}).length
+            ? postsQuery?.acfDisplayStyle
+            : postsQuery?.badgeDisplayStyle);
 
     // Pick order, which is the order Posts.php returns them in.
-    const placeable = Object.values(fields).filter(acf => rendersAsCaption(acf?.name, acf?.type, postsQuery));
+    const placeable = isSocial
+        ? Object.values(fields)
+        : Object.values(fields).filter(acf => rendersAsCaption(acf?.name, acf?.type, postsQuery));
 
     if (!placeable.length) {
         return null;
     }
 
     const used = ANCHORS
-        .map(anchor => ({ anchor, items: placeable.filter(acf => anchorOf(acf?.name, settings) === anchor) }))
+        .map(anchor => ({ anchor, items: placeable.filter(acf => anchorOf(acf?.name, finalSettings) === anchor) }))
         .filter(group => group.items.length);
 
     return <div className="bsb-acf-layer">
@@ -588,17 +638,17 @@ const AcfFields = ({ post, attributes, classNames, isBackEnd = false, isSelected
 
             return <div
                 key={anchor}
-                className={`bsb-acf-fields bsb-acf-fields--${layoutType || 'default'} bsb-acf-fields--${style} bsb-acf-at--${anchor}`}
+                className={`bsb-acf-fields bsb-acf-fields--${layoutType || 'default'} bsb-acf-fields--${finalStyle} bsb-acf-at--${anchor}`}
             >
                 {items.map((acf, idx) => (
                     <AcfItem
                         key={acf?.name || idx}
                         acf={acf}
-                        cfg={settingsOf(acf, settings)}
+                        cfg={settingsOf(acf, finalSettings)}
                         isBackEnd={isBackEnd}
                         isSelected={isSelected}
-                        /* A badge follows the Badge Animation settings; an ACF field keeps the caption
-                           part's own timing, which is what its own panel is written against. */
+                        /* A badge follows the Badge Animation panel; an ACF field keeps the caption part's
+                           own timing, which is what its own panel is written against. */
                         anim={acf?.isBadge ? badgeAnimOf(++badgeIndex) : animOf(idx)}
                     />
                 ))}

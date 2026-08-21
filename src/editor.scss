@@ -11,9 +11,9 @@
     --bsb-primary-soft: #eff6ff;
     --bsb-primary-line: #bfdbfe;
     --bsb-accent: #ff7a00;
-    --bsb-success: #2f7d32;
     --bsb-warning: #9a3412;
     --bsb-warning-soft: #fff7ed;
+    --bsb-success: #2f7d32;
     --bsb-danger: #dc2626;
     --bsb-danger-soft: #fef2f2;
     --bsb-danger-line: #fecaca;
@@ -41,6 +41,35 @@
 
     --bsb-ease: cubic-bezier(0.4, 0, 0.2, 1);
     --bsb-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+/**
+ * A panel that sits inside another panel.
+ *
+ * Two places have them — the ACF sections and the feed steps — and they have to read as the same kind
+ * of thing, so the look is stated once here rather than twice where they are used. Everything else
+ * about a nested panel is left to WordPress: no padding, type or arrow of our own.
+ *
+ * Closed, such a panel had only WordPress's grey hairline, which is invisible against the panel it sits
+ * inside — nothing said these rows could be opened. So it takes the same accent as the open state, just
+ * the soft end of it: at rest a tinted header inside a light blue outline, and on open bpl-tools' solid
+ * primary border and stronger fill take over.
+ */
+@mixin bsb-nested-panel {
+    border-radius: var(--bsb-radius-sm);
+
+    /* The title bleeds to the panel edges on a negative margin once open, so it has to be clipped for
+       the rounded corners to survive. */
+    overflow: hidden;
+
+    &:not(.is-opened) {
+        border: 1px solid var(--bsb-primary-line);
+
+        > .components-panel__body-title {
+            background: var(--bsb-primary-soft);
+            color: var(--bsb-primary);
+        }
+    }
 }
 
 svg#bsbSlider {
@@ -266,22 +295,341 @@ svg#bsbSlider {
     }
 }
 
-/**
- * Button groups wrap instead of overflowing.
- *
- * The inspector is a fixed, narrow column and these groups hold text labels, so a group that is
- * one button too wide — or a translation longer than the English — would otherwise push past the
- * panel edge or squash its buttons. Wrapping keeps them readable at any width.
- */
 .bPlBtnGroup {
-    display: flex;
-    flex-wrap: wrap;
-
     button {
         svg {
             margin-right: 0px !important;
         }
     }
+}
+
+/**
+ * A numbered step of the Feed Settings panel.
+ *
+ * It cannot be a `<Label>`, which is what the four groups that had a heading used to use. In this
+ * panel a field's own label is 12px semibold with a trailing hairline, and so is `.bPlLabel` — so a
+ * section heading and the label under it rendered identically and nothing said which contained which.
+ * This is smaller, quieter and separated by a rule above, so it reads as a divider between groups
+ * rather than as another field.
+ */
+.bsb_feed_section {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 20px 0 12px;
+    padding-top: 16px;
+    border-top: 1px solid var(--bsb-line);
+
+    /* The first step opens the panel, so it has nothing to be divided from. */
+    &:first-child {
+        margin-top: 0;
+        padding-top: 0;
+        border-top: 0;
+    }
+}
+
+.bsb_feed_step {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--bsb-primary);
+    background: var(--bsb-primary-soft);
+    border: 1px solid var(--bsb-primary-line);
+}
+
+.bsb_feed_step_title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--bsb-text-soft);
+}
+
+/* "Required" on step 1, and nothing on the rest — four sections all tagged "optional" would say less
+   than one section tagged as the one that is not. */
+.bsb_feed_step_note {
+    margin-left: auto;
+    padding: 1px 7px;
+    border-radius: var(--bsb-radius-pill);
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--bsb-primary);
+    background: var(--bsb-primary-soft);
+}
+
+/**
+ * A heading over a run of fields inside a settings panel.
+ *
+ * Not `.bsb_feed_section`, which this borrowed at first and should not have. That one is a full-width
+ * rule *above* a numbered step, and it carries `.bsb_feed_step_note` — a pill sized for the single
+ * word "Required". Two things went wrong with the loan: a sentence handed to that pill became a
+ * multi-line uppercase badge shoved against the right edge, and the `:first-child` rule that clears
+ * the divider never matched, because WordPress puts the panel's own `<h2>` before any child of a
+ * `PanelBody`. So the first heading in a panel drew a line directly beneath the line the panel title
+ * already draws.
+ *
+ * The rule runs *beside* the label rather than above it. A rule above sits between two fields and
+ * belongs to neither — it reads as much like the end of what is above as the start of what is below.
+ * On the same line as the words there is nothing to misread, it costs a row instead of a row plus a
+ * margin, and it leaves a natural place at the far end for a tag.
+ */
+.bsb_field_group {
+    /* Generous above, tight below: the gap is what says which fields the heading belongs to. */
+    margin: 24px 0 10px;
+
+    /* The first one opens the panel, under a title bar that has drawn its own line. */
+    &.is-first {
+        margin-top: 6px;
+    }
+}
+
+.bsb_field_group_head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.bsb_field_group_title {
+    flex: none;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--bsb-text-soft);
+}
+
+/* Takes whatever width the label and the tag leave. Decoration only — it is why the heading reads as
+   a section marker and not as another field label. */
+.bsb_field_group_rule {
+    flex: 1;
+    height: 1px;
+    min-width: 12px;
+    background: var(--bsb-line);
+}
+
+/* One word, and only where it says something. Tagging every group "optional" would say no more than
+   tagging none of them — it is here to mark the run that can be skipped entirely. */
+.bsb_field_group_tag {
+    flex: none;
+    padding: 1px 7px;
+    border-radius: var(--bsb-radius-pill);
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    /* The muted pair, not the primary one `.bsb_feed_step_note` uses. Blue is how this panel marks
+       what must be filled in; "optional" is the opposite claim and should not borrow its colour. */
+    color: var(--bsb-muted);
+    background: var(--bsb-surface-soft);
+    border: 1px solid var(--bsb-line);
+}
+
+/**
+ * What the fields under the heading are for.
+ *
+ * Its own block under the head row rather than anything inside it: this is a sentence, and a sentence
+ * in a flex row either squashes the label or is squashed by it. Full width, sentence case, wrapping —
+ * the plain opposite of the tag beside it, which is why the two never read as the same thing.
+ *
+ * Quieter than the field `help` text below it, on purpose. This describes a group; that describes one
+ * control. If the two carried the same weight the panel would read as one long paragraph.
+ */
+.bsb_field_group_hint {
+    margin: 6px 0 0;
+    font-size: 11px;
+    line-height: 1.5;
+    color: var(--bsb-muted);
+}
+
+/* What the last feed fetch did, under the address field in the Feed Settings panel. */
+.bsb_feed_status {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    /* Top only. Every control in this panel carries its own `mt*` — see the note on
+       `.components-base-control` below — and a bottom margin here landed on top of the next field's,
+       which is how one seam came out double the size of the one above it. */
+    margin: 10px 0 0;
+    font-size: 11px;
+    line-height: 1.4;
+
+    span {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .is-ok {
+        color: var(--bsb-success);
+        font-weight: 600;
+    }
+
+    /* `--bsb-danger`, not `--bsb-warning`. This read `var(--bsb-warning, #b32d2e)`, and since that
+       token is defined — as `#9a3412`, the amber of a warning — the red fallback never applied and a
+       failed fetch was reported in brown. */
+    .is-error {
+        color: var(--bsb-danger);
+        font-weight: 500;
+    }
+
+    .is-loading,
+    .is-muted {
+        color: var(--bsb-muted);
+    }
+
+    /* The Spinner ships with a margin sized for a button row, which is too much beside text. */
+    .components-spinner {
+        margin: 0;
+    }
+}
+
+.bsb_feed_note {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 8px 0 0;
+    font-size: 11px;
+    color: var(--bsb-muted);
+    word-break: break-all;
+    overflow-wrap: anywhere;
+    white-space: normal;
+
+    code {
+        word-break: break-all;
+        overflow-wrap: anywhere;
+        white-space: normal;
+        background: none;
+        padding: 0;
+        font-family: inherit;
+        font-size: inherit;
+        color: inherit;
+    }
+
+    &.is-ok {
+        color: var(--bsb-success);
+    }
+
+    &.is-error {
+        color: var(--bsb-danger);
+    }
+
+    .components-spinner {
+        margin: 0;
+    }
+}
+
+/* The inline "add a channel" form in the Feed Settings panel. Boxed so it reads as one step rather
+   than two more fields among the slider's own. */
+.bsb_channel_add {
+    margin: 12px 0 0;
+    /* Even on all four sides. It was `12px 12px 4px`, which only looked right because the action row
+       inside carried a 12px bottom margin that landed within the box — move that row and the box
+       collapsed onto its last field. */
+    padding: 12px;
+    background: var(--bsb-surface-soft);
+    border: 1px solid var(--bsb-line);
+    border-radius: var(--bsb-radius);
+}
+
+/* The Save / Cancel / Remove row under the API key field. */
+.bsb_feed_actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 10px 0 0;
+}
+
+/**
+ * A set of checkboxes read as one answer — the playback speeds the menu lists, the gear menu's
+ * contents.
+ *
+ * Laid out across rather than stacked: these are short labels picked from a fixed set, and one per
+ * line would make choosing four speeds look like four unrelated settings. `margin-bottom: 0` because
+ * WordPress gives every field a bottom margin of its own, which inside a wrapping row lands between
+ * the rows as well as after them.
+ */
+.bsb_choice_row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 16px;
+    margin-bottom: 12px;
+
+    .components-base-control {
+        margin-bottom: 0;
+    }
+}
+
+/* A step's heading has already left a gap, so the first thing under it adds none of its own. */
+.bsb_feed_section + .bsb_feed_status,
+.bsb_feed_section + .bsb_feed_note,
+.bsb_feed_section + .bsb_feed_actions {
+    margin-top: 0;
+}
+
+/**
+ * Steps 2 to 5, each a panel inside the Feed Settings panel.
+ *
+ * Only the look is shared with the ACF sections — see `bsb-nested-panel`. Their child gap is not: the
+ * fields here carry their own `mt*` (the `gap` constant in SocialGeneral), so a gap applied to every
+ * child as well would double every seam inside these panels.
+ */
+.bsb_feed_sections {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    /* Clears the status line above, which is the last thing in step 1 and carries a top margin only. */
+    margin-top: 16px;
+}
+
+.bsb_feed_panel {
+    @include bsb-nested-panel;
+}
+
+/* The step number in a panel's heading. `inline-flex`, because WordPress's panel title is a button with
+   its own layout and a block here would push the arrow onto a second line. */
+.bsb_feed_panel_title {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/**
+ * The heading sits on the left, where every other panel's does.
+ *
+ * bpl-tools pushes the last element inside a panel title over to the right with `margin-left: auto` —
+ * meant for a badge or a count sitting opposite the title. A plain string title never trips it, because
+ * a text node is not an element and the arrow is then the only child there is. Ours is a `<span>`, so it
+ * became that last element and the whole heading was thrown to the right edge.
+ *
+ * Both classes of the panel are named to clear that rule's specificity outright, rather than relying on
+ * which of the two stylesheets webpack happens to emit second.
+ */
+.bPlPanelBody.bsb_feed_panel .components-panel__body-title button > .bsb_feed_panel_title:last-child {
+    margin-left: 0;
+    margin-right: auto;
+}
+
+/* Marks a control the free licence leaves disabled. It sits inside the field's own label now, which
+   is a flex row with a gap and a trailing hairline — so no margin of its own, and it must not be
+   allowed to shrink the way a flex item does by default. */
+.bsb_pro_tag {
+    flex: none;
+    padding: 1px 6px;
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #fff;
+    background: var(--bsb-accent);
+    border-radius: 10px;
 }
 
 .bsb_panel_source_layout {
@@ -372,7 +720,22 @@ svg#bsbSlider {
 
     .bPlLabel,
     .components-base-control__label,
-    .components-form-token-field__label {
+    .components-form-token-field__label,
+    /**
+     * A select's label, which is named differently for a reason worth writing down.
+     *
+     * `TextControl` is built on `BaseControl` and its label comes out as
+     * `.components-base-control__label`. `SelectControl` was rebuilt on `InputBase`, so the very
+     * same label comes out as `.components-input-control__label` — and that class is deliberately
+     * given typography only a few rules below, for the NumberControls this plugin renders with the
+     * label beside the field. The result was a panel where a text field had the trailing rule and
+     * every dropdown under it did not.
+     *
+     * Scoped to `.components-select-control` so the side-labelled controls that exclusion exists
+     * for keep it. No select in this plugin sets `labelPosition`, so every one of them has its
+     * label above the field, which is where a trailing rule has somewhere to go.
+     */
+    .components-select-control .components-input-control__label {
         display: flex;
         align-items: center;
         gap: 8px;
@@ -427,6 +790,19 @@ svg#bsbSlider {
         margin-bottom: 0;
     }
 
+    /**
+     * The one spacing class the Social Feeds panels standardise on, so every field in them sits the
+     * same distance from the one above it — `SocialGeneral`, `SocialFiltering`, `SocialDateTime`,
+     * `SocialStore`, `SocialHeaderSettings` and `SocialBadges` already wrote `mt15` everywhere, and it
+     * had never been given a rule: nothing anywhere in this plugin defined `.mt15` at all, so every
+     * field using it sat exactly as far from its neighbour as the zeroed `margin-bottom` above left it
+     * — which is to say, touching. `SocialSlides` and `PlayerGeneral`, the other two Social Feeds
+     * panels, are worded to match now rather than carrying their own `mt10`/`mb15`.
+     */
+    .mt15 {
+        margin-top: 15px;
+    }
+
     input[type="text"],
     input[type="number"],
     input[type="url"],
@@ -452,6 +828,38 @@ svg#bsbSlider {
             box-shadow: var(--bsb-ring);
             outline: none;
         }
+    }
+
+    /**
+     * A select's border, which WordPress makes deliberately hard to reach.
+     *
+     * `SelectControl` does not draw a border on the `<select>` at all — that element is set to
+     * `border: none` and the line you see is painted by a sibling `<div>`, the backdrop. So the
+     * `select` rule above, which colours every other field in these panels, was styling something
+     * invisible: a dropdown sat next to a text field with a different border and nothing in the
+     * stylesheet appeared to be wrong.
+     *
+     * `!important` because the backdrop's own rule is written as `&&&{…}` in Emotion, which compiles
+     * to the same class repeated three times — specificity (0,3,0), on a style block injected after
+     * this stylesheet. Matching that with more classes would win on paper and lose on source order.
+     * The escalation is theirs; this is the reply.
+     */
+    .components-select-control .components-input-control__backdrop {
+        border-color: var(--bsb-line-strong) !important;
+        border-radius: 6px;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    /**
+     * Focus, which has to be read from the wrapper.
+     *
+     * The backdrop is a sibling of the `<select>`, never the focused element itself, so a `:focus`
+     * on it would never fire. `:focus-within` on the control asks the question the right way round
+     * and gives a dropdown the same ring the text fields get.
+     */
+    .components-select-control:focus-within .components-input-control__backdrop {
+        border-color: var(--bsb-primary) !important;
+        box-shadow: var(--bsb-ring);
     }
 
     /* Left aligned labels pack several controls into a row, so those inputs stay compact. */
@@ -543,30 +951,6 @@ svg#bsbSlider {
     /* Free users get a dimmed control plus the upsell, so keep it visibly inert. */
     .bplProIdentifier input[type="text"] {
         background: var(--bsb-surface-soft);
-    }
-
-    /**
-     * A field heading that also carries the device switch.
-     *
-     * The label keeps its rule, so these read as the same heading as every other field rather than
-     * as a row of their own — the switch simply sits at the end of it. `PanelRow`'s `min-height`
-     * goes, since the row is a heading now and not a control.
-     */
-    .bsb_device_row {
-        align-items: center;
-        min-height: 0;
-        margin-bottom: 8px;
-
-        .bPlLabel {
-            flex: 1 1 auto;
-            margin-bottom: 0 !important;
-        }
-
-        /* The rule stops short of the switch instead of being suppressed as in other rows. */
-        .bPlLabel::after {
-            content: '';
-            margin-right: 4px;
-        }
     }
 
     .bsb_field_hint,
@@ -812,6 +1196,41 @@ svg#bsbSlider {
         }
     }
 
+    /**
+     * One filter rule: field, comparison, value, and the button that removes it.
+     *
+     * A grid rather than a flex row. The sidebar is narrow and the three controls want very
+     * different widths — a field name is long, `is not` is short, a value is anyone's guess — so
+     * they wrap onto a second line together instead of each being squeezed to a third of the panel.
+     * The remove button is pinned to the top right of the rule, where it stays put as the rule grows
+     * a taller value control, rather than drifting down beside whatever ended up last.
+     */
+    .bsb_acf_filter_rule {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 6px 8px;
+        padding: 10px;
+        border: 1px solid #e2e8f0;
+        border-radius: 4px;
+
+        .components-base-control {
+            grid-column: 1;
+            margin: 0;
+        }
+
+        /* Every rule has one, and it sits alongside the first row whatever follows it. */
+        .components-button.is-destructive {
+            grid-column: 2;
+            grid-row: 1;
+            align-self: center;
+            min-width: 24px;
+            height: 24px;
+            padding: 0;
+            font-size: 16px;
+            line-height: 1;
+        }
+    }
+
     /* Two nudges on one row: they are a pair, and the panel is too narrow to stack everything. */
     .bsb_acf_offsets {
         display: flex;
@@ -898,8 +1317,8 @@ svg#bsbSlider {
     }
 
     /**
-     * The ACF sections are WordPress `PanelBody`s nested inside this one, left to look like every
-     * other panel in the sidebar — no padding, type or arrow of our own.
+     * The ACF sections are WordPress `PanelBody`s nested inside this one. The look they share with the
+     * feed sections is in `bsb-nested-panel`; what follows is only what is particular to these.
      *
      * The rules below are not panel styling. `.bPlPanelBody` zeroes the margin every control ships
      * with, because fields there are spaced by their own `mb*` wrapper; the controls in these panels
@@ -909,26 +1328,7 @@ svg#bsbSlider {
      */
     .bsb_acf_field_roles,
     .bsb_acf_field_panel {
-        border-radius: var(--bsb-radius-sm);
-
-        /* The title bleeds to the panel edges on a negative margin once open, so it has to be
-           clipped for the rounded corners to survive. */
-        overflow: hidden;
-
-        /**
-         * Closed, a nested panel had only WordPress's grey hairline, which is invisible against the
-         * panel it sits inside — nothing said these rows could be opened. So it takes the same
-         * accent as the open state, just the soft end of it: at rest a tinted header inside a light
-         * blue outline, and on open bpl-tools' solid primary border and stronger fill take over.
-         */
-        &:not(.is-opened) {
-            border: 1px solid var(--bsb-primary-line);
-
-            > .components-panel__body-title {
-                background: var(--bsb-primary-soft);
-                color: var(--bsb-primary);
-            }
-        }
+        @include bsb-nested-panel;
 
         &.is-opened > *:not(.components-panel__body-title) {
             margin-bottom: $acf-gap;
@@ -1166,46 +1566,6 @@ svg#bsbSlider {
         .single_lay {
             position: relative;
             background: var(--bsb-surface);
-
-            /* The corner flag — see `CardFlag`. One shape, and the fill says which of the two it is:
-               an offer this licence has not taken up, or a source that has only just arrived. */
-            .bsb_card_flag {
-                position: absolute;
-                top: 10px;
-                right: 10px;
-
-                p {
-                    margin: 0;
-                    font-size: 10px;
-                    font-weight: 700;
-                    padding: 2px 8px;
-                    color: var(--bsb-surface);
-                    border-radius: 12px;
-                    text-transform: uppercase;
-                    letter-spacing: 0.5px;
-                }
-
-                &.is-pro p {
-                    background: var(--bsb-accent);
-                    box-shadow: 0 2px 6px rgba(255, 122, 0, 0.3);
-                }
-
-                /* Green rather than the accent orange: "New" is an invitation and orange is the
-                   colour this editor uses for a limit. Two flags in one colour would also read as
-                   the same flag worn by different cards. */
-                &.is-new p {
-                    background: var(--bsb-success);
-                    box-shadow: 0 2px 6px rgba(47, 125, 50, 0.3);
-                }
-            }
-
-            /* A feed this licence cannot read. Still hoverable, so the card reads as an offer
-               rather than as a dead tile. */
-            &.is-disabled {
-                opacity: 0.72;
-                cursor: default;
-            }
-
             border: 1.5px solid var(--bsb-line);
             display: flex;
             flex-direction: column;
@@ -1289,7 +1649,9 @@ svg#bsbSlider {
                 }
             }
 
-            .pro {
+            /* The corner flag — see `CardFlag`. One shape, and the fill says which of the two it is:
+               an offer this licence has not taken up, or a source that has only just arrived. */
+            .bsb_card_flag {
                 position: absolute;
                 top: 10px;
                 right: 10px;
@@ -1298,20 +1660,121 @@ svg#bsbSlider {
                     margin: 0;
                     font-size: 10px;
                     font-weight: 700;
-                    background: var(--bsb-accent);
                     padding: 2px 8px;
                     color: var(--bsb-surface);
                     border-radius: 12px;
                     text-transform: uppercase;
                     letter-spacing: 0.5px;
+                }
+
+                &.is-pro p {
+                    background: var(--bsb-accent);
                     box-shadow: 0 2px 6px rgba(255, 122, 0, 0.3);
+                }
+
+                /* Green rather than the accent orange: "New" is an invitation and orange is the
+                   colour this editor uses for a limit. Two flags in one colour would also read as
+                   the same flag worn by different cards. */
+                &.is-new p {
+                    background: var(--bsb-success);
+                    box-shadow: 0 2px 6px rgba(47, 125, 50, 0.3);
+                }
+            }
+
+            /* A post type this licence cannot query. Still hoverable and still clickable — the
+               click goes to the pricing page — so the card reads as an offer, not as a dead tile. */
+            &.is_locked {
+                background: var(--bsb-surface-soft);
+                border-style: dashed;
+
+                .icon_wrapper {
+                    background: rgba(100, 116, 139, 0.1);
+                    border-color: var(--bsb-line-strong);
+
+                    .icon svg {
+                        fill: var(--bsb-muted);
+                    }
+                }
+
+                .title {
+                    color: var(--bsb-muted);
+                }
+
+                .bsb_card_hover_btn {
+                    color: var(--bsb-accent);
+                }
+
+                &:hover {
+                    border-color: var(--bsb-accent);
+                    box-shadow: 0 12px 28px rgba(255, 122, 0, 0.18);
+
+                    .icon_wrapper {
+                        background: var(--bsb-accent);
+                        border-color: var(--bsb-accent);
+
+                        .icon svg {
+                            fill: var(--bsb-surface);
+                        }
+                    }
+
+                    .title,
+                    .bsb_card_hover_btn {
+                        color: var(--bsb-accent);
+                    }
+                }
+            }
+
+            /* A feed service whose reader is not written yet. Unlike `is_locked` there is nothing to
+               sell and nowhere for a click to go, so this one really is inert — it is on the grid to
+               show what the source will grow into. */
+            &.is-disabled {
+                background: var(--bsb-surface-soft);
+                border-style: dashed;
+                cursor: default;
+                opacity: 0.65;
+
+                .icon_wrapper {
+                    background: rgba(100, 116, 139, 0.1);
+                    border-color: var(--bsb-line-strong);
+
+                    .icon svg {
+                        fill: var(--bsb-muted);
+                    }
+                }
+
+                .title,
+                .bsb_card_hover_btn {
+                    color: var(--bsb-muted);
+                }
+
+                &:hover {
+                    transform: none;
+                    border-color: var(--bsb-line);
+                    box-shadow: var(--bsb-shadow-sm);
+
+                    .icon_wrapper {
+                        background: rgba(100, 116, 139, 0.1);
+                        border-color: var(--bsb-line-strong);
+
+                        .icon svg {
+                            fill: var(--bsb-muted);
+                            transform: none;
+                        }
+                    }
+
+                    .title,
+                    .bsb_card_hover_btn {
+                        color: var(--bsb-muted);
+                        transform: none;
+                    }
                 }
             }
         }
     }
 }
 
-
+/* The custom-post-type upsell. Lives outside `.bsb_main_parent` because the compact variant of
+   it sits in the inspector panel, where none of the wizard's scoping applies. */
 .bsb_pro_promo {
     position: relative;
     overflow: hidden;
@@ -1671,284 +2134,6 @@ svg#bsbSlider {
         color: var(--bsb-text);
     }
 }
-
-/**
- * The "watch this" link inside a notice — see `ACF_VIDEO` in AcfConfigure.
- *
- * On its own line under the sentence it belongs to, because a link folded into the middle of a paragraph in
- * a 280px column is a link nobody sees. The play mark sits with the words rather than in front of them, so
- * the two read as one thing to click.
- */
-.bsbNoticeVideo {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    margin-top: 8px;
-    color: var(--bsb-primary, #186cf5);
-    font-weight: 600;
-    text-decoration: none;
-
-    svg {
-        width: 16px;
-        height: 16px;
-        flex: 0 0 auto;
-    }
-
-    &:hover,
-    &:focus-visible {
-        text-decoration: underline;
-    }
-}
-
-/**
- * The help mark, and the bubble it opens — see `HelpTip`.
- *
- * The bubble is a sibling of the mark rather than a child, so hovering the mark cannot be interrupted by
- * the bubble appearing under the cursor. Both live in a wrapper that is `position: relative`, which is
- * what the bubble is placed against.
- */
-.bsbHelpTip {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    vertical-align: middle;
-    margin-left: 4px;
-    /* Above the fields around it, so a bubble is never clipped behind the next control. */
-    z-index: 5;
-}
-
-.bsbHelpTipMark {
-    display: grid;
-    place-items: center;
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    color: var(--bsb-muted, #6b7280);
-    cursor: help;
-    transition: color 0.15s ease, background 0.15s ease;
-
-    svg {
-        width: 15px;
-        height: 15px;
-        display: block;
-    }
-
-    &:hover,
-    &:focus-visible {
-        color: var(--bsb-primary, #186cf5);
-        background: var(--bsb-primary-soft, #eff6ff);
-        outline: none;
-    }
-}
-
-/**
- * The words themselves.
- *
- * `visibility` alongside the opacity, not opacity alone: a transparent bubble still takes the cursor, and
- * an invisible sheet over the field below it would swallow clicks meant for that field.
- *
- * **Below the mark, not above it.** Above was the first choice and it clipped: the sidebar is a scrolling
- * column, and a field near the top of it had its bubble drawn past the top edge — measured at 56px above
- * the viewport. Below, the space it needs is the space the panel already has more of.
- *
- * Pulled back inside the panel with `right: -6px`, and capped to less than the sidebar's own 280px — the
- * column scrolls vertically, so anything wider than it risks being cut off horizontally. `ch` as well as
- * pixels, so the line length stays readable however wide a translation runs.
- */
-.bsbHelpTipBubble {
-    position: absolute;
-    top: calc(100% + 8px);
-    right: -6px;
-    width: max-content;
-    max-width: min(34ch, 220px);
-    padding: 5px 8px;
-    border-radius: 7px;
-    /* A hair of light at the top edge, which is what keeps a dark bubble from reading as a hole in the
-       panel. The shadow does the lifting; this does the rounding. */
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    background: #1f2937;
-    color: #f3f4f6;
-    /**
-     * Its own typography, because a mark can sit inside a label and a label is not set like prose.
-     *
-     * WordPress styles a `BaseControl` label small, bold and uppercase — and the bubble, being inside it,
-     * inherited all three: the tip came out shouting in capitals. Everything a label sets is set back
-     * here, so a tip reads the same wherever it is dropped.
-     */
-    font-size: 11px;
-    font-weight: 400;
-    font-style: normal;
-    letter-spacing: normal;
-    text-transform: none;
-    line-height: 1.45;
-    text-align: left;
-    white-space: normal;
-    /* Breaks the line where a sentence would rather break, instead of leaving one word on its own. */
-    text-wrap: pretty;
-    box-shadow: 0 10px 28px rgba(15, 23, 42, 0.35);
-    opacity: 0;
-    visibility: hidden;
-    /* The lift on opening and the sideways nudge that keeps it inside its panel are two axes of one
-       property — see `place()` in HelpTip for where the shift comes from. */
-    translate: var(--bsb-tip-shift, 0) -4px;
-    transition: opacity 0.16s ease, translate 0.16s ease, visibility 0.16s ease;
-    pointer-events: none;
-
-    /* The tail, pointing back up at the mark it belongs to. */
-    &::after {
-        content: '';
-        position: absolute;
-        bottom: 100%;
-        right: 10px;
-        border: 5px solid transparent;
-        border-bottom-color: #1f2937;
-    }
-}
-
-.bsbHelpTip:hover .bsbHelpTipBubble,
-.bsbHelpTipMark:focus-visible + .bsbHelpTipBubble {
-    opacity: 1;
-    visibility: visible;
-    translate: var(--bsb-tip-shift, 0) 0;
-}
-
-/**
- * A field with a mark beside it.
- *
- * A row, so the mark sits with the label rather than under the control. The control keeps its own width
- * and the mark takes what is left, and the row carries the margin the control would have had — otherwise
- * the two would be spaced apart by the control's own bottom margin.
- */
-.bsbTipRow {
-    display: flex;
-    align-items: center;
-    gap: 2px;
-
-    .components-base-control {
-        margin-bottom: 0;
-    }
-
-    .components-toggle-control .components-base-control__field {
-        margin-bottom: 0;
-    }
-}
-
-/**
- * The word on a panel header that says this part is new — see the `badge` prop on `PanelBody`.
- *
- * Inline with the title rather than pinned to the right of the header: the header already has the
- * chevron over there, and a badge beside it would read as a second control. Next to the words it reads
- * as what it is, a note about the words.
- *
- * `em`, so it keeps its proportion to the title if the editor's font size changes under it.
- */
-.bsbPanelBadge {
-    display: inline-block;
-    margin-left: 8px;
-    padding: 1px 7px;
-    border-radius: 999px;
-    background: var(--bsb-accent, #ff7a00);
-    color: #fff;
-    font-size: 0.72em;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-    line-height: 1.6;
-    text-transform: uppercase;
-    vertical-align: middle;
-    /* The header is a button, so the title inherits its cursor. The badge is not the thing being
-       pressed, but it is inside it — so it says nothing about pressing either way. */
-    pointer-events: none;
-}
-
-/**
- * A heading over a run of fields inside a settings panel — see `FieldGroup`.
- *
- * A panel with eight controls in it is eight controls in a column, and a column says nothing about
- * which of them belong together. Without a break the reader has to work that out from the labels
- * alone.
- *
- * The rule runs *beside* the label rather than above it. A rule above sits between two fields and
- * belongs to neither — it reads as much like the end of what is above as the start of what is below.
- * On the same line as the words there is nothing to misread, it costs a row instead of a row plus a
- * margin, and it leaves a natural place at the far end for a tag.
- */
-.bsb_field_group {
-    /* Generous above, tight below: the gap is what says which fields the heading belongs to. */
-    margin: 24px 0 10px;
-
-    /* The first one opens the panel, under a title bar that has drawn its own line. `is-first` rather
-       than `:first-child`, because `PanelBody` renders its own `<h2>` before any child — so the group
-       is never actually the first one. */
-    &.is-first {
-        margin-top: 6px;
-    }
-}
-
-.bsb_field_group_head {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.bsb_field_group_title {
-    flex: none;
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.6px;
-    color: var(--bsb-text-soft);
-}
-
-/* Takes whatever width the label and the tag leave. Decoration only — it is why the heading reads as
-   a section marker and not as another field label. */
-.bsb_field_group_rule {
-    flex: 1;
-    height: 1px;
-    min-width: 12px;
-    background: var(--bsb-line);
-}
-
-/* One word, and only where it says something. Tagging every group "optional" would say no more than
-   tagging none of them — it is here to mark the run that can be skipped entirely. The muted pair
-   rather than the primary one, because blue is how these panels mark what must be filled in and
-   "optional" is the opposite claim. */
-.bsb_field_group_tag {
-    flex: none;
-    padding: 1px 7px;
-    border-radius: var(--bsb-radius-pill);
-    font-size: 9px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: var(--bsb-muted);
-    background: var(--bsb-surface-soft);
-    border: 1px solid var(--bsb-line);
-}
-
-/**
- * What the fields under the heading are for.
- *
- * Its own block under the head row rather than anything inside it: this is a sentence, and a sentence
- * in a flex row either squashes the label or is squashed by it. Full width, sentence case, wrapping —
- * the plain opposite of the tag beside it, which is why the two never read as the same thing.
- *
- * Quieter than the field `help` text below it, on purpose. This describes a group; that describes one
- * control. If the two carried the same weight the panel would read as one long paragraph.
- */
-.bsb_field_group_hint {
-    margin: 6px 0 0;
-    font-size: 11px;
-    line-height: 1.5;
-    color: var(--bsb-muted);
-}
-
-/* The badges panel and the per-badge panels inside it sit square, so the run of them reads as one
-   list rather than as a stack of separate cards. */
-.bsb_social_badges_panel,
-.bsb_social_badges_panel .bsb_acf_field_panel {
-    border-radius: 0 !important;
-}
-
 /**
  * The slider while its feed is still arriving — see `FeedSkeleton`.
  *
@@ -2143,11 +2328,1254 @@ svg#bsbSlider {
     .bsbFeedSkeleton .bsbFeedSkeletonCard,
     .bsbFeedSkeleton .bsbFeedSkeletonThumb,
     .bsbFeedSkeleton .bsbFeedSkeletonLine,
+    .bsbEmptyState .bsbCardSelector select:disabled,
     .bsbFeedSkeletonDot {
         animation: none;
     }
 
     .bsbFeedSkeleton .bsbFeedSkeletonCard {
         opacity: 0.7;
+    }
+}
+
+/* The state a slider shows in the editor when it has nothing to draw yet.
+   Only ever rendered in the editor — on the front end a feed with nothing in it renders nothing,
+   because "check the Feed Settings panel" is a note to the author, not to a visitor. */
+.bsbEmptyState {
+    /* Two accents per tone, not one. The washes behind the icon and the pill have to stay light
+       enough to read text over, which left the old single accent too pale to carry the text itself —
+       so `-accent` draws (icon, borders, pill labels) and `-ink` writes. */
+    --bsb-empty-accent: #1d4ed8;
+    --bsb-empty-ink: #1e3a8a;
+    --bsb-empty-soft: #eff5ff;
+    --bsb-empty-line: #bcd3fb;
+
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* Tight on purpose: the title, the sentence and the action are one thought, and a loose rhythm
+       made them read as three unrelated things stacked up. */
+    gap: 6px;
+    padding: 30px 28px 26px;
+    text-align: center;
+    border: 1.5px dashed var(--bsb-empty-line);
+    border-radius: 16px;
+    /* Opaque white first, then the tint on top. The editor canvas carries the theme's own
+       background — often dark — and a translucent panel let that through, which is what washed the
+       copy out to begin with. */
+    background:
+        radial-gradient(120% 90% at 50% 0%, var(--bsb-empty-soft) 0%, rgba(255, 255, 255, 0) 72%),
+        #ffffff;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+
+    select,
+    input,
+    .components-select-control,
+    .components-text-control {
+        max-width: 100% !important;
+        box-sizing: border-box;
+    }
+
+    /**
+     * The form that gets a feed slider its address — the saved-channel dropdown and the two fields
+     * for a new one.
+     *
+     * Styled here rather than left to WordPress, because this is the canvas: `.bPlPanelBody`, which
+     * gives every dropdown and text field in the sidebar its border, its height and its focus ring,
+     * does not reach inside a block. The same controls rendered here came out as the browser's own —
+     * a 30px select with a system arrow next to a full-height text input — which is what made this
+     * step look unfinished beside the panel it duplicates.
+     *
+     * A panel of its own, in white, on a tinted dashed card. It is the one thing on this screen that
+     * is asking for something rather than explaining, and it should look like a form and not like
+     * more of the notice above it.
+     */
+    .bsbCardSelector {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        width: 100%;
+        max-width: 380px;
+        margin: 18px auto 4px;
+        padding: 16px;
+        box-sizing: border-box;
+        /* The copy above is centred; a form's labels are read down the left edge. */
+        text-align: left;
+        background: #ffffff;
+        border: 1px solid var(--bsb-empty-line);
+        border-radius: 12px;
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+
+        /* The gap governs the rhythm, so the margin WordPress gives every control would double it. */
+        .components-base-control {
+            margin-bottom: 0;
+        }
+
+        /* Both names, because a `TextControl` labels itself through `BaseControl` and a
+           `SelectControl` through `InputBase` — see the note on the same pair in `.bPlPanelBody`. */
+        .components-base-control__label,
+        .components-input-control__label {
+            display: block;
+            margin-bottom: 6px !important;
+            padding: 0;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            line-height: 1.4;
+            color: var(--bsb-empty-ink);
+        }
+
+        /* Each control listed twice, plainly and by its own WordPress class. A selector list carries
+           each selector's own weight, so the second form of each pair outweighs the `&&&` blocks
+           Emotion injects after this stylesheet — the same fight the sidebar's backdrop rule settles
+           with `!important`, settled here by asking with enough specificity in the first place. */
+        input[type='text'],
+        input[type='url'],
+        select,
+        input.components-text-control__input,
+        select.components-select-control__input {
+            display: block;
+            width: 100%;
+            height: 38px;
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0 12px;
+            font-size: 13px;
+            line-height: 1.4;
+            color: #0f172a;
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            box-shadow: none;
+            transition: border-color 0.18s var(--bsb-ease), box-shadow 0.18s var(--bsb-ease);
+
+            /* The tone's own soft tint as the ring, rather than an rgba of the accent — the accent is
+               a custom property and cannot be given an alpha channel without repeating both values. */
+            &:focus {
+                border-color: var(--bsb-empty-accent);
+                box-shadow: 0 0 0 3px var(--bsb-empty-soft);
+                outline: none;
+            }
+
+            &::placeholder {
+                color: #94a3b8;
+            }
+        }
+
+        /**
+         * The dropdown's arrow.
+         *
+         * `SelectControl` paints its border on a sibling backdrop and its arrow through an icon
+         * component, both sized for the sidebar. Here the border is on the `<select>` itself, so the
+         * backdrop is taken out of the picture and the arrow is drawn as a background image — one
+         * chevron that cannot drift out of line with the box it sits in.
+         */
+        select,
+        select.components-select-control__input {
+            appearance: none;
+            -webkit-appearance: none;
+            padding-right: 32px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 14px 14px;
+            cursor: pointer;
+        }
+
+        .components-input-control__backdrop,
+        .components-input-control__suffix {
+            display: none;
+        }
+
+        /**
+         * The dropdown while the site's saved list is still being read.
+         *
+         * The control itself is never replaced — see the note in `NoPosts` — so "loading" is a state
+         * of this field rather than something standing in for it: the box is inert and its one option
+         * reads as a message instead of as a choice. A slow shimmer says the wait is expected, and
+         * because it is painted as a background it changes no dimension of the field.
+         */
+        select:disabled,
+        select.components-select-control__input:disabled {
+            color: #64748b;
+            cursor: default;
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"),
+                linear-gradient(100deg, #f8fafc 20%, #eef2f7 40%, #f8fafc 60%);
+            background-repeat: no-repeat, no-repeat;
+            background-size: 14px 14px, 200% 100%;
+            /* Its own keyframes, not the skeleton's: `background-position` sets every layer at once,
+               so the shared one would walk the arrow off the side of the field with the sheen. */
+            animation: bsbFeedFieldSheen 1.8s linear infinite;
+        }
+
+        /* The select's own wrapper insists on a height of its own, which would leave the box the
+           border is drawn on shorter than the 38px asked for above. */
+        .components-input-control__container,
+        .components-flex,
+        .components-select-control {
+            width: 100%;
+            min-height: 0;
+        }
+    }
+
+    /* The fields for a new channel, kept a little tighter than the gap between them and the list they
+       are an alternative to. */
+    .bsbCardSelectorGroup {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    /* "or add a new channel" — a seam, not a heading, so it is set as a rule with words in it. */
+    .bsbCardSelectorOr {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 2px 0;
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #94a3b8;
+
+        &::before,
+        &::after {
+            content: '';
+            flex: 1 1 auto;
+            height: 1px;
+            background: #e2e8f0;
+        }
+    }
+
+    /* One button or two, filling the width either way — a half-width primary on a 380px form reads as
+       though something is missing beside it. */
+    .bsbCardSelectorActions {
+        display: flex;
+        gap: 8px;
+        margin-top: 2px;
+
+        .components-button {
+            flex: 1 1 0;
+            justify-content: center;
+            height: 36px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+    }
+
+    /* Something is wrong rather than merely unfinished, so the accent turns. */
+    &.is-warn {
+        --bsb-empty-accent: #b45309;
+        --bsb-empty-ink: #7c2d12;
+        --bsb-empty-soft: #fff5e9;
+        --bsb-empty-line: #fbd39a;
+    }
+
+    .bsbEmptyIcon {
+        display: grid;
+        place-items: center;
+        width: 46px;
+        height: 46px;
+        margin-bottom: 4px;
+        border-radius: 13px;
+        color: var(--bsb-empty-accent);
+        background: var(--bsb-empty-soft);
+        border: 1px solid var(--bsb-empty-line);
+
+        svg {
+            width: 23px;
+            height: 23px;
+        }
+    }
+
+    .bsbEmptyTitle {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 650;
+        line-height: 1.35;
+        color: #0f172a;
+    }
+
+    .bsbEmptyBody {
+        /* Pulled back against the container's own gap, because the sentence belongs to the heading
+           above it — the two are one block, and the gap that separates them from the action should
+           not also separate them from each other. */
+        margin: -4px 0 0;
+        /* Narrow on purpose: a full-width slider would otherwise stretch this to one long line. */
+        max-width: 46ch;
+        font-size: 13px;
+        line-height: 1.6;
+        color: #475569;
+    }
+
+    /* The second line of copy: what the site-wide panel is for. An aside — the slider works without
+       ever opening it — but it was set in the faintest grey the palette has, on a tinted panel, and
+       simply could not be read. It steps back by sitting in its own tinted strip instead of by
+       fading, so it stays legible while still reading as secondary. */
+    .bsbEmptyNote {
+        margin: 8px 0 0;
+        max-width: 100%;
+        width: 46ch;
+        box-sizing: border-box;
+        padding: 7px 12px;
+        border-radius: 8px;
+        background: var(--bsb-empty-soft);
+        border: 1px solid var(--bsb-empty-line);
+        font-size: 12px;
+        line-height: 1.5;
+        color: var(--bsb-empty-ink);
+    }
+
+    /* Two routes to the same job, so they wrap together rather than stacking oddly on a narrow block. */
+    .bsbEmptyActions {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        margin-top: 10px;
+    }
+
+    /* The action, and its inert twin for the states that have no panel to open. Sharing the shape
+       keeps the two looking like the same element; only the fill tells them apart. */
+    .bsbEmptyAction,
+    .bsbEmptyHint {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 7px 14px 7px 11px;
+        font-family: inherit;
+        font-size: 12px;
+        font-weight: 600;
+        line-height: 1;
+        border-radius: 999px;
+
+        svg {
+            width: 14px;
+            height: 14px;
+        }
+    }
+
+    /* Not a button — nothing to open — so it stays a tinted label. Its text takes the darker of the
+       two tone colours, because a label has no hover state to fall back on if it reads badly. */
+    .bsbEmptyHint {
+        color: var(--bsb-empty-ink);
+        background: var(--bsb-empty-soft);
+        border: 1px solid var(--bsb-empty-line);
+    }
+
+    /* Solid rather than tinted. This is the one thing to do next in a state that exists only because
+       nothing has been set up yet, and a pale pill on a pale panel neither read as text nor as a
+       button. */
+    .bsbEmptyAction {
+        cursor: pointer;
+        color: #ffffff;
+        background: var(--bsb-empty-accent);
+        border: 1px solid var(--bsb-empty-accent);
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.12);
+        transition: background 0.18s var(--bsb-ease), border-color 0.18s var(--bsb-ease), color 0.18s var(--bsb-ease);
+
+        &:hover {
+            color: #ffffff;
+            background: var(--bsb-empty-ink);
+            border-color: var(--bsb-empty-ink);
+
+            /* Nudges toward the panel it is about to open. */
+            .bsbEmptyArrow {
+                transform: translateX(2px);
+            }
+        }
+
+        &:focus-visible {
+            outline: none;
+            box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px var(--bsb-empty-accent);
+        }
+
+        .bsbEmptyArrow {
+            width: 13px;
+            height: 13px;
+            margin-left: -1px;
+            transition: transform 0.18s var(--bsb-ease);
+        }
+    }
+
+    /* The site-wide route is the secondary of the two: outlined rather than filled, so the slider's
+       own settings stay the obvious first move. Slate text on white, not a tint of the accent —
+       a washed-out accent is exactly what made the old pill unreadable. */
+    .bsbEmptyAction.is-quiet {
+        color: #334155;
+        background: #ffffff;
+        border-color: #cbd5e1;
+        box-shadow: none;
+
+        &:hover {
+            color: var(--bsb-empty-ink);
+            background: var(--bsb-empty-soft);
+            border-color: var(--bsb-empty-line);
+        }
+    }
+}
+
+/* bSlider's own panel in the editor, opened from the toolbar icon. Site settings rather than block
+   settings, so it deliberately looks like the inspector it sits beside.
+
+   Everything accented here uses `--wp-admin-theme-color`, never a colour of this plugin's own.
+   WordPress ships eight admin colour schemes and the user picks one; a hardcoded blue sits fine
+   beside the default and clashes with the other seven. It also means the Save button — which
+   WordPress colours itself — and the badges and highlights around it are the same colour rather
+   than two blues a shade apart. */
+.bsbGlobalSidebar {
+    --bsb-panel-accent: var(--wp-admin-theme-color, #3858e9);
+    --bsb-panel-line: #dcdcde;
+    --bsb-panel-soft: #f6f7f7;
+
+    .bsbGlobalEmpty,
+    .bsbGlobalState {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        margin: 0 0 12px;
+        font-size: 12px;
+        line-height: 1.55;
+        color: var(--bsb-muted);
+
+        .components-spinner {
+            margin: 0;
+        }
+    }
+
+    .bsbGlobalList {
+        margin: 0 0 12px;
+        padding: 0;
+        list-style: none;
+
+        li {
+            display: grid;
+            grid-template-columns: 28px minmax(0, 1fr);
+            grid-template-areas: 'dot text' 'foot foot';
+            gap: 2px 9px;
+            padding: 10px 8px;
+            margin: 0 -8px;
+            border-radius: var(--bsb-radius);
+            border-bottom: 1px solid var(--bsb-panel-line);
+
+            /* The channel the slider being edited is on. A sidebar is site-wide, so without this the
+               list says nothing about the block you are actually working on. */
+            &.is-current {
+                background: color-mix(in srgb, var(--bsb-panel-accent) 7%, transparent);
+                border-bottom-color: color-mix(in srgb, var(--bsb-panel-accent) 25%, transparent);
+            }
+        }
+    }
+
+    /* Counts and actions on their own line: side by side they were unreadable in a 280px column. */
+    .bsbGlobalFoot {
+        grid-area: foot;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        margin-top: 2px;
+
+        em {
+            font-size: 10.5px;
+            font-style: normal;
+            color: var(--bsb-faint);
+            white-space: nowrap;
+        }
+    }
+
+    .bsbGlobalBadge {
+        margin-left: 6px;
+        padding: 1px 6px;
+        font-size: 9px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        color: #fff;
+        background: var(--bsb-panel-accent);
+        border-radius: var(--bsb-radius-pill);
+        vertical-align: 1px;
+    }
+
+    .bsbGlobalDot {
+        grid-area: dot;
+        display: grid;
+        place-items: center;
+        width: 28px;
+        height: 28px;
+        border-radius: 9px;
+        font-size: 13px;
+        font-weight: 700;
+        color: #fff;
+        background: var(--bsb-panel-accent);
+    }
+
+    .bsbGlobalText {
+        grid-area: text;
+        min-width: 0;
+
+        strong {
+            display: block;
+            font-size: 12.5px;
+            line-height: 1.4;
+            color: var(--bsb-ink);
+            overflow-wrap: anywhere;
+            word-break: break-all;
+        }
+
+        code {
+            display: block;
+            padding: 0;
+            background: none;
+            font-size: 11px;
+            color: var(--bsb-muted);
+            overflow-wrap: anywhere;
+            word-break: break-all;
+        }
+
+        .bsbGlobalRowActions {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            flex: none;
+        }
+    }
+
+    /* Boxed, so adding a channel reads as one step rather than four more fields in the panel. */
+    .bsbGlobalForm {
+        margin: 0 0 12px;
+        /* Even on all four sides. It used to be `12px 12px 2px`, and WordPress's own controls each
+           carry a bottom margin — so the last field's margin stacked on top of the 2px and left a
+           wide gap above the buttons with almost nothing below them. */
+        padding: 14px;
+        background: var(--bsb-panel-soft);
+        border: 1px solid var(--bsb-panel-line);
+        border-radius: var(--bsb-radius);
+
+        /* Room between a label and the box it names. WordPress's default is 2px, which reads as one
+           element when the fields are stacked this closely. */
+        .components-base-control__label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 11px;
+            font-weight: 600;
+            line-height: 1.4;
+            text-transform: none;
+            color: var(--bsb-ink);
+        }
+
+        /* And between one field and the next. */
+        .components-base-control {
+            margin-bottom: 14px;
+        }
+
+        .components-base-control:last-of-type {
+            margin-bottom: 0;
+        }
+
+        /* The inputs. White on the tinted panel so the writable area is obvious, with a border strong
+           enough to survive that tint — a default-grey border on a grey panel disappears. */
+        .components-text-control__input,
+        .components-select-control__input,
+        input[type='text'],
+        input[type='number'],
+        select {
+            min-height: 34px;
+            padding: 6px 10px;
+            background: #fff;
+            border: 1px solid #8c8f94;
+            border-radius: 4px;
+            font-size: 13px;
+            line-height: 1.4;
+            box-shadow: none;
+            transition: border-color 0.1s ease, box-shadow 0.1s ease;
+
+            &:focus {
+                border-color: var(--bsb-panel-accent);
+                /* The ring WordPress itself puts on a focused field, in the user's own accent. */
+                box-shadow: 0 0 0 1px var(--bsb-panel-accent);
+                outline: 2px solid transparent;
+            }
+
+            &::placeholder {
+                color: var(--bsb-faint);
+            }
+        }
+
+        /* The range's own track and thumb, which ignore the rules above. */
+        .components-range-control__track {
+            background: var(--bsb-panel-accent);
+        }
+
+        .components-range-control__thumb-wrapper .components-range-control__thumb {
+            background: var(--bsb-panel-accent);
+            border-color: var(--bsb-panel-accent);
+        }
+
+        .components-range-control__number {
+            min-height: 30px;
+        }
+
+        .bsbGlobalActions {
+            gap: 6px;
+            /* A rule and equal space either side of it, so the form reads as finished rather than as
+               trailing off into two buttons. */
+            margin: 14px 0 0;
+            padding-top: 14px;
+            border-top: 1px solid var(--bsb-panel-line);
+        }
+
+        /* Save carries the width, Cancel stays out of its way — in a 280px column two buttons of
+           equal weight give no hint which one is the point. The colour is WordPress's own, which is
+           why nothing here sets it. */
+        .components-button.is-primary {
+            flex: 1;
+            justify-content: center;
+            min-height: 32px;
+        }
+
+        .components-button.is-tertiary {
+            min-height: 32px;
+        }
+    }
+
+    .bsbGlobalActions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 10px;
+    }
+
+    .bsbGlobalHelp {
+        margin: 6px 0 0;
+        font-size: 11px;
+        line-height: 1.5;
+        color: var(--bsb-muted);
+    }
+
+    .bsbGlobalError {
+        margin: 6px 0 0;
+        font-size: 11.5px;
+        color: var(--bsb-danger);
+    }
+}
+
+.bsb_social_badges_panel,
+.bsb_social_badges_panel .bsb_acf_field_panel,
+.bsb_social_filtering_panel {
+    border-radius: 0 !important;
+}
+
+/* Custom status dot/badge for panel titles */
+.bsb_status_dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    margin-left: 6px;
+}
+.bsb_status_dot.is-ok {
+    background-color: #46b450;
+    box-shadow: 0 0 4px rgba(70, 180, 80, 0.6);
+}
+.bsb_status_dot.is-warning {
+    background-color: #ffb900;
+    box-shadow: 0 0 4px rgba(255, 185, 0, 0.6);
+}
+.bsb_status_dot.is-error {
+    background-color: #dc3232;
+    box-shadow: 0 0 4px rgba(220, 50, 50, 0.6);
+}
+.bsb_status_dot.is-muted {
+    background-color: #cccccc;
+}
+
+.bsb_status_badge {
+    display: inline-block;
+    padding: 1px 6px;
+    border-radius: 9px;
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-left: auto;
+}
+.bsb_status_badge.is-ok {
+    color: #46b450;
+    background-color: rgba(70, 180, 80, 0.1);
+    border: 1px solid rgba(70, 180, 80, 0.2);
+}
+.bsb_status_badge.is-warning {
+    color: #f5a623;
+    background-color: rgba(245, 166, 35, 0.1);
+    border: 1px solid rgba(245, 166, 35, 0.2);
+}
+.bsb_status_badge.is-error {
+    color: #dc3232;
+    background-color: rgba(220, 50, 50, 0.1);
+    border: 1px solid rgba(220, 50, 50, 0.2);
+}
+.bsb_status_badge.is-muted {
+    color: #888888;
+    background-color: rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+/**
+ * The help mark, and the bubble it opens — see `HelpTip`.
+ *
+ * The bubble is a sibling of the mark rather than a child, so hovering the mark cannot be interrupted by
+ * the bubble appearing under the cursor. Both live in a wrapper that is `position: relative`, which is
+ * what the bubble is placed against.
+ */
+.bsbHelpTip {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    vertical-align: middle;
+    margin-left: 4px;
+    /* Above the fields around it, so a bubble is never clipped behind the next control. */
+    z-index: 5;
+}
+
+.bsbHelpTipMark {
+    display: grid;
+    place-items: center;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    color: var(--bsb-muted, #6b7280);
+    cursor: help;
+    transition: color 0.15s ease, background 0.15s ease;
+
+    svg {
+        width: 15px;
+        height: 15px;
+        display: block;
+    }
+
+    &:hover,
+    &:focus-visible {
+        color: var(--bsb-primary, #186cf5);
+        background: var(--bsb-primary-soft, #eff6ff);
+        outline: none;
+    }
+}
+
+/**
+ * The words themselves.
+ *
+ * `visibility` alongside the opacity, not opacity alone: a transparent bubble still takes the cursor, and
+ * an invisible sheet over the field below it would swallow clicks meant for that field.
+ *
+ * **Below the mark, not above it.** Above was the first choice and it clipped: the sidebar is a scrolling
+ * column, and a field near the top of it had its bubble drawn past the top edge — measured at 56px above
+ * the viewport. Below, the space it needs is the space the panel already has more of.
+ *
+ * Pulled back inside the panel with `right: -6px`, and capped to less than the sidebar's own 280px — the
+ * column scrolls vertically, so anything wider than it risks being cut off horizontally. `ch` as well as
+ * pixels, so the line length stays readable however wide a translation runs.
+ */
+.bsbHelpTipBubble {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: -6px;
+    width: max-content;
+    max-width: min(34ch, 220px);
+    padding: 5px 8px;
+    border-radius: 7px;
+    /* A hair of light at the top edge, which is what keeps a dark bubble from reading as a hole in the
+       panel. The shadow does the lifting; this does the rounding. */
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: #1f2937;
+    color: #f3f4f6;
+    /**
+     * Its own typography, because a mark can sit inside a label and a label is not set like prose.
+     *
+     * WordPress styles a `BaseControl` label small, bold and uppercase — and the bubble, being inside it,
+     * inherited all three: the tip came out shouting in capitals. Everything a label sets is set back
+     * here, so a tip reads the same wherever it is dropped.
+     */
+    font-size: 11px;
+    font-weight: 400;
+    font-style: normal;
+    letter-spacing: normal;
+    text-transform: none;
+    line-height: 1.45;
+    text-align: left;
+    white-space: normal;
+    /* Breaks the line where a sentence would rather break, instead of leaving one word on its own. */
+    text-wrap: pretty;
+    box-shadow: 0 10px 28px rgba(15, 23, 42, 0.35);
+    opacity: 0;
+    visibility: hidden;
+    /* The lift on opening and the sideways nudge that keeps it inside its panel are two axes of one
+       property — see `place()` in HelpTip for where the shift comes from. */
+    translate: var(--bsb-tip-shift, 0) -4px;
+    transition: opacity 0.16s ease, translate 0.16s ease, visibility 0.16s ease;
+    pointer-events: none;
+
+    /* The tail, pointing back up at the mark it belongs to. */
+    &::after {
+        content: '';
+        position: absolute;
+        bottom: 100%;
+        right: 10px;
+        border: 5px solid transparent;
+        border-bottom-color: #1f2937;
+    }
+}
+
+.bsbHelpTip:hover .bsbHelpTipBubble,
+.bsbHelpTipMark:focus-visible + .bsbHelpTipBubble {
+    opacity: 1;
+    visibility: visible;
+    translate: var(--bsb-tip-shift, 0) 0;
+}
+
+/**
+ * A field with a mark beside it.
+ *
+ * A row, so the mark sits with the label rather than under the control. The control keeps its own width
+ * and the mark takes what is left, and the row carries the margin the control would have had — otherwise
+ * the two would be spaced apart by the control's own bottom margin.
+ */
+.bsbTipRow {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+
+    .components-base-control {
+        margin-bottom: 0;
+    }
+
+    .components-toggle-control .components-base-control__field {
+        margin-bottom: 0;
+    }
+}
+
+/**
+ * The word on a panel header that says this part is new — see the `badge` prop on `PanelBody`.
+ *
+ * Inline with the title rather than pinned to the right of the header: the header already has the
+ * chevron over there, and a badge beside it would read as a second control. Next to the words it reads
+ * as what it is, a note about the words.
+ *
+ * `em`, so it keeps its proportion to the title if the editor's font size changes under it.
+ */
+.bsbPanelBadge {
+    display: inline-block;
+    margin-left: 8px;
+    padding: 1px 7px;
+    border-radius: 0;
+    background: color-mix(in srgb, var(--bsb-accent, #ff7a00) 12%, transparent);
+    border: 1px solid color-mix(in srgb, var(--bsb-accent, #ff7a00) 35%, transparent);
+    color: var(--bsb-accent, #ff7a00);
+    font-size: 0.72em;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    line-height: 1.6;
+    text-transform: uppercase;
+    vertical-align: middle;
+    /* The header is a button, so the title inherits its cursor. The badge is not the thing being
+       pressed, but it is inside it — so it says nothing about pressing either way. */
+    pointer-events: none;
+}
+
+/**
+ * The "watch this" link inside a notice — see `ACF_VIDEO` in AcfConfigure.
+ *
+ * On its own line under the sentence it belongs to, because a link folded into the middle of a paragraph in
+ * a 280px column is a link nobody sees. The play mark sits with the words rather than in front of them, so
+ * the two read as one thing to click.
+ */
+.bsbNoticeVideo {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 8px;
+    color: var(--bsb-primary, #186cf5);
+    font-weight: 600;
+    text-decoration: none;
+
+    svg {
+        width: 16px;
+        height: 16px;
+        flex: 0 0 auto;
+    }
+
+    &:hover,
+    &:focus-visible {
+        text-decoration: underline;
+    }
+}
+
+/**
+ * The feed presets, drawn as small pictures of what they produce.
+ *
+ * A card is a miniature of the slider — banner, channel row, grid of thumbnails — at roughly the
+ * proportions the preset actually sets, so the choice is made by looking rather than by applying one
+ * and undoing it. The shapes are plain divs filled with the same greys the editor uses elsewhere;
+ * nothing here loads an image, so the panel costs no requests.
+ *
+ * One column, not the two `.bsb_preset_picker` uses. That picker's samples are pills and survive being
+ * 80px wide; a whole slider laid out inside 80px is three grey smudges. A preset also carries a
+ * sentence explaining what it sets, which wants the width.
+ */
+.bsb_feed_presets_panel {
+    .bsb_feed_presets_intro {
+        margin: 0 0 12px;
+        font-size: 12px;
+        line-height: 1.5;
+        color: var(--bsb-muted);
+    }
+
+    .bsb_feed_presets {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+
+        /* `minmax(0, 1fr)` above rather than a bare `1fr`: a grid track sized `1fr` will not shrink
+           below the widest thing in it, and the sample's own grid of thumbnails is wide enough to
+           push the column past its share — which overflows the sidebar instead of wrapping. */
+    }
+
+    .bsb_feed_preset {
+        display: block;
+        width: 100%;
+        min-width: 0;
+        padding: 8px;
+        border: 1px solid var(--bsb-line-strong);
+        border-radius: var(--bsb-radius-md, 8px);
+        background: var(--bsb-surface);
+        text-align: left;
+        cursor: pointer;
+        transition: border-color 0.25s cubic-bezier(0.4, 0, 0.2, 1), 
+                    box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1), 
+                    transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+                    background-color 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+
+        &:hover {
+            border-color: var(--bsb-primary);
+            box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08), 0 2px 4px rgba(15, 23, 42, 0.04);
+            transform: translateY(-2px);
+        }
+
+        &:focus-visible {
+            outline: none;
+            box-shadow: var(--bsb-ring);
+        }
+
+        /* The one this slider was started from. */
+        &.is-active {
+            border-color: var(--bsb-primary);
+            box-shadow: 0 8px 20px rgba(131, 68, 197, 0.12), 0 0 0 1px var(--bsb-primary);
+            background: var(--bsb-primary-soft, rgba(131, 68, 197, 0.04));
+            transform: translateY(-2px);
+        }
+    }
+
+    /* Beside the name, on its baseline. `inline-flex` keeps the mark from sitting on the text's
+       descender line the way a bare inline SVG does. */
+    .bsb_feed_preset_name {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .bsb_feed_preset_tick {
+        flex: 0 0 auto;
+        color: var(--bsb-primary);
+    }
+
+    /* The miniature. Everything inside is absolute-free — plain flex rows at small fixed heights,
+       because a preview that reflows with the sidebar stops matching the layout it is describing. */
+    .bsb_feed_preset_sample {
+        display: block;
+        padding: 6px;
+        border-radius: 6px;
+        background: var(--bsb-surface-soft, #f8fafc);
+        border: 1px solid rgba(0, 0, 0, 0.03);
+        overflow: hidden;
+        transition: background-color 0.25s ease, border-color 0.25s ease;
+
+        .is-active & {
+            background: var(--bsb-surface, #ffffff);
+            border-color: rgba(131, 68, 197, 0.15);
+        }
+    }
+
+    .bsb_fp_banner {
+        display: block;
+        height: 16px;
+        border-radius: 3px 3px 0 0;
+        background: linear-gradient(110deg, #312e5f 0%, #1e1b4b 55%, #4c1d95 100%);
+    }
+
+    /* Joined to the banner above it, which is what the panel header looks like — one block, the
+       account on a plain surface rather than a tinted card off on its own. */
+    .bsb_fp_header {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        margin-top: 0;
+        padding: 4px;
+        border: 1px solid #e2e8f0;
+        border-top: 0;
+        border-radius: 0 0 3px 3px;
+        background: #fbfbfb;
+    }
+
+    .bsb_fp_avatar {
+        flex: 0 0 auto;
+        width: 13px;
+        height: 13px;
+        border-radius: 50%;
+        background: #d94141;
+    }
+
+    .bsb_fp_meta {
+        flex: 1 1 auto;
+        display: grid;
+        gap: 3px;
+    }
+
+    .bsb_fp_btn {
+        flex: 0 0 auto;
+        width: 18px;
+        height: 7px;
+        border-radius: 2px;
+        background: #cc0000;
+    }
+
+    /* Three across, which is the preset's own `columns.desktop` — the picture would be telling the
+       user something untrue if these two ever disagreed. */
+    .bsb_fp_grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 3px;
+        margin-top: 4px;
+    }
+
+    .bsb_fp_thumb {
+        display: block;
+        aspect-ratio: 16 / 9;
+        border-radius: 2px;
+        background: #cbd5e1;
+    }
+
+    .bsb_fp_line {
+        display: block;
+        height: 3px;
+        border-radius: 2px;
+        background: #94a3b8;
+
+        &.is-name {
+            width: 60%;
+            height: 4px;
+            background: #0f172a;
+        }
+
+        &.is-sub {
+            width: 85%;
+            background: #64748b;
+        }
+
+        &.is-title {
+            margin-top: 4px;
+            width: 100%;
+            background: #475569;
+        }
+
+        &.is-meta {
+            margin-top: 3px;
+            width: 65%;
+        }
+    }
+
+    /* The second shape: a player stage, a Prev/Next pair, then a bare page of thumbnails — no
+       titles under them, which is the visible difference between this preset and the other. */
+    .bsb_fp_stage {
+        position: relative;
+        display: block;
+        margin-top: 5px;
+        aspect-ratio: 16 / 7;
+        border-radius: 3px;
+        background: linear-gradient(120deg, #6d28d9 0%, #9333ea 50%, #4c1d95 100%);
+    }
+
+    .bsb_fp_play {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 16px;
+        height: 11px;
+        transform: translate(-50%, -50%);
+        border-radius: 3px;
+        background: rgba(255, 255, 255, 0.9);
+
+        &::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-35%, -50%);
+            border-style: solid;
+            border-width: 3px 0 3px 5px;
+            border-color: transparent transparent transparent #dc2626;
+        }
+    }
+
+    .bsb_fp_nav {
+        display: flex;
+        justify-content: center;
+        gap: 4px;
+        margin-top: 5px;
+    }
+
+    .bsb_fp_navbtn {
+        width: 14px;
+        height: 6px;
+        border: 1px solid #cbd5e1;
+        border-radius: 2px;
+        background: var(--bsb-surface, #fff);
+    }
+
+    /* Thumbnails with nothing written under them, and each one marked as a video. */
+    .bsb_fp_grid.is-bare {
+        margin-top: 5px;
+
+        .bsb_fp_thumb.is-marked {
+            position: relative;
+
+            &::after {
+                content: '';
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                width: 9px;
+                height: 6px;
+                transform: translate(-50%, -50%);
+                border-radius: 2px;
+                background: rgba(220, 38, 38, 0.9);
+            }
+        }
+    }
+
+    /* The third shape: a taller stage over two wide rows, each a still with lines beside it. */
+    .bsb_fp_stage.is-tall {
+        margin-top: 0;
+        aspect-ratio: 16 / 8.5;
+    }
+
+    .bsb_fp_rows {
+        display: grid;
+        gap: 4px;
+        margin-top: 4px;
+    }
+
+    .bsb_fp_row {
+        display: grid;
+        /* A fraction, not a fixed width: at half the sidebar a 34px still leaves the lines beside it
+           too narrow to read as text. */
+        grid-template-columns: 38% 1fr;
+        gap: 4px;
+        align-items: start;
+    }
+
+    .bsb_fp_rowbody {
+        display: grid;
+        gap: 3px;
+
+        .bsb_fp_line.is-title {
+            margin-top: 0;
+        }
+
+        .bsb_fp_line.is-meta {
+            margin-top: 0;
+            width: 80%;
+
+            + .is-meta {
+                width: 55%;
+            }
+        }
+    }
+
+    /* Instagram's square cells, tight together — the profile-grid shape. */
+    .bsb_fp_grid.is-square {
+        gap: 2px;
+
+        .bsb_fp_thumb {
+            aspect-ratio: 1 / 1;
+        }
+    }
+
+    /* The base rule above assumes a banner sits on top — no top edge, rounded only at the bottom.
+       With no banner the account row *is* the top of the block, so it takes its edge back. */
+    .bsb_feed_preset_sample > .bsb_fp_header:first-child {
+        border-top: 1px solid #e2e8f0;
+        border-radius: 3px;
+    }
+
+    .bsb_feed_preset_body {
+        display: block;
+        margin-top: 6px;
+    }
+
+    .bsb_feed_preset_name {
+        font-size: 11.5px;
+        font-weight: 600;
+        color: var(--bsb-text);
+    }
+
+    .bsb_feed_preset_desc {
+        display: block;
+        margin-top: 2px;
+        font-size: 10.5px;
+        line-height: 1.4;
+        color: var(--bsb-muted);
+    }
+}
+
+/* ── Kept from the free build ──────────────────────────────────────────────────────────────────
+ *
+ * Two rules the Premium stylesheet has no counterpart for, written with the parents they were
+ * nested under there — lifting them to the top level would widen what they match.
+ *
+ * `.bsb_device_row` is the device-toggle row this build draws beside a responsive control, and
+ * `.pro` is the corner flag on its own upsell cards.
+ */
+.bPlPanelBody {
+    .bsb_device_row {
+        align-items: center;
+        min-height: 0;
+        margin-bottom: 8px;
+
+        .bPlLabel {
+            flex: 1 1 auto;
+            margin-bottom: 0 !important;
+        }
+    }
+}
+
+.bsb_main_parent {
+    .pro {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #fff;
+        background: var(--bsb-accent);
     }
 }

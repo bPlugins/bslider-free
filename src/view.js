@@ -21,9 +21,14 @@ document.addEventListener('DOMContentLoaded', () => {
 		const id = sliderEl?.id;
 
 		const isBackend = false;
+		/* Present only where the server printed one page instead of the whole feed — see
+		   `$feed_handle` in render.php. It is the finished `/bsb/v1/feed-page` address for this
+		   slider's own cached feed, and its absence is what tells the grid to page through what it
+		   already holds — which is what the editor does, and every layout but the paging grid. */
+		const feedPageUrl = sliderEl.dataset.feedpage || '';
 		// const posts = all_posts?.posts;
 		/**
-		 * The items, as `render.php` printed them.
+		 * The feed, as `render.php` printed it.
 		 *
 		 * `textContent` and not `innerText`: they agree here — the `<pre>` is `display: none`, and for an
 		 * element that is not rendered `innerText` falls back to `textContent` anyway — but only one of
@@ -38,7 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		const firstPosts = postsText?.trim() ? JSON.parse(postsText.trim()) : [];
 
 		createRoot(sliderEl).render(<>
-			<RenderLayout {...{ attributes, firstPosts, totalPosts, isBackend, nonce, id }} />
+			<RenderLayout {...{ attributes, firstPosts, totalPosts, isBackend, nonce, id, feedPageUrl }} />
 		</>);
 
 		sliderEl?.removeAttribute('data-attributes');
@@ -46,14 +51,14 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
-export const RenderLayout = ({ attributes, firstPosts, totalPosts, nonce, }) => {
+export const RenderLayout = ({ attributes, firstPosts, totalPosts, nonce, feedPageUrl = '' }) => {
 
 	const [carousel, setCarousel] = useState(null);
 	const { cId, layoutType, sliders } = attributes;
 	const commonDeProps = { clientId: cId, carousel, setCarousel };
 
-	const isOld = !layoutType && sliders[0]?.img?.url !== '';
-	const LayoutEl = <Layout {...{ attributes, commonDeProps, firstPosts, products: firstPosts, totalPosts, nonce, isBackend: false, PostsGrid: PostsGridFront }} />;
+	const isOld = !layoutType && sliders[0]?.img?.url !== 'https://templates.bplugins.com/wp-content/uploads/2025/02/n-39.jpg';
+	const LayoutEl = <Layout {...{ attributes, commonDeProps, firstPosts, products: firstPosts, totalPosts, nonce, feedPageUrl, isBackend: false, PostsGrid: PostsGridFront }} />;
 
 	return <div className={`mainLayout ${layoutType}`}>
 		{isOld ? <>
