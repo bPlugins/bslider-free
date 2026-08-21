@@ -17,8 +17,14 @@ const MOUSE_WHEEL = __('Mouse Wheel', 'b-slider');
 const GRAB_CURSOR = __('Grab Cursor', 'b-slider');
 
 export const PRO_FEATURES = {
-	/* General tab */
-	slides: [__('Button label', 'b-slider'), __('Button Url', 'b-slider'), __('Open In New Tab', 'b-slider')],
+	/**
+	 * General tab.
+	 *
+	 * A slide's own button — label, URL and new-tab — is deliberately not a key here. Those three are
+	 * drawn as `BControlPro` in `Settings/Item`, which puts the Pro tag on each control's own label,
+	 * so a list of the same three names would be a second copy to keep in step for no notice. A key
+	 * earns its place when a panel needs a *sentence*; a locked control names itself.
+	 */
 	postQuery: [__('Include', 'b-slider'), __('Exclude', 'b-slider'), __('Current Post', 'b-slider')],
 	acfQuery: [__('Sort by ACF Field', 'b-slider'), __('Filter by ACF Field', 'b-slider')],
 	title: [__('Custom HTML wrapper tags (e.g., h1-h6)', 'b-slider')],
