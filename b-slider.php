@@ -51,9 +51,35 @@
         do_action('b_slider_fs_loaded'); 
     }
 
+    /**
+     * Whether this site may use the Premium code. Always false here: this is the free build, and the
+     * gates that ask are the ones that would otherwise reach for a class it does not ship.
+     *
+     * Defined so the shared feed classes can ask the same question in both builds rather than each
+     * carrying its own copy of the answer.
+     */
+    if ( ! function_exists( 'b_slider_is_premium' ) ) {
+        function b_slider_is_premium() {
+            return false;
+        }
+    }
+
     require_once plugin_dir_path(__FILE__) . '/includes/Posts.php';
     require_once plugin_dir_path(__FILE__) . '/includes/PostsAjax.php';
     require_once plugin_dir_path(__FILE__) . '/includes/AcfFields.php';
+    require_once plugin_dir_path(__FILE__) . '/includes/RestQuery.php';
+
+    // The external feed readers. SocialFeed last: it constructs itself on include and drives the
+    // other three. Keeping a feed on this site, and reading an Instagram account, are Premium — the
+    // classes for both are absent here, and `SocialFeed::storesLocally()` answers false so nothing
+    // reaches for them.
+    require_once plugin_dir_path(__FILE__) . '/includes/FeedChannels.php';
+    require_once plugin_dir_path(__FILE__) . '/includes/FeedSchema.php';
+    require_once plugin_dir_path(__FILE__) . '/includes/YouTubeFeed.php';
+    require_once plugin_dir_path(__FILE__) . '/includes/RssFeed.php';
+    require_once plugin_dir_path(__FILE__) . '/includes/JsonFeed.php';
+    require_once plugin_dir_path(__FILE__) . '/includes/SocialFeed.php';
+
 
     class B_Slider{
 
