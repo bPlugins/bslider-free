@@ -251,7 +251,7 @@ const ApiKey = ({ state: key }) => {
                 ? (key.inherited
                     ? __('Using the key from Video Gallery for YouTube.', 'b-slider')
                     : sprintf(
-                        /* translators: %s: last four characters of the saved key */
+                        /* translators: %s: the last four characters of the saved key */
                         __('Key saved (%s).', 'b-slider'),
                         key.masked
                     ))

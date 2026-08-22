@@ -255,6 +255,28 @@ const ChannelForm = ({ draft, setDraft, saving, error, onSave, onCancel }) => {
  * where an address is corrected, a name changed or a default adjusted, and every slider follows.
  * Each row says which sliders depend on it, because that is what makes a delete safe or not.
  */
+/**
+ * The confirmation a feed or account gets when it is removed, already filled in with its name.
+ *
+ * One `sprintf` per string — see the note on `savedNote` in `SocialGeneral` for why a ternary
+ * loses its `translators:` comments by the time `make-pot` reads the bundle.
+ */
+const removeNote = (isInstagram, name) => {
+    if (isInstagram) {
+        return sprintf(
+            /* translators: %s: the account's name */
+            __('Remove Instagram account “%s”? Any sliders using it will go back to loading live directly.', 'b-slider'),
+            name
+        );
+    }
+
+    return sprintf(
+        /* translators: %s: the feed's name */
+        __('Remove feed “%s”? Any sliders using it will go back to reading the feed live directly.', 'b-slider'),
+        name
+    );
+};
+
 const Channels = ({ type = 'youtube' }) => {
     const library = useFeedChannels();
 
@@ -279,12 +301,7 @@ const Channels = ({ type = 'youtube' }) => {
     const remove = channel => {
         // eslint-disable-next-line no-alert
         if (!window.confirm((isRss || isJson || isInstagram)
-            ? sprintf(
-                isInstagram
-                    ? __('Remove Instagram account “%s”? Any sliders using it will go back to loading live directly.', 'b-slider')
-                    : __('Remove feed “%s”? Any sliders using it will go back to reading the feed live directly.', 'b-slider'),
-                channel.label
-            )
+            ? removeNote(isInstagram, channel.label)
             : channel.usedBy.length
             ? sprintf(
                 /* translators: 1: channel name, 2: number of sliders using it */

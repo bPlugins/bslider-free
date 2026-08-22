@@ -269,6 +269,7 @@ export const proFeatureSentence = (features = []) => {
 	}
 
 	return sprintf(
+		/* translators: %s: comma-separated list of feature names. */
 		_n(
 			'%s is available in the Premium version.',
 			'%s are available in the Premium version.',

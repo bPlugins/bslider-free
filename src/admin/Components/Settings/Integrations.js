@@ -213,8 +213,8 @@ const Integrations = () => {
                     {oauth.inheritedId || oauth.inheritedSecret
                         ? __('Using client credentials defined in wp-config.php.', 'b-slider')
                         : sprintf(
-                            /* translators: %s: client id, %s: client secret */
-                            __('OAuth credentials saved (Client ID ending %s, Client Secret ending %s).', 'b-slider'),
+                            /* translators: 1: last characters of the client ID, 2: last characters of the client secret */
+                            __('OAuth credentials saved (Client ID ending %1$s, Client Secret ending %2$s).', 'b-slider'),
                             oauth.clientId,
                             oauth.clientSecret
                         )}

@@ -70,6 +70,63 @@ const stepTitle = (title, badge = null) => <span className='bsb_feed_panel_title
  * an API key, and with the panel closed that note pointed at a drawer the reader then had to find. See
  * `AccordionGroup` for why opening by name has to go through the group.
  */
+/**
+ * Which "saved" line a feed type gets, already filled in with the name.
+ *
+ * Each string is its own `sprintf` rather than one `sprintf` over a ternary. `make-pot` reads the
+ * built bundle, and the only shape whose `translators:` comment survives minification is a comment
+ * directly above a `__()` that is a `sprintf` argument — Terser rewrites everything else, including
+ * `if`/`return`, into a ternary and drops the comments with it.
+ */
+const savedNote = (feedType, name) => {
+    if ('rss' === feedType) {
+        return sprintf(
+            /* translators: %s: the feed's name */
+            __('“%s” saved to the site. Pick it in Feed above to use it here.', 'b-slider'),
+            name
+        );
+    }
+
+    if ('json' === feedType) {
+        return sprintf(
+            /* translators: %s: the endpoint's name */
+            __('“%s” saved to the site. Pick it in JSON Feed above to use it here.', 'b-slider'),
+            name
+        );
+    }
+
+    if ('instagram' === feedType) {
+        return sprintf(
+            /* translators: %s: the account's name */
+            __('“%s” saved to the site. Pick it in Instagram Account above to use it here.', 'b-slider'),
+            name
+        );
+    }
+
+    return sprintf(
+        /* translators: %s: the channel's name */
+        __('“%s” saved to the site. Pick it in Channel above to use it here.', 'b-slider'),
+        name
+    );
+};
+
+/** How many came back — items for a document feed, videos for a video one. See `savedNote`. */
+const loadedNote = (feedType, count) => {
+    if ('rss' === feedType || 'json' === feedType) {
+        return sprintf(
+            /* translators: %d: number of items loaded from the feed */
+            _n('%d item loaded', '%d items loaded', count, 'b-slider'),
+            count
+        );
+    }
+
+    return sprintf(
+        /* translators: %d: number of videos loaded from the feed */
+        _n('%d video loaded', '%d videos loaded', count, 'b-slider'),
+        count
+    );
+};
+
 const CONNECTION_PANEL = 'feed-connection';
 
 /**
@@ -358,17 +415,7 @@ const SocialGeneral = ({ attributes, setAttributes, updateObject, socialFeed }) 
 
                         {/* Added, but deliberately not selected. Says so, and where to go next. */}
                         {!!justSaved && <p className='bsb_feed_note is-ok'>
-                            {sprintf(
-                                /* translators: %s: the channel's name */
-                                feedType === 'rss'
-                                    ? __('“%s” saved to the site. Pick it in Feed above to use it here.', 'b-slider')
-                                    : (feedType === 'json'
-                                        ? __('“%s” saved to the site. Pick it in JSON Feed above to use it here.', 'b-slider')
-                                        : feedType === 'instagram'
-                                            ? __('“%s” saved to the site. Pick it in Instagram Account above to use it here.', 'b-slider')
-                                            : __('“%s” saved to the site. Pick it in Channel above to use it here.', 'b-slider')),
-                                justSaved
-                            )}
+                            {savedNote(feedType, justSaved)}
                         </p>}
 
                         {/* An account's address is its token, so the note says one is held rather than
@@ -519,13 +566,7 @@ const SocialGeneral = ({ attributes, setAttributes, updateObject, socialFeed }) 
         <div className='bsb_feed_status'>
             {loading ? <span className='is-loading'><Spinner /> {__('Reading the feed…', 'b-slider')}</span>
                 : error ? <span className='is-error'>{error}</span>
-                    : items?.length ? <span className='is-ok'>{sprintf(
-                        /* translators: %d: number of items/videos loaded from the feed */
-                        (feedType === 'rss' || feedType === 'json')
-                            ? _n('%d item loaded', '%d items loaded', items.length, 'b-slider')
-                            : _n('%d video loaded', '%d videos loaded', items.length, 'b-slider'),
-                        items.length
-                    )}</span>
+                    : items?.length ? <span className='is-ok'>{loadedNote(feedType, items.length)}</span>
                         : source ? <span className='is-muted'>{__('Nothing came back from that feed.', 'b-slider')}</span>
                             : <span className='is-muted'>{(feedType === 'rss' || feedType === 'json') ? __('Add a feed URL above to load slides.', 'b-slider') : __('Add an address above to load videos.', 'b-slider')}</span>}
 

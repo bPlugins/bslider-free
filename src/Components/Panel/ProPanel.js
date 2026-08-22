@@ -22,7 +22,9 @@ const ProPanel = ({ title, proTitle, features = [], initialOpen = false }) => {
 	/* `bPlPanelBody` carries the panel look — open border and title colour — like every other panel. */
 	return <PanelBody className='bPlPanelBody' title={<> {title}<PremiumBadge /></>} initialOpen={initialOpen}>
 		<ProCard
-			title={proTitle || sprintf(__('Premium %s', 'b-slider'), title)}
+			title={proTitle || sprintf(
+				/* translators: %s: the panel's title, e.g. "Button". */
+				__('Premium %s', 'b-slider'), title)}
 			features={features}
 			demoUrl={DEMO_URL}
 		/>
