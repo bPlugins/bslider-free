@@ -4,7 +4,7 @@ Donate link: https://www.buymeacoffee.com/abuhayat
 Tags: block, carousel, slider, bootstrap, Gutenberg block
 Requires at least: 6.5
 Tested up to: 7.0.1
-Stable tag: 2.0.20
+Stable tag: 2.1.0
 Requires PHP: 7.2
 License: GPLv2 or later 
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -295,10 +295,12 @@ Please report security bugs found in the source code of the bSlider plugin throu
 
 == Changelog ==
 
-= 2.0.20 - 19 August, 2026 =
+= 2.1.0 - 22 August, 2026 =
 * New: Social Feeds source — build a slider from a YouTube channel or playlist, a single YouTube video, an Instagram account, any RSS or Atom feed, or an external JSON endpoint;
 * New: Instagram feeds show photos, Reels and albums, with a filter for which of the three reach the slider, and the account's own token is renewed before it expires;
 * New: Saved feed library — save a channel, feed or endpoint once for the whole site and pick it in any slider, instead of pasting the address into each one;
+* New: bSlider's own panel in the editor sidebar, holding the saved feeds and the YouTube Data API key for the whole site;
+* New: Settings screen in the dashboard, with every connected source and the state of each on one page;
 * New: JSON field mapping — tell the slider which keys in your endpoint hold the title, picture, link, excerpt, date and author;
 * New: Profile Header — show the channel's picture, name, bio and subscriber count above the slides, read from the account itself and editable field by field;
 * New: Follow button under the slides, pointing at the account the feed comes from;
@@ -306,8 +308,11 @@ Please report security bugs found in the source code of the bSlider plugin throu
 * New: Feed slides carry their own settings — how many to show, what order, an offset, a fallback picture, how the picture fits, and how long the title may run;
 * New: YouTube player settings for a feed slider — autoplay, mute, keyboard shortcuts and privacy-enhanced mode;
 * New: The editor shows the feed as it will look while it loads, rather than reporting an empty slider;
-* New: The three-field limit on ACF fields is gone — a slide can now show every ACF field you pick, no upgrade needed;
 * Fix: A slide title containing two spaces in a row had them collapsed to one on the front end;
+* Fix: A translator note written in JavaScript never reached the .pot file, so those strings could not be translated with their context;
+
+= 2.0.20 - 19 August, 2026 =
+* New: The three-field limit on ACF fields is gone — a slide can now show every ACF field you pick, no upgrade needed;
 
 = 2.0.19 - 17 August, 2026 =
 * New: Added promotional/upsell panel for the ACF Query premium features under the ACF Integration panel;
@@ -539,8 +544,11 @@ Please report security bugs found in the source code of the bSlider plugin throu
 
 == Upgrade Notice ==
 
+= 2.1.0 - 22 August, 2026 =
+* Adds the Social Feeds source — YouTube channels and videos, Instagram, RSS and external JSON — with a saved feed library, a profile header and feed badges. Note: a feed slider reads from the service you point it at; see External Services below.
+
 = 2.0.20 - 19 August, 2026 =
-* Adds the Social Feeds source — YouTube channels and videos, Instagram, RSS and external JSON — with a saved feed library, a profile header and feed badges. Also removes the three-field cap on ACF fields. Note: a feed slider reads from the service you point it at; see External Services below.
+* Removes the three-field cap on ACF fields — show as many custom fields per slide as you like.
 
 = 2.0.19 - 17 August, 2026 =
 * Adds the ACF Query Pro panel, extends badge styling to ACF fields, and fixes ACF fields named after a badge, fields blocking the navigation arrows, and preset colours being overridden.
