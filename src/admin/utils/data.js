@@ -432,6 +432,119 @@ export const welcomeInfo = (adminUrl) => ({
     },
     changelogs: [
         {
+            version: '2.1.0 - 22 August, 2026',
+            type: 'new',
+            list: [
+                '<strong>New</strong> Social Feeds source — build a slider from a YouTube channel or playlist, a single YouTube video, an Instagram account, any RSS or Atom feed, or an external JSON endpoint;',
+                '<strong>New</strong> Instagram feeds show photos, Reels and albums, with a filter for which of the three reach the slider, and the account\'s own token is renewed before it expires;',
+                '<strong>New</strong> Saved feed library — save a channel, feed or endpoint once for the whole site and pick it in any slider, instead of pasting the address into each one;',
+                '<strong>New</strong> bSlider\'s own panel in the editor sidebar, holding the saved feeds and the YouTube Data API key for the whole site;',
+                '<strong>New</strong> Settings screen in the dashboard, with every connected source and the state of each on one page;',
+                '<strong>New</strong> JSON field mapping — tell the slider which keys in your endpoint hold the title, picture, link, excerpt, date and author;',
+                '<strong>New</strong> Profile Header — show the channel\'s picture, name, bio and subscriber count above the slides, read from the account itself and editable field by field;',
+                '<strong>New</strong> Follow button under the slides, pointing at the account the feed comes from;',
+                '<strong>New</strong> Feed Badges — put an item\'s date or author over the slide, each with its own icon, corner, offset and style preset;',
+                '<strong>New</strong> Feed slides carry their own settings — how many to show, what order, an offset, a fallback picture, how the picture fits, and how long the title may run;',
+                '<strong>New</strong> YouTube player settings for a feed slider — autoplay, mute, keyboard shortcuts and privacy-enhanced mode;',
+                '<strong>New</strong> The editor shows the feed as it will look while it loads, rather than reporting an empty slider;',
+                '<strong>Fix</strong> A slide title containing two spaces in a row had them collapsed to one on the front end;',
+                '<strong>Fix</strong> A translator note written in JavaScript never reached the .pot file, so those strings could not be translated with their context;',
+            ]
+        },
+        {
+            version: '2.0.20 - 19 August, 2026',
+            type: 'new',
+            list: [
+                '<strong>New</strong> The three-field limit on ACF fields is gone — a slide can now show every ACF field you pick, no upgrade needed;',
+            ]
+        },
+        {
+            version: '2.0.19 - 17 August, 2026',
+            type: 'new',
+            list: [
+                '<strong>New</strong> Added promotional/upsell panel for the ACF Query premium features under the ACF Integration panel;',
+                '<strong>New</strong> The ACF Integration and Post Badges panels now say that the icon library is a premium feature, alongside the character you can type in the free version;',
+                '<strong>New</strong> The Style tab\'s badge typography and colours now apply to ACF fields as well, so badges and fields on one slide share a look, and the section appears for a slider that has fields but no badges;',
+                '<strong>Fix</strong> An ACF field named price, date, author or sale could not be moved off its default corner — badge settings of the same name were taking over the field\'s position, icon and style;',
+                '<strong>Fix</strong> An ACF field placed over a navigation arrow swallowed the click and the slider stopped advancing;',
+                '<strong>Fix</strong> An ACF field named date or author could be forced to hover-only by a badge that was not on the slide;',
+                '<strong>Fix</strong> A chosen badge colour overrode the outline, plain and ribbon presets even when no colour had been picked;',
+                '<strong>Fix</strong> Cleaned up unused variables and resolved ESLint warnings in settings components;',
+            ]
+        },
+        {
+            version: '2.0.18 - 11 August, 2026',
+            type: 'new',
+            list: [
+                '<strong>New</strong> Slide Content panel — one place to show or hide a slide\'s title, description and button, and to set the button label;',
+                '<strong>New</strong> Show the slide content on hover only, so the picture stands on its own until it is pointed at;',
+                '<strong>New</strong> Selective hover controls — when content appears on hover, pick which parts show (title, description, button, date, author, price, sale) independently;',
+                '<strong>New</strong> Content background choice — tint the whole picture, fade the colour in behind the text, or use none;',
+                '<strong>New</strong> Picture on hover — zoom in, zoom out, or grey until pointed at;',
+                '<strong>New</strong> A slide\'s picture is now a link to the post or product wherever the button points, with an option to open both in a new tab;',
+                '<strong>New</strong> Post Badges panel — show the publish date and the author name as badges over a slide, each with its own icon, prefix, suffix, corner, offset and style preset;',
+                '<strong>New</strong> WooCommerce Product Price badge — display product prices (regular and sale) with a toggle to show only the sale price;',
+                '<strong>New</strong> WooCommerce Sale badge — show "Sale!" text or the exact discount percentage (e.g. −25%) on products that are on sale;',
+                '<strong>New</strong> Badge animation — pick the effect, let the badges follow the caption or set your own delay, and space them apart so several cascade;',
+                '<strong>New</strong> Badges section on the Style tab for the typography and colours every badge shares;',
+                '<strong>Fix</strong> Advanced Custom Fields link, url and email fields are now sanitised before they are used as a link;',
+                '<strong>Fix</strong> Badges and ACF fields animated only the first time a slide was hovered when the content is revealed on hover, and afterwards simply appeared;',
+                '<strong>Fix</strong> 42 control labels were tagged with the wrong text domain and never translated;',
+            ]
+        },
+        {
+            version: '2.0.17 - 02 August, 2026',
+            type: 'new',
+            list: [
+                '<strong>New</strong> Default Post Type support — build sliders using standard WordPress post types (Posts, Pages, and Products);',
+                '<strong>New</strong> Locked custom post types (CPTs) behind Pro with a modern sidebar and wizard upgrade promotion;',
+                '<strong>New</strong> Advanced Custom Fields (ACF) on slides with a limit of three fields per slide (Pro removes this limit);',
+                '<strong>New</strong> Use an ACF field for the slide image, title, description, button label, or button link, and override it per item;',
+                '<strong>New</strong> Six display presets for ACF fields, free placement on nine anchors, and a per-field icon, label, prefix, and suffix;',
+                '<strong>Fix</strong> `Post Type`, `Order By`, `Order` and `Post Offset` are now applied to the editor preview, not only the front end;',
+                '<strong>Fix</strong> Some control labels were tagged with the wrong text domain and never translated;',
+            ]
+        },
+        {
+            version: '2.0.15 - 17 July, 2026',
+            type: 'update',
+            list: [
+                '<strong>Fix</strong> When adding a block from the block editor search, I was not getting CSS and JS, but now it is fixed;',
+            ]
+        },
+        {
+            version: '2.0.14 - 24 June, 2026',
+            type: 'update',
+            list: [
+                '<strong>Update</strong> Added new modern dashboard.',
+            ]
+        },
+        {
+            version: '2.0.13 - 20 May, 2026',
+            type: 'update',
+            list: [
+                '<strong>Fix</strong> The backend defaults, carousel, and thumbnail layouts slides have been fixed and are now working properly.',
+            ]
+        },
+        {
+            version: '2.0.12 - 13 May, 2026',
+            type: 'update',
+            list: [
+                '<strong>Update</strong> Fixed a security vulnerability through responsible disclosure.',
+            ]
+        },
+        {
+            version: '2.0.11 - 9 May, 2026',
+            type: 'new',
+            list: [
+                '<strong>Update</strong> Removed restricted "Locked Fields" to improve user flexibility;',
+                '<strong>New</strong> Custom Slider Height: Easily define and set the perfect height for your sliders;',
+                '<strong>New</strong> Dynamic Indicators: Fully customize indicator types, positioning, and direction (Horizontal or Vertical);',
+                '<strong>New</strong> Carousel Enhancements: Toggle visibility for Navigation Arrows and Pagination Indicators with a single click;',
+                '<strong>New</strong> Grid Flexibility: Set items per page and choose your preferred pagination style (Standard Button or Load More);',
+            ]
+        },
+        {
             version: '2.0.10 - 5 April 2026',
             type: 'new',
             list: [
