@@ -48,7 +48,7 @@ class CustomPost{
 			'supports'				=> [ 'title', 'editor' ],
 			'template'				=> [ ['bsb/slider'] ],
 			'template_lock'			=> 'all',
-		]); // Register Post Type
+		]); 
 	}
 
 	public function onAddShortcode( $atts ) {
@@ -60,9 +60,9 @@ class CustomPost{
         if ( !$post ) {
             return '';
         }
-        // The ID comes from whatever was typed into the shortcode, and this renders the first block of
-        // whatever it names — so it is held to sliders. Pointed at an ordinary post it would render a
-        // block out of its context, on a page that has nothing to do with it.
+        
+        
+        
         if ( $this->post_type !== $post->post_type ) {
             return '';
         }
@@ -73,9 +73,9 @@ class CustomPost{
             case 'publish':
                 return $this->displayContent( $post );
             case 'private':
-                // `read_post` and not `read_private_posts`: this post type maps its capabilities onto
-                // `page`, so the site-wide cap for private *posts* is not the one that governs it, and
-                // it answers for this row rather than for the class of them.
+                
+                
+                
                 if ( current_user_can( 'read_post', $post_id ) ) {
                     return $this->displayContent( $post );
                 }
@@ -95,9 +95,9 @@ class CustomPost{
     public function displayContent( $post ){
         $blocks = parse_blocks( $post->post_content );
 
-        // A slider saved with an empty editor parses to no blocks at all, and there is nothing to
-        // render for it — reaching for the first one regardless is how that becomes a PHP error on
-        // the visitor's page rather than an empty slot.
+        
+        
+        
         if ( empty( $blocks[0] ) ) {
             return '';
         }

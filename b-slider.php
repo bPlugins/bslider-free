@@ -1,17 +1,7 @@
 <?php
-/**
- * Plugin Name: bSlider – Build Sliders That Bring Your Content to Life
- * Plugin URI: http://bplugins.com
- * Description: Simple slider with bootstrap.
- * Version: 2.1.0
- * Author: bPlugins
- * Author URI: http://bplugins.com
- * License: GPLv2 or later
- * License URI: http://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain: b-slider
- */
+
  
-    // ABS PATH
+    
     if (!defined('ABSPATH')) {exit;}
 
     if (defined('WP_DEBUG') && WP_DEBUG === true) {
@@ -51,26 +41,10 @@
         do_action('b_slider_fs_loaded'); 
     }
 
-    /**
-     * Whether this site may use the Premium code. Always false here: this is the free build, and the
-     * gates that ask are the ones that would otherwise reach for a class it does not ship.
-     *
-     * Defined so the shared feed classes can ask the same question in both builds rather than each
-     * carrying its own copy of the answer.
-     */
-    /**
-     * The flags for JSON that is going to sit inside an HTML document.
-     *
-     * `&`, `<`, `>`, `'` and `"` all come out as `\u00XX`, which `JSON.parse` reads back as the
-     * characters they stand for and an HTML parser cannot act on at all.
-     *
-     * **Why this is needed, in the one case that proved it.** A YouTube title arrives from the API with
-     * HTML entities already in it — `&quot;` around a quoted word is the common one. Printed into the
-     * page, `esc_html()` leaves that entity alone (it does not double-encode), the browser decodes it
-     * back to a bare `"` *inside* a JSON string, and the feed fails to parse with "Expected ',' or '}'".
-     * One punctuation mark in one video title took out every slide in the slider. With these flags there
-     * is no `&` in the output for a browser to decode, so the class of bug is gone rather than patched.
-     */
+    
+
+    
+
     if ( ! defined( 'BSB_JSON_IN_HTML' ) ) {
         define( 'BSB_JSON_IN_HTML', JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT );
     }
@@ -86,17 +60,12 @@
     require_once plugin_dir_path(__FILE__) . '/includes/AcfFields.php';
     require_once plugin_dir_path(__FILE__) . '/includes/RestQuery.php';
 
-    /*
-     * Keeping a feed on this site is Premium, so `FeedStore`, `FeedMedia` and `FeedSync` are stubs
-     * here — `SocialFeed` names them in about twenty places, and this is loaded before it so those
-     * calls resolve. Each stub guards its own name, so the Premium build's real classes win whichever
-     * plugin PHP reaches first. `SocialFeed::storesLocally()` still answers false, so nothing asks
-     * them to store anything; they exist so the asking does not have to be guarded.
-     */
+    
+
     require_once plugin_dir_path(__FILE__) . '/includes/stubs.php';
 
-    // The external feed readers. SocialFeed last: it constructs itself on include and drives the
-    // other four.
+    
+    
     require_once plugin_dir_path(__FILE__) . '/includes/FeedChannels.php';
     require_once plugin_dir_path(__FILE__) . '/includes/FeedSchema.php';
     require_once plugin_dir_path(__FILE__) . '/includes/YouTubeFeed.php';
@@ -105,10 +74,9 @@
     require_once plugin_dir_path(__FILE__) . '/includes/InstagramFeed.php';
     require_once plugin_dir_path(__FILE__) . '/includes/SocialFeed.php';
 
-    // Renewing Instagram tokens before they expire is a recurring event, and it is cleared on the
-    // way out — a deactivated plugin leaves nothing running behind it.
+    
+    
     register_deactivation_hook(__FILE__, ['B_SLIDER\\InstagramFeed', 'unscheduleRefresh']);
-
 
     class B_Slider{
 
@@ -125,7 +93,7 @@
             add_filter('plugin_row_meta', array($this, 'insert_plugin_row_meta'), 10, 2);
         }
 
-        // Check instance 
+        
         public static function get_instance() {
             if ( self::$instance ){
                 return self::$instance;
@@ -135,7 +103,7 @@
             return self::$instance;
         }
 
-        //Class loaded
+        
         public function load_classes () {
             require_once plugin_dir_path(__FILE__) . '/includes/admin-menu.php'; 
             require_once plugin_dir_path(__FILE__) . '/custom-post.php';
@@ -158,29 +126,24 @@
             return $links;
         }
 
-        // Extending row meta 
+        
         public function insert_plugin_row_meta($links, $file){
 
             $demosLine = admin_url( 'edit.php?post_type=bsb&page=b-slider#/demos' );
     
             if ($file == 'b-slider/b-slider.php') {
-                // docs & faq
+                
                 $links[] = sprintf('<a href="https://bplugins.com/docs/b-slider/" target="_blank">' . __('Docs & FAQs', 'b-slider') . '</a>');
 
-                // Demos
+                
                 $links[] = sprintf('<a href="%s" target="_blank">' . __('Demos', 'b-slider') . '</a>', $demosLine);
             }
             return $links;
         }
 
-        // Enqueue Block assets 
-        /**
-         * Tell the editor which build it is running in.
-         *
-         * `isProActive()` and the panels read `bsbpipecheck`. It is always false here, and it is
-         * declared rather than left undefined because the Settings panel reads the bare name — a
-         * missing global is a ReferenceError that takes the whole inspector down, not a falsy value.
-         */
+        
+        
+
         public function enqueueBlockEditorAssets() {
             wp_add_inline_script( 'bsb-slider-editor-script', "const bsbpipecheck=" . wp_json_encode( b_slider_is_premium() ) . ';', 'before' );
         }
@@ -196,7 +159,7 @@
              
         }
 
-        // Short code style
+        
         public function adminEnqueueScripts($hook){
             if ('edit.php' === $hook || 'post.php' === $hook) {
                 wp_enqueue_style('b-slider-admin', B_SLIDER_ASSETS_DIR . 'css/admin.css', [], B_SLIDER_PLUGIN_VERSION);
@@ -209,7 +172,5 @@
         }
     }
     B_Slider::get_instance();
-
-
 
  

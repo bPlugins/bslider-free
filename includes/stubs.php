@@ -1,18 +1,4 @@
 <?php
-/**
- * What the Premium classes for keeping a feed on this site would do, doing nothing.
- *
- * `SocialFeed` calls `FeedStore`, `FeedMedia` and `FeedSync` in about twenty places. Keeping a feed
- * locally is Premium, so the real classes are not here — and rather than guard every one of those
- * call sites, the names exist and answer the way a build that stores nothing should: `has()` and
- * `read()` report an empty store so the caller always fetches live, `localise()` and `localiseUrl()`
- * hand back exactly what they were given so a thumbnail keeps pointing at the service, and the
- * writers return zero without touching the database.
- *
- * Each class is guarded separately, the way the Premium build guards its own. A single check around
- * the file would be a fatal error the day Premium ships one of these three without the others: the
- * check would pass on the one that exists and this file would redeclare the two that do not.
- */
 
 namespace B_SLIDER;
 

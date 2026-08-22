@@ -8,18 +8,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 if ( ! class_exists( __NAMESPACE__ . '\\JsonFeed' ) ) {
     class JsonFeed {
         public static function items( $url, $limit = 12, $date_format = 'M j, Y', $excerpt_length = 25, $placeholder_image = '', $title_length = -1, $root_key = '', $img_key = '', $title_key = '', $link_key = '', $excerpt_key = '', $btn_label_key = '', $date_key = '', $author_key = '' ) {
-            /**
-             * The address is checked before it is fetched, and the certificate is checked too.
-             *
-             * `wp_http_validate_url()` refuses anything that is not http(s), and refuses loopback and
-             * private ranges — so an endpoint typed into the editor cannot be used to read
-             * `127.0.0.1`, a host on the site's own network, or a cloud provider's metadata service,
-             * whose answer this reader would otherwise parse and hand back as slides.
-             *
-             * `sslverify` was false here, and nowhere else in the plugin. It accepts a forged
-             * certificate, so the feed it returns is whatever a machine on the path says it is. The
-             * default is true; the option is simply gone rather than set.
-             */
+            
+
             $safe_url = wp_http_validate_url( $url );
 
             if ( ! $safe_url ) {
@@ -47,7 +37,7 @@ if ( ! class_exists( __NAMESPACE__ . '\\JsonFeed' ) ) {
                 return new \WP_Error( 'b_slider_json_parse_error', __( 'Failed to parse JSON response. Check the URL and format.', 'b-slider' ) );
             }
 
-            // 1. Locate the array of items
+            
             $items_array = self::find_items_array( $data, $root_key );
 
             if ( is_wp_error( $items_array ) ) {
@@ -90,7 +80,7 @@ if ( ! class_exists( __NAMESPACE__ . '\\JsonFeed' ) ) {
 
         private static function find_items_array( $data, $root_key ) {
             if ( ! empty( $root_key ) ) {
-                // Support dot-notation (e.g. "data.posts")
+                
                 $parts = explode( '.', $root_key );
                 $temp  = $data;
                 foreach ( $parts as $part ) {
@@ -106,12 +96,12 @@ if ( ! class_exists( __NAMESPACE__ . '\\JsonFeed' ) ) {
                 }
             }
 
-            // If the root is directly an array list
+            
             if ( self::is_list_array( $data ) ) {
                 return $data;
             }
 
-            // Otherwise, search for common array keys
+            
             if ( is_array( $data ) ) {
                 $common_keys = [ 'items', 'posts', 'images', 'data', 'slides', 'results', 'entries', 'articles' ];
                 foreach ( $common_keys as $key ) {
@@ -120,7 +110,7 @@ if ( ! class_exists( __NAMESPACE__ . '\\JsonFeed' ) ) {
                     }
                 }
 
-                // If still not found, search recursively for the first list array
+                
                 foreach ( $data as $val ) {
                     if ( self::is_list_array( $val ) && ! empty( $val ) ) {
                         return $val;
@@ -132,10 +122,10 @@ if ( ! class_exists( __NAMESPACE__ . '\\JsonFeed' ) ) {
         }
 
         private static function makeItem( $item, $index, $date_format, $excerpt_length, $placeholder_image, $title_length, $img_key, $title_key, $link_key, $excerpt_key, $btn_label_key, $date_key, $author_key ) {
-            // If the item is a string, treat it directly as the image URL
+            
             if ( is_string( $item ) ) {
                 $image_url = $item;
-                /* translators: %d: image index */
+                
                 $title     = sprintf( __( 'Image %d', 'b-slider' ), (int) $index + 1 );
                 $link      = '#';
                 $excerpt   = '';
@@ -148,12 +138,12 @@ if ( ! class_exists( __NAMESPACE__ . '\\JsonFeed' ) ) {
                 $btn_label = self::resolve_value( $item, $btn_label_key, [ 'button_text', 'btn_text', 'button_label', 'btn_label', 'read_more' ] );
             }
 
-            // Fallback for image
+            
             if ( empty( $image_url ) && ! empty( $placeholder_image ) ) {
                 $image_url = $placeholder_image;
             }
 
-            // Excerpt truncation
+            
             $raw_excerpt = is_string( $excerpt ) ? wp_strip_all_tags( $excerpt ) : '';
             if ( $excerpt_length > -1 ) {
                 $excerpt = wp_trim_words( $raw_excerpt, $excerpt_length );
@@ -161,7 +151,7 @@ if ( ! class_exists( __NAMESPACE__ . '\\JsonFeed' ) ) {
                 $excerpt = $raw_excerpt;
             }
 
-            // Title truncation
+            
             $raw_title = is_string( $title ) ? wp_strip_all_tags( $title ) : '';
             if ( $title_length > -1 ) {
                 $title = wp_trim_words( $raw_title, $title_length );
@@ -169,16 +159,16 @@ if ( ! class_exists( __NAMESPACE__ . '\\JsonFeed' ) ) {
                 $title = $raw_title;
             }
 
-            // Resolve date
+            
             $date_val = self::resolve_value( $item, $date_key ?: 'date', [ 'date', 'pubDate', 'published_at', 'created_at', 'time' ] );
             $timestamp = ! empty( $date_val ) ? strtotime( $date_val ) : ( time() - ( $index * 3600 ) );
             if ( ! $timestamp ) {
                 $timestamp = time() - ( $index * 3600 );
             }
             
-            // `wp_date`, not `date_i18n`: `$timestamp` is a real Unix timestamp from `strtotime`, and
-            // `date_i18n` adds the site's offset to a value that is already UTC — so a date printed
-            // that way is out by the offset. `wp_date` converts one properly.
+            
+            
+            
             $formatted_date = ! empty( $date_format ) ? wp_date( $date_format, $timestamp ) : '';
             $date_gmt       = gmdate( 'Y-m-d H:i:s', $timestamp );
 
@@ -201,15 +191,15 @@ if ( ! class_exists( __NAMESPACE__ . '\\JsonFeed' ) ) {
                 'title'       => $title,
                 'content'     => $excerpt,
                 'excerpt'     => $excerpt,
-                // `esc_url_raw` refuses a `javascript:` scheme, which this would otherwise print as a
-                // clickable href — the sibling reader does the same, see `RssFeed::items()`.
+                
+                
                 'link'        => ! empty( $link ) ? esc_url_raw( (string) $link ) : '#',
-                // Stripped like the title and the excerpt above. It was the one field that was not,
-                // and it is rendered with `dangerouslySetInnerHTML` — see `PostItem`.
+                
+                
                 'btnLabel'    => wp_strip_all_tags( (string) $btn_label ),
                 'date'        => $formatted_date,
-                // `gmdate`, not `date`: this is the machine-readable stamp — schema.org and any
-                // sorting read it — so it must not shift with the server's timezone setting.
+                
+                
                 'dateISO'     => gmdate( 'c', $timestamp ),
                 'dateGMT'     => $date_gmt,
                 'author'      => [
@@ -233,7 +223,7 @@ if ( ! class_exists( __NAMESPACE__ . '\\JsonFeed' ) ) {
             }
 
             if ( ! empty( $custom_key ) ) {
-                // Support dot-notation inside objects (e.g. "media.url")
+                
                 $parts = explode( '.', $custom_key );
                 $temp  = $item;
                 foreach ( $parts as $part ) {
@@ -249,7 +239,7 @@ if ( ! class_exists( __NAMESPACE__ . '\\JsonFeed' ) ) {
                 }
             }
 
-            // Fallback lookup
+            
             foreach ( $fallback_keys as $key ) {
                 if ( isset( $item[ $key ] ) && is_scalar( $item[ $key ] ) ) {
                     return trim( (string) $item[ $key ] );

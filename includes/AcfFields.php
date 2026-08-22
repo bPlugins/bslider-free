@@ -6,10 +6,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 class AcfFields {
 
-    /**
-     * Field types that hold nested rows or sub-fields. They cannot be flattened into a
-     * single display string, so they are hidden from the picker and skipped on render.
-     */
+    
+
     const UNSUPPORTED_TYPES = [ 'repeater', 'group', 'flexible_content', 'clone', 'tab', 'accordion', 'message' ];
 
     public function __construct() {
@@ -103,17 +101,11 @@ class AcfFields {
         return current_user_can( 'edit_posts' );
     }
 
-    /** How many posts one values request may ask about, so a single call cannot walk the table. */
+    
     const MAX_VALUE_POSTS = 100;
 
-    /**
-     * ACF values for a set of posts, for the editor's own preview.
-     *
-     * `edit_posts` is only the door: it says the caller edits something, not that they may read
-     * this particular post. So every ID is checked on its own, and one the caller cannot read is
-     * skipped rather than refused — the picker asks about whatever is in the current query, and a
-     * single unreadable post should not blank the whole preview.
-     */
+    
+
     public function get_post_acf_values( \WP_REST_Request $request ) {
         $post_ids_str = sanitize_text_field( (string) ( $request->get_param( 'post_ids' ) ?: '' ) );
         $fields_str   = sanitize_text_field( (string) ( $request->get_param( 'fields' ) ?: '' ) );
@@ -138,18 +130,8 @@ class AcfFields {
         return rest_ensure_response( $results );
     }
 
-    /**
-     * The field names a slider on `$post_type` is allowed to read, keyed by name.
-     *
-     * Field names arrive with the request — in the block's saved query, in the AJAX pagination
-     * call, in anything anyone cares to craft — and end their journey at `get_post_meta()`. Held
-     * to the names ACF really registered for this post type, that journey can only reach the
-     * fields the editor itself offered; left open, it reads any meta on the post.
-     *
-     * `b_slider_allowed_acf_fields` is the way in for sites that register meta outside ACF and want it
-     * on a slide anyway: naming a key there is a deliberate act by the site owner, which is the
-     * part a request cannot supply.
-     */
+    
+
     public static function allowedFieldNames( $post_type ) {
         static $cache = [];
 
@@ -158,12 +140,8 @@ class AcfFields {
         if ( ! isset( $cache[ $post_type ] ) ) {
             $names = wp_list_pluck( self::fields_for_post_type( $post_type ), 'value' );
 
-            /**
-             * Filters the meta keys a slider may read for a post type.
-             *
-             * @param string[] $names     Field names registered with ACF for this post type.
-             * @param string   $post_type The post type being queried.
-             */
+            
+
             $names = apply_filters( 'b_slider_allowed_acf_fields', $names, $post_type );
             $names = is_array( $names ) ? array_map( 'strval', $names ) : [];
 
@@ -173,7 +151,7 @@ class AcfFields {
         return $cache[ $post_type ];
     }
 
-    /** Whether a slider on `$post_type` may read `$field_name`. */
+    
     public static function isFieldAllowed( $field_name, $post_type ) {
         $field_name = trim( (string) $field_name );
 
@@ -184,7 +162,7 @@ class AcfFields {
         return isset( self::allowedFieldNames( $post_type )[ $field_name ] );
     }
 
-    /** `$fields` with everything this post type has no business reading dropped. */
+    
     public static function allowedFields( $fields, $post_type ) {
         if ( ! is_array( $fields ) ) {
             return [];
@@ -197,14 +175,8 @@ class AcfFields {
         } ) );
     }
 
-    /**
-     * Resolve a list of ACF fields for a single post.
-     *
-     * Accepts either plain field names ( 'price' ) or config objects ( [ 'name' => 'price' ] )
-     * so the editor can pass per-field display settings without changing this signature.
-     *
-     * @return array Keyed by field name; fields with no usable value are omitted.
-     */
+    
+
     public static function get_fields_for_post( $fields, $post_id ) {
         $data = [];
 
@@ -229,11 +201,8 @@ class AcfFields {
         return $data;
     }
 
-    /**
-     * Resolve one ACF field for one post into a display ready array.
-     *
-     * @return array|null Null when the field is missing, empty or of an unsupported type.
-     */
+    
+
     public static function get_field_data( $field_name, $post_id ) {
         $field_name = trim( (string) $field_name );
         $post_id    = (int) $post_id;
@@ -242,8 +211,8 @@ class AcfFields {
             return null;
         }
 
-        // The allow list again, right where the meta is actually read, so it holds for every
-        // caller and not only for the two that remember to filter their input first.
+        
+        
         if ( ! self::isFieldAllowed( $field_name, get_post_type( $post_id ) ) ) {
             return null;
         }
@@ -271,7 +240,7 @@ class AcfFields {
         }
 
         if ( self::is_blank( $raw ) ) {
-            // A stored `false` is a real answer for true_false, but an absent row is not.
+            
             if ( 'true_false' !== $type || ! metadata_exists( 'post', $post_id, $field_name ) ) {
                 return null;
             }
@@ -291,23 +260,16 @@ class AcfFields {
         ], $formatted );
     }
 
-    /**
-     * What to call a field on screen.
-     *
-     * Its ACF label, or the field name tidied up when the label is empty. Both the editor's field
-     * lists and the rendered captions go through this, so an unlabelled field reads the same in the
-     * sidebar as it does on the slide.
-     */
+    
+
     private static function field_label( $acfObj, $field_name ) {
         return ! empty( $acfObj['label'] )
             ? $acfObj['label']
             : ucwords( str_replace( [ '_', '-' ], ' ', $field_name ) );
     }
 
-    /**
-     * Turn a raw ACF value into a display string, plus any extras the renderer can use
-     * ( `url` for linkable types, `alt`/`count` for media types ).
-     */
+    
+
     public static function format_value( $raw, $type, $acfObj = null ) {
         $out = [ 'value' => '', 'url' => '' ];
 
@@ -427,9 +389,8 @@ class AcfFields {
         return null === $val || false === $val || '' === $val || [] === $val;
     }
 
-    /**
-     * ACF returns images as an array, an attachment ID or a URL depending on `return_format`.
-     */
+    
+
     private static function image_parts( $val ) {
         if ( is_array( $val ) ) {
             return [
@@ -458,13 +419,12 @@ class AcfFields {
 
         $timestamp = strtotime( $val );
 
-        // Unparseable values are shown as stored rather than dropped.
+        
         return $timestamp ? date_i18n( $format, $timestamp ) : $val;
     }
 
-    /**
-     * Map stored choice keys back to their human readable labels.
-     */
+    
+
     private static function choice_labels( $val, $acfObj ) {
         $choices = ( isset( $acfObj['choices'] ) && is_array( $acfObj['choices'] ) ) ? $acfObj['choices'] : [];
 
@@ -478,10 +438,8 @@ class AcfFields {
         } ) );
     }
 
-    /**
-     * Normalise a single-or-multiple ACF value into a list, then map each entry.
-     * An associative array is one value ( a link, a choice ), not a list.
-     */
+    
+
     private static function map( $val, $callback ) {
         if ( is_array( $val ) ) {
             if ( empty( $val ) ) {
@@ -518,7 +476,7 @@ class AcfFields {
             return (string) ( $item['post_title'] ?? $item['title'] ?? '' );
         }
 
-        // page_link returns a plain URL string.
+        
         return (string) $item;
     }
 
@@ -552,10 +510,8 @@ class AcfFields {
         return (string) $item;
     }
 
-    /**
-     * Last resort for field types with no explicit handler. Picks a sensible key out of
-     * an associative array instead of dumping every value into the output.
-     */
+    
+
     private static function stringify( $val ) {
         if ( is_bool( $val ) ) {
             return $val ? '1' : '0';
@@ -592,8 +548,8 @@ class AcfFields {
                 'value' => $slug,
                 'label' => ! empty( $pt->labels->name ) ? $pt->labels->name : ( ! empty( $pt->label ) ? $pt->label : ucfirst( $slug ) ),
                 'singular' => ! empty( $pt->labels->singular_name ) ? $pt->labels->singular_name : ucfirst( $slug ),
-                // The gate itself lives in `Posts::query()`; this only tells the editor which
-                // cards to lock, so the picker and the rendered slider agree on what is available.
+                
+                
                 'locked' => ! Posts::isPostTypeAllowed( $slug )
             ];
         }
@@ -601,16 +557,8 @@ class AcfFields {
         return rest_ensure_response( $list );
     }
 
-    /**
-     * Second pass over a group's location rules.
-     *
-     * `acf_get_field_groups()` is given only a post type, so rules it cannot evaluate from that
-     * alone fall back to their screen defaults and can let a group through. Here every explicit
-     * `post_type` rule is checked against the requested type so a group built for `post` never
-     * leaks its fields into the `product` picker.
-     *
-     * @return bool True when the group has no post type rule to judge it by, or one that matches.
-     */
+    
+
     private static function group_targets_post_type( $group, $post_type ) {
         $location = ( ! empty( $group['location'] ) && is_array( $group['location'] ) ) ? $group['location'] : [];
 
@@ -618,7 +566,7 @@ class AcfFields {
             return true;
         }
 
-        // Location is a list of OR'd rule groups; the rules inside one group are AND'd.
+        
         foreach ( $location as $rule_group ) {
             if ( ! is_array( $rule_group ) ) {
                 continue;
@@ -652,13 +600,8 @@ class AcfFields {
         return false;
     }
 
-    /**
-     * The ACF fields on offer for a post type, and whether ACF is there at all.
-     *
-     * The two are reported separately because the editor has to tell a site with no ACF from one
-     * where ACF is installed but nothing targets this post type — an empty list alone would leave it
-     * guessing, and the advice for the two cases is not the same.
-     */
+    
+
     public function get_acf_fields( \WP_REST_Request $request ) {
         $post_type = sanitize_key( (string) ( $request->get_param( 'post_type' ) ?: 'post' ) );
         $post_type = post_type_exists( $post_type ) ? $post_type : 'post';
@@ -671,27 +614,21 @@ class AcfFields {
         ] );
     }
 
-    /** Whether the ACF API this plugin reads field definitions through is there. */
+    
     private static function acf_is_active() {
         return function_exists( 'acf_get_field_groups' ) && function_exists( 'acf_get_fields' );
     }
 
-    /**
-     * The ACF fields on offer for a post type: `value`, `label` and `type` for each.
-     *
-     * The picker route and `allowedFieldNames()` both read this one list, so what a slider is
-     * allowed to fetch can never come to mean something wider than what the editor offered.
-     *
-     * @return array[] Empty when ACF is absent or nothing targets this post type.
-     */
+    
+
     public static function fields_for_post_type( $post_type ) {
         if ( ! self::acf_is_active() ) {
             return [];
         }
 
-        // Only groups whose location rules match this post type. There is deliberately no
-        // fallback to every group: a post type with no ACF groups must return an empty list
-        // rather than fields that belong to some other post type.
+        
+        
+        
         $field_groups = acf_get_field_groups( [ 'post_type' => $post_type ] );
         $fields_list  = [];
         $seen         = [];
@@ -718,17 +655,8 @@ class AcfFields {
                         'type'  => $field['type'] ?? 'text'
                     ];
 
-                    /**
-                     * The values a choice field will accept, so a filter can offer them.
-                     *
-                     * This is the answer to not knowing what fields a site has: for these types ACF
-                     * has already written down every value that can legitimately be stored, so the
-                     * editor asks with a dropdown rather than a text box, and "For Rent" cannot be
-                     * mistyped into a rule that silently matches nothing.
-                     *
-                     * Sent only for the types that have them — an empty array on a text field would
-                     * read as "a choice field with no choices left".
-                     */
+                    
+
                     $choices = ( isset( $field['choices'] ) && is_array( $field['choices'] ) ) ? $field['choices'] : [];
 
                     if ( $choices ) {
@@ -741,14 +669,8 @@ class AcfFields {
                         );
                     }
 
-                    /**
-                     * Whether the field holds one value or a list of them.
-                     *
-                     * It decides how a filter has to look for a value: one is stored as itself, a
-                     * list is stored serialized and has to be searched inside. `select`,
-                     * `post_object`, `user` and `taxonomy` are each either, depending on how they
-                     * were set up, so the editor cannot tell from the type alone.
-                     */
+                    
+
                     if ( ! empty( $field['multiple'] ) ) {
                         $entry['multiple'] = true;
                     }
