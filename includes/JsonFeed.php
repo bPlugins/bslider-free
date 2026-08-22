@@ -8,9 +8,29 @@ if ( ! defined( 'ABSPATH' ) ) {
 if ( ! class_exists( __NAMESPACE__ . '\\JsonFeed' ) ) {
     class JsonFeed {
         public static function items( $url, $limit = 12, $date_format = 'M j, Y', $excerpt_length = 25, $placeholder_image = '', $title_length = -1, $root_key = '', $img_key = '', $title_key = '', $link_key = '', $excerpt_key = '', $btn_label_key = '', $date_key = '', $author_key = '' ) {
-            $response = wp_remote_get( $url, [
-                'sslverify' => false,
-                'timeout'   => 15,
+            /**
+             * The address is checked before it is fetched, and the certificate is checked too.
+             *
+             * `wp_http_validate_url()` refuses anything that is not http(s), and refuses loopback and
+             * private ranges — so an endpoint typed into the editor cannot be used to read
+             * `127.0.0.1`, a host on the site's own network, or a cloud provider's metadata service,
+             * whose answer this reader would otherwise parse and hand back as slides.
+             *
+             * `sslverify` was false here, and nowhere else in the plugin. It accepts a forged
+             * certificate, so the feed it returns is whatever a machine on the path says it is. The
+             * default is true; the option is simply gone rather than set.
+             */
+            $safe_url = wp_http_validate_url( $url );
+
+            if ( ! $safe_url ) {
+                return new \WP_Error(
+                    'b_slider_json_bad_url',
+                    __( 'That address cannot be fetched. Enter a public http:// or https:// URL.', 'b-slider' )
+                );
+            }
+
+            $response = wp_remote_get( $safe_url, [
+                'timeout' => 15,
             ] );
 
             if ( is_wp_error( $response ) ) {
@@ -156,7 +176,10 @@ if ( ! class_exists( __NAMESPACE__ . '\\JsonFeed' ) ) {
                 $timestamp = time() - ( $index * 3600 );
             }
             
-            $formatted_date = ! empty( $date_format ) ? date_i18n( $date_format, $timestamp ) : '';
+            // `wp_date`, not `date_i18n`: `$timestamp` is a real Unix timestamp from `strtotime`, and
+            // `date_i18n` adds the site's offset to a value that is already UTC — so a date printed
+            // that way is out by the offset. `wp_date` converts one properly.
+            $formatted_date = ! empty( $date_format ) ? wp_date( $date_format, $timestamp ) : '';
             $date_gmt       = gmdate( 'Y-m-d H:i:s', $timestamp );
 
             $item_id = '';
@@ -178,21 +201,25 @@ if ( ! class_exists( __NAMESPACE__ . '\\JsonFeed' ) ) {
                 'title'       => $title,
                 'content'     => $excerpt,
                 'excerpt'     => $excerpt,
-                'link'        => ! empty( $link ) ? $link : '#',
-                'btnLabel'    => $btn_label,
+                // `esc_url_raw` refuses a `javascript:` scheme, which this would otherwise print as a
+                // clickable href — the sibling reader does the same, see `RssFeed::items()`.
+                'link'        => ! empty( $link ) ? esc_url_raw( (string) $link ) : '#',
+                // Stripped like the title and the excerpt above. It was the one field that was not,
+                // and it is rendered with `dangerouslySetInnerHTML` — see `PostItem`.
+                'btnLabel'    => wp_strip_all_tags( (string) $btn_label ),
                 'date'        => $formatted_date,
                 // `gmdate`, not `date`: this is the machine-readable stamp — schema.org and any
                 // sorting read it — so it must not shift with the server's timezone setting.
                 'dateISO'     => gmdate( 'c', $timestamp ),
                 'dateGMT'     => $date_gmt,
                 'author'      => [
-                    'name' => self::resolve_value( $item, $author_key, [ 'author', 'creator', 'byline', 'user' ] ),
+                    'name' => wp_strip_all_tags( (string) self::resolve_value( $item, $author_key, [ 'author', 'creator', 'byline', 'user' ] ) ),
                     'link' => '',
                 ],
                 'videoId'     => '',
                 'thumbnail' => [
-                    'url'      => $image_url,
-                    'fallback' => $image_url,
+                    'url'      => esc_url_raw( (string) $image_url ),
+                    'fallback' => esc_url_raw( (string) $image_url ),
                     'srcset'   => '',
                     'sizes'    => '',
                     'alt'      => $title,

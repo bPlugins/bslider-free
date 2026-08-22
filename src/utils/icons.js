@@ -53,7 +53,16 @@ export const slider = (width, height) => <svg xmlns="http://www.w3.org/2000/svg"
 
 export const loaderIcon = <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 200 200"><circle fill="none" strokeOpacity="1" stroke="#000" strokeWidth=".5" cx="100" cy="100" r="0"><animate attributeName="r" calcMode="spline" dur="2" values="1;80" keyTimes="0;1" keySplines="0 .2 .5 1" repeatCount="indefinite"></animate><animate attributeName="stroke-width" calcMode="spline" dur="2" values="0;25" keyTimes="0;1" keySplines="0 .2 .5 1" repeatCount="indefinite"></animate><animate attributeName="stroke-opacity" calcMode="spline" dur="2" values="1;0" keyTimes="0;1" keySplines="0 .2 .5 1" repeatCount="indefinite"></animate></circle></svg>;
 
-export const placeholderImg = 'https://bblockswp.com/wp-content/demo/img/green-hill.jpg';
+/**
+ * What a slide shows when it has no picture of its own.
+ *
+ * A data URI rather than a file or a URL. This is rendered by `view.js` — Carousel, Grid and
+ * Thumbnails all fall back to it — so an address on someone else's domain meant a visitor's browser
+ * fetching a demo image from bblockswp.com on any slider with an empty slide: an external request
+ * this plugin makes without saying so, which is exactly what the External Services section exists to
+ * declare. Inline, it costs no request at all and cannot break when that host changes.
+ */
+export const placeholderImg = 'data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22640%22%20height%3D%22360%22%20viewBox%3D%220%200%20640%20360%22%3E%3Crect%20width%3D%22640%22%20height%3D%22360%22%20fill%3D%22%23e9eaee%22%2F%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22%23b8bcc6%22%20stroke-width%3D%228%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Crect%20x%3D%22236%22%20y%3D%22128%22%20width%3D%22168%22%20height%3D%22120%22%20rx%3D%2210%22%2F%3E%3Ccircle%20cx%3D%22278%22%20cy%3D%22166%22%20r%3D%2214%22%2F%3E%3Cpath%20d%3D%22M244%20226l44-40%2034%2030%2030-26%2044%2038%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E';
 
 export const play = <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" viewBox="0 0 15 15" fill="#fff">
 	<path d="M4.79062 2.09314C4.63821 1.98427 4.43774 1.96972 4.27121 2.05542C4.10467 2.14112 4 2.31271 4 2.5V12.5C4 12.6873 4.10467 12.8589 4.27121 12.9446C4.43774 13.0303 4.63821 13.0157 4.79062 12.9069L11.7906 7.90687C11.922 7.81301 12 7.66148 12 7.5C12 7.33853 11.922 7.18699 11.7906 7.09314L4.79062 2.09314Z" fill="#fff" /></svg>

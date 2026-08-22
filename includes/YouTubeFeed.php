@@ -1556,7 +1556,18 @@ if ( ! class_exists( __NAMESPACE__ . '\YouTubeFeed' ) ) {
             $entry = null;
 
             if ( $api_key ) {
-                $url = self::API_BASE . 'videos?part=snippet,contentDetails,statistics&id=' . $video_id . '&key=' . $api_key;
+                // `add_query_arg`, like `apiGet()` above — this was the one call that built the query
+                // string by hand. `$video_id` is already narrowed to eleven characters by
+                // `extractVideoId()`, so nothing was reachable through it; the point is that the
+                // encoding does not depend on that narrowing holding.
+                $url = add_query_arg(
+                    [
+                        'part' => 'snippet,contentDetails,statistics',
+                        'id'   => $video_id,
+                        'key'  => $api_key,
+                    ],
+                    self::API_BASE . 'videos'
+                );
                 $res = wp_remote_get( $url, [ 'timeout' => self::TIMEOUT ] );
                 if ( ! is_wp_error( $res ) && 200 === wp_remote_retrieve_response_code( $res ) ) {
                     $body = json_decode( wp_remote_retrieve_body( $res ), true );

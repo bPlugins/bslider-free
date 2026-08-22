@@ -107,12 +107,14 @@ if ( ! class_exists( __NAMESPACE__ . '\FeedChannels' ) ) {
             $channels = self::all();
             $found    = false;
 
-            foreach ( $channels as $index => $existing ) {
-                if ( '' !== $id && $existing['id'] === $id ) {
+            // `$candidate`, not `$existing`: that name holds the channel being edited, several lines
+            // above, and reusing it here left it pointing at whichever row the loop ended on.
+            foreach ( $channels as $index => $candidate ) {
+                if ( '' !== $id && $candidate['id'] === $id ) {
                     // The id and the date it was added are the channel's identity; everything else is
                     // the user's to change.
-                    $channel['id']    = $existing['id'];
-                    $channel['added'] = $existing['added'];
+                    $channel['id']    = $candidate['id'];
+                    $channel['added'] = $candidate['added'];
                     // A token's expiry belongs to that token. Carried over while the address is the
                     // same one, and dropped the moment it is replaced — a freshly pasted token has
                     // its own sixty days, and the old one's date would have the upkeep run either
@@ -120,11 +122,11 @@ if ( ! class_exists( __NAMESPACE__ . '\FeedChannels' ) ) {
                     // A freshly pasted token is a fresh start: it has its own sixty days, and it has
                     // not failed at anything yet. That is what makes retyping a token the fix for a
                     // channel this had given up on.
-                    $same = $channel['source'] === $existing['source'];
+                    $same = $channel['source'] === $candidate['source'];
 
-                    $channel['tokenExpires']  = $same ? (int) ( $existing['tokenExpires'] ?? 0 ) : 0;
-                    $channel['tokenFailedAt'] = $same ? (int) ( $existing['tokenFailedAt'] ?? 0 ) : 0;
-                    $channel['tokenTriedAt']  = $same ? (int) ( $existing['tokenTriedAt'] ?? 0 ) : 0;
+                    $channel['tokenExpires']  = $same ? (int) ( $candidate['tokenExpires'] ?? 0 ) : 0;
+                    $channel['tokenFailedAt'] = $same ? (int) ( $candidate['tokenFailedAt'] ?? 0 ) : 0;
+                    $channel['tokenTriedAt']  = $same ? (int) ( $candidate['tokenTriedAt'] ?? 0 ) : 0;
                     $channels[ $index ] = $channel;
                     $found = true;
                     break;

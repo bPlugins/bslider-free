@@ -22,9 +22,38 @@ if ( ! class_exists( __NAMESPACE__ . '\RssFeed' ) ) {
          * @param int    $excerpt_length  Excerpt length in words.
          * @return array|\WP_Error
          */
+        /**
+         * The feed's address, refused unless it is one this site should be fetching.
+         *
+         * `wp_http_validate_url()` allows only http(s) and refuses loopback and private ranges, so an
+         * address typed into the editor cannot be used to read `127.0.0.1`, a host on the site's own
+         * network, or a cloud provider's metadata endpoint — whose answer this reader would otherwise
+         * parse and hand back as slides. `edit_posts` is enough to reach this, and a Contributor has it.
+         *
+         * @return string|\WP_Error
+         */
+        private static function safeUrl( $source ) {
+            $url = wp_http_validate_url( (string) $source );
+
+            if ( ! $url ) {
+                return new \WP_Error(
+                    'b_slider_rss_bad_url',
+                    __( 'That address cannot be fetched. Enter a public http:// or https:// feed URL.', 'b-slider' )
+                );
+            }
+
+            return $url;
+        }
+
         public static function items( $source, $limit = 12, $date_format = 'M j, Y', $excerpt_length = 25, $default_image_url = '', $title_length = -1, $timezone_offset = '', $translate_date = '' ) {
             if ( empty( $source ) ) {
                 return new \WP_Error( 'b_slider_rss_empty', __( 'Please provide a valid RSS feed URL.', 'b-slider' ) );
+            }
+
+            $source = self::safeUrl( $source );
+
+            if ( is_wp_error( $source ) ) {
+                return $source;
             }
 
             // SimplePie caches internally, but we also wrap it under our own SocialFeed caching layer.
@@ -81,6 +110,12 @@ if ( ! class_exists( __NAMESPACE__ . '\RssFeed' ) ) {
         public static function profile( $source ) {
             if ( empty( $source ) ) {
                 return new \WP_Error( 'b_slider_rss_empty', __( 'Please provide a valid RSS feed URL.', 'b-slider' ) );
+            }
+
+            $source = self::safeUrl( $source );
+
+            if ( is_wp_error( $source ) ) {
+                return $source;
             }
 
             $feed = fetch_feed( $source );

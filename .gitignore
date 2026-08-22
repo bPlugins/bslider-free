@@ -17,3 +17,8 @@ build/
 
 # Duplicate plugin copy at repo root
 /b-slider/
+
+# Local developer files — not part of the plugin, and not in the release zip either
+todo.txt
+bsdk_config.json
+.vscode/

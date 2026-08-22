@@ -145,7 +145,11 @@ call_user_func( function( $attributes ) {
 		// Only the five values the block draws. `profileFor()` also carries the account type, the
 		// post count and the website, and none of those have any business being in the page's markup
 		// for everyone to read.
-		if ( $profile ) {
+		// `socialQuery` is guarded as well as `$profile`: block.json gives every block one, but this
+		// file is also reached through `render_block()` on markup written by hand — the shortcode
+		// path in `custom-post.php` — where the attribute may simply not be there, and assigning
+		// into a missing key raises a notice.
+		if ( $profile && isset( $attributes['socialQuery'] ) && is_array( $attributes['socialQuery'] ) ) {
 			$attributes['socialQuery']['profile'] = [
 				'name'      => $profile['name'] ?? '',
 				'bio'       => $profile['bio'] ?? '',
