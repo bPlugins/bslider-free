@@ -1343,7 +1343,7 @@ if ( ! class_exists( __NAMESPACE__ . '\YouTubeFeed' ) ) {
                     // `maxresdefault` exists only for a video that got an HD render, so the file
                     // YouTube named itself is carried along and the browser swaps to it when the
                     // first choice 404s. See the `onError` in PostItem.
-                    'fallback' => esc_url_raw( (string) $entry['feed_thumb'] ) ?: self::thumbUrl( $video_id, 'hqdefault' ),
+                    'fallback' => ( 'maxresdefault' === self::$current_quality ) ? self::thumbUrl( $video_id, 'mqdefault' ) : ( esc_url_raw( (string) $entry['feed_thumb'] ) ?: self::thumbUrl( $video_id, 'hqdefault' ) ),
                     'srcset'   => self::srcset( $video_id ),
                     // A slide is as wide as the slider, and a slider is nearly always the full width
                     // of its container. An import replaces this with the real sizes once the

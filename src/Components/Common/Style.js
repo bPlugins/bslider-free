@@ -12,7 +12,7 @@ import { isAutoGridHeight } from '../../utils/functions';
 const HEIGHT_FALLBACK = '450px';
 
 const Style = ({ attributes, clientId, postsCount, products }) => {
-	const { badgeStyle = {}, listLayout = {}, sliders, slideInnerGap, slideInnerGapDevice, titleTypo, titleColor, descTypo, descColor, titleMargin, descMargin, arrow, arrowStyle, indicator, SliderOverly, height, sliderHeight, borderRadius, margin, arrowWidth, deviceArrowWidth, arrowHeight, deviceArrowHeight, arrowRadius, btnColors, btnHovColors, btnTypo, btnPadding, btnBorder, btnRadius, direction, titleAnimation, descAnimation, btnAnimation, columnGap, rowGap, grid, arrowBorder, thumbnails, sourceType, carousel, caption, image, socialQuery, headerNameTypo, headerNameColor, headerBioTypo, headerBioColor, headerFollowersTypo, headerFollowersColor, headerBtnTypo, headerBtnColors, title, desc, button, layoutType, postsQuery = {}, likesCommentsColor, likesCommentsTypo, playIconColor, playIconBg, playIconHoverBg, cardLayout, cardBgColor, cardPadding, cardRadius } = attributes;
+	const { badgeStyle = {}, listLayout = {}, sliders, slideInnerGap, slideInnerGapDevice, titleTypo, titleColor, descTypo, descColor, titleMargin, descMargin, arrow, arrowStyle, indicator, SliderOverly = '#00000088', height, sliderHeight, borderRadius, margin, arrowWidth, deviceArrowWidth, arrowHeight, deviceArrowHeight, arrowRadius, btnColors, btnHovColors, btnTypo, btnPadding, btnBorder, btnRadius, direction, titleAnimation, descAnimation, btnAnimation, columnGap, rowGap, grid, arrowBorder, thumbnails, sourceType, carousel, caption, image, socialQuery, headerNameTypo, headerNameColor, headerBioTypo, headerBioColor, headerFollowersTypo, headerFollowersColor, headerBtnTypo, headerBtnColors, title, desc, button, layoutType, postsQuery = {}, likesCommentsColor, likesCommentsTypo, playIconColor, playIconBg, playIconHoverBg, cardLayout, cardBgColor, cardPadding, cardRadius } = attributes;
 	const isPostSource = sourceType === 'posts' || sourceType === 'woo';
 	const { loadMoreBtn } = grid;
 	const { overly, height: thumbnailsHeight, width: thumbnailsWidth, active } = thumbnails;
@@ -32,7 +32,7 @@ const Style = ({ attributes, clientId, postsCount, products }) => {
 	 * Only ever read when `isAutoGrid` — a slider with a height set is in fixed frames and this says
 	 * nothing about it.
 	 */
-	const gridRatio = attributes?.gridItemRatio || '4/3';
+	const gridRatio = attributes?.gridItemRatio || '1/1';
 
 	/**
 	 * The height a slide gets at each width.

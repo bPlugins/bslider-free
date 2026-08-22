@@ -97,7 +97,7 @@ const DefaultGeneral = ({ attributes, setAttributes, premiumProps, updateObject,
 
                 Typing one is how somebody opts out of the automatic sizing, and emptying it again is how
                 they get it back. Both already worked; only what the field said about them was wrong. */}
-            <UnitControl className={autoGrid ? '' : 'mb20'} label={`${layoutType === 'grid' ? 'Item' : 'Slider'} Height`} labelPosition='left' value={autoGrid ? '' : (sliderHeight[device] || height)} placeholder={autoGrid ? ('original' === (gridItemRatio || '4/3') ? __('From the picture', 'b-slider') : __('From the ratio', 'b-slider')) : undefined} onChange={val => { setAttributes({ sliderHeight: { ...sliderHeight, [device]: val } }) }} units={[pxUnit(400), vhUnit(30)]} isResetValueOnUnitChange={true} beforeIcon='grid-view' />
+            <UnitControl className={autoGrid ? '' : 'mb20'} label={`${layoutType === 'grid' ? 'Item' : 'Slider'} Height`} labelPosition='left' value={autoGrid ? '' : (sliderHeight[device] || height)} placeholder={autoGrid ? ('original' === (gridItemRatio || '1/1') ? __('From the picture', 'b-slider') : __('From the ratio', 'b-slider')) : undefined} onChange={val => { setAttributes({ sliderHeight: { ...sliderHeight, [device]: val } }) }} units={[pxUnit(400), vhUnit(30)]} isResetValueOnUnitChange={true} beforeIcon='grid-view' />
 
             {/* Offered instead of the height, not beside it — and only while no height is set, because a
                 slider in fixed frames has no use for a ratio.
@@ -111,7 +111,7 @@ const DefaultGeneral = ({ attributes, setAttributes, premiumProps, updateObject,
                     className='mb0'
                     label={__('Item Ratio', 'b-slider')}
                     labelPosition='left'
-                    value={gridItemRatio || '4/3'}
+                    value={gridItemRatio || '1/1'}
                     options={[
                         { label: __('4:3 — landscape', 'b-slider'), value: '4/3' },
                         { label: __('16:9 — widescreen', 'b-slider'), value: '16/9' },
@@ -124,7 +124,7 @@ const DefaultGeneral = ({ attributes, setAttributes, premiumProps, updateObject,
                 />
 
                 <p className='bsb_feed_note mb20'>
-                    {'original' === (gridItemRatio || '4/3')
+                    {'original' === (gridItemRatio || '1/1')
                         ? __('Each card is as tall as its own picture — nothing cropped, nothing padded, and a ragged bottom edge where the feed mixes shapes.', 'b-slider')
                         : __('Every card this shape, its height taken from the column’s width — so it follows the screen with no pixel height to maintain. Where a picture is a different shape, Image Fit under Slides decides what happens.', 'b-slider')}
                 </p>

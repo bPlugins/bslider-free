@@ -148,13 +148,14 @@ const SelectSource = (props) => {
         setIsFeedsView(false);
 
         if (feedType === socialQuery.feedType) {
-            setAttributes({ sourceType: 'social' });
+            setAttributes({ sourceType: 'social', layoutType: 'default' });
 
             return;
         }
 
         setAttributes({
             sourceType: 'social',
+            layoutType: 'default',
             socialQuery: {
                 ...socialQuery,
                 feedType,

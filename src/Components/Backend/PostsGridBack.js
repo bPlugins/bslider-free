@@ -11,7 +11,7 @@ const PostsGridBack = ({ attributes, firstPosts, totalPosts, updateObject, commo
 
     const [posts, setPosts] = useState(firstPosts);
     const [pageNumber, setPageNumber] = useState(1);
-    const { columns, button, title, desc, postsQuery, grid, image } = attributes;
+    const { columns, button, title, desc, postsQuery, grid, image, sourceType, socialQuery } = attributes;
     // What tells every link on a slide that the first click belongs to the editor — see useEditorLink.
     const { isSelected = false } = commonDeProps;
     const { per_page } = postsQuery;
@@ -26,6 +26,9 @@ const PostsGridBack = ({ attributes, firstPosts, totalPosts, updateObject, commo
     const { desktop, tablet, mobile } = columns;
     const dpPosts = (Array.isArray(posts) && posts?.length) ? posts : [];
     const shownPosts = pageNumber > 1 ? dpPosts : firstPosts;
+
+    const linkTarget = socialQuery?.linkTarget || '';
+    const imageLinkTarget = 'social' === sourceType ? linkTarget : image?.linkTarget;
 
     useEffect(() => {
         if (paginationType === 'loadMore') {
@@ -47,7 +50,7 @@ const PostsGridBack = ({ attributes, firstPosts, totalPosts, updateObject, commo
                     const imageHref = resolveButtonLink(post, attributes) || '';
                     return <div key={index} className={`item ${index === 0 ? 'active' : ''} ${imageHref ? 'is-linked' : ''} `}>
                         <div className="img">
-                            {slideImg?.url && <LinkedPicture href={imageHref} linkTarget={image?.linkTarget} label={String(postTitle || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim() || imageHref} isBackEnd isSelected={isSelected}>
+                            {slideImg?.url && <LinkedPicture href={imageHref} linkTarget={imageLinkTarget} label={String(postTitle || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim() || imageHref} isBackEnd isSelected={isSelected}>
                                 <img src={slideImg.url} className="d-block w-100" />
                             </LinkedPicture>}
                         </div>
@@ -64,7 +67,7 @@ const PostsGridBack = ({ attributes, firstPosts, totalPosts, updateObject, commo
                                 {itemBtnLabel && <>
                                     <div className={`carousel-button`}>
                                         {/* The same switch the picture follows. */}
-                                        <SlideLink href={imageHref} linkTarget={image?.linkTarget} isBackEnd isSelected={isSelected} dangerouslySetInnerHTML={{ __html: itemBtnLabel }} />
+                                        <SlideLink href={imageHref} linkTarget={imageLinkTarget} isBackEnd isSelected={isSelected} dangerouslySetInnerHTML={{ __html: itemBtnLabel }} />
                                     </div>
                                 </>}
                             </div>

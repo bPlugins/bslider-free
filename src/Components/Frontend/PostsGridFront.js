@@ -9,7 +9,7 @@ import Pagination from '../Common/Layouts/grid/Pagination/Pagination';
 const PostsGridFront = ({ attributes, firstPosts, totalPosts, nonce }) => {
     const [posts, setPosts] = useState(firstPosts);
     const [pageNumber, setPageNumber] = useState(1);
-    const { columns, button, title, desc, grid, image } = attributes;
+    const { columns, button, title, desc, grid, image, sourceType, socialQuery } = attributes;
     const { paginationType } = grid;
 
     const { posts: ajaxPosts, isLoading: isAPLoading } = useAjaxPosts(nonce, attributes, pageNumber);
@@ -22,6 +22,9 @@ const PostsGridFront = ({ attributes, firstPosts, totalPosts, nonce }) => {
     const { desktop, tablet, mobile } = columns;
     const dpPosts = (Array.isArray(posts) && posts?.length) ? posts : [];
     const shownPosts = pageNumber > 1 ? dpPosts : firstPosts;
+
+    const linkTarget = socialQuery?.linkTarget || '';
+    const imageLinkTarget = 'social' === sourceType ? linkTarget : image?.linkTarget;
 
     useEffect(() => {
         if (!isAPLoading && pageNumber > 1 && paginationType === 'loadMore') {
@@ -47,7 +50,7 @@ const PostsGridFront = ({ attributes, firstPosts, totalPosts, nonce }) => {
                     const imageHref = resolveButtonLink(post, attributes) || '';
                     return <div key={index} className={`item ${index === 0 ? 'active' : ''} ${imageHref ? 'is-linked' : ''} `}>
                         <div className="img">
-                            {slideImg?.url && <LinkedPicture href={imageHref} linkTarget={image?.linkTarget} label={String(postTitle || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim() || imageHref}>
+                            {slideImg?.url && <LinkedPicture href={imageHref} linkTarget={imageLinkTarget} label={String(postTitle || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim() || imageHref}>
                                 <img src={slideImg.url} className="d-block w-100 " />
                             </LinkedPicture>}
                         </div>
@@ -63,7 +66,7 @@ const PostsGridFront = ({ attributes, firstPosts, totalPosts, nonce }) => {
                                 {itemBtnLabel && <>
                                     <div className={`carousel-button`}>
                                         {/* The same switch the picture follows. */}
-                                        <a href={resolveButtonLink(post, attributes)} rel={'_blank' === image?.linkTarget ? 'noopener noreferrer' : 'noreferrer'} target={image?.linkTarget || undefined} dangerouslySetInnerHTML={{ __html: itemBtnLabel }} />
+                                        <a href={resolveButtonLink(post, attributes)} rel={'_blank' === imageLinkTarget ? 'noopener noreferrer' : 'noreferrer'} target={imageLinkTarget || undefined} dangerouslySetInnerHTML={{ __html: itemBtnLabel }} />
                                     </div>
                                 </>}
                             </div>

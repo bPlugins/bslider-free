@@ -21,7 +21,7 @@ const DefaultStyle = ({ attributes, setAttributes, updateObject, premiumProps })
     const [DArrowWidth, setDArrowWidth] = useState('desktop');
     const [DArrowHeight, setDArrowHeight] = useState('desktop');
 
-    const { layoutType, titleTypo, titleColor, descTypo, descColor, titleMargin, descMargin, SliderOverly, borderRadius, deviceArrowWidth, arrowHeight, deviceArrowHeight, arrowRadius, arrow, arrowWidth, indicator, arrowBorder, sourceType, likesCommentsColor, likesCommentsTypo, playIconColor, playIconBg, playIconHoverBg, cardLayout, cardBgColor, cardPadding, cardRadius, title, desc, button, caption, socialQuery } = attributes;
+    const { layoutType, titleTypo, titleColor, descTypo, descColor, titleMargin, descMargin, SliderOverly = '#00000088', borderRadius, deviceArrowWidth, arrowHeight, deviceArrowHeight, arrowRadius, arrow, arrowWidth, indicator, arrowBorder, sourceType, likesCommentsColor, likesCommentsTypo, playIconColor, playIconBg, playIconHoverBg, cardLayout, cardBgColor, cardPadding, cardRadius, title, desc, button, caption, socialQuery } = attributes;
 
     return <>
         <PanelBody className='bPlPanelBody' title={__('Slider', 'b-slider')} initialOpen={false}>

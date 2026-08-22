@@ -383,14 +383,12 @@ const SocialSlides = ({ attributes, updateObject, premiumProps }) => {
                         sending the visitor to YouTube, "does it open beside my page or instead of it" is a
                         question that feed now has as well — and one setting answers both links, so the two ways
                         off a slide cannot open differently. */}
-                    {(isPostish || 'link' === playVideo) && (
-                        <ToggleControl
-                            className={gap}
-                            label={__('Open links in a new tab', 'b-slider')}
-                            checked={linkTarget === '_blank'}
-                            onChange={val => updateObject('socialQuery', 'linkTarget', val ? '_blank' : '')}
-                        />
-                    )}
+                    <ToggleControl
+                        className={gap}
+                        label={__('Open links in a new tab', 'b-slider')}
+                        checked={linkTarget === '_blank'}
+                        onChange={val => updateObject('socialQuery', 'linkTarget', val ? '_blank' : '')}
+                    />
                 </>
             ) : (
                 <ProNotice className='mt15' features={PRO_FEATURES.feedSlideLink} />

@@ -60,12 +60,151 @@ const cleanHeight = (height, sliderHeight = {}) => {
     return patch;
 };
 
+/**
+ * Every attribute a layout needs to be itself, as one payload.
+ *
+ * A layout is not just `layoutType`: it carries the columns it sits in, whether it shows arrows,
+ * the typography its captions are set in, the pagination its footer draws. Grid turns the arrows
+ * off and asks for three columns; default wants one column and its arrows back. Write the name
+ * without the rest and you get a slider that says "Default" in the picker and behaves like the
+ * grid it replaced — no arrows, still three across, not sliding.
+ *
+ * So both places that name a layout come through here: the Select Layout tiles, and the Source
+ * Type tiles, which force a feed back to `default` because `layoutsFor` offers a feed a shortlist
+ * that a layout carried in from Posts is not on.
+ */
+const layoutDefaults = (newLayout, attributes, newSource = null) => {
+    const { title, button, height, sliderHeight, socialQuery, postsQuery, grid, sourceType } = attributes;
+    // The source this payload is being written *for*. From the Select Layout tiles that is the one
+    // already set; from the Source Type tiles it is the one being moved to, which is not in
+    // `attributes` yet — and a video slider is the one source that keeps its carousel from
+    // autoplaying, so reading the outgoing name there would set it by the source being left.
+    const isSingleVideo = (newSource || sourceType) === 'video';
+
+    return {
+        layoutType: newLayout,
+        cardLayout: false,
+        cardBgColor: '',
+        cardPadding: { top: '16px', right: '16px', bottom: '16px', left: '16px' },
+        cardRadius: { top: '8px', right: '8px', bottom: '8px', left: '8px' },
+        caption: { display: 'always', background: 'solid' },
+        SliderOverly: '#59595952',
+        likesCommentsColor: '',
+        playIconColor: '',
+        playIconBg: '',
+        playIconHoverBg: '',
+        title: { tag: title?.tag || 'h4', isVisible: true },
+        desc: { isVisible: true },
+        button: { isVisible: true, text: button?.text || '' },
+        titleTypo: {
+            fontSize: {
+                desktop: 20,
+                tablet: 20,
+                mobile: 15
+            },
+            fontWeight: 700,
+            lineHeight: "135%"
+        },
+        titleColor: '#fff',
+        descTypo: {
+            fontSize: {
+                desktop: 18,
+                tablet: 20,
+                mobile: 15
+            },
+            fontWeight: 400,
+            lineHeight: "135%"
+        },
+        descColor: '#fff',
+        gridItemRatio: '16/9',
+        /**
+         * Repaired, not reset — the one value on this list that is left as
+         * the user set it.
+         *
+         * Everything else here goes back to a default because a new layout
+         * wants its own typography and spacing. A height is different: it is
+         * chosen once for how the slider should sit on the page, and taking
+         * an 800px slider back to 450 for switching layouts would be work
+         * thrown away with no way to know it had happened.
+         *
+         * What is not kept is an *empty* height, which is not a choice but
+         * the state that caused this: `''` reaches `Style` as `height: ;`,
+         * the browser drops the declaration, and the default and carousel
+         * layouts — whose slides are absolutely positioned — collapse and
+         * draw every slide over the last. Only that case is written over.
+         */
+        ...(cleanHeight(height, sliderHeight)),
+        columnGap: '24px',
+        rowGap: '32px',
+        columns: (newLayout === 'default')
+            ? { desktop: 1, tablet: 1, mobile: 1 }
+            : { desktop: 3, tablet: 2, mobile: 1 },
+        socialQuery: {
+            ...(socialQuery || {}),
+            activePreset: '',
+            playVideo: newLayout === 'list' ? 'stage' : 'popup',
+            showLikesComments: false,
+            hoverActionsPosition: 'top-right'
+        },
+        grid: {
+            ...(grid || {}),
+            paginationType: newLayout === 'grid' ? 'pagination' : 'none'
+        },
+        postsQuery: {
+            ...(postsQuery || {}),
+            per_page: 12
+        },
+        arrow: {
+            visibility: newLayout !== 'grid',
+            size: 48,
+            color: '#fff',
+            bg: 'rgba(17, 17, 17, 0.55)'
+        },
+        arrowWidth: '50px',
+        arrowHeight: '50px',
+        deviceArrowWidth: { desktop: '50px', tablet: '40px', mobile: '30px' },
+        deviceArrowHeight: { desktop: '50px', tablet: '40px', mobile: '30px' },
+        arrowRadius: { top: '50%', right: '50%', bottom: '50%', left: '50%' },
+        thumbnails: {
+            overly: { color: "" },
+            height: { desktop: "120px", tablet: "", mobile: "" },
+            position: { desktop: "bottom" },
+            width: { desktop: "30%", tablet: "20%", mobile: "15%" },
+            active: { color: "#00000000", border: { color: "#000", style: "solid", width: "0px" } },
+            mode: "slider",
+            showStage: true,
+            showDuration: false,
+            showPlay: false,
+            navPosition: "overlay",
+            cardStyle: "bare",
+            showCardTitle: false,
+            showCardMeta: false,
+            showCardExcerpt: false
+        },
+        carousel: {
+            carouselStyle: "standard",
+            isAutoPlay: !isSingleVideo,
+            autoPlayDelay: 2000,
+            mousewheel: false,
+            effect: "none",
+            grabCursor: false,
+            loop: true,
+            reverseDirection: false,
+            caroDirection: "horizontal",
+            navigation: true,
+            pagination: true,
+            itemsPerSlide: 1,
+            groupColumns: 1
+        }
+    };
+};
+
 const General = ({ attributes, setAttributes, activeIndex, setActiveIndex, updateObject, multipleAttrChange, getTaxonomy, premiumProps, postTypes, queriedPosts, socialFeed }) => {
     const isPro = isProActive();
 
     const [device, setDevice] = useState('desktop');
     const [gapDevice, setGapDevice] = useState('desktop');
-    const { layoutType, sourceType, title, desc, caption, image, button, postsQuery, socialQuery, grid, height, sliderHeight, thumbnails } = attributes;
+    const { layoutType, sourceType, title, desc, caption, image, button, postsQuery, socialQuery, thumbnails } = attributes;
     const itemsProps = { attributes, setAttributes, arrKey: 'sliders', activeIndex, setActiveIndex, premiumProps };
 
     /**
@@ -99,6 +238,18 @@ const General = ({ attributes, setAttributes, activeIndex, setActiveIndex, updat
                 activePreset: ''
             }
         };
+
+        // A feed lands on the Default layout, whatever the source being left behind was set to.
+        // `layoutsFor` offers a feed its own shortlist, so a layout carried in from Posts —
+        // `carousel`, say — is one this list does not contain: the tile row shows nothing selected
+        // while the block goes on rendering that layout.
+        //
+        // Through `layoutDefaults`, because the name on its own is not the layout: grid leaves the
+        // arrows switched off and three columns behind it, and a `default` feed inheriting those is
+        // a slider with no arrows that does not slide.
+        if (val === 'social' && layoutType !== 'default') {
+            Object.assign(resets, layoutDefaults('default', attributes, val));
+        }
 
         if (val !== 'social') {
             resets.cardLayout = false;
@@ -257,125 +408,7 @@ const General = ({ attributes, setAttributes, activeIndex, setActiveIndex, updat
                         type="button"
                         className={`bsb_panel_tile_btn ${(layoutType || 'default') === opt.value ? 'is-active' : ''}`}
                         onClick={() => {
-                            const newLayout = opt.value;
-                            const isSingleVideo = sourceType === 'video';
-
-                            setAttributes({
-                                layoutType: newLayout,
-                                cardLayout: false,
-                                cardBgColor: '',
-                                cardPadding: { top: '16px', right: '16px', bottom: '16px', left: '16px' },
-                                cardRadius: { top: '8px', right: '8px', bottom: '8px', left: '8px' },
-                                caption: { display: 'always', background: 'solid' },
-                                SliderOverly: '#59595952',
-                                likesCommentsColor: '',
-                                playIconColor: '',
-                                playIconBg: '',
-                                playIconHoverBg: '',
-                                title: { tag: title?.tag || 'h4', isVisible: true },
-                                desc: { isVisible: true },
-                                button: { isVisible: true, text: button?.text || '' },
-                                titleTypo: {
-                                    fontSize: {
-                                        desktop: 20,
-                                        tablet: 20,
-                                        mobile: 15
-                                    },
-                                    fontWeight: 700,
-                                    lineHeight: "135%"
-                                },
-                                titleColor: '#fff',
-                                descTypo: {
-                                    fontSize: {
-                                        desktop: 18,
-                                        tablet: 20,
-                                        mobile: 15
-                                    },
-                                    fontWeight: 400,
-                                    lineHeight: "135%"
-                                },
-                                descColor: '#fff',
-                                gridItemRatio: '16/9',
-                                /**
-                                 * Repaired, not reset — the one value on this list that is left as
-                                 * the user set it.
-                                 *
-                                 * Everything else here goes back to a default because a new layout
-                                 * wants its own typography and spacing. A height is different: it is
-                                 * chosen once for how the slider should sit on the page, and taking
-                                 * an 800px slider back to 450 for switching layouts would be work
-                                 * thrown away with no way to know it had happened.
-                                 *
-                                 * What is not kept is an *empty* height, which is not a choice but
-                                 * the state that caused this: `''` reaches `Style` as `height: ;`,
-                                 * the browser drops the declaration, and the default and carousel
-                                 * layouts — whose slides are absolutely positioned — collapse and
-                                 * draw every slide over the last. Only that case is written over.
-                                 */
-                                ...(cleanHeight(height, sliderHeight)),
-                                columnGap: '24px',
-                                rowGap: '32px',
-                                columns: (newLayout === 'default')
-                                    ? { desktop: 1, tablet: 1, mobile: 1 }
-                                    : { desktop: 3, tablet: 2, mobile: 1 },
-                                socialQuery: {
-                                    ...(socialQuery || {}),
-                                    activePreset: '',
-                                    playVideo: newLayout === 'list' ? 'stage' : 'popup',
-                                    showLikesComments: false,
-                                    hoverActionsPosition: 'top-right'
-                                },
-                                grid: {
-                                    ...(grid || {}),
-                                    paginationType: newLayout === 'grid' ? 'pagination' : 'none'
-                                },
-                                postsQuery: {
-                                    ...(postsQuery || {}),
-                                    per_page: 12
-                                },
-                                arrow: {
-                                    visibility: newLayout !== 'grid',
-                                    size: 48,
-                                    color: '#fff',
-                                    bg: 'rgba(17, 17, 17, 0.55)'
-                                },
-                                arrowWidth: '50px',
-                                arrowHeight: '50px',
-                                deviceArrowWidth: { desktop: '50px', tablet: '40px', mobile: '30px' },
-                                deviceArrowHeight: { desktop: '50px', tablet: '40px', mobile: '30px' },
-                                arrowRadius: { top: '50%', right: '50%', bottom: '50%', left: '50%' },
-                                thumbnails: {
-                                    overly: { color: "" },
-                                    height: { desktop: "120px", tablet: "", mobile: "" },
-                                    position: { desktop: "bottom" },
-                                    width: { desktop: "30%", tablet: "20%", mobile: "15%" },
-                                    active: { color: "#00000000", border: { color: "#000", style: "solid", width: "0px" } },
-                                    mode: "slider",
-                                    showStage: true,
-                                    showDuration: false,
-                                    showPlay: false,
-                                    navPosition: "overlay",
-                                    cardStyle: "bare",
-                                    showCardTitle: false,
-                                    showCardMeta: false,
-                                    showCardExcerpt: false
-                                },
-                                carousel: {
-                                    carouselStyle: "standard",
-                                    isAutoPlay: !isSingleVideo,
-                                    autoPlayDelay: 2000,
-                                    mousewheel: false,
-                                    effect: "none",
-                                    grabCursor: false,
-                                    loop: true,
-                                    reverseDirection: false,
-                                    caroDirection: "horizontal",
-                                    navigation: true,
-                                    pagination: true,
-                                    itemsPerSlide: 1,
-                                    groupColumns: 1
-                                }
-                            });
+                            setAttributes(layoutDefaults(opt.value, attributes));
                         }}
                     >
                         <span className="bsb_tile_icon">{opt.icon}</span>

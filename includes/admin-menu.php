@@ -2,9 +2,20 @@
 namespace B_SLIDER;
 
 if (!defined('ABSPATH')) {exit;}
-if(!class_exists(__NAMESPACE__ . '\AdminMenu')) {
+if(!class_exists( __NAMESPACE__ . '\AdminMenu' )) {
 
     class AdminMenu {
+
+        /**
+         * The screen this plugin's dashboard lives on, as WordPress named it.
+         *
+         * Taken from `add_submenu_page()` rather than written out: the hook is built from the parent
+         * menu's registered slug at runtime — see `get_plugin_page_hookname()` — so a string spelt
+         * here would be a guess about core's internal state.
+         *
+         * Null until `admin_menu` has run, which is fine: `admin_enqueue_scripts` fires after it.
+         */
+        private $hook_suffix = null;
 
         public function __construct() {
             add_action( 'admin_enqueue_scripts', [$this, 'adminEnqueueScripts'] );
@@ -12,7 +23,16 @@ if(!class_exists(__NAMESPACE__ . '\AdminMenu')) {
         }
 
         public function adminEnqueueScripts($hook) {
-            if( strpos( $hook, 'b-slider' ) ){
+            /**
+             * This screen and no other.
+             *
+             * This was `if ( strpos( $hook, 'b-slider' ) )`, which is wrong twice over: `strpos`
+             * answers `0` for a match at the start — falsy, so a hook beginning with the slug would
+             * have been skipped — and `false` for no match, which is also falsy, so the two cases
+             * were indistinguishable. It only worked because the hook happens to carry a prefix.
+             * It also matched any screen with `b-slider` anywhere in its name.
+             */
+            if ( $hook === $this->hook_suffix ) {
                 wp_enqueue_style( 'bsb-admin-dashboard', B_SLIDER_DIR . 'build/admin-dashboard.css', [], B_SLIDER_PLUGIN_VERSION );
 
                 // Read from the file the build writes rather than a list kept by hand. The hand-kept
@@ -34,14 +54,15 @@ if(!class_exists(__NAMESPACE__ . '\AdminMenu')) {
 
         public function adminMenu(){
              
-            add_submenu_page(
+            $this->hook_suffix = add_submenu_page(
                 'edit.php?post_type=bsb',
-                __('Demo & Help', 'b-slider'),
-                __('Demo & Help', 'b-slider'),
+                __('Help & Demos', 'b-slider'),
+                '<span style="color: #f18500; font-weight: 600;">' . __('Help & Demos', 'b-slider') . '</span>',
                 'manage_options',
                 'b-slider',
-                [$this, 'bsbHelpPage']
-            );
+                [$this, 'bsbHelpPage'],
+            );   
+            
         }
 
         public function bsbHelpPage()
@@ -51,13 +72,11 @@ if(!class_exists(__NAMESPACE__ . '\AdminMenu')) {
                 data-info='<?php echo esc_attr( wp_json_encode( [
                     'version' => B_SLIDER_PLUGIN_VERSION,
                     'adminUrl' => admin_url(),
-                    // Always false in this build. Sent rather than assumed so the screens can ask
-                    // the same question they ask in the Premium one — see `Settings`.
                     'isPremium' => b_slider_is_premium(),
                 ] ) ); ?>'
             >
             </div>
-        <?php }
+        <?php } 
     }
     new AdminMenu();
 }

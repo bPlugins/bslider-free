@@ -697,7 +697,7 @@
 		},
 		"gridItemRatio": {
 			"type": "string",
-			"default": "4/3"
+			"default": "1/1"
 		},
 		"arrow": {
 			"type": "object",
