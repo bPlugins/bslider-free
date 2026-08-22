@@ -93,10 +93,10 @@
                 $dashboardLink = admin_url( 'edit.php?post_type=bsb&page=b-slider' );
 
                  
-                $links['go_pro'] = sprintf( '<a href="%s" style="%s" target="__blank">%s</a>', 'https://bplugins.com/products/b-slider/pricing', 'color:#4527a4;font-weight:bold', __( 'Go Pro!', 'b-slider' ) );
+                $links['go_pro'] = sprintf( '<a href="%s" style="%s" target="__blank">%s</a>', 'https://bplugins.com/products/b-slider/pricing', 'color:#f18500;font-weight:bold', __( 'Go Pro!', 'b-slider' ) );
             
 
-                $links['dashboard'] = sprintf( '<a href="%s" style="%s" target="__blank">%s</a>', $dashboardLink, 'color:#4527a4;font-weight:bold', __( 'Dashboard!', 'b-slider' ) );
+                $links['dashboard'] = sprintf( '<a href="%s" style="%s" target="__blank">%s</a>', $dashboardLink, 'color:#f18500;font-weight:bold', __( 'Dashboard!', 'b-slider' ) );
             }
  
             return $links;

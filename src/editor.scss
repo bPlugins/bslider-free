@@ -1266,6 +1266,33 @@ svg#bsbSlider {
                     box-shadow: 0 2px 6px rgba(255, 122, 0, 0.3);
                 }
             }
+
+            .bsb_card_flag {
+                position: absolute;
+                top: 10px;
+                right: 10px;
+
+                p {
+                    margin: 0;
+                    font-size: 10px;
+                    font-weight: 700;
+                    padding: 2px 8px;
+                    color: var(--bsb-surface);
+                    border-radius: 12px;
+                    text-transform: uppercase;
+                    letter-spacing: 0.5px;
+                }
+
+                &.is-new p {
+                    background: #2e7d32;
+                    box-shadow: 0 2px 6px rgba(46, 125, 50, 0.3);
+                }
+
+                &.is-pro p {
+                    background: var(--bsb-accent);
+                    box-shadow: 0 2px 6px rgba(255, 122, 0, 0.3);
+                }
+            }
         }
     }
 }
