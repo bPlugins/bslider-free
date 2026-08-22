@@ -11,7 +11,8 @@ export const sourceItem = [
         sourceType: "post_types",
         icon: wordpress,
         title: "Post Types",
-        desc: "Posts, Pages, WooCommerce & CPTs"
+        desc: "Posts, Pages, WooCommerce & CPTs",
+        isNew: true
     },
     {
         sourceType: "woo",

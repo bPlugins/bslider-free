@@ -7,6 +7,14 @@ import ProPostTypesPromo from '../ProPostTypesPromo';
 import { lock, wordpress, woo } from '../../../utils/icons';
 import { adminUrl, isPostTypeLocked } from '../../../utils/functions';
 
+const CardFlag = ({ item }) => {
+    if (item.isNew) {
+        return <div className="bsb_card_flag is-new"><p>{__('New', 'b-slider')}</p></div>;
+    }
+
+    return null;
+};
+
 const SelectSource = (props) => {
     const { attributes, setAttributes, updateObject } = props;
     const { sourceType } = attributes;
@@ -138,6 +146,7 @@ const SelectSource = (props) => {
                     <div className="bsb_parent_area source_grid">
                         {sourceItem?.map((item, index) => (
                             <div key={index} className="single_lay" onClick={() => handleMainSourceSelect(item)}>
+                                <CardFlag item={item} />
                                 <div className="icon_wrapper">
                                     <div className="icon">{item?.icon(28, 28)}</div>
                                 </div>
