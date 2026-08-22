@@ -226,11 +226,17 @@ export const PRO_FEATURES = {
 	playerGdpr: [__('Privacy-Enhanced Mode (GDPR)', 'b-slider')],
 
 	/** `ProLayoutsPromo` — the layouts `SelectLayout` draws locked. */
+	/**
+	 * `ProLayoutsPromo` — and only for a feed source.
+	 *
+	 * Every other source draws all four layouts free, as the released build does. It is a feed that
+	 * is held to the default one, which is why `SelectLayout` filters on `sourceType` before it
+	 * looks at the licence at all, and why the promo is rendered in that branch alone.
+	 */
 	layouts: [
 		__('Carousel', 'b-slider'),
 		__('Grid', 'b-slider'),
-		__('Thumbnails', 'b-slider'),
-		__('List layouts', 'b-slider'),
+		__('Thumbnails layouts for a feed', 'b-slider'),
 	],
 
 };
