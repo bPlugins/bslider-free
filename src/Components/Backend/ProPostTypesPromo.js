@@ -113,7 +113,7 @@ const ProPostTypesPromo = ({ lockedTypes = [], variant = 'full' }) => {
 
                             <ul className="bsb_pro_promo_perks">
                                 <li>{__('All custom post types', 'b-slider')}</li>
-                                <li>{__('ACF field mapping', 'b-slider')}</li>
+                                <li>{__('ACF field & query options', 'b-slider')}</li>
                                 <li>{__('Advanced query filters', 'b-slider')}</li>
                             </ul>
                         </div>
@@ -149,7 +149,7 @@ const ProPostTypesPromo = ({ lockedTypes = [], variant = 'full' }) => {
 
                 <ul className="bsb_pro_promo_perks">
                     <li>{__('All custom post types', 'b-slider')}</li>
-                    <li>{__('ACF field mapping', 'b-slider')}</li>
+                    <li>{__('ACF field & query options', 'b-slider')}</li>
                     <li>{__('Include & exclude posts', 'b-slider')}</li>
                 </ul>
             </div>

@@ -10,6 +10,8 @@ import { HelpPanel, Label } from '../../../../../../bpl-tools/Components';
 
 import MainItem from '../MainItem';
 import ProPostTypesPromo from '../../ProPostTypesPromo';
+import ProSocialPromo from '../../ProSocialPromo';
+import ProListLayoutPromo from '../../ProListLayoutPromo';
 import { isPostTypeLocked } from '../../../../utils/functions';
 import DefaultGeneral from './DefaultGeneral';
 import GridGeneral from '../GridGeneral';
@@ -49,6 +51,9 @@ const General = ({ attributes, setAttributes, activeIndex, setActiveIndex, updat
     const currentPostType = postsQuery?.post_type || (sourceType === 'woo' ? 'product' : 'post');
 
     const handleSourceSelect = (val) => {
+        if (sourceTypeOpt.find(opt => opt.value === val)?.isPro) {
+            return;
+        }
         setAttributes({ sourceType: val });
 
         if (val === 'woo') {
@@ -98,33 +103,39 @@ const General = ({ attributes, setAttributes, activeIndex, setActiveIndex, updat
         <PanelBody className='bPlPanelBody bsb_panel_source_layout' title={__('Source & Layout', 'b-slider')} initialOpen={true}>
             <Label className="mt10 mb5">{__('Source Type', 'b-slider')}</Label>
             <div className="bsb_panel_grid_selector">
-                {sourceTypeOpt.map((opt) => (
-                    <button
-                        key={opt.value}
-                        type="button"
-                        className={`bsb_panel_tile_btn ${(sourceType || 'image') === opt.value ? 'is-active' : ''}`}
-                        onClick={() => handleSourceSelect(opt.value)}
-                    >
-                        <span className="bsb_tile_icon">{opt.icon}</span>
-                        <span className="bsb_tile_label">{opt.label}</span>
-                    </button>
-                ))}
+                {sourceTypeOpt.map((opt) => {
+                    const handleTileClick = () => {
+                        if (opt.isPro) {
+                            return;
+                        }
+                        handleSourceSelect(opt.value);
+                    };
+
+                    return (
+                        <button
+                            key={opt.value}
+                            type="button"
+                            className={`bsb_panel_tile_btn ${(sourceType || 'image') === opt.value ? 'is-active' : ''} ${opt.isPro ? 'is-locked-tile' : ''}`}
+                            onClick={handleTileClick}
+                        >
+                            <span className="bsb_tile_icon">{opt.icon}</span>
+                            <span className="bsb_tile_label">{opt.label}</span>
+                        </button>
+                    );
+                })}
             </div>
 
-            {isPostSource && postTypes?.length > 0 && (
-                <div className="bsb_post_type_select">
-                    <Label className="mt15 mb5">{__('Post Type', 'b-slider')}</Label>
-                    <SelectControl value={dropdownValue} onChange={handlePostTypeSelect} options={postTypeOptions} />
-                </div>
-            )}
+            <ProSocialPromo variant="compact" />
 
-            {/*
-              * Not tied to the post source: an image slider is exactly where someone has yet to
-              * learn their custom post types could be sliding too. The component itself decides
-              * whether there is anything to say — it names the locked types when the site has
-              * any, and stays quiet only on a Pro licence.
-              */}
-            <ProPostTypesPromo lockedTypes={lockedPostTypes} variant="compact" />
+            {isPostSource && postTypes?.length > 0 && (
+                <>
+                    <div className="bsb_post_type_select">
+                        <Label className="mt15 mb5">{__('Post Type', 'b-slider')}</Label>
+                        <SelectControl value={dropdownValue} onChange={handlePostTypeSelect} options={postTypeOptions} />
+                    </div>
+                    <ProPostTypesPromo lockedTypes={lockedPostTypes} variant="compact" />
+                </>
+            )}
 
             <Label className="mt15 mb5">{__('Select Layout', 'b-slider')}</Label>
             <div className="bsb_panel_grid_selector">
@@ -140,6 +151,8 @@ const General = ({ attributes, setAttributes, activeIndex, setActiveIndex, updat
                     </button>
                 ))}
             </div>
+
+            <ProListLayoutPromo variant="compact" />
         </PanelBody>
 
         {(sourceType !== "posts" && sourceType !== "woo") &&
