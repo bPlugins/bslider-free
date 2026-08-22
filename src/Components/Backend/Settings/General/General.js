@@ -319,10 +319,19 @@ const General = ({ attributes, setAttributes, activeIndex, setActiveIndex, updat
     const currentFeedType = socialQuery?.feedType || 'youtube';
 
     const handleFeedTypeSelect = (val) => {
+        // Through `layoutDefaults` for the reason the Source Type tiles use it: `layoutType:
+        // 'default'` on its own leaves a grid's arrows switched off and its three columns behind, so
+        // the picker reads Default while the block is still the grid it replaced.
+        const layoutReset = val
+            ? layoutDefaults('default', attributes, 'social')
+            : { layoutType: '' };
+
         setAttributes({
-            layoutType: val ? 'default' : '',
+            ...layoutReset,
             socialQuery: {
-                ...(socialQuery || {}),
+                // The layout's own `socialQuery` first, so a reset's `playVideo` and friends are not
+                // dropped by the feed keys written over them below.
+                ...(layoutReset.socialQuery || socialQuery || {}),
                 feedType: val,
                 channelId: '',
                 source: '',

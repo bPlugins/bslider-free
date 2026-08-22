@@ -154,6 +154,7 @@ if ( ! class_exists( __NAMESPACE__ . '\RestQuery' ) ) {
             // A meta query the request already carries is left in place and joined with this one,
             // rather than replaced: ordering is not the only thing that may have put one there.
             if ( isset( $metaArgs['meta_query'], $args['meta_query'] ) && is_array( $args['meta_query'] ) ) {
+                // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
                 $metaArgs['meta_query'] = [
                     'relation' => 'AND',
                     $args['meta_query'],

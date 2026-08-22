@@ -648,8 +648,8 @@ if(!class_exists( __NAMESPACE__ . '\Posts' )){
             // filters into it would turn "must match this rule" into "or matches this rule". The
             // named `bsbOrder` clause is still found for the sort — WP_Meta_Query reads its clauses
             // across nesting, not only at the top level.
+            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
             $args['meta_query'] = isset( $args['meta_query'] )
-                // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
                 ? [ 'relation' => 'AND', $args['meta_query'], $filters ]
                 : $filters;
 

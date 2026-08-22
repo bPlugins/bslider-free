@@ -538,6 +538,7 @@ if ( ! class_exists( __NAMESPACE__ . '\SocialFeed' ) ) {
 
                 // Extract avatar image from the first stored item/slide
                 $channel_avatar = '';
+                // phpcs:disable WordPress.DB.SlowDBQuery.slow_db_query_meta_key, WordPress.DB.SlowDBQuery.slow_db_query_meta_value
                 $stored_posts = get_posts( [
                     'post_type'      => FeedStore::POST_TYPE,
                     'post_status'    => [ 'publish', 'future' ],
@@ -546,6 +547,7 @@ if ( ! class_exists( __NAMESPACE__ . '\SocialFeed' ) ) {
                     'meta_value'     => $feed_key,
                     'fields'         => 'ids',
                 ] );
+                // phpcs:enable WordPress.DB.SlowDBQuery.slow_db_query_meta_key, WordPress.DB.SlowDBQuery.slow_db_query_meta_value
                 if ( ! empty( $stored_posts ) ) {
                     $post_id = $stored_posts[0];
                     $item_data = json_decode( get_post_meta( $post_id, FeedStore::DATA_META, true ), true );

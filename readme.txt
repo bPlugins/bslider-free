@@ -3,7 +3,7 @@ Contributors: bplugins, abuhayat, btechnologies, farazi1, freemius
 Donate link: https://www.buymeacoffee.com/abuhayat
 Tags: block, carousel, slider, bootstrap, Gutenberg block
 Requires at least: 6.5
-Tested up to: 7.0.1
+Tested up to: 7.1
 Stable tag: 2.1.0
 Requires PHP: 7.2
 License: GPLv2 or later 
