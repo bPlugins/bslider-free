@@ -11,7 +11,7 @@ import Settings from './Settings/Settings';
 import Style from '../Common/Style';
 import Layout from '../Common/Layouts/Layout';
 import PostsGridBack from './PostsGridBack';
-import { filterNaN, filterObject, filterPassword, filterSelected, isProActive, isPostTypeLocked, wordCount } from '../../utils/functions';
+import { filterNaN, filterObject, filterPassword, filterSelected, isPostTypeLocked, wordCount } from '../../utils/functions';
 import { allowedAcfFields, FIELD_ROLES } from '../Common/single-item/AcfFields';
 import { safeOrderBy } from '../../utils/options';
 import SelectSource from './Source/SelectSource';
@@ -45,11 +45,24 @@ const Edit = (props) => {
 	const [acfValuesMap, setAcfValuesMap] = useState({});
 	const { sliders, layoutType, postsQuery } = attributes;
 
-	useEffect(() => {
-		if (!isProActive() && 'social' === attributes.sourceType && layoutType && 'default' !== layoutType) {
-			setAttributes({ layoutType: 'default' });
-		}
-	}, [attributes.sourceType, layoutType]);
+	/**
+	 * Nothing here rewrites `layoutType` when a feed cannot use the one it is set to.
+	 *
+	 * An effect used to: without a licence, a `social` source with any layout but `default` had
+	 * `default` written into the attribute. Its deps were `sourceType` and `layoutType`, and both
+	 * change together when the source is switched — so on the render where React had applied the new
+	 * `layoutType: ''` but not yet the new `sourceType`, or the other way round, the effect saw a
+	 * feed still holding the outgoing source's layout and wrote `default` over the blank.
+	 *
+	 * `SelectLayout` only draws while `layoutType` is falsy, so the picker was skipped and the slider
+	 * jumped straight to the default layout — intermittently, because it depends on which half of the
+	 * batch the effect observed.
+	 *
+	 * `SelectLayout` decides this now, where the choice is offered: it filters the cards it draws, so
+	 * a feed is never given a layout it may not have in the first place. A slider saved under a
+	 * licence keeps its layout and `Layout` goes on rendering it, which is the same arrangement
+	 * `PRO_ONLY` uses for the player.
+	 */
 
 	// Filtered the same way Posts::acfFieldsToFetch filters it, so the preview shows what the site shows.
 	const selectedAcfFields = allowedAcfFields(postsQuery?.selectedAcfFields || []);
