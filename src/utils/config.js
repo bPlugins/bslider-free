@@ -123,7 +123,7 @@ export const PRO_ONLY = {
      */
     controls: ['settings', 'fullscreen'],
     settings: ['speed'],
-    values: { repeat: false, clickToPlay: true, resetOnEnd: false }
+    values: { clickToPlay: true, resetOnEnd: false }
 };
 
 /**
@@ -198,6 +198,7 @@ export const finishPlyr = (player, conf) => {
 export const plyrConfig = (attributes) => {
     const {
         controls,
+        repeat,
         muted,
         autoHideControl,
         settingsMenu,
@@ -242,7 +243,7 @@ export const plyrConfig = (attributes) => {
      * false outright, and `bsbpipecheck` is only printed for the editor, so asking on the front end
      * reads an undefined global to learn what is already known here.
      */
-    const { repeat, clickToPlay, resetOnEnd } = { ...PRO_ONLY.values };
+    const { clickToPlay, resetOnEnd } = { ...PRO_ONLY.values };
 
     /** Drops what this build cannot draw: a Premium control, and an embed-only one on a feed. */
     const forHere = (list, group) => list.filter(item =>

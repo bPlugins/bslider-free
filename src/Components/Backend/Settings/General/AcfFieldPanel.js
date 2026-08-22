@@ -122,25 +122,21 @@ const AcfFieldPanel = ({
               * some fields, and every slider that already has one keeps working — the same
               * `cfg.icon`, either kind of value.
               */}
-            {isPro ? (
-                <>
-                    <IconLibrary
-                        label={__('Icon:', 'b-slider')}
-                        value={cfg.icon || ''}
-                        onChange={val => onFieldChange(field.value, { icon: val })}
-                    />
+            {isPro && <IconLibrary
+                label={__('Icon:', 'b-slider')}
+                value={cfg.icon || ''}
+                onChange={val => onFieldChange(field.value, { icon: val })}
+            />}
 
-                    <TipText
-                        className='mt15'
-                        label={__('Or type a character', 'b-slider')}
-                        value={String(cfg.icon || '').startsWith('<svg') ? '' : (cfg.icon || '')}
-                        onChange={val => onFieldChange(field.value, { icon: val })}
-                        tip={__('An emoji or character shown before the value, e.g. 📍', 'b-slider')}
-                    />
-                </>
-            ) : (
-                <ProNotice className='mt15' features={PRO_FEATURES.iconLibrary} />
-            )}
+            <TipText
+                className='mt15'
+                label={isPro ? __('Or type a character', 'b-slider') : __('Icon:', 'b-slider')}
+                value={String(cfg.icon || '').startsWith('<svg') ? '' : (cfg.icon || '')}
+                onChange={val => onFieldChange(field.value, { icon: val })}
+                tip={__('An emoji or character shown before the value, e.g. 📍', 'b-slider')}
+            />
+
+            {!isPro && <ProNotice className='mt15' features={PRO_FEATURES.iconLibrary} />}
 
             <TextControl
                 label={__('Prefix:', 'b-slider')}

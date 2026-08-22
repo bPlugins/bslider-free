@@ -149,26 +149,22 @@ const SocialBadges = ({ attributes, setAttributes, updateObject, premiumProps })
                                       * quickest answer for some badges, and every slider that already has
                                       * one keeps working — the same field, either kind of value.
                                       */}
-                                    {isPro ? (
-                                        <>
-                                            <IconLibrary
-                                                className='mt15'
-                                                label={__('Icon:', 'b-slider')}
-                                                value={cfg.icon || ''}
-                                                onChange={val => setBadgeSetting(badgeKey, 'icon', val)}
-                                            />
+                                    {isPro && <IconLibrary
+                                        className='mt15'
+                                        label={__('Icon:', 'b-slider')}
+                                        value={cfg.icon || ''}
+                                        onChange={val => setBadgeSetting(badgeKey, 'icon', val)}
+                                    />}
 
-                                            <TextControl
-                                                className='mt15'
-                                                label={__('Or type a character', 'b-slider')}
-                                                value={String(cfg.icon || '').startsWith('<svg') ? '' : (cfg.icon || '')}
-                                                onChange={val => setBadgeSetting(badgeKey, 'icon', val)}
-                                                placeholder='📍'
-                                            />
-                                        </>
-                                    ) : (
-                                        <ProNotice className='mt15' features={PRO_FEATURES.feedBadgeIcons} />
-                                    )}
+                                    <TextControl
+                                        className='mt15'
+                                        label={isPro ? __('Or type a character', 'b-slider') : __('Icon:', 'b-slider')}
+                                        value={String(cfg.icon || '').startsWith('<svg') ? '' : (cfg.icon || '')}
+                                        onChange={val => setBadgeSetting(badgeKey, 'icon', val)}
+                                        placeholder='📍'
+                                    />
+
+                                    {!isPro && <ProNotice className='mt15' features={PRO_FEATURES.feedBadgeIcons} />}
 
                                     <TextControl
                                         className='mt15'

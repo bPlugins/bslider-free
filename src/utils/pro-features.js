@@ -193,7 +193,6 @@ export const PRO_FEATURES = {
 		__('Lazy Load Video', 'b-slider'),
 	],
 	nativeInstagram: [__('Show Player Controls', 'b-slider'), __('Loop Video', 'b-slider')],
-	playerRepeat: [__('Repeat', 'b-slider')],
 	playerBehaviour: [
 		__('Click To Play', 'b-slider'),
 		__('Reset On End', 'b-slider'),

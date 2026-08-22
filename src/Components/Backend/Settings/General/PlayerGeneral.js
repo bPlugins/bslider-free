@@ -298,10 +298,9 @@ const PlayerGeneral = ({ attributes, setAttributes, updateObject, premiumProps, 
 
             <FieldGroup title={__('Playback', 'b-slider')} />
 
-            {isPro && (
-                <ToggleControl className='mt15' label={__('Repeat', 'b-slider')} checked={conf.repeat} onChange={val => set('repeat', val)} />
-            )}
-            {!isPro && <ProLine features={PRO_FEATURES.playerRepeat} />}
+            {/* Free, as it is on the released build — the Video panel drew it there, and moving the
+                setting into this panel is not a reason for it to change hands. */}
+            <ToggleControl className='mt15' label={__('Repeat', 'b-slider')} checked={conf.repeat} onChange={val => set('repeat', val)} />
 
             <ToggleControl className='mt15' label={__('Muted', 'b-slider')} checked={conf.muted} onChange={val => set('muted', val)} />
 
