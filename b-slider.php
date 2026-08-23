@@ -10,8 +10,7 @@
  * License URI: http://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: b-slider
  */
- 
-    // ABS PATH
+
     if (!defined('ABSPATH')) {exit;}
 
     if (defined('WP_DEBUG') && WP_DEBUG === true) {
@@ -69,7 +68,6 @@
             add_filter('plugin_row_meta', array($this, 'insert_plugin_row_meta'), 10, 2);
         }
 
-        // Check instance 
         public static function get_instance() {
             if ( self::$instance ){
                 return self::$instance;
@@ -79,10 +77,9 @@
             return self::$instance;
         }
 
-        //Class loaded
         public function load_classes () {
-            require_once plugin_dir_path(__FILE__) . '/includes/admin-menu.php'; 
-            require_once plugin_dir_path(__FILE__) . '/custom-post.php';
+            require_once plugin_dir_path(__FILE__) . '/includes/admin-menu.php';
+            require_once plugin_dir_path(__FILE__) . '/includes/custom-post.php';
             new B_SLIDER\CustomPost();
         }
 
@@ -102,23 +99,19 @@
             return $links;
         }
 
-        // Extending row meta 
         public function insert_plugin_row_meta($links, $file){
 
             $demosLine = admin_url( 'edit.php?post_type=bsb&page=b-slider#/demos' );
-    
+
             if ($file == 'b-slider/b-slider.php') {
-                // docs & faq
                 $links[] = sprintf('<a href="https://bplugins.com/docs/b-slider/" target="_blank">' . __('Docs & FAQs', 'b-slider') . '</a>');
 
-                // Demos
                 $links[] = sprintf('<a href="%s" target="_blank">' . __('Demos', 'b-slider') . '</a>', $demosLine);
             }
             return $links;
         }
 
-        // Enqueue Block assets 
-        public function enqueueBlockAssets(){ 
+        public function enqueueBlockAssets(){
             wp_register_style('bootstrap', B_SLIDER_ASSETS_DIR . 'css/bootstrap.min.css', [], B_SLIDER_PLUGIN_VERSION);
             wp_register_style('b-slider-plyr-style', B_SLIDER_ASSETS_DIR . 'css/plyr.min.css', [], B_SLIDER_PLUGIN_VERSION);
 
@@ -129,7 +122,6 @@
              
         }
 
-        // Short code style
         public function adminEnqueueScripts($hook){
             if ('edit.php' === $hook || 'post.php' === $hook) {
                 wp_enqueue_style('b-slider-admin', B_SLIDER_ASSETS_DIR . 'css/admin.css', [], B_SLIDER_PLUGIN_VERSION);
