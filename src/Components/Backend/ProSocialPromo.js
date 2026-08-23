@@ -37,7 +37,7 @@ const ProSocialPromo = ({ variant = 'full' }) => {
             <div className="bsb_pro_promo_body">
                 <span className="bsb_pro_promo_badge">{__('Pro Feature', 'b-slider')}</span>
 
-                <h4 className="bsb_pro_promo_title">{__('Slide your social & external feeds', 'b-slider')}</h4>
+                <h4 className="bsb_pro_promo_title">{__('Display social & external feeds', 'b-slider')}</h4>
 
                 <p className="bsb_pro_promo_text">
                     {__('Upgrade to Pro to fetch, cache and display slides straight from YouTube, Instagram, RSS, or custom JSON feeds, auto-synced on your schedule.', 'b-slider')}

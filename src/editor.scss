@@ -1879,9 +1879,10 @@ svg#bsbSlider {
     display: inline-block;
     margin-left: 8px;
     padding: 1px 7px;
-    border-radius: 999px;
-    background: var(--bsb-accent, #ff7a00);
-    color: #fff;
+    border-radius: 0;
+    background: color-mix(in srgb, var(--bsb-accent, #ff7a00) 12%, transparent);
+    border: 1px solid color-mix(in srgb, var(--bsb-accent, #ff7a00) 35%, transparent);
+    color: var(--bsb-accent, #ff7a00);
     font-size: 0.72em;
     font-weight: 700;
     letter-spacing: 0.04em;
