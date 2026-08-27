@@ -10,7 +10,15 @@ const CardFlag = ({ item }) => {
 };
 
 const SelectLayout = ({ attributes, setAttributes }) => {
-    const { layoutType } = attributes;
+    const { layoutType, sourceType } = attributes;
+
+    // A `blocks`-sourced slide's content arrives on the front end as one pre-rendered HTML blob
+    // (see render.php's `_blocksHtml` bridge), not a JS-enumerable array of items — only the
+    // Bootstrap-Carousel-based Default layout can animate between opaque HTML blocks like that.
+    // Carousel/Grid/Thumbnails are Swiper-based and need each slide as a discrete item.
+    const availableLayouts = 'blocks' === sourceType
+        ? layoutItem.filter(item => 'default' === item.layoutType)
+        : layoutItem;
 
     return !layoutType && (
         <div className='bsb_main_parent'>
@@ -27,7 +35,7 @@ const SelectLayout = ({ attributes, setAttributes }) => {
             </div>
 
             <div className='bsb_parent_area source_grid'>
-                {layoutItem?.map((item, index) => {
+                {availableLayouts?.map((item, index) => {
                     const handleLayoutClick = () => {
                         if (item.isPro) {
                             return;

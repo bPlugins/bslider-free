@@ -18,7 +18,7 @@ const Layout = (props) => {
     const isEditor = true === commonDeProps?.isBackEnd;
 
     return <>{
-        !firstPosts ? <Loading /> : firstPosts?.length || ['image', 'video'].includes(sourceType) ? <LayoutComponent {...props} /> : <NoPosts {...{ attributes, isEditor }} />
+        !firstPosts ? <Loading /> : firstPosts?.length || ['image', 'video', 'blocks'].includes(sourceType) ? <LayoutComponent {...props} /> : <NoPosts {...{ attributes, isEditor }} />
     } </>
 }
 export default Layout;

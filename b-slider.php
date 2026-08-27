@@ -66,6 +66,7 @@
             add_action('init', [$this, 'onInit']);
             add_filter( 'plugin_action_links', [$this, 'plugin_action_links'], 10, 2 );
             add_filter('plugin_row_meta', array($this, 'insert_plugin_row_meta'), 10, 2);
+            add_filter( 'register_block_type_args', [$this, 'registerBlockTypeArgs'], 10, 2 );
         }
 
         public static function get_instance() {
@@ -129,8 +130,25 @@
             }
         }
 
+        public function registerBlockTypeArgs( $args, $name ) {
+            $incapable = [ 'core/shortcode', 'core/html', 'core/freeform', 'core/missing' ];
+            if ( in_array( $name, $incapable, true ) ) {
+                return $args;
+            }
+
+            if ( ! isset( $args['attributes'] ) ) {
+                $args['attributes'] = [];
+            }
+            $args['attributes']['bsbLayer'] = [
+                'type'    => 'object',
+                'default' => [],
+            ];
+            return $args;
+        }
+
         public function onInit(){
             register_block_type( __DIR__ . '/build' );
+            register_block_type( __DIR__ . '/build/Blocks/Slide' );
         }
     }
     B_Slider::get_instance();

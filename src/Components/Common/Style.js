@@ -19,6 +19,23 @@ const Style = ({ attributes, clientId, postsCount, products }) => {
 		.replace(/"/g, '%22');
 
 	/**
+	 * One slide of a `blocks` slider, in both shapes it comes in.
+	 *
+	 * On the front end the slides sit straight inside `.carousel-inner`. In the editor they are
+	 * real child blocks, and Gutenberg puts two wrappers of its own in between —
+	 * `.block-editor-inner-blocks > .block-editor-block-list__layout` — so a single `>` chain
+	 * written for the front end silently matches nothing on the canvas. That is why the height
+	 * set on a `blocks` slider appeared to do nothing there while working on the published page.
+	 * `editor.scss` already spells the same pair out for its own rules; this is the same fact.
+	 *
+	 * The `:not(.carousel-item *)` stays on `.bsbCarousel` for the reason it was put there: a
+	 * slide can hold another bSlider, and without it this slider's height would be handed to
+	 * that one's slides too.
+	 */
+	const blocksInner = `#bsbCarousel-${clientId} .bsbCarousel:not(.carousel-item *) > .carousel-inner`;
+	const blocksSlide = `${blocksInner} > .carousel-item, ${blocksInner} > .block-editor-inner-blocks > .block-editor-block-list__layout > .carousel-item`;
+
+	/**
 	 * Everything laid over a slide's picture.
 	 *
 	 * Three selectors and not one, because the caption's container is named by the layout: the
@@ -509,7 +526,7 @@ ${layerMotionCSS}
 		transition:0.3s;
 	}
 
-	#bsbCarousel-${clientId} .item, 
+	#bsbCarousel-${clientId} .item,
 	#bsbCarousel-${clientId} .videoItem,
 	#bsbCarousel-${clientId} .thumbnails .side-by-side .bsb-slider-thumbnail{
 		position:relative;
@@ -518,6 +535,31 @@ ${layerMotionCSS}
 		box-sizing: border-box;
 		overflow: hidden;
 	}
+
+	${'blocks' === sourceType ? `
+	/* Every other source wraps its slide in an .item and hangs the height off that. A slide
+	   built from blocks has no such wrapper - the blocks are the slide - so the height has to
+	   land on the carousel item itself.
+
+	   Height is only written when the user asked for one. Left alone, a slide is as tall as the
+	   blocks stacked in it - which is the honest default here, where the content is whatever
+	   someone put there rather than a picture cropped to a box. \`height\` (the attribute) is not
+	   that answer: it is a 450px default no control ever writes, so falling back to it would set
+	   a height nobody chose and make "auto" unreachable. Only \`sliderHeight[device]\` comes from
+	   a person.
+
+	   A minimum rather than a fixed height, so nothing is clipped: a Columns or Row taller than
+	   the setting keeps its lower half instead of losing it. */
+	${sliderHeight?.desktop ? `
+	${blocksSlide} {
+		min-height: ${sliderHeight.desktop};
+	}` : ''}
+
+	${blocksSlide} {
+		border-radius: ${getBoxValue(borderRadius)};
+		box-sizing: border-box;
+	}
+	` : ''}
 
 	#bsbCarousel-${clientId} .thumbnails .side-by-side .bsb-slider-thumbnail{
 		width:100%;
@@ -684,12 +726,20 @@ ${layerMotionCSS}
 		#bsbCarousel-${clientId} .item, #bsbCarousel-${clientId} .videoItem {
 			height: ${sliderHeight?.tablet || sliderHeight?.desktop || height};
 		}
+
+		${'blocks' === sourceType && (sliderHeight?.tablet || sliderHeight?.desktop) ? `${blocksSlide} {
+			min-height: ${sliderHeight?.tablet || sliderHeight?.desktop};
+		}` : ''}
 	}
 
-	@media (max-width: 576px) { 
-		#bsbCarousel-${clientId} .item, #bsbCarousel-${clientId} .videoItem { 
+	@media (max-width: 576px) {
+		#bsbCarousel-${clientId} .item, #bsbCarousel-${clientId} .videoItem {
 			height: ${sliderHeight?.mobile || sliderHeight?.tablet || sliderHeight?.desktop || height};
 		}
+
+		${'blocks' === sourceType && (sliderHeight?.mobile || sliderHeight?.tablet || sliderHeight?.desktop) ? `${blocksSlide} {
+			min-height: ${sliderHeight?.mobile || sliderHeight?.tablet || sliderHeight?.desktop};
+		}` : ''}
 	}
 
 	#bsbCarousel-${clientId} .item .carousel-caption {

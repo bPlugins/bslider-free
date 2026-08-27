@@ -24,7 +24,7 @@ import VideoGeneral from './VideoGeneral';
 import ProPanel from '../../../Panel/ProPanel';
 import { PRO_FEATURES } from '../../../../utils/pro-features';
 
-const General = ({ attributes, setAttributes, activeIndex, setActiveIndex, updateObject, multipleAttrChange, getTaxonomy, premiumProps, postTypes, queriedPosts }) => {
+const General = ({ attributes, setAttributes, activeIndex, setActiveIndex, updateObject, multipleAttrChange, getTaxonomy, premiumProps, postTypes, queriedPosts, hasSlideBlocks }) => {
 
     const [device, setDevice] = useState('desktop');
     const [gapDevice, setGapDevice] = useState('desktop');
@@ -54,6 +54,17 @@ const General = ({ attributes, setAttributes, activeIndex, setActiveIndex, updat
         if (sourceTypeOpt.find(opt => opt.value === val)?.isPro) {
             return;
         }
+
+        // Every non-`blocks` sourceType saves `null` (src/index.js) — switching away from
+        // `blocks` after real slide content exists would silently discard it on the next save,
+        // with no recovery beyond the editor's own undo history.
+        if (sourceType === 'blocks' && val !== 'blocks' && hasSlideBlocks) {
+            const confirmed = window.confirm(__('Switching away from Gutenberg Blocks will permanently delete all the slide content you\'ve built here. Continue?', 'b-slider'));
+            if (!confirmed) {
+                return;
+            }
+        }
+
         setAttributes({ sourceType: val });
 
         if (val === 'woo') {
@@ -139,7 +150,11 @@ const General = ({ attributes, setAttributes, activeIndex, setActiveIndex, updat
 
             <Label className="mt15 mb5">{__('Select Layout', 'b-slider')}</Label>
             <div className="bsb_panel_grid_selector">
-                {selectLayoutOpt.map((opt) => (
+                {/* A `blocks`-sourced slider's content is one opaque HTML blob on the front end
+                    (see render.php's `_blocksHtml` bridge) — only the Bootstrap-Carousel-based
+                    Default layout can animate between blocks like that; Carousel/Grid/Thumbnails
+                    are Swiper-based and need each slide as a discrete, JS-enumerable item. */}
+                {(sourceType === 'blocks' ? selectLayoutOpt.filter(opt => opt.value === 'default') : selectLayoutOpt).map((opt) => (
                     <button
                         key={opt.value}
                         type="button"
@@ -155,7 +170,7 @@ const General = ({ attributes, setAttributes, activeIndex, setActiveIndex, updat
             <ProListLayoutPromo variant="compact" />
         </PanelBody>
 
-        {(sourceType !== "posts" && sourceType !== "woo") &&
+        {(sourceType !== "posts" && sourceType !== "woo" && sourceType !== "blocks") &&
             <PanelBody className='bPlPanelBody' title={__('Slides', 'b-slider')} initialOpen={false}>
                 <MainItem itemsProps={itemsProps} />
             </PanelBody>}
@@ -334,7 +349,7 @@ const General = ({ attributes, setAttributes, activeIndex, setActiveIndex, updat
     </>
 }
 
-export default withSelect((select, { attributes }) => {
+export default withSelect((select, { attributes, clientId }) => {
 
     const { getPostTypes, getTaxonomies, getEntityRecords } = select('core');
     const { getDeviceType, getCurrentPostType, getCurrentPostId } = select('core/editor');
@@ -344,6 +359,10 @@ export default withSelect((select, { attributes }) => {
 
     return {
         device: getDeviceType()?.toLowerCase(),
+
+        // Gates the data-loss confirm in `handleSourceSelect` — only worth asking about if the
+        // slide actually has content built into it.
+        hasSlideBlocks: (select('core/block-editor').getBlock(clientId)?.innerBlocks?.length || 0) > 0,
 
         postTypes: getPostTypes({ per_page: -1 })?.filter(p => !['apb', 'attachment', 'nav_menu_item', 'bsb'].includes(p.slug) && !p.slug.startsWith('wp_'))?.map(({ name, slug }) => ({ label: name, value: slug, locked: isPostTypeLocked(slug) })),
 

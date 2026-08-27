@@ -147,3 +147,11 @@ export const socialFeed = (width = 24, height = 24) => (
 	</svg>
 );
 
+export const layers = (width = 24, height = 24) => (
+	<svg xmlns='http://www.w3.org/2000/svg' width={width} height={height} viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='1.5' strokeLinecap='round' strokeLinejoin='round'>
+		<path d='M12 2 2 7l10 5 10-5-10-5Z' />
+		<path d='M2 12l10 5 10-5' />
+		<path d='M2 17l10 5 10-5' />
+	</svg>
+);
+

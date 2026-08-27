@@ -1,7 +1,22 @@
 <?php
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-call_user_func( function( $attributes ) {
+call_user_func( function( $attributes, $content ) {
+
+    if ( 'blocks' === ( isset( $attributes['sourceType'] ) ? $attributes['sourceType'] : '' ) ) {
+
+        $attributes['_blocksHtml'] = $content;
+        ?>
+        <div
+            <?php echo wp_kses_post( get_block_wrapper_attributes() ); ?>
+            id='bsbCarousel-<?php echo esc_attr( isset( $attributes['cId'] ) ? $attributes['cId'] : '' ); ?>'
+            data-attributes-b64='<?php echo esc_attr( base64_encode( wp_json_encode( $attributes ) ) ); ?>'
+            data-nonce='<?php echo esc_attr( wp_json_encode( wp_create_nonce( \B_SLIDER\PostsAjax::NONCE_ACTION ) ) ); ?>'
+            data-totalposts='0'
+        ></div>
+        <?php
+        return;
+    }
 
     $sliders = [];
     $posts_query = isset( $attributes['postsQuery'] ) ? $attributes['postsQuery'] : [];
@@ -39,4 +54,4 @@ call_user_func( function( $attributes ) {
         </pre>
     </div>
     <?php
-}, $attributes ); 
+}, $attributes, $content );

@@ -1982,3 +1982,292 @@ svg#bsbSlider {
 .bsb_social_badges_panel .bsb_acf_field_panel {
     border-radius: 0 !important;
 }
+
+/**
+ * Editing a `blocks`-sourced slider: every slide on the canvas at once.
+ *
+ * Bootstrap keeps all but the active `.carousel-item` at `display: none`. That is right on the
+ * front end and unworkable here, because these slides are real blocks the user has to click
+ * into — a hidden one cannot be selected, typed in, or given content, and the inserter that adds
+ * the next slide sits inside the same hidden run. Nor can the class be chased from our side:
+ * Bootstrap's JS moves `.active` between slides while React rewrites `className` from
+ * `useBlockProps` on every re-render, so whichever wrote last wins and neither stays put.
+ *
+ * Showing the stack sidesteps the whole fight. The front end still animates one slide at a time
+ * — none of this is in `style.scss` — and the canvas becomes a plain vertical list of slides,
+ * which is also how the blocks themselves are ordered in the List View.
+ */
+.carousel.blocks {
+
+    /* Direct children throughout this block: a slide can hold another bSlider, and every rule
+       here would otherwise reach past this slider's own slides into that one's — stacking its
+       slides, numbering them into the same sequence, and overriding a height it set for itself. */
+    .carousel-inner:not(.carousel-item *) {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        overflow: visible;
+    }
+
+    /* `float`/`margin-right` are Bootstrap's own transition scaffolding, which only makes sense
+       for one slide sliding over another.
+
+       The height override matters more than it looks: Style.js gives a slide the height the user
+       set for the slider, and clips what does not fit — right on the front end, wrong here, where
+       a Columns or Row block's own inserter sits below its content and would be cut off with it,
+       leaving no way to put anything inside. `!important` because that rule is written against an
+       id and would otherwise win. */
+    .carousel-item:not(.carousel-item *) {
+        display: block;
+        position: relative;
+        float: none;
+        margin-right: 0;
+        min-height: 70px;
+        overflow: visible !important;
+
+        .block-list-appender {
+            display: block !important;
+        }
+    }
+
+    /* The card look — the dashed edge that shows where one slide ends and the next begins.
+       Kept out of the rule above and written without `!important` on purpose: `slideStyles`
+       puts the user's own padding, background and border on the slide as an inline `style`
+       attribute, and an inline style beats any selector, so each of these applies only until
+       the user sets that particular one. */
+    .carousel-item:not(.carousel-item *) {
+        padding: 12px;
+        background: var(--bsb-surface);
+        border: 1px dashed var(--bsb-line-strong);
+        border-radius: var(--bsb-radius-sm);
+    }
+
+    /* No `height: auto !important` here any more, and that is the point.
+       It used to sit in the rule above to stop Style.js pinning a slide to the slider's height
+       and clipping a Columns block's inserter out of reach. Style.js no longer does that for a
+       `blocks` slider: it writes `min-height`, and only when the user actually set one — so a
+       slide grows past the setting rather than being cut off at it, and the canvas can simply
+       let it. Overriding here now would only throw away the height the user asked for. */
+
+    /* Word-wrap, repeated from `style.scss` rather than shared with it.
+       `style.scss` compiles to `view.css`, which the parent slider's `block.json` lists under
+       `style` — and that reaches the front end, not the canvas: the editor loads a block's
+       `editorStyle`, and `bsb/slide` has none of its own. So the canvas never saw the rule and
+       a long URL overflowed there while wrapping correctly on the published page. The pair is
+       small enough to state twice; the alternative is giving the slide block its own stylesheet
+       for two declarations. */
+    .bsb-slide-content {
+        overflow-wrap: anywhere;
+    }
+
+    .bsb-slide-content.bsb-nowrap {
+        overflow-wrap: normal;
+    }
+
+    /* And the same hold on anything wide — an image at its natural pixel width is the one that
+       actually happens, and on the canvas it pushed a scrollbar under the whole editor. Repeated
+       here for the same reason as the pair above: `view.css` never reaches the canvas. */
+    .bsb-slide-content {
+
+        img,
+        video,
+        iframe,
+        canvas,
+        svg,
+        table,
+        pre {
+            max-width: 100%;
+        }
+
+        img,
+        video,
+        canvas,
+        svg {
+            height: auto;
+        }
+    }
+
+    /* No "Slide 1" label on the slide itself: the tab bar above the canvas already names every
+       slide and says which one is open, so a second label inside it repeated that and, once a
+       slide had a background set, sat on top of it as stray text. */
+
+    /* The arrows step through slides that are all already on screen, and the dots count a
+       `sliders` array this source never fills. Both are still drawn on the front end. */
+    > .bsbButtonDesign,
+    > .indicatorsWrapper {
+        display: none;
+    }
+
+    /*
+     * "Add a block to this slide", kept visible whether the slide is empty or full.
+     *
+     * Gutenberg hides an appender once its container has children, on the reasoning that the
+     * space below the last block is itself the place to click. That reasoning holds on a page,
+     * which continues downwards; a slide ends where it ends, and the space below the last block
+     * belongs to the slider rather than to the slide — so clicking there adds nothing and there
+     * is no other way in. Drawn full width for the same reason the tab bar is: a 24px square at
+     * the foot of a slide reads as debris rather than as the way to add the next thing.
+     */
+    .block-list-appender {
+        display: block !important;
+        margin: 8px 0 0;
+
+        .block-editor-button-block-appender {
+            width: 100%;
+            min-height: 44px;
+            justify-content: center;
+            color: var(--bsb-primary);
+            background: var(--bsb-primary-soft);
+            border: 1px dashed var(--bsb-primary-line);
+            border-radius: var(--bsb-radius-sm);
+
+            &:hover {
+                background: var(--bsb-surface);
+                border-color: var(--bsb-primary);
+            }
+        }
+    }
+}
+
+/**
+ * The slide switcher above the canvas.
+ *
+ * Drawn as a segmented control rather than as a row of buttons: the slides are one set of
+ * alternatives, only one of which is on the canvas at a time, and a segmented control is the
+ * shape that says so. The open slide is lifted onto a white card inside a recessed track, so
+ * which one is being edited reads at a glance without a border having to announce it.
+ */
+.bsb_slide_tabs {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+    padding: 4px;
+    background: var(--bsb-surface-soft);
+    border: 1px solid var(--bsb-line);
+    border-radius: var(--bsb-radius);
+
+    .bsb_slide_tabs_list {
+        display: flex;
+        flex: 1;
+        gap: 2px;
+        min-width: 0;
+        /* One line that scrolls, rather than a block that grows taller: the bar sits above the
+           canvas, and a slider with a dozen slides would otherwise push the slide itself down
+           the screen. The scrollbar is hidden because the tabs are also reachable by keyboard
+           and by clicking into the slide. */
+        overflow-x: auto;
+        scrollbar-width: none;
+
+        &::-webkit-scrollbar {
+            display: none;
+        }
+    }
+
+    .bsb_slide_tab {
+        display: flex;
+        align-items: center;
+        flex: none;
+        border-radius: var(--bsb-radius-sm);
+        transition: background 0.15s var(--bsb-ease);
+
+        > button:first-child {
+            padding: 7px 14px;
+            border: none;
+            border-radius: var(--bsb-radius-sm);
+            background: transparent;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--bsb-muted);
+            cursor: pointer;
+            white-space: nowrap;
+            transition: color 0.15s var(--bsb-ease);
+
+            &:hover {
+                color: var(--bsb-text);
+            }
+
+            &:focus-visible {
+                outline: none;
+                box-shadow: var(--bsb-ring);
+            }
+        }
+
+        /* Lifted out of the track: a card with a shadow reads as the one in front, which is
+           exactly what the open slide is. */
+        &.is-active {
+            background: var(--bsb-surface);
+            box-shadow: var(--bsb-shadow-sm);
+
+            > button:first-child {
+                color: var(--bsb-primary);
+            }
+        }
+
+        /* Only on the slide being worked on — a row of bins invites the wrong click. Quiet until
+           pointed at, so the tab reads as a name rather than as a warning. */
+        .bsb_slide_tab_remove {
+            min-width: 24px;
+            height: 24px;
+            margin-right: 4px;
+            padding: 0;
+            color: var(--bsb-faint);
+            transition: color 0.15s var(--bsb-ease), background 0.15s var(--bsb-ease);
+
+            &:hover:not(:disabled) {
+                color: var(--bsb-danger);
+                background: var(--bsb-danger-soft);
+            }
+        }
+    }
+
+    /* Outside the track and against its edge, because adding a slide is a different kind of act
+       from choosing between the ones already there. */
+    .bsb_slide_tab_add {
+        flex: none;
+        height: 30px;
+        padding: 0 12px;
+        border-radius: var(--bsb-radius-sm);
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--bsb-primary);
+        background: var(--bsb-primary-soft);
+        box-shadow: none;
+        transition: background 0.15s var(--bsb-ease), color 0.15s var(--bsb-ease);
+
+        &:hover:not(:disabled) {
+            color: var(--bsb-surface) !important;
+            background: var(--bsb-primary);
+        }
+
+        &:focus-visible {
+            box-shadow: var(--bsb-ring);
+        }
+    }
+}
+
+/**
+ * One slide on the canvas, of every slide stacked by `.carousel.blocks` above.
+ *
+ * The slides are child blocks, so which one is shown cannot be passed down as a prop — the
+ * number is written onto a wrapper as `data-bsb-active-slide` and the rules below read it from
+ * there, hiding the rest by position. `:nth-child` counts the slides themselves, since Gutenberg
+ * gives each block its own wrapper and they are siblings within `.carousel-inner`.
+ *
+ * `!important` because the stacking rules above are written against `.carousel.blocks` and would
+ * otherwise keep every slide on show.
+ *
+ * Written as "hide the others" rather than "hide all, then show one". The two say the same thing
+ * about which slide is visible, but the second had to name a `display` for the one it brought
+ * back, and `display: block !important` beats an inline style — so a slide with Vertical
+ * position set, which `slideStyles` writes as an inline `display: flex`, was flattened back to
+ * block and its `justify-content` stopped meaning anything. It worked on the front end, where
+ * none of this exists. Naming only the slides being hidden leaves the visible one's `display`
+ * untouched, whatever it is.
+ */
+@for $i from 0 through 49 {
+    [data-bsb-active-slide="#{$i}"] .carousel.blocks > .carousel-inner > .block-editor-inner-blocks > .block-editor-block-list__layout > *:not(:nth-child(#{$i + 1})),
+    [data-bsb-active-slide="#{$i}"] .carousel.blocks > .carousel-inner > *:not(.block-editor-inner-blocks):not(:nth-child(#{$i + 1})) {
+        display: none !important;
+    }
+}

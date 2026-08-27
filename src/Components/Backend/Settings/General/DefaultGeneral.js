@@ -15,7 +15,7 @@ import { checkDirection, isDefaultLayout } from '../../../../utils/functions';
 
 const DefaultGeneral = ({ attributes, setAttributes, updateObject, device, setDevice }) => {
 
-    const { layoutType, titleFCaption, options, arrow, indicator, carousel, columns, rowGap, columnGap, position, animation, sliderHeight, height } = attributes;
+    const { layoutType, titleFCaption, options, arrow, indicator, carousel, columns, rowGap, columnGap, position, animation, sliderHeight, height, sourceType } = attributes;
     const { carouselStyle, reverseDirection, caroDirection } = carousel;
 
     /** The plain slider — the only layout that gets the autoplay, animation and indicator panels. */
@@ -93,7 +93,12 @@ const DefaultGeneral = ({ attributes, setAttributes, updateObject, device, setDe
                 <BDevice device={device} onChange={val => setDevice(val)} />
             </PanelRow>
 
-            <UnitControl className='mb0' value={sliderHeight[device] || height} onChange={val => { setAttributes({ sliderHeight: { ...sliderHeight, [device]: val } }) }} units={[pxUnit(400), vhUnit(30)]} isResetValueOnUnitChange={true} beforeIcon='grid-view' />
+            {/* A `blocks` slider is as tall as the blocks in it until someone says otherwise, so
+                the field starts empty and says so — showing `height`'s 450px default there would
+                claim a value nobody chose and leave no way to ask for auto. Every other source
+                crops a picture into a fixed box and has always had a height, so those keep the
+                default in the field. */}
+            <UnitControl className='mb0' value={sourceType === 'blocks' ? sliderHeight[device] : (sliderHeight[device] || height)} placeholder={sourceType === 'blocks' ? __('Auto', 'b-slider') : undefined} onChange={val => { setAttributes({ sliderHeight: { ...sliderHeight, [device]: val } }) }} units={[pxUnit(400), vhUnit(30)]} isResetValueOnUnitChange={true} beforeIcon='grid-view' />
             <small className="bsb_field_hint">{__('Tablet falls back to desktop, and mobile to tablet, wherever a height is left unset.', 'b-slider')}</small>
 
             <ProNotice features={PRO_FEATURES.layoutSettings} />

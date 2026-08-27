@@ -31,6 +31,17 @@ const Default = ({ attributes, firstPosts, products, commonDeProps }) => {
         bsb_lightbox_config(clientId, attributes);
     }, [clientId, videoConf]);
 
+    // Slides built from blocks arrive as one pre-rendered string (see render.php's `_blocksHtml`
+    // bridge) and are put straight into `.carousel-inner`, not into a wrapper inside it:
+    // Bootstrap lays a carousel out with `float`/`margin-right` on `.carousel-item`, which only
+    // resolves against `.carousel-inner` itself. One element in between and the slides stop
+    // stacking on top of each other.
+    if ('blocks' === sourceType) {
+        return <Sliders {...{ attributes, firstPosts, products, carousel, setCarousel, clientId, isBackend: isBackEnd }}>
+            <div className="carousel-inner" dangerouslySetInnerHTML={{ __html: attributes._blocksHtml || '' }} />
+        </Sliders>;
+    }
+
     return <Sliders {...{ attributes, firstPosts, products, carousel, setCarousel, clientId, isBackend: isBackEnd }}>
         <div className="carousel-inner">
             {(() => {

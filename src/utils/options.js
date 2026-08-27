@@ -1,7 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import arrow from './arrows';
 
-import { carousel, grid, image, post_thumbnails, slider, socialFeed, video, woo, wordpress } from './icons';
+import { carousel, grid, image, layers, post_thumbnails, slider, socialFeed, video, woo, wordpress } from './icons';
 
 
 
@@ -50,6 +50,7 @@ export const sourceTypeOpt = [
     { label: 'Posts', value: 'posts', icon: wordpress(24, 24) },
     { label: 'WooCommerce', value: 'woo', icon: woo(24, 24) },
     { label: 'Video', value: 'video', icon: video(24, 24) },
+    { label: 'Gutenberg Blocks', value: 'blocks', icon: layers(24, 24) },
     { label: 'Social Feeds', value: 'social', icon: socialFeed(24, 24), isPro: true }
 ]
 
@@ -160,6 +161,70 @@ export const visibility = [
 export const styles = [
     { label: __('Default', 'b-slider'), value: '' },
     { label: __('Dot', 'b-slider'), value: 'dot' },
+];
+
+/**
+ * The Layer-Based Builder's own option lists (Gutenberg Blocks source).
+ *
+ * Every value here is an animate.css class minus the `animate__` prefix, except `bsbFloat` — a
+ * custom keyframe of this plugin's own, in style.scss.
+ */
+export const entryEffectOpt = [
+    { label: __('None', 'b-slider'), value: '' },
+    { label: __('Fade In', 'b-slider'), value: 'fadeIn' },
+    { label: __('Fade In Up', 'b-slider'), value: 'fadeInUp' },
+    { label: __('Fade In Down', 'b-slider'), value: 'fadeInDown' },
+    { label: __('Fade In Left', 'b-slider'), value: 'fadeInLeft' },
+    { label: __('Fade In Right', 'b-slider'), value: 'fadeInRight' },
+    { label: __('Zoom In', 'b-slider'), value: 'zoomIn' },
+    { label: __('Slide In Up', 'b-slider'), value: 'slideInUp' },
+    { label: __('Slide In Down', 'b-slider'), value: 'slideInDown' },
+    { label: __('Slide In Left', 'b-slider'), value: 'slideInLeft' },
+    { label: __('Slide In Right', 'b-slider'), value: 'slideInRight' },
+    { label: __('Bounce In', 'b-slider'), value: 'bounceIn' },
+    { label: __('Flip In X', 'b-slider'), value: 'flipInX' },
+];
+
+/** The preset delays a free layer can start after — enough to put one layer after another. */
+export const entryDelayOpt = [
+    { label: __('Together (0s)', 'b-slider'), value: 0 },
+    { label: __('0.2s', 'b-slider'), value: 0.2 },
+    { label: __('0.5s', 'b-slider'), value: 0.5 },
+    { label: __('1s', 'b-slider'), value: 1 },
+];
+
+/** Pulse and Bounce are free; the rest are marked "- Pro" wherever this list is shown. */
+export const loopEffectOpt = [
+    { label: __('None', 'b-slider'), value: '' },
+    { label: __('Pulse', 'b-slider'), value: 'pulse' },
+    { label: __('Bounce', 'b-slider'), value: 'bounce' },
+    { label: __('Float', 'b-slider'), value: 'bsbFloat' },
+    { label: __('Flash', 'b-slider'), value: 'flash' },
+    { label: __('Shake', 'b-slider'), value: 'headShake' },
+    { label: __('Swing', 'b-slider'), value: 'swing' },
+];
+
+export const PRO_LOOP_EFFECTS = ['bsbFloat', 'flash', 'headShake', 'swing'];
+
+export const loopSpeedOpt = [
+    { label: __('Slow', 'b-slider'), value: 3 },
+    { label: __('Normal', 'b-slider'), value: 2 },
+    { label: __('Fast', 'b-slider'), value: 1.2 },
+];
+
+export const hoverEffectOpt = [
+    { label: __('None', 'b-slider'), value: '' },
+    { label: __('Scale', 'b-slider'), value: 'scale' },
+    { label: __('Lift', 'b-slider'), value: 'lift' },
+    { label: __('Fade', 'b-slider'), value: 'fade' },
+];
+
+export const clickActionOpt = [
+    { label: __('Nothing', 'b-slider'), value: '' },
+    { label: __('Open a link', 'b-slider'), value: 'url' },
+    { label: __('Scroll to', 'b-slider'), value: 'scroll' },
+    { label: __('Next slide', 'b-slider'), value: 'next' },
+    { label: __('Previous slide', 'b-slider'), value: 'prev' },
 ];
 
 export const pxUnit = (def = 0) => ({ value: 'px', label: 'px', default: def });

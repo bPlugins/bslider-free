@@ -177,6 +177,42 @@ export const getEmbedUrl = (video) => {
     return null;
 };
 
+/**
+ * Ensures exactly one `.carousel-item` under `rootEl` carries `.active`.
+ *
+ * Every other sourceType bakes `active` onto the first `sliders` entry at attribute-default time,
+ * but a `blocks` slider's slides are independent child blocks that can't know their position
+ * among their siblings — so nothing sets `.active` for them at all unless this does. "Exactly
+ * one", not "at least one": two can end up active at once when the same markup is mounted twice
+ * (a slider nested inside another slider's slide), which would leave Bootstrap moving off one
+ * slide while the other stays stranded on screen.
+ */
+export const ensureActiveCarouselItem = (rootEl) => {
+    if (!rootEl) return;
+
+    const items = ownCarouselItems(rootEl);
+    const active = items.filter(el => el.classList.contains('active'));
+
+    if (1 === active.length) return;
+
+    active.slice(1).forEach(el => el.classList.remove('active'));
+
+    if (0 === active.length && items[0]) {
+        items[0].classList.add('active');
+    }
+};
+
+/**
+ * The `.carousel-item`s this slider is responsible for.
+ *
+ * A slide can hold another bSlider, whose slides must not be counted or touched by the outer
+ * one — so ownership is by nearest `.bsbCarousel` ancestor, not by DOM depth. Depth alone would
+ * miscount: the front end nests a `blocks` slide's items straight under `.carousel-inner`, while
+ * the editor's own wrapper elements sit an extra level or two deeper.
+ */
+export const ownCarouselItems = (rootEl) => [...rootEl.querySelectorAll('.carousel-item')]
+    .filter(el => el.closest('.bsbCarousel') === rootEl);
+
 export const sanitizeHref = (url) => {
     if (!url) return '#';
 
