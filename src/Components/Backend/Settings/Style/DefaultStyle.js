@@ -66,7 +66,11 @@ const DefaultStyle = ({ attributes, setAttributes, updateObject }) => {
 
 
 
-        <ProPanel title={__('Button', 'b-slider')} proTitle={__('Premium Button', 'b-slider')} features={PRO_FEATURES.buttonStyle} />
+        {/* Same reasoning as Title and Description above: the button these style rules target
+            is the one a slide's own content emits, which a `blocks` slider never has. Any
+            button in it is a Gutenberg block carrying its own styling. */}
+        {'blocks' !== sourceType &&
+            <ProPanel title={__('Button', 'b-slider')} proTitle={__('Premium Button', 'b-slider')} features={PRO_FEATURES.buttonStyle} />}
 
 
         {(layoutType !== "grid") && <>
