@@ -141,9 +141,11 @@ export const listLayout = (width = 24, height = 24) => (
 	</svg>
 );
 
-export const socialFeed = (width = 24, height = 24) => (
-	<svg xmlns='http://www.w3.org/2000/svg' width={width} height={height} viewBox='0 0 24 24' fill='currentColor'>
-		<path d='M5 3a1 1 0 0 0 0 2 14 14 0 0 1 14 14 1 1 0 0 0 2 0A16 16 0 0 0 5 3zm0 5a1 1 0 0 0 0 2 9 9 0 0 1 9 9 1 1 0 0 0 2 0A11 11 0 0 0 5 8zm1.5 8.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5z' />
+export const layers = (width = 24, height = 24) => (
+	<svg xmlns='http://www.w3.org/2000/svg' width={width} height={height} viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='1.5' strokeLinecap='round' strokeLinejoin='round'>
+		<path d='M12 2 2 7l10 5 10-5-10-5Z' />
+		<path d='M2 12l10 5 10-5' />
+		<path d='M2 17l10 5 10-5' />
 	</svg>
 );
 

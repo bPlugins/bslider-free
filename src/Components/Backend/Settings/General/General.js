@@ -10,7 +10,6 @@ import { HelpPanel, Label } from '../../../../../../bpl-tools/Components';
 
 import MainItem from '../MainItem';
 import ProPostTypesPromo from '../../ProPostTypesPromo';
-import ProSocialPromo from '../../ProSocialPromo';
 import ProListLayoutPromo from '../../ProListLayoutPromo';
 import { isPostTypeLocked } from '../../../../utils/functions';
 import DefaultGeneral from './DefaultGeneral';
@@ -24,7 +23,7 @@ import VideoGeneral from './VideoGeneral';
 import ProPanel from '../../../Panel/ProPanel';
 import { PRO_FEATURES } from '../../../../utils/pro-features';
 
-const General = ({ attributes, setAttributes, activeIndex, setActiveIndex, updateObject, multipleAttrChange, getTaxonomy, premiumProps, postTypes, queriedPosts }) => {
+const General = ({ attributes, setAttributes, activeIndex, setActiveIndex, updateObject, multipleAttrChange, getTaxonomy, premiumProps, postTypes, queriedPosts, hasSlideBlocks }) => {
 
     const [device, setDevice] = useState('desktop');
     const [gapDevice, setGapDevice] = useState('desktop');
@@ -41,6 +40,7 @@ const General = ({ attributes, setAttributes, activeIndex, setActiveIndex, updat
     const gap = 'mt15';
 
     const isPostSource = sourceType === 'posts' || sourceType === 'woo';
+
     /**
      * Which sources draw a caption over a picture at all.
      *
@@ -51,10 +51,30 @@ const General = ({ attributes, setAttributes, activeIndex, setActiveIndex, updat
     const currentPostType = postsQuery?.post_type || (sourceType === 'woo' ? 'product' : 'post');
 
     const handleSourceSelect = (val) => {
-        if (sourceTypeOpt.find(opt => opt.value === val)?.isPro) {
-            return;
+        // Every non-`blocks` sourceType saves `null` (src/index.js) — switching away from
+        // `blocks` after real slide content exists would silently discard it on the next save,
+        // with no recovery beyond the editor's own undo history.
+        if (sourceType === 'blocks' && val !== 'blocks' && hasSlideBlocks) {
+            const confirmed = window.confirm(__('Switching away from Gutenberg Blocks will permanently delete all the slide content you\'ve built here. Continue?', 'b-slider'));
+            if (!confirmed) {
+                return;
+            }
         }
-        setAttributes({ sourceType: val });
+
+        /*
+         * The layout has to come along, because `blocks` can only be drawn one way.
+         *
+         * Carousel, Grid and Thumbnails are Swiper-based and enumerate their slides as data; a
+         * `blocks` slider hands its slides over as one pre-rendered HTML string, which only the
+         * Bootstrap-Carousel Default layout knows what to do with. The tile list already hides
+         * the other three while `blocks` is chosen — but hiding a choice does not undo one
+         * already made, so a slider left on Carousel and then switched to Blocks kept a layout
+         * it could not render and came out blank on the front end.
+         */
+        setAttributes({
+            sourceType: val,
+            ...('blocks' === val && layoutType && !['default', 'carousel'].includes(layoutType) ? { layoutType: 'default' } : {}),
+        });
 
         if (val === 'woo') {
             updateObject('postsQuery', 'post_type', 'product');
@@ -103,29 +123,18 @@ const General = ({ attributes, setAttributes, activeIndex, setActiveIndex, updat
         <PanelBody className='bPlPanelBody bsb_panel_source_layout' title={__('Source & Layout', 'b-slider')} initialOpen={true}>
             <Label className="mt10 mb5">{__('Source Type', 'b-slider')}</Label>
             <div className="bsb_panel_grid_selector">
-                {sourceTypeOpt.map((opt) => {
-                    const handleTileClick = () => {
-                        if (opt.isPro) {
-                            return;
-                        }
-                        handleSourceSelect(opt.value);
-                    };
-
-                    return (
-                        <button
-                            key={opt.value}
-                            type="button"
-                            className={`bsb_panel_tile_btn ${(sourceType || 'image') === opt.value ? 'is-active' : ''} ${opt.isPro ? 'is-locked-tile' : ''}`}
-                            onClick={handleTileClick}
-                        >
-                            <span className="bsb_tile_icon">{opt.icon}</span>
-                            <span className="bsb_tile_label">{opt.label}</span>
-                        </button>
-                    );
-                })}
+                {sourceTypeOpt.map((opt) => (
+                    <button
+                        key={opt.value}
+                        type="button"
+                        className={`bsb_panel_tile_btn ${(sourceType || 'image') === opt.value ? 'is-active' : ''}`}
+                        onClick={() => handleSourceSelect(opt.value)}
+                    >
+                        <span className="bsb_tile_icon">{opt.icon}</span>
+                        <span className="bsb_tile_label">{opt.label}</span>
+                    </button>
+                ))}
             </div>
-
-            <ProSocialPromo variant="compact" />
 
             {isPostSource && postTypes?.length > 0 && (
                 <>
@@ -139,7 +148,13 @@ const General = ({ attributes, setAttributes, activeIndex, setActiveIndex, updat
 
             <Label className="mt15 mb5">{__('Select Layout', 'b-slider')}</Label>
             <div className="bsb_panel_grid_selector">
-                {selectLayoutOpt.map((opt) => (
+                {/* Grid and Thumbnails are left out for a `blocks` slider. Its content arrives on
+                    the front end as one HTML blob (see render.php's `_blocksHtml` bridge), and
+                    those two want each slide as a discrete item with a picture to crop and a
+                    thumbnail to draw — neither of which a slide built from blocks has. Default
+                    and Carousel both work: Default hands the blob to Bootstrap, and Carousel
+                    splits it back into slides for Swiper (see Layouts/Carousel.js). */}
+                {(sourceType === 'blocks' ? selectLayoutOpt.filter(opt => opt.value === 'default') : selectLayoutOpt).map((opt) => (
                     <button
                         key={opt.value}
                         type="button"
@@ -152,10 +167,10 @@ const General = ({ attributes, setAttributes, activeIndex, setActiveIndex, updat
                 ))}
             </div>
 
-            <ProListLayoutPromo variant="compact" />
+            <ProListLayoutPromo variant="compact" sourceType={sourceType} />
         </PanelBody>
 
-        {(sourceType !== "posts" && sourceType !== "woo") &&
+        {(sourceType !== "posts" && sourceType !== "woo" && sourceType !== "blocks") &&
             <PanelBody className='bPlPanelBody' title={__('Slides', 'b-slider')} initialOpen={false}>
                 <MainItem itemsProps={itemsProps} />
             </PanelBody>}
@@ -334,7 +349,7 @@ const General = ({ attributes, setAttributes, activeIndex, setActiveIndex, updat
     </>
 }
 
-export default withSelect((select, { attributes }) => {
+export default withSelect((select, { attributes, clientId }) => {
 
     const { getPostTypes, getTaxonomies, getEntityRecords } = select('core');
     const { getDeviceType, getCurrentPostType, getCurrentPostId } = select('core/editor');
@@ -344,6 +359,10 @@ export default withSelect((select, { attributes }) => {
 
     return {
         device: getDeviceType()?.toLowerCase(),
+
+        // Gates the data-loss confirm in `handleSourceSelect` — only worth asking about if the
+        // slide actually has content built into it.
+        hasSlideBlocks: (select('core/block-editor').getBlock(clientId)?.innerBlocks?.length || 0) > 0,
 
         postTypes: getPostTypes({ per_page: -1 })?.filter(p => !['apb', 'attachment', 'nav_menu_item', 'bsb'].includes(p.slug) && !p.slug.startsWith('wp_'))?.map(({ name, slug }) => ({ label: name, value: slug, locked: isPostTypeLocked(slug) })),
 

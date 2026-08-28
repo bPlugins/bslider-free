@@ -9,10 +9,10 @@ import { tabs } from '../../../utils/options';
 
 const Settings = (props) => {
 
-    const { attributes, setAttributes, addSlider, removeSlider, duplicateSlider, activeIndex, setActiveIndex, allCategories, multipleAttrChange, updateObject, queriedPosts } = props;
+    const { clientId, attributes, setAttributes, addSlider, removeSlider, duplicateSlider, activeIndex, setActiveIndex, allCategories, multipleAttrChange, updateObject, queriedPosts } = props;
 
     // general props
-    const generalProps = { attributes, setAttributes, addSlider, removeSlider, duplicateSlider, activeIndex, setActiveIndex, updateObject, allCategories, multipleAttrChange, queriedPosts };
+    const generalProps = { clientId, attributes, setAttributes, addSlider, removeSlider, duplicateSlider, activeIndex, setActiveIndex, updateObject, allCategories, multipleAttrChange, queriedPosts };
     // style props 
     const styleProps = { attributes, setAttributes, updateObject, multipleAttrChange };
 

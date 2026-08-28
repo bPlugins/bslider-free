@@ -10,17 +10,48 @@ import 'swiper/css/effect-cards';
 import 'swiper/css/grid';
 
 import { bsb_lightbox_config, plyrInt, bsb_open_video_popup } from '../../../utils/config';
+import { initLayerAnimations } from '../../../utils/layerAnimations';
+import { reviveSlideScripts } from '../../../utils/reviveSlideScripts';
+import { mountSlidersIn } from '../../../utils/sliderMounter';
 import { placeholderImg, play } from '../../../utils/icons';
 import arrows from '../../../utils/arrows';
 import ImageItem from '../single-item/ImageItem';
 import PostItem from '../single-item/PostItem';
 import WooItem from '../single-item/WooItem';
 
+/**
+ * The slides of a `blocks` slider, cut out of the one string they arrive in.
+ *
+ * `render.php` hands this source over as a single blob of HTML — every slide already rendered,
+ * each one a `.carousel-item`, because the Default layout gives that whole string to Bootstrap
+ * and lets it do the rest. Swiper cannot work that way: it needs to be handed its slides one at
+ * a time so it can measure them, lay several side by side and move between them.
+ *
+ * So the blob is parsed once and split back into the pieces it was built from. `DOMParser`
+ * rather than a regular expression: a slide can hold anything a user put in it, including markup
+ * that looks like the closing tag being searched for.
+ *
+ * `:scope > .carousel-item` keeps this to the slider's own slides — a slide can hold another
+ * bSlider, and its slides are not ours to enumerate.
+ */
+const splitBlockSlides = (html) => {
+	if (!html || 'string' !== typeof html) {
+		return [];
+	}
+
+	const doc = new DOMParser().parseFromString(`<div>${html}</div>`, 'text/html');
+	const root = doc.body.firstElementChild;
+
+	return [...(root?.querySelectorAll(':scope > .carousel-item') || [])].map(el => el.outerHTML);
+};
+
 const Carousel = (props) => {
     const { attributes, firstPosts, products, commonDeProps } = props;
     const videoRefs = useRef([]);
     const hiddenVideoRefs = useRef([]);
     const swiperRef = useRef(null);
+    // The wrapper element, so the layer passes below have a scope to walk.
+    const rootRef = useRef(null);
     const prevRef = useRef(null);
     const nextRef = useRef(null);
     const { sourceType, sliders, columns, carousel, columnGap, arrow, arrowStyle, videoConf, indicator } = attributes;
@@ -111,9 +142,37 @@ const Carousel = (props) => {
         bsb_lightbox_config(clientId, attributes);
     }, [clientId, videoConf]);
 
+    /**
+     * The layer system, for a `blocks` slider laid out as a carousel.
+     *
+     * The Default layout gets this from `Sliders`, which wraps its markup; Swiper does not go
+     * through that component, so the same passes are made here over Swiper's own root. Without
+     * them a carousel would show the slides and none of what was set on the blocks inside them —
+     * no entry animation, no hover, no click action — with nothing to say why.
+     *
+     * Re-run when the rendered markup changes, which is what `_blocksHtml` is: on the front end
+     * it is the string the server sent, and in the editor it changes as slides are edited.
+     */
+    useEffect(() => {
+        const root = rootRef.current;
+
+        if ('blocks' !== sourceType || !root) {
+            return;
+        }
+
+        // A third-party block inside a slide arrived here as inert markup — its scripts never
+        // ran, and the `DOMContentLoaded` they were waiting for fired long ago. Front end only:
+        // in the editor those blocks are live React components that mount normally.
+        if (!isBackEnd) {
+            reviveSlideScripts(root, mountSlidersIn);
+        }
+
+        return initLayerAnimations(root, { isBackend: isBackEnd });
+    }, [sourceType, isBackEnd, attributes._blocksHtml]);
+
     const checkCarouselLayout = carouselStyle === 'ticker' ? tickerSettings : swiperSettings;
 
-    const SWIPER_ELE = () => <div className={`bsb-main-carousel-wrapper ${sourceType}`}>
+    const SWIPER_ELE = () => <div ref={rootRef} className={`bsb-main-carousel-wrapper ${sourceType}`}>
 
         <div className="bsb-carousel-wrapper carousel-wrapper">
             {carouselStyle !== "ticker" && <>
@@ -143,6 +202,23 @@ const Carousel = (props) => {
                 }}>
                 {(() => {
                     switch (sourceType) {
+                        case 'blocks':
+                            /*
+                             * Each slide goes in as the markup it already is.
+                             *
+                             * `dangerouslySetInnerHTML` is the same bridge the Default layout
+                             * uses, and for the same reason: these slides were rendered by
+                             * WordPress on the server, so there are no React components here to
+                             * build them from. The layer animations, the Lottie players and any
+                             * third-party block's own script are all started afterwards by
+                             * `Sliders`, which walks the DOM once it exists.
+                             */
+                            return splitBlockSlides(attributes._blocksHtml).map((slideHtml, index) => (
+                                <SwiperSlide className={carouselStyle} key={index}>
+                                    <div dangerouslySetInnerHTML={{ __html: slideHtml }} />
+                                </SwiperSlide>
+                            ));
+
                         case 'image':
                             return sliders?.map((slide, index) => <SwiperSlide className={carouselStyle} key={index}>
                                 <ImageItem {...{

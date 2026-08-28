@@ -1,7 +1,7 @@
 import { withSelect, withDispatch } from '@wordpress/data';
 import { compose } from "@wordpress/compose"
 const { dateI18n } = wp.date;
-import { useBlockProps } from '@wordpress/block-editor';
+import { useBlockProps, InnerBlocks } from '@wordpress/block-editor';
 import { useEffect, useState } from '@wordpress/element';
 
 import apiFetch from '@wordpress/api-fetch';
@@ -9,6 +9,8 @@ import Settings from './Settings/Settings';
 
 import Style from '../Common/Style';
 import Layout from '../Common/Layouts/Layout';
+import Sliders from '../Common/Sliders';
+import SlideTabs from './SlideTabs';
 import PostsGridBack from './PostsGridBack';
 import { filterNaN, filterObject, filterPassword, filterSelected, postTypeTaxonomies, updateArrayItem, wordCount } from '../../utils/functions';
 import { allowedAcfFields, FIELD_ROLES } from '../Common/single-item/AcfFields';
@@ -31,6 +33,9 @@ const Edit = (props) => {
 	useIframeAssetSync(['bsb-slider-style-css', 'bootstrap-css', 'bsb-slider-editor-style-css', 'bsb-slider-editor-script-js', 'bootstrap-js']);
 	useEffect(() => { clientId && setAttributes({ cId: clientId.substring(0, 10) }); }, [clientId]);
 	const [activeIndex, setActiveIndex] = useState(0);
+	// Which slide the canvas is showing, for a `blocks` slider. Editor-only and deliberately not
+	// an attribute: it is where someone is working, not part of the slider.
+	const [activeSlide, setActiveSlide] = useState(0);
 
 	useEffect(() => {
 		setAttributes({ postsQuery: { ...attributes.postsQuery, paginationCurrentPage: 1 } });
@@ -38,7 +43,7 @@ const Edit = (props) => {
 
 	const [carousel, setCarousel] = useState(null);
 	const [acfValuesMap, setAcfValuesMap] = useState({});
-	const { sliders, layoutType, postsQuery } = attributes;
+	const { sliders, layoutType, postsQuery, sourceType } = attributes;
 
 	// Filtered the same way Posts::acfFieldsToFetch filters it, so the preview shows what the site shows.
 	const selectedAcfFields = allowedAcfFields(postsQuery?.selectedAcfFields || []);
@@ -146,7 +151,11 @@ const Edit = (props) => {
 
 	return (
 		<div {...useBlockProps()}>  {CPTType === "bsb" && <ClipBoard shortcode={shortcode} />}
-			<div id={`bsbCarousel-${clientId}`} onClick={() => selectBlock(clientId)}>
+			{/* Clicking the slider selects it — except on a `blocks` slider, where the slides and
+			    everything inside them are real blocks with their own selection. Reaching up to
+			    the parent on every click there would take the click meant for a heading or a
+			    button and leave the user unable to edit anything inside a slide. */}
+			<div id={`bsbCarousel-${clientId}`} onClick={sourceType === 'blocks' ? undefined : () => selectBlock(clientId)}>
 				<div className={`mainLayout ${layoutType}`}>
 
 					{isOld ? <>
@@ -158,7 +167,32 @@ const Edit = (props) => {
 							<SelectSource {...{ attributes, setAttributes, updateObject }} /> : <>
 								<Settings {...settingsProps} />
 								<Style {...{ attributes, clientId, postsCount: formattedPosts?.length, products: formattedPosts }} />
-								{LayoutEl}
+								{sourceType === 'blocks' ? (
+									<>
+										<SlideTabs {...{ clientId, activeSlide, setActiveSlide }} />
+
+										{/* The number rides on the element as a data attribute so
+										    the stylesheet can show that one slide and hide the
+										    rest — the slides are child blocks, so there is nothing
+										    to hand it to as a prop. */}
+										<div data-bsb-active-slide={activeSlide}>
+											<Sliders {...{ attributes, clientId, carousel, setCarousel, isBackend: true }}>
+												<div className="carousel-inner">
+													<InnerBlocks
+														allowedBlocks={['bsb/slide']}
+														template={[['bsb/slide'], ['bsb/slide']]}
+														templateInsertUpdatesSelection={false}
+														/* Adding a slide is what the tab bar above
+														   is for. An inserter at the foot of the one
+														   visible slide would read as adding
+														   something inside that slide. */
+														renderAppender={false}
+													/>
+												</div>
+											</Sliders>
+										</div>
+									</>
+								) : LayoutEl}
 							</>}
 					</>}
 				</div>
@@ -172,7 +206,7 @@ export default compose(
 		const currentPostId = select('core/editor').getCurrentPostId();
 		const CPTType = select('core/editor').getCurrentPostType?.();
 
-		if (["", "image"].includes(attributes.sourceType)) {
+		if (["", "image", "blocks"].includes(attributes.sourceType)) {
 
 			return {
 				totalPosts: 5 || '',

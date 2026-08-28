@@ -19,6 +19,65 @@ const Style = ({ attributes, clientId, postsCount, products }) => {
 		.replace(/"/g, '%22');
 
 	/**
+	 * One slide of a `blocks` slider, in both shapes it comes in.
+	 *
+	 * On the front end the slides sit straight inside `.carousel-inner`. In the editor they are
+	 * real child blocks, and Gutenberg puts two wrappers of its own in between —
+	 * `.block-editor-inner-blocks > .block-editor-block-list__layout` — so a single `>` chain
+	 * written for the front end silently matches nothing on the canvas. That is why the height
+	 * set on a `blocks` slider appeared to do nothing there while working on the published page.
+	 * `editor.scss` already spells the same pair out for its own rules; this is the same fact.
+	 *
+	 * The `:not(.carousel-item *)` stays on `.bsbCarousel` for the reason it was put there: a
+	 * slide can hold another bSlider, and without it this slider's height would be handed to
+	 * that one's slides too.
+	 */
+	/**
+	 * The indicator track, laid out from a count everywhere there is one to count.
+	 *
+	 * A `blocks` slider is the one source without that number: its slides are child blocks in the
+	 * editor and a pre-rendered string on the front end, so `sliders` is empty and the usual
+	 * `repeat(0, ...)` left the grid with no explicit track at all — every dot fell onto an
+	 * implicit row of its own, and a horizontal row of dots came out as a vertical column.
+	 * `grid-auto-flow` says the same thing without needing to know how many: keep adding tracks
+	 * along this axis, each sized like the rest.
+	 *
+	 * Built here rather than inline in the stylesheet below, because the two branches are
+	 * template literals themselves and nesting a third level of backticks inside that string is
+	 * a parse error waiting to happen.
+	 */
+	const trackSize = `minmax(auto, ${isVertical ? indicator?.height : indicator?.width})`;
+	const slideCount = 'posts' === sourceType
+		? postsCount
+		: 'woo' === sourceType ? products?.length : sliders?.length;
+
+	const indicatorTrack = 'blocks' === sourceType
+		? `grid-auto-flow: ${isVertical ? 'row' : 'column'};
+		grid-auto-${isVertical ? 'rows' : 'columns'}: ${trackSize};`
+		: `grid-template-${isVertical ? 'rows' : 'columns'}: repeat(${slideCount}, ${trackSize});`;
+
+	/**
+	 * The Swiper viewport, in the list of things given a fixed height — unless this is a `blocks`
+	 * slider, where the height is opt-in and applied separately below.
+	 *
+	 * Built here rather than inline, because the rule it goes into is already a template literal
+	 * and a conditional selector inside one needs a third level of backticks to carry
+	 * `${clientId}` — which is a parse error waiting to happen.
+	 */
+	const swiperHeightSelector = 'blocks' === sourceType
+		? ''
+		: `#bsbCarousel-${clientId} .carousel .swiper,`;
+
+	/** The Swiper viewport's own height, written only when the author set one. */
+	const swiperViewport = `#bsbCarousel-${clientId} .carousel .swiper`;
+	const blocksSwiperHeight = 'blocks' === sourceType && sliderHeight?.desktop
+		? `${swiperViewport} { height: ${sliderHeight.desktop}; }`
+		: '';
+
+	const blocksInner = `#bsbCarousel-${clientId} .bsbCarousel:not(.carousel-item *) > .carousel-inner`;
+	const blocksSlide = `${blocksInner} > .carousel-item, ${blocksInner} > .block-editor-inner-blocks > .block-editor-block-list__layout > .carousel-item`;
+
+	/**
 	 * Everything laid over a slide's picture.
 	 *
 	 * Three selectors and not one, because the caption's container is named by the layout: the
@@ -509,7 +568,7 @@ ${layerMotionCSS}
 		transition:0.3s;
 	}
 
-	#bsbCarousel-${clientId} .item, 
+	#bsbCarousel-${clientId} .item,
 	#bsbCarousel-${clientId} .videoItem,
 	#bsbCarousel-${clientId} .thumbnails .side-by-side .bsb-slider-thumbnail{
 		position:relative;
@@ -518,6 +577,31 @@ ${layerMotionCSS}
 		box-sizing: border-box;
 		overflow: hidden;
 	}
+
+	${'blocks' === sourceType ? `
+	/* Every other source wraps its slide in an .item and hangs the height off that. A slide
+	   built from blocks has no such wrapper - the blocks are the slide - so the height has to
+	   land on the carousel item itself.
+
+	   Height is only written when the user asked for one. Left alone, a slide is as tall as the
+	   blocks stacked in it - which is the honest default here, where the content is whatever
+	   someone put there rather than a picture cropped to a box. \`height\` (the attribute) is not
+	   that answer: it is a 450px default no control ever writes, so falling back to it would set
+	   a height nobody chose and make "auto" unreachable. Only \`sliderHeight[device]\` comes from
+	   a person.
+
+	   A minimum rather than a fixed height, so nothing is clipped: a Columns or Row taller than
+	   the setting keeps its lower half instead of losing it. */
+	${sliderHeight?.desktop ? `
+	${blocksSlide} {
+		min-height: ${sliderHeight.desktop};
+	}` : ''}
+
+	${blocksSlide} {
+		border-radius: ${getBoxValue(borderRadius)};
+		box-sizing: border-box;
+	}
+	` : ''}
 
 	#bsbCarousel-${clientId} .thumbnails .side-by-side .bsb-slider-thumbnail{
 		width:100%;
@@ -553,12 +637,28 @@ ${layerMotionCSS}
 		object-fit:cover;
 	}
 
+	/*
+	 * The fixed height every other source wants.
+	 *
+	 * The Swiper viewport is left out for a blocks slider - see swiperHeightSelector above, and
+	 * the opt-in rule below. Those sources put a picture in each slide and crop it to a box, so
+	 * a height is what makes the slider a consistent shape. A slide built from blocks is
+	 * whatever the author stacked in it, and a height it never asked for would crop that.
+	 */
 	#bsbCarousel-${clientId} .item, 
 	#bsbCarousel-${clientId} .videoItem,
-	#bsbCarousel-${clientId} .carousel .swiper,
+	${swiperHeightSelector}
 	#bsbCarousel-${clientId} .thumbnails .bsb-main-carousel-wrapper .bsb-main-slider{
 		height: ${sliderHeight?.desktop || height};
 	}
+
+	/*
+	 * A blocks carousel is as tall as its slides until someone says otherwise - the same rule the
+	 * Default layout follows, and for the same reason: the height attribute is a 450px default no
+	 * control ever writes, so falling back to it would set a height nobody chose and put auto out
+	 * of reach. Only sliderHeight[device] comes from a person.
+	 */
+	${blocksSwiperHeight}
 
 	#bsbCarousel-${clientId} .bsbButtonDesign .bsbArrowButton {
 		${getColorsCSS(arrow)};
@@ -645,7 +745,7 @@ ${layerMotionCSS}
 	}
 
 	#bsbCarousel-${clientId} .carousel-indicators {
-    	grid-template-${isVertical ? 'rows' : 'columns'}: repeat(${sourceType === "posts" ? postsCount : sourceType === "woo" ? products?.length : sliders?.length}, minmax(auto, ${isVertical ? indicator?.height : indicator?.width}));
+		${indicatorTrack}
 		padding: ${isVertical ? '5% 0' : '0 5%'};
 	}
 
@@ -684,12 +784,24 @@ ${layerMotionCSS}
 		#bsbCarousel-${clientId} .item, #bsbCarousel-${clientId} .videoItem {
 			height: ${sliderHeight?.tablet || sliderHeight?.desktop || height};
 		}
+
+		${'blocks' === sourceType && (sliderHeight?.tablet || sliderHeight?.desktop) ? `${blocksSlide} {
+			min-height: ${sliderHeight?.tablet || sliderHeight?.desktop};
+		}
+
+		${swiperViewport} { height: ${sliderHeight?.tablet || sliderHeight?.desktop}; }` : ''}
 	}
 
-	@media (max-width: 576px) { 
-		#bsbCarousel-${clientId} .item, #bsbCarousel-${clientId} .videoItem { 
+	@media (max-width: 576px) {
+		#bsbCarousel-${clientId} .item, #bsbCarousel-${clientId} .videoItem {
 			height: ${sliderHeight?.mobile || sliderHeight?.tablet || sliderHeight?.desktop || height};
 		}
+
+		${'blocks' === sourceType && (sliderHeight?.mobile || sliderHeight?.tablet || sliderHeight?.desktop) ? `${blocksSlide} {
+			min-height: ${sliderHeight?.mobile || sliderHeight?.tablet || sliderHeight?.desktop};
+		}
+
+		${swiperViewport} { height: ${sliderHeight?.mobile || sliderHeight?.tablet || sliderHeight?.desktop}; }` : ''}
 	}
 
 	#bsbCarousel-${clientId} .item .carousel-caption {

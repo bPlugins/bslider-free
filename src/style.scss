@@ -1305,3 +1305,335 @@
 .bsb-backend-inner-item {
     display: none;
 }
+
+/**
+ * Layer animation & interactivity — the blocks a user places inside a slide.
+ *
+ * Everything here is value-agnostic: the rules name custom properties, and each layer sets its
+ * own numbers inline (see `buildLayerProps`). That way one stylesheet covers every combination
+ * of effect and timing without knowing any of them, and it survives being serialised into an
+ * attribute and put back into the page as a string.
+ */
+
+/* animate.css ships `--animate-duration` but reads delay only through its own `animate__delay-Ns`
+   classes, which also overwrite the duration — so the delay is ours to apply. */
+.bsb-layer.animate__animated {
+    animation-delay: var(--bsb-anim-delay, 0s);
+}
+
+/**
+ * A layer waiting for its entry animation is invisible, or it would be seen in place first and
+ * then animate in from nowhere.
+ *
+ * Both classes are required on purpose: `bsb-anim-ready` is added by the script, `bsb-anim-pending`
+ * only by the script too. A visitor whose JavaScript never ran, or ran and failed, matches
+ * neither and sees every layer exactly where it belongs — a blank slide is far worse than a
+ * slide that simply does not animate.
+ */
+.bsb-anim-ready [data-bsb-entry].bsb-anim-pending {
+    opacity: 0;
+}
+
+/**
+ * Hover, as a transition rather than a keyframe animation.
+ *
+ * A keyframe runs once and leaves the element wherever it finished, so there would be nothing to
+ * undo when the pointer leaves — the same reason the picture hover in Style.js is built this way.
+ * Gated on a real pointer for the same reason as that one: a tap on a phone leaves `:hover`
+ * stuck on, with no way to take it off.
+ */
+@media (hover: hover) and (pointer: fine) {
+
+    .bsb-hover--scale,
+    .bsb-hover--lift,
+    .bsb-hover--fade {
+        transition: transform var(--bsb-hover-speed, 0.3s) ease, opacity var(--bsb-hover-speed, 0.3s) ease, box-shadow var(--bsb-hover-speed, 0.3s) ease;
+    }
+
+    .bsb-hover--scale:hover,
+    .bsb-hover--scale:focus-within {
+        transform: scale(var(--bsb-hover-amount, 1.05));
+    }
+
+    .bsb-hover--lift:hover,
+    .bsb-hover--lift:focus-within {
+        transform: translateY(calc(var(--bsb-hover-amount, 6) * -1px));
+        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+    }
+
+    .bsb-hover--fade:hover,
+    .bsb-hover--fade:focus-within {
+        opacity: var(--bsb-hover-amount, 0.7);
+    }
+}
+
+.bsb-click {
+    cursor: pointer;
+}
+
+/* animate.css has no gentle drift of its own, and Float is the loop people actually ask for.
+   Reachable only through Premium — see PRO_LOOP_EFFECTS in utils/options.js — but the keyframe
+   itself has to ship in the free build, since a slider saved under an active licence still needs
+   its CSS after the licence lapses. */
+@keyframes bsbFloat {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+.animate__bsbFloat {
+    animation-name: bsbFloat;
+    animation-timing-function: ease-in-out;
+}
+
+/**
+ * Nothing moves for a visitor who has asked for that.
+ *
+ * animate.css already reduces its own keyframes to 1ms, which leaves the transforms above — the
+ * hover ones — as the only motion still running. Colour and opacity are left alone: a fade is
+ * not what the setting is about.
+ */
+@media (prefers-reduced-motion: reduce) {
+
+    .bsb-hover--scale:hover,
+    .bsb-hover--scale:focus-within,
+    .bsb-hover--lift:hover,
+    .bsb-hover--lift:focus-within {
+        transform: none;
+    }
+
+    .animate__bsbFloat {
+        animation: none;
+    }
+}
+
+/**
+ * Auto word-wrap inside a slide.
+ *
+ * A slide is a fixed-width box that a visitor cannot widen, so a single long token — a URL, a
+ * hashtag, a German compound, an unspaced string someone pasted in — has nowhere to go and
+ * spills out past the slide edge or forces the carousel to scroll sideways. `anywhere` lets the
+ * browser break inside that token as a last resort, and only as a last resort: normal text still
+ * wraps at spaces exactly as it did before, so nothing that already fitted changes.
+ *
+ * `anywhere` rather than `break-word` because the two differ on intrinsic sizing — `anywhere`
+ * lets a flex or grid track shrink to the narrowest broken line, which is what keeps a long word
+ * from setting the minimum width of the whole column it sits in. Measured, in a 300px box with
+ * a Columns block in it: `break-word` gave the column holding the URL 387px and pushed it past
+ * the slide edge; `anywhere` gave it 268px and kept it inside. On a plain paragraph the two are
+ * indistinguishable, which is why this looks like it does nothing until a slide has columns.
+ *
+ * Scoped to the slide's own content wrapper so it stops at the slide: a block the user placed
+ * here gets it, the rest of the page keeps the browser default. On by default; the slide's own
+ * "Wrap long words" toggle turns it off by adding `bsb-nowrap` below.
+ *
+ * The descendant `*` is not belt-and-braces. `overflow-wrap` inherits, so the wrapper alone
+ * would be enough — except WordPress sets `overflow-wrap: break-word` on every rich text
+ * element (`.block-editor-rich-text__editable`, and the same declaration ships in the front-end
+ * block styles). An inherited value loses to a value the element sets for itself, so a
+ * Paragraph or Heading kept breaking whichever way the toggle was set, and the toggle looked
+ * like it did nothing at all. Naming the descendants puts the slide's answer back on top.
+ */
+.bsb-slide-content,
+.bsb-slide-content * {
+    overflow-wrap: anywhere;
+}
+
+/* The slide whose text must hold its line — a headline, a price — at the cost of overflowing. */
+.bsb-slide-content.bsb-nowrap,
+.bsb-slide-content.bsb-nowrap * {
+    overflow-wrap: normal;
+}
+
+/**
+ * Anything wide inside a slide is held to the slide's width.
+ *
+ * A slide is a fixed box, and a block placed in it brings its own intrinsic size: an image at its
+ * natural pixel width, a video at its aspect ratio, a table or a `<pre>` at whatever its content
+ * measures. None of them shrink on their own, so a photo wider than the slide runs past its edge
+ * and puts a horizontal scrollbar under the whole slider. The word-wrap rule above does not reach
+ * this — that one governs where text may break, and an image has no text to break.
+ *
+ * `height: auto` alongside so a constrained image keeps its proportions rather than squashing,
+ * and it is only set where a width had to be overridden — an image whose height the user set
+ * deliberately still gets it, because that comes through as an inline style.
+ *
+ * Left out of the `bsb-nowrap` exception on purpose: that toggle is about text breaking mid-word,
+ * and nobody turns it off in order to make their pictures overflow the slide.
+ */
+.bsb-slide-content img,
+.bsb-slide-content video,
+.bsb-slide-content iframe,
+.bsb-slide-content canvas,
+.bsb-slide-content svg,
+.bsb-slide-content table,
+.bsb-slide-content pre {
+    max-width: 100%;
+}
+
+.bsb-slide-content img,
+.bsb-slide-content video,
+.bsb-slide-content canvas,
+.bsb-slide-content svg {
+    height: auto;
+}
+
+/**
+ * Responsive layers: hidden on a device, or shown but still.
+ *
+ * Breakpoints are the ones the rest of the plugin already uses — tablet at 768px, mobile at
+ * 576px — but each device gets a band of its own here rather than the cascading `max-width`
+ * those rules use. The difference matters: cascading is right for a *value* that should carry
+ * down when the smaller screen sets none of its own, and wrong for a switch, where the author
+ * has answered each device separately. A plain `max-width: 768px` on the tablet rule caught
+ * phones too, so turning the motion off for tablets turned it off on mobile as well. Tablet is
+ * therefore bounded at both ends, and desktop — which is "everything above tablet" — needs a
+ * `min-width` of its own or hiding on desktop would hide on every screen.
+ *
+ * `!important` on the hide, because a layer can carry an entry animation whose keyframes set
+ * their own opacity and transform: without it a hidden layer would still animate itself back
+ * into view. The still rules take the same precaution for the same reason.
+ */
+@media (min-width: 769px) {
+    .bsb-layer.bsb-hide-desktop {
+        display: none !important;
+    }
+}
+
+@media (min-width: 577px) and (max-width: 768px) {
+    .bsb-layer.bsb-hide-tablet {
+        display: none !important;
+    }
+}
+
+@media (max-width: 576px) {
+    .bsb-layer.bsb-hide-mobile {
+        display: none !important;
+    }
+}
+
+/**
+ * Motion off, layer still there.
+ *
+ * The layer has to end up where it belongs, which is why this is not simply `animation: none` —
+ * an entry animation is armed by adding `bsb-anim-pending` (opacity 0) and only taken off when
+ * the animation plays, so cancelling the animation alone would leave the layer invisible. The
+ * opacity is put back here instead, and the animation dropped on both the element and the words
+ * inside it, since a word-staggered heading animates its `.bsb-word` children rather than itself.
+ *
+ * Hover is left alone. It is a transition rather than a keyframe, and it only fires behind the
+ * `(hover: hover) and (pointer: fine)` guard in the rules above — so on the touch screens this
+ * setting is usually turned off for, there is nothing to switch off. On a small laptop, where a
+ * pointer does exist, a hover effect is still worth having even with the entry motion stilled.
+ */
+@media (min-width: 769px) {
+
+    .bsb-layer.bsb-still-desktop,
+    .bsb-layer.bsb-still-desktop .bsb-word {
+        animation: none !important;
+        opacity: 1 !important;
+    }
+}
+
+@media (min-width: 577px) and (max-width: 768px) {
+
+    .bsb-layer.bsb-still-tablet,
+    .bsb-layer.bsb-still-tablet .bsb-word {
+        animation: none !important;
+        opacity: 1 !important;
+    }
+}
+
+@media (max-width: 576px) {
+
+    .bsb-layer.bsb-still-mobile,
+    .bsb-layer.bsb-still-mobile .bsb-word {
+        animation: none !important;
+        opacity: 1 !important;
+    }
+}
+
+/**
+ * A layer's own font size on the smaller screens.
+ *
+ * The size itself is an inline style, which is the only way to reach a block this plugin does
+ * not own — but an inline style cannot carry a media query, so the tablet and mobile values ride
+ * along as custom properties and are applied here. `buildLayerProps` writes them only when the
+ * user set that device a size of its own, so a layer with one size everywhere emits neither
+ * property and falls through to the inline `font-size` at every width.
+ *
+ * The breakpoints are the plugin's usual pair — 768px and 576px — and they cascade here on
+ * purpose, unlike the hide/still rules above: this is a *value*, so a mobile that names none of
+ * its own should keep taking the tablet's, exactly as `getTypoCSS` does for the slider's own
+ * title and description.
+ *
+ * Two details that are not optional. `!important`, because the desktop size is an inline style
+ * and an inline style beats a media query however narrow the screen — without it the tablet
+ * value simply never applied. And the attribute selector, because a bare `.bsb-layer-typo` rule
+ * would fire on every layer that set only a font family: the custom property would be missing,
+ * the fallback would resolve to `inherit`, and a layer would lose the size it inherited from the
+ * page. Matching on the property being present keeps the rule to the layers it is about.
+ */
+@media (max-width: 768px) {
+
+    .bsb-layer-typo[style*="--bsb-font-size-tablet"],
+    .bsb-layer-typo[style*="--bsb-font-size-mobile"] {
+        font-size: var(--bsb-font-size-tablet, var(--bsb-font-size-mobile)) !important;
+    }
+}
+
+@media (max-width: 576px) {
+
+    .bsb-layer-typo[style*="--bsb-font-size-mobile"] {
+        font-size: var(--bsb-font-size-mobile) !important;
+    }
+}
+
+/**
+ * A `blocks` slide inside a Swiper carousel.
+ *
+ * The slide markup is the same whichever layout draws it — `render.php` renders it once, and
+ * `.carousel-item` is Bootstrap's class because the Default layout hands the whole blob to
+ * Bootstrap. Bootstrap keeps every `.carousel-item` at `display: none` and puts `.active` on the
+ * one it is showing; Swiper knows nothing about either, so under Carousel every slide stayed
+ * hidden and the slider came out empty with only its arrows and dots to show for it.
+ *
+ * Inside a Swiper slide the visibility is Swiper's business, so Bootstrap's rule is undone —
+ * along with the float and negative margin it uses to stack slides on top of each other, which
+ * in a Swiper track would lay them over one another instead of side by side.
+ */
+.swiper-slide .carousel-item {
+    display: block;
+    float: none;
+    width: 100%;
+    margin-right: 0;
+    opacity: 1;
+    transform: none;
+}
+
+/**
+ * A blocks carousel with no height set is as tall as its slides.
+ *
+ * The carousel layout gives its wrapper, its track and every slide `height: 100%`, which is right
+ * for the sources it was written for: they crop a picture into a box whose height the slider
+ * decides, so each slide filling that box is the point. A blocks slide has no such box — it is as
+ * tall as whatever was stacked in it — and `100%` of an ancestor with no height of its own
+ * resolves against the viewport, so an empty-looking slider came out a screen tall.
+ *
+ * Undone only on `.blocks`, and only where no height was asked for: `Style.js` writes a height on
+ * `.carousel .swiper` when the author sets one, and an id-scoped rule beats these three.
+ */
+.bsb-main-carousel-wrapper.blocks {
+
+    .bsb-carousel-wrapper .swiper,
+    .bsb-carousel-wrapper .swiper .swiper-wrapper,
+    .bsb-carousel-wrapper .swiper .swiper-wrapper .swiper-slide {
+        height: auto;
+    }
+}

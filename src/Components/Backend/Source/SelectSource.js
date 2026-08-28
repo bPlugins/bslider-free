@@ -4,7 +4,6 @@ import apiFetch from '@wordpress/api-fetch';
 import { sourceItem } from '../Source/source-json-item';
 import SelectLayout from '../Layout/SelectLayout';
 import ProPostTypesPromo from '../ProPostTypesPromo';
-import ProSocialPromo from '../ProSocialPromo';
 import { lock, wordpress, woo } from '../../../utils/icons';
 import { adminUrl, isPostTypeLocked } from '../../../utils/functions';
 
@@ -159,8 +158,6 @@ const SelectSource = (props) => {
                             </div>
                         ))}
                     </div>
-
-                    <ProSocialPromo />
                 </div>
             ) : (
                 <SelectLayout {...props} />

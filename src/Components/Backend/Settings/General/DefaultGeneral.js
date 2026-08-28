@@ -15,7 +15,7 @@ import { checkDirection, isDefaultLayout } from '../../../../utils/functions';
 
 const DefaultGeneral = ({ attributes, setAttributes, updateObject, device, setDevice }) => {
 
-    const { layoutType, titleFCaption, options, arrow, indicator, carousel, columns, rowGap, columnGap, position, animation, sliderHeight, height } = attributes;
+    const { layoutType, titleFCaption, options, arrow, indicator, carousel, columns, rowGap, columnGap, position, animation, sliderHeight, height, sourceType } = attributes;
     const { carouselStyle, reverseDirection, caroDirection } = carousel;
 
     /** The plain slider — the only layout that gets the autoplay, animation and indicator panels. */
@@ -33,6 +33,10 @@ const DefaultGeneral = ({ attributes, setAttributes, updateObject, device, setDe
 
     return <>
 
+        {/* A slide's title, which a `blocks` slider does not have: its slides carry whatever
+            blocks the user put in them, so there is no one element for a tag to apply to and no
+            caption to import from. */}
+        {'blocks' !== sourceType && <>
         <PanelBody className='bPlPanelBody' title={__('Title', 'b-slider')} initialOpen={false}>
 
             <ToggleControl className='mt10' label={__('Import Title From Media Caption', 'b-slider')} checked={titleFCaption} onChange={(val) => setAttributes({ titleFCaption: val })} />
@@ -40,6 +44,7 @@ const DefaultGeneral = ({ attributes, setAttributes, updateObject, device, setDe
             <ProNotice features={PRO_FEATURES.title} />
 
         </PanelBody>
+        </>}
 
         {
             layoutType === "carousel" && <PanelBody className='bPlPanelBody' title={__('Controls', 'b-slider')} initialOpen={false}>
@@ -85,7 +90,11 @@ const DefaultGeneral = ({ attributes, setAttributes, updateObject, device, setDe
             {/* row Gap  */}
             {layoutType === 'grid' && <UnitControl className='mt20' label={__('Row Gap:', 'b-slider')} labelPosition='left' value={rowGap} onChange={val => setAttributes({ rowGap: val })} units={[pxUnit(40), perUnit(3), emUnit(2.5)]} isResetValueOnUnitChange={true} />}
 
-            <SelectControl label={__('Content Position:', 'b-slider')} labelPosition='left' value={position} options={contentPosition} onChange={(val) => { setAttributes({ position: val }) }} />
+            {/* Not for `blocks`: it has no caption to place. Its slides return early in
+                Default.js, before the `captionContent` class this writes is ever built, and a
+                slide's own content is positioned by the Slide block's Align content / Vertical
+                position instead. */}
+            {'blocks' !== sourceType && <SelectControl label={__('Content Position:', 'b-slider')} labelPosition='left' value={position} options={contentPosition} onChange={(val) => { setAttributes({ position: val }) }} />}
 
             {/* Height define option  */}
             <PanelRow className='bsb_device_row mt20'>
@@ -93,7 +102,12 @@ const DefaultGeneral = ({ attributes, setAttributes, updateObject, device, setDe
                 <BDevice device={device} onChange={val => setDevice(val)} />
             </PanelRow>
 
-            <UnitControl className='mb0' value={sliderHeight[device] || height} onChange={val => { setAttributes({ sliderHeight: { ...sliderHeight, [device]: val } }) }} units={[pxUnit(400), vhUnit(30)]} isResetValueOnUnitChange={true} beforeIcon='grid-view' />
+            {/* A `blocks` slider is as tall as the blocks in it until someone says otherwise, so
+                the field starts empty and says so — showing `height`'s 450px default there would
+                claim a value nobody chose and leave no way to ask for auto. Every other source
+                crops a picture into a fixed box and has always had a height, so those keep the
+                default in the field. */}
+            <UnitControl className='mb0' value={sourceType === 'blocks' ? sliderHeight[device] : (sliderHeight[device] || height)} placeholder={sourceType === 'blocks' ? __('Auto', 'b-slider') : undefined} onChange={val => { setAttributes({ sliderHeight: { ...sliderHeight, [device]: val } }) }} units={[pxUnit(400), vhUnit(30)]} isResetValueOnUnitChange={true} beforeIcon='grid-view' />
             <small className="bsb_field_hint">{__('Tablet falls back to desktop, and mobile to tablet, wherever a height is left unset.', 'b-slider')}</small>
 
             <ProNotice features={PRO_FEATURES.layoutSettings} />
@@ -126,7 +140,11 @@ const DefaultGeneral = ({ attributes, setAttributes, updateObject, device, setDe
 
         {(isDefault && indicator.visibility) && <PanelBody className='bPlPanelBody' title={__('Indicators', 'b-slider')} initialOpen={false}>
 
-            <SelectControl className='mt10' label={__('Type', 'b-slider')} value={indicator?.type} labelPosition='left' onChange={(val) => setAttributes({
+            {/* Not for `blocks`: the other type is `image`, a dot showing the slide's own picture,
+                and a slide built from blocks has no one picture to stand for it — see
+                ImageIndicators/SourceType/Blocks, which draws plain dots for that reason. Leaving
+                the choice on show offered a type that rendered the same as Default. */}
+            {'blocks' !== sourceType && <SelectControl className='mt10' label={__('Type', 'b-slider')} value={indicator?.type} labelPosition='left' onChange={(val) => setAttributes({
                 indicator: {
                     ...indicator,
                     type: val,
@@ -135,7 +153,7 @@ const DefaultGeneral = ({ attributes, setAttributes, updateObject, device, setDe
                     radius: 'image' === val ? '50%' : '0px',
                     moveFromEdge: 'image' === val ? '50%' : '-15px',
                 }
-            })} options={indicatorOption} />
+            })} options={indicatorOption} />}
 
             <PanelRow className='mt20 mb10'>
                 <Label className='mb0'>{__('Position:', 'b-slider')}</Label>

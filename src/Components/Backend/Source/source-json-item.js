@@ -1,4 +1,4 @@
-import { image, video, woo, wordpress } from '../../../utils/icons';
+import { image, layers, video, woo, wordpress } from '../../../utils/icons';
 
 export const sourceItem = [
     {
@@ -25,5 +25,12 @@ export const sourceItem = [
         icon: video,
         title: "Video Slider",
         desc: "Self-hosted, YouTube & Vimeo"
+    },
+    {
+        sourceType: "blocks",
+        icon: layers,
+        title: "Gutenberg Blocks",
+        desc: "Build slides with real WordPress blocks",
+        isNew: true
     },
 ];

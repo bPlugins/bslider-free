@@ -90,6 +90,13 @@ export const PRO_FEATURES = {
 	],
 	thumbnailsStyle: [__('Position (Bottom, Top, Right, Left)', 'b-slider'), __('Height', 'b-slider')],
 	thumbnailsActive: [__('Overly Color', 'b-slider'), __('Border', 'b-slider')],
+
+	/* Layer-Based Builder (Gutenberg Blocks source) */
+	layerTiming: [__('Exit Animation', 'b-slider'), __('Fine-tuned Delay & Duration', 'b-slider')],
+	loopAnimation: [__('Float, Flash, Shake & Swing Loop Effects', 'b-slider')],
+	wordStagger: [__('Word by Word Animation', 'b-slider')],
+	dynamicContent: [__('Post/Product Binding', 'b-slider'), __('Dynamic Field Block', 'b-slider')],
+	lottie: [__('Lottie Animation Layer', 'b-slider')],
 };
 
 /**

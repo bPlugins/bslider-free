@@ -1,7 +1,56 @@
 <?php
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-call_user_func( function( $attributes ) {
+call_user_func( function( $attributes, $content ) {
+
+    if ( 'blocks' === ( isset( $attributes['sourceType'] ) ? $attributes['sourceType'] : '' ) ) {
+
+        $attributes['_blocksHtml'] = $content;
+
+        /*
+         * Google Fonts for the layers that asked for one.
+         *
+         * Read out of the rendered markup rather than off the attributes, because the font is set
+         * on a *child* block — a Heading the user placed in a slide — and this template is handed
+         * the slider's own attributes plus its children already rendered to HTML. Walking the
+         * block tree back to find them would mean re-parsing what WordPress has just finished
+         * building; the family is right there in the inline style `buildLayerProps` wrote.
+         *
+         * One stylesheet per family, deduplicated, and only ever families that came from the
+         * typography control's own list — the pattern accepts nothing but letters, spaces and
+         * hyphens, so nothing from the page can reach the URL. It matches the quote in all four
+         * forms the family can arrive in: a raw apostrophe or double quote, and either of them
+         * HTML-escaped, since whether the markup has been through `esc_attr` depends on how the
+         * block that carries it was saved.
+         */
+        if ( preg_match_all( '~font-family:\s*(?:\'|&\#039;|&quot;|")([A-Za-z][A-Za-z \-]{0,50})(?:\'|&\#039;|&quot;|")~', $content, $matches ) ) {
+
+            foreach ( array_unique( $matches[1] ) as $family ) {
+                $handle = 'bsb-font-' . sanitize_title( $family );
+
+                if ( ! wp_style_is( $handle, 'registered' ) ) {
+                    wp_register_style(
+                        $handle,
+                        'https://fonts.googleapis.com/css2?family=' . str_replace( ' ', '+', $family ) . '&display=swap',
+                        [],
+                        null
+                    );
+                }
+
+                wp_enqueue_style( $handle );
+            }
+        }
+        ?>
+        <div
+            <?php echo wp_kses_post( get_block_wrapper_attributes() ); ?>
+            id='bsbCarousel-<?php echo esc_attr( isset( $attributes['cId'] ) ? $attributes['cId'] : '' ); ?>'
+            data-attributes-b64='<?php echo esc_attr( base64_encode( wp_json_encode( $attributes ) ) ); ?>'
+            data-nonce='<?php echo esc_attr( wp_json_encode( wp_create_nonce( \B_SLIDER\PostsAjax::NONCE_ACTION ) ) ); ?>'
+            data-totalposts='0'
+        ></div>
+        <?php
+        return;
+    }
 
     $sliders = [];
     $posts_query = isset( $attributes['postsQuery'] ) ? $attributes['postsQuery'] : [];
@@ -39,4 +88,4 @@ call_user_func( function( $attributes ) {
         </pre>
     </div>
     <?php
-}, $attributes ); 
+}, $attributes, $content );
