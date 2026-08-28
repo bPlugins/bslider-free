@@ -4,7 +4,7 @@ Donate link: https://www.buymeacoffee.com/abuhayat
 Tags: block, carousel, slider, bootstrap, Gutenberg block
 Requires at least: 6.5
 Tested up to: 7.1
-Stable tag: 2.1.0
+Stable tag: 2.2.0
 Requires PHP: 7.2
 License: GPLv2 or later 
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -38,6 +38,15 @@ You can use bSlider for product showcases, portfolios, testimonials, or hero sec
 - **Arrow Styling**: Customize arrow size, height, width, border, and color to match your theme.
 - **Carousel Layout**: Create looping, autoplay carousels with horizontal or vertical direction.
 - **Grid Layout**: Display sliders in responsive grids with adjustable column and row gaps.
+- **Gutenberg Blocks Source**: Build each slide from real WordPress blocks — headings, images, buttons, columns, anything in your editor.
+- **Layer Animations**: Give any block inside a slide an entry animation, with preset delays so layers arrive one after another.
+- **Loop Animations**: Keep a layer moving after it arrives — Pulse and Bounce included free.
+- **Hover & Click Actions**: Grow, lift or fade a layer on hover; make it open a link, scroll to a section, or move the slider.
+- **Visual Timeline**: See every animated layer on one timeline and set when each arrives, without hunting through panels.
+- **Layer Typography**: Set a font, size, weight and spacing on any text layer, with Google Fonts included.
+- **Responsive Layers**: Hide a layer on desktop, tablet or mobile, or let it show but stop it animating.
+- **Slide Styling**: Background, overlay, border, corner radius, padding and content alignment, per slide.
+- **Auto Word-Wrap**: Long links and unspaced text break to fit the slide instead of spilling past its edge.
 - **Thumbnails Layout**: Add thumbnail navigation with overlay, autoplay, and border options.
 - **Post Slider Options**: Query posts by category or tag, show excerpts, and limit content length.
 - **Default Post Types**: Build sliders using standard WordPress post types (Posts, Pages, and WooCommerce Products).
@@ -88,6 +97,15 @@ You can use bSlider for product showcases, portfolios, testimonials, or hero sec
 - **Video Auto Hide Controls**: Automatically hides playback UI during periods of inactivity.
 - **Advanced Video Tools**: Includes Mute, PIP (Picture-in-Picture), AirPlay, Download, and Fullscreen.
 - **Pagination Position**: Flexible alignment for pagination buttons within grid layouts.
+- **Carousel Layout for Block Slides**: Show two or three block-built slides side by side, with Swiper effects.
+- **Dynamic Content**: Bind a post or product to a slide and drop in Post Field blocks — title, excerpt, image, date, author, price or an ACF field.
+- **Post Field per Block**: Point each field at its own post, so one slide can show several at once.
+- **Convert to Core Blocks**: Turn a Post Field into a real Heading, Paragraph or Image that still follows the post — or detach it and edit the text freely.
+- **Lottie Animation Layer**: Drop a Lottie JSON animation into a slide and play it as the slide arrives.
+- **Exit Animations**: Animate a layer out as its slide leaves, not only in.
+- **Fine-tuned Timing**: Set an exact delay and duration on any layer instead of choosing a preset.
+- **Advanced Loop Animations**: Float, Flash, Shake and Swing, on top of the free Pulse and Bounce.
+- **Word by Word Animation**: Animate a heading or paragraph one word at a time.
 - **Include/Exclude Posts & Products**: Manually select exactly which items to display or hide.
 - **Exclude Current Post**: Prevents the post being currently viewed from appearing in the feed.
 - **Custom Post Type Sliders**: Build a slider from any user-registered custom post type (CPT), like portfolio, services, or testimonials.
@@ -271,6 +289,21 @@ Please report security bugs found in the source code of the bSlider plugin throu
 
 
 == Changelog ==
+
+= 2.2.0 - 28 August, 2026 =
+* New: Gutenberg Blocks source type — build every slide from real WordPress blocks instead of a fixed title, image and button;
+* New: Layer animations on any block inside a slide, with entry effects, preset delays and a per-slide stagger;
+* New: Loop animations that keep a layer moving after it arrives (Pulse and Bounce free, Float/Flash/Shake/Swing in Pro);
+* New: Hover and click actions on a layer — grow, lift or fade on hover; open a link, scroll to a section, or move the slider on click;
+* New: Visual Timeline panel showing every animated layer on one scale, with the delay editable in place;
+* New: Typography panel on text layers, Google Fonts included;
+* New: Responsive panel — hide a layer on desktop, tablet or mobile, or let it show without animating;
+* New: Per-slide background, overlay, border, corner radius, padding and content alignment;
+* New: Auto word-wrap, so a long link breaks to fit the slide instead of spilling past its edge;
+* New: Empty slides now offer Heading, Image, Button and Two columns as one-click starting points;
+* Pro: Carousel layout for block-built slides — several on screen at once;
+* Pro: Dynamic Content — bind a post or product to a slide and place Post Field blocks in it;
+* Pro: Lottie animation layer, exit animations, fine-tuned delay and duration, and word-by-word text animation;
 
 = 2.1.0 - 22 August, 2026 =
 * New: Social Feeds source type tile and upsell notice in the Source & Layout sidebar panel;
@@ -726,6 +759,18 @@ This plugin bundles the following third-party JavaScript/PHP libraries.
 * **GitHub:** https://github.com/verlok/vanilla-lazyload
 * **License:** MIT – https://github.com/verlok/vanilla-lazyload/blob/master/LICENSE
 * **Purpose:** Enables lazy loading of slide images to improve page performance by deferring off-screen image loading.
+
+= Swiper = 
+* **Source:** https://swiperjs.com/
+* **GitHub:** https://github.com/nolimits4web/swiper
+* **License:** MIT – https://github.com/nolimits4web/swiper/blob/master/LICENSE
+* **Purpose:** Powers the Carousel, Grid and Thumbnails layouts, including their transition effects.
+
+= animate.css = 
+* **Source:** https://animate.style/
+* **GitHub:** https://github.com/animate-css/animate.css
+* **License:** MIT – https://github.com/animate-css/animate.css/blob/main/LICENSE
+* **Purpose:** Provides the entry and loop animations applied to slide content and layers.
 
 = Font Awesome = 
 * **Source:** https://fontawesome.com/
