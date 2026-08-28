@@ -8,7 +8,10 @@ const SelectLayout = ({ attributes, setAttributes }) => {
     // A `blocks`-sourced slide's content arrives on the front end as one pre-rendered HTML blob
     // (see render.php's `_blocksHtml` bridge), not a JS-enumerable array of items — only the
     // Bootstrap-Carousel-based Default layout can animate between opaque HTML blocks like that.
-    // Carousel/Grid/Thumbnails are Swiper-based and need each slide as a discrete item.
+    // Grid and Thumbnails want a picture to crop and a thumbnail to draw, which a slide built
+    // from blocks has neither of. Carousel does work for this source — it splits the blob back
+    // into slides for Swiper — but it is a Pro layout here, so the promo below names it rather
+    // than the tile offering something this licence cannot apply.
     const availableLayouts = 'blocks' === sourceType
         ? layoutItem.filter(item => 'default' === item.layoutType)
         : layoutItem;
@@ -46,7 +49,9 @@ const SelectLayout = ({ attributes, setAttributes }) => {
                 ))}
             </div>
 
-            <ProListLayoutPromo />
+            {/* The notice reads differently for a `blocks` slider: the layout held back there is
+                Carousel, not List. Passing the source is what lets one component say either. */}
+            <ProListLayoutPromo sourceType={sourceType} />
         </div>
     );
 };

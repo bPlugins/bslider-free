@@ -30,6 +30,7 @@ export const sourceItem = [
         sourceType: "blocks",
         icon: layers,
         title: "Gutenberg Blocks",
-        desc: "Build slides with real WordPress blocks"
+        desc: "Build slides with real WordPress blocks",
+        isNew: true
     },
 ];

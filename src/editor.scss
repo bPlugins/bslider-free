@@ -342,31 +342,6 @@ svg#bsbSlider {
                 transition: color 0.2s ease;
             }
 
-            /* A layout this licence cannot use. Drawn, and drawn quietly: the tile still opens
-               the upgrade page, so it has to look like something worth pressing rather than
-               something broken — faded, dashed, and labelled "- Pro" by the button itself. */
-            &.is-pro {
-                background: var(--bsb-surface-soft);
-                border-style: dashed;
-                box-shadow: none;
-
-                .bsb_tile_icon svg,
-                .bsb_tile_label {
-                    opacity: 0.65;
-                }
-
-                &:hover {
-                    border-color: var(--bsb-primary);
-
-                    .bsb_tile_icon svg,
-                    .bsb_tile_label {
-                        opacity: 1;
-                        color: var(--bsb-primary);
-                        fill: var(--bsb-primary);
-                    }
-                }
-            }
-
             &:hover {
                 border-color: var(--bsb-primary);
                 background: var(--bsb-surface-soft);
@@ -1977,6 +1952,19 @@ svg#bsbSlider {
 }
 
 /**
+ * The canvas is square-cornered, and deliberately.
+ *
+ * Everything drawn here — the slide tabs, the slide card, the empty-slide panel and its buttons,
+ * the timeline — is furniture this plugin puts *on the page being edited*, not chrome in the
+ * sidebar. Rounded corners there read as a widget sitting on top of the content; square ones read
+ * as part of the page, which is what a slide is. The sidebar keeps its radius: that is a panel,
+ * and it is meant to look like one.
+ *
+ * Stated once here because it is a rule about a place rather than about any one control, and a
+ * new control added to the canvas later should follow it.
+ */
+
+/**
  * Editing a `blocks`-sourced slider: every slide on the canvas at once.
  *
  * Bootstrap keeps all but the active `.carousel-item` at `display: none`. That is right on the
@@ -2032,7 +2020,28 @@ svg#bsbSlider {
         padding: 12px;
         background: var(--bsb-surface);
         border: 1px dashed var(--bsb-line-strong);
-        border-radius: var(--bsb-radius-sm);
+        border-radius: 0;
+
+        /**
+         * The text colour has to come with the background.
+         *
+         * The white card above is the canvas's own idea — a slide has no background until the
+         * author gives it one, and something has to show where one slide ends and the next
+         * begins. But the text inside is still coloured by the theme, which sets it for the
+         * background *it* expects: a theme built around a dark page writes light text, and light
+         * text on this white card is a paragraph the author cannot read while typing it.
+         *
+         * Only while the slide has no background of its own. `slideStyles` writes one as an
+         * inline style the moment the author picks a colour, and from then on the theme's pairing
+         * is the right one again — so the rule steps aside rather than overriding a choice.
+         */
+        &:not([style*="background"]) {
+            color: var(--bsb-ink);
+
+            h1, h2, h3, h4, h5, h6, p, li, blockquote, cite, figcaption {
+                color: inherit;
+            }
+        }
     }
 
     /* No `height: auto !important` here any more, and that is the point.
@@ -2141,7 +2150,7 @@ svg#bsbSlider {
     padding: 4px;
     background: var(--bsb-surface-soft);
     border: 1px solid var(--bsb-line);
-    border-radius: var(--bsb-radius);
+    border-radius: 0;
 
     .bsb_slide_tabs_list {
         display: flex;
@@ -2367,14 +2376,14 @@ svg#bsbSlider {
     text-align: center;
     color: var(--bsb-muted);
     background: var(--bsb-surface-soft);
-    border-radius: 8px;
+    border-radius: 0;
 }
 
 .bsbTimelineTrack {
     position: relative;
     height: 20px;
     background: var(--bsb-surface-soft);
-    border-radius: var(--bsb-radius-sm);
+    border-radius: 0;
 }
 
 /**
@@ -2396,7 +2405,7 @@ svg#bsbSlider {
     font-weight: 600;
     color: #fff;
     background: var(--bsb-primary);
-    border-radius: 3px;
+    border-radius: 0;
     pointer-events: none;
 
     /* Dashed while the delay is the slide's stagger rather than the layer's own: the bar is
@@ -2440,20 +2449,28 @@ svg#bsbSlider {
     text-align: center;
     background: var(--bsb-surface-soft);
     border: 1px dashed var(--bsb-line-strong);
-    border-radius: var(--bsb-radius-sm);
+    border-radius: 0;
 }
 
+/*
+ * The two lines carry `!important`, and only these two.
+ *
+ * They are `<p>` elements sitting inside the editor canvas, where a block theme styles paragraphs
+ * for the page it expects — a theme built around a dark background writes light text, and light
+ * text on this panel is a heading nobody can read. Every other colour here belongs to a control
+ * the theme has no opinion about; these two are the only ones it competes for.
+ */
 .bsbSlideStartTitle {
     margin: 0;
     font-size: 13px;
     font-weight: 600;
-    color: var(--bsb-text);
+    color: var(--bsb-text) !important;
 }
 
 .bsbSlideStartHint {
     margin: 2px 0 14px;
     font-size: 11px;
-    color: var(--bsb-muted);
+    color: var(--bsb-muted) !important;
 }
 
 .bsbSlideStartRow {
@@ -2482,7 +2499,7 @@ svg#bsbSlider {
     color: var(--bsb-text);
     background: var(--bsb-surface);
     border: 1px solid var(--bsb-line);
-    border-radius: var(--bsb-radius-sm);
+    border-radius: 0;
     transition: border-color 0.15s ease, color 0.15s ease;
 
     svg {

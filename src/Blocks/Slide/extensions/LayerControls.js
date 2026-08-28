@@ -66,15 +66,15 @@ const withLayerControls = createHigherOrderComponent((BlockEdit) => (props) => {
 			<AccordionGroup>
 			{/* Ahead of the animation panels, because a font is a fact about the layer itself
 			    and the rest is about how it arrives. Only where there is text to set. */}
-			{canCarryTypography(name) && <PanelBody className='bPlPanelBody' title={__('Typography', 'b-slider')} initialOpen={false}>
+			{canCarryTypography(name) && <PanelBody className='bPlPanelBody' title={__('Typography', 'b-slider')} badge={__('New', 'b-slider')} initialOpen={false}>
 				<TypographyPanel {...panelProps} />
 			</PanelBody>}
 
-			<PanelBody className='bPlPanelBody' title={__('Animation', 'b-slider')} initialOpen={false}>
+			<PanelBody className='bPlPanelBody' title={__('Animation', 'b-slider')} badge={__('New', 'b-slider')} initialOpen={false}>
 				<EntryExitPanel {...panelProps} />
 			</PanelBody>
 
-			<PanelBody className='bPlPanelBody' title={__('Loop Animation', 'b-slider')} initialOpen={false}>
+			<PanelBody className='bPlPanelBody' title={__('Loop Animation', 'b-slider')} badge={__('New', 'b-slider')} initialOpen={false}>
 				<LoopPanel {...panelProps} />
 			</PanelBody>
 
@@ -89,7 +89,7 @@ const withLayerControls = createHigherOrderComponent((BlockEdit) => (props) => {
 				/>
 			</PanelBody>}
 
-			<PanelBody className='bPlPanelBody' title={__('Hover & Click', 'b-slider')} initialOpen={false}>
+			<PanelBody className='bPlPanelBody' title={__('Hover & Click', 'b-slider')} badge={__('New', 'b-slider')} initialOpen={false}>
 				<InteractivityPanel {...panelProps} />
 			</PanelBody>
 
@@ -97,7 +97,7 @@ const withLayerControls = createHigherOrderComponent((BlockEdit) => (props) => {
 			    on. Nothing here is per-device *values* — a layer has one delay and one duration
 			    wherever it plays — only whether the layer is drawn at all, and whether it moves
 			    when it is. */}
-			<PanelBody className='bPlPanelBody' title={__('Responsive', 'b-slider')} initialOpen={false}>
+			<PanelBody className='bPlPanelBody' title={__('Responsive', 'b-slider')} badge={__('New', 'b-slider')} initialOpen={false}>
 				<ResponsivePanel {...panelProps} />
 			</PanelBody>
 			</AccordionGroup>

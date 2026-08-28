@@ -45,7 +45,7 @@ const Edit = ({ attributes, setAttributes, clientId }) => {
 							/>
 						</PanelBody>
 
-						<PanelBody className='bPlPanelBody' title={__('Slide', 'b-slider')} initialOpen={false}>
+						<PanelBody className='bPlPanelBody' title={__('Slide', 'b-slider')} badge={__('New', 'b-slider')} initialOpen={false}>
 							{/* Lives on the slide rather than on each block inside it, because it
 							    is a fact about the sequence, not about any one layer: each layer
 							    with an entry animation waits this much longer than the one before
@@ -65,13 +65,13 @@ const Edit = ({ attributes, setAttributes, clientId }) => {
 						{/* After the stagger control, because it is the picture of what that
 						    number does: the bars move as it changes, and a layer given a delay
 						    of its own here steps out of that rhythm. */}
-						<PanelBody className='bPlPanelBody' title={__('Timeline', 'b-slider')} initialOpen={false}>
+						<PanelBody className='bPlPanelBody' title={__('Timeline', 'b-slider')} badge={__('New', 'b-slider')} initialOpen={false}>
 							<VisualTimelinePanel clientId={clientId} stagger={bsbStagger} />
 						</PanelBody>
 					</>}
 
 					{'style' === tab.name && <>
-						<PanelBody className='bPlPanelBody' title={__('Background', 'b-slider')} initialOpen={false}>
+						<PanelBody className='bPlPanelBody' title={__('Background', 'b-slider')} badge={__('New', 'b-slider')} initialOpen={false}>
 							<Background
 								label={__('Background', 'b-slider')}
 								value={background}
@@ -89,7 +89,7 @@ const Edit = ({ attributes, setAttributes, clientId }) => {
 							/>
 						</PanelBody>
 
-						<PanelBody className='bPlPanelBody' title={__('Border', 'b-slider')} initialOpen={false}>
+						<PanelBody className='bPlPanelBody' title={__('Border', 'b-slider')} badge={__('New', 'b-slider')} initialOpen={false}>
 							<BorderControl
 								label={__('Border', 'b-slider')}
 								value={border}
@@ -106,7 +106,7 @@ const Edit = ({ attributes, setAttributes, clientId }) => {
 							/>
 						</PanelBody>
 
-						<PanelBody className='bPlPanelBody' title={__('Spacing & Alignment', 'b-slider')} initialOpen={false}>
+						<PanelBody className='bPlPanelBody' title={__('Spacing & Alignment', 'b-slider')} badge={__('New', 'b-slider')} initialOpen={false}>
 							<BoxControl
 								label={__('Padding', 'b-slider')}
 								values={padding}

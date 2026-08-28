@@ -75,8 +75,8 @@ const SlidePlaceholder = ({ clientId }) => {
 	};
 
 	return <div className="bsbSlideStart">
-		<p className="bsbSlideStartTitle">{__('Start building this slide', 'b-slider')}</p>
-		<p className="bsbSlideStartHint">{__('Pick something to begin with, or browse every block.', 'b-slider')}</p>
+		<p className="bsbSlideStartTitle">{__('This slide is empty', 'b-slider')}</p>
+		<p className="bsbSlideStartHint">{__('Start with one of these, or pick any block.', 'b-slider')}</p>
 
 		<div className="bsbSlideStartRow">
 			{STARTERS.map(starter => <Button

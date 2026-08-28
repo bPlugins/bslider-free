@@ -11,7 +11,7 @@ import { HelpPanel, Label } from '../../../../../../bpl-tools/Components';
 import MainItem from '../MainItem';
 import ProPostTypesPromo from '../../ProPostTypesPromo';
 import ProListLayoutPromo from '../../ProListLayoutPromo';
-import { adminUrl, isPostTypeLocked, isProActive } from '../../../../utils/functions';
+import { isPostTypeLocked } from '../../../../utils/functions';
 import DefaultGeneral from './DefaultGeneral';
 import GridGeneral from '../GridGeneral';
 import ThumbnailsGeneral from './ThumbnailsGeneral';
@@ -41,13 +41,6 @@ const General = ({ attributes, setAttributes, activeIndex, setActiveIndex, updat
 
     const isPostSource = sourceType === 'posts' || sourceType === 'woo';
 
-    /**
-     * Carousel, for a `blocks` slider, on a free licence.
-     *
-     * Only that combination: Carousel is free for every other source and always has been, and
-     * Default is free here too. What Pro buys is laying block-built slides out several at a time.
-     */
-    const isBlocksCarouselPro = (layout) => 'blocks' === sourceType && 'carousel' === layout && !isProActive();
     /**
      * Which sources draw a caption over a picture at all.
      *
@@ -161,21 +154,15 @@ const General = ({ attributes, setAttributes, activeIndex, setActiveIndex, updat
                     thumbnail to draw — neither of which a slide built from blocks has. Default
                     and Carousel both work: Default hands the blob to Bootstrap, and Carousel
                     splits it back into slides for Swiper (see Layouts/Carousel.js). */}
-                {(sourceType === 'blocks' ? selectLayoutOpt.filter(opt => ['default', 'carousel'].includes(opt.value)) : selectLayoutOpt).map((opt) => (
+                {(sourceType === 'blocks' ? selectLayoutOpt.filter(opt => opt.value === 'default') : selectLayoutOpt).map((opt) => (
                     <button
                         key={opt.value}
                         type="button"
-                        /* Carousel is Pro for a `blocks` slider. The tile is still drawn — a
-                           locked feature nobody can see is a feature nobody upgrades for — but it
-                           says so, and choosing it opens the upgrade page rather than silently
-                           doing nothing. Every other source keeps Carousel free, as it was. */
-                        className={`bsb_panel_tile_btn ${(layoutType || 'default') === opt.value ? 'is-active' : ''} ${isBlocksCarouselPro(opt.value) ? 'is-pro' : ''}`}
-                        onClick={() => isBlocksCarouselPro(opt.value)
-                            ? window.open(adminUrl(), '_blank', 'noreferrer')
-                            : setAttributes({ layoutType: opt.value })}
+                        className={`bsb_panel_tile_btn ${(layoutType || 'default') === opt.value ? 'is-active' : ''}`}
+                        onClick={() => setAttributes({ layoutType: opt.value })}
                     >
                         <span className="bsb_tile_icon">{opt.icon}</span>
-                        <span className="bsb_tile_label">{opt.label}{isBlocksCarouselPro(opt.value) ? ` - ${__('Pro', 'b-slider')}` : ''}</span>
+                        <span className="bsb_tile_label">{opt.label}</span>
                     </button>
                 ))}
             </div>
