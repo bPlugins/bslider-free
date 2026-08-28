@@ -1,27 +1,42 @@
 /**
- * Design tokens for the block editor UI.
+ * Design tokens for the block editor UI, taken from the bPlugins brand.
  *
  * The editor styles had grown three separate palettes — navy `#000080` buttons, purple `#4527a4`
- * badges and the newer slate/blue system — so the same control looked different depending on
- * which panel it was in. Everything below now resolves to these, and nothing else.
+ * badges and a slate/blue system of their own — so the same control looked different depending
+ * on which panel it was in. Everything below now resolves to these, and nothing else.
+ *
+ * The values are bplugins.com's own: `#146ef5` is its `--theme-color`, `#ff7a00` its
+ * `--secondary-color`, `#070127` its `--title-color` and `#485781` its `--content-color`. The
+ * blue tints are the site's own 100–800 steps rather than a scale invented here, so a panel in
+ * this editor and a page on the site are the same blue.
+ *
+ * Two of them are deliberately not used for text. `#ff7a00` on white measures 2.6:1 and white on
+ * `#ff7a00` the same — nowhere near the 4.5 that ordinary text needs — so the accent is for
+ * marks, fills and edges, with `--bsb-on-accent` for anything written on top of it. The brand
+ * blue is 4.59:1, which passes, but only just: it is right for a label or a link and wrong for a
+ * paragraph, which is what `--bsb-text` is for.
  */
 :root {
-    --bsb-primary: #186cf5;
-    --bsb-primary-dark: #1256c9;
-    --bsb-primary-soft: #eff6ff;
-    --bsb-primary-line: #bfdbfe;
+    --bsb-primary: #146ef5;
+    --bsb-primary-dark: #095edc;
+    --bsb-primary-soft: #e7f0fe;
+    --bsb-primary-line: #b6d2fc;
     --bsb-accent: #ff7a00;
+    --bsb-accent-soft: #fff3e6;
+    /* 7.7:1 against the accent — the only safe thing to write on it. */
+    --bsb-on-accent: #070127;
     --bsb-warning: #9a3412;
     --bsb-warning-soft: #fff7ed;
     --bsb-danger: #dc2626;
     --bsb-danger-soft: #fef2f2;
     --bsb-danger-line: #fecaca;
 
-    --bsb-ink: #0f172a;
-    --bsb-text: #1e293b;
-    --bsb-text-soft: #475569;
-    --bsb-muted: #64748b;
-    --bsb-faint: #94a3b8;
+    /* The brand's own ink and body colours: 20:1 and 7.1:1 on white. */
+    --bsb-ink: #070127;
+    --bsb-text: #1f2a4a;
+    --bsb-text-soft: #485781;
+    --bsb-muted: #6b7a9e;
+    --bsb-faint: #9aa5c0;
 
     --bsb-surface: #ffffff;
     --bsb-surface-soft: #f8fafc;
@@ -33,10 +48,10 @@
     --bsb-radius-lg: 14px;
     --bsb-radius-pill: 999px;
 
-    --bsb-shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06);
-    --bsb-shadow-lg: 0 12px 28px rgba(15, 23, 42, 0.12);
-    --bsb-shadow-primary: 0 4px 12px rgba(24, 108, 245, 0.22);
-    --bsb-ring: 0 0 0 3px rgba(24, 108, 245, 0.15);
+    --bsb-shadow-sm: 0 1px 3px rgba(7, 1, 39, 0.06);
+    --bsb-shadow-lg: 0 12px 28px rgba(7, 1, 39, 0.12);
+    --bsb-shadow-primary: 0 4px 12px rgba(20, 110, 245, 0.22);
+    --bsb-ring: 0 0 0 3px rgba(20, 110, 245, 0.15);
 
     --bsb-ease: cubic-bezier(0.4, 0, 0.2, 1);
     --bsb-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
@@ -325,6 +340,31 @@ svg#bsbSlider {
                 line-height: 1.3;
                 color: var(--bsb-text-soft);
                 transition: color 0.2s ease;
+            }
+
+            /* A layout this licence cannot use. Drawn, and drawn quietly: the tile still opens
+               the upgrade page, so it has to look like something worth pressing rather than
+               something broken — faded, dashed, and labelled "- Pro" by the button itself. */
+            &.is-pro {
+                background: var(--bsb-surface-soft);
+                border-style: dashed;
+                box-shadow: none;
+
+                .bsb_tile_icon svg,
+                .bsb_tile_label {
+                    opacity: 0.65;
+                }
+
+                &:hover {
+                    border-color: var(--bsb-primary);
+
+                    .bsb_tile_icon svg,
+                    .bsb_tile_label {
+                        opacity: 1;
+                        color: var(--bsb-primary);
+                        fill: var(--bsb-primary);
+                    }
+                }
             }
 
             &:hover {
@@ -804,7 +844,7 @@ svg#bsbSlider {
             }
 
             &--ribbon > span {
-                border-left: 3px solid #186cf5;
+                border-left: 3px solid var(--bsb-primary);
                 border-radius: 0 4px 4px 0;
                 background: rgba(0, 0, 0, 0.72);
             }
@@ -1670,7 +1710,7 @@ svg#bsbSlider {
     align-items: center;
     gap: 6px;
     margin-top: 8px;
-    color: var(--bsb-primary, #186cf5);
+    color: var(--bsb-primary);
     font-weight: 600;
     text-decoration: none;
 
@@ -1721,8 +1761,8 @@ svg#bsbSlider {
 
     &:hover,
     &:focus-visible {
-        color: var(--bsb-primary, #186cf5);
-        background: var(--bsb-primary-soft, #eff6ff);
+        color: var(--bsb-primary);
+        background: var(--bsb-primary-soft);
         outline: none;
     }
 }
@@ -1833,9 +1873,9 @@ svg#bsbSlider {
     margin-left: 8px;
     padding: 1px 7px;
     border-radius: 0;
-    background: color-mix(in srgb, var(--bsb-accent, #ff7a00) 12%, transparent);
-    border: 1px solid color-mix(in srgb, var(--bsb-accent, #ff7a00) 35%, transparent);
-    color: var(--bsb-accent, #ff7a00);
+    background: color-mix(in srgb, var(--bsb-accent) 12%, transparent);
+    border: 1px solid color-mix(in srgb, var(--bsb-accent) 35%, transparent);
+    color: var(--bsb-accent);
     font-size: 0.72em;
     font-weight: 700;
     letter-spacing: 0.04em;
@@ -2120,17 +2160,17 @@ svg#bsbSlider {
         }
     }
 
+    /* Square, deliberately: the rounded edge belongs to the bar around them, and repeating it on
+       every tab made a row of separate pills where one segmented control was meant. */
     .bsb_slide_tab {
         display: flex;
         align-items: center;
         flex: none;
-        border-radius: var(--bsb-radius-sm);
         transition: background 0.15s var(--bsb-ease);
 
         > button:first-child {
             padding: 7px 14px;
             border: none;
-            border-radius: var(--bsb-radius-sm);
             background: transparent;
             font-size: 12px;
             font-weight: 600;
@@ -2179,11 +2219,12 @@ svg#bsbSlider {
 
     /* Outside the track and against its edge, because adding a slide is a different kind of act
        from choosing between the ones already there. */
+    /* Square like the tabs beside it, for the same reason: the bar owns the rounded edge. */
     .bsb_slide_tab_add {
         flex: none;
         height: 30px;
         padding: 0 12px;
-        border-radius: var(--bsb-radius-sm);
+        border-radius: 0;
         font-size: 12px;
         font-weight: 600;
         color: var(--bsb-primary);
@@ -2384,4 +2425,99 @@ svg#bsbSlider {
     margin-right: calc(var(--bsb-timeline-delay) + 8px);
     font-size: 9px;
     color: var(--bsb-muted);
+}
+
+/**
+ * What an empty slide offers: four openings, one click each.
+ *
+ * Replaces a bare `+` that opened the whole block picker — honest, but a long list to read when
+ * the answer is nearly always a headline, a picture, a call to action, or a two-column split.
+ * The four are laid out as a wrapping row so the panel keeps its shape at any sidebar width, and
+ * the ordinary `+` stays underneath for everything else.
+ */
+.bsbSlideStart {
+    padding: 20px 16px 16px;
+    text-align: center;
+    background: var(--bsb-surface-soft);
+    border: 1px dashed var(--bsb-line-strong);
+    border-radius: var(--bsb-radius-sm);
+}
+
+.bsbSlideStartTitle {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--bsb-text);
+}
+
+.bsbSlideStartHint {
+    margin: 2px 0 14px;
+    font-size: 11px;
+    color: var(--bsb-muted);
+}
+
+.bsbSlideStartRow {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+}
+
+/**
+ * One starter.
+ *
+ * A column rather than a row — icon over label — because four of these side by side in a narrow
+ * canvas would otherwise wrap into an unreadable stack of half-labels. `height: auto` and the
+ * padding are both overrides: WordPress sizes its buttons for a toolbar, and this is not one.
+ */
+.bsbSlideStartBtn.components-button {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    width: 84px;
+    height: auto !important;
+    padding: 12px 6px !important;
+    font-size: 11px;
+    line-height: 1.3;
+    color: var(--bsb-text);
+    background: var(--bsb-surface);
+    border: 1px solid var(--bsb-line);
+    border-radius: var(--bsb-radius-sm);
+    transition: border-color 0.15s ease, color 0.15s ease;
+
+    svg {
+        width: 22px;
+        height: 22px;
+        fill: currentColor;
+    }
+
+    &:hover:not(:disabled) {
+        color: var(--bsb-primary);
+        border-color: var(--bsb-primary);
+        background: var(--bsb-surface);
+    }
+}
+
+/* The way to every other block. Dashed rather than solid, so the four shortcuts read as the
+   offer and this reads as "or anything else" — the same distinction the editor's own appenders
+   make between a suggestion and the full list. */
+.bsbSlideStartBtn.isBrowse.components-button {
+    color: var(--bsb-muted);
+    background: transparent;
+    border-style: dashed;
+
+    &:hover:not(:disabled) {
+        color: var(--bsb-primary);
+        border-color: var(--bsb-primary);
+        border-style: solid;
+    }
+}
+
+/* While the starter is up, the appender below it would be a second way to do the same thing in
+   the same box.
+   `:has()` on the content wrapper rather than a sibling combinator, because the appender is not
+   a sibling of the starter: `InnerBlocks` wraps it two levels down, inside its own layout div.
+   The starter renders nothing once the slide has content, so the appender comes back on its own. */
+.carousel.blocks .bsb-slide-content:has(> .bsbSlideStart) .block-list-appender {
+    display: none !important;
 }

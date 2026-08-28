@@ -56,6 +56,24 @@ const Style = ({ attributes, clientId, postsCount, products }) => {
 		grid-auto-${isVertical ? 'rows' : 'columns'}: ${trackSize};`
 		: `grid-template-${isVertical ? 'rows' : 'columns'}: repeat(${slideCount}, ${trackSize});`;
 
+	/**
+	 * The Swiper viewport, in the list of things given a fixed height — unless this is a `blocks`
+	 * slider, where the height is opt-in and applied separately below.
+	 *
+	 * Built here rather than inline, because the rule it goes into is already a template literal
+	 * and a conditional selector inside one needs a third level of backticks to carry
+	 * `${clientId}` — which is a parse error waiting to happen.
+	 */
+	const swiperHeightSelector = 'blocks' === sourceType
+		? ''
+		: `#bsbCarousel-${clientId} .carousel .swiper,`;
+
+	/** The Swiper viewport's own height, written only when the author set one. */
+	const swiperViewport = `#bsbCarousel-${clientId} .carousel .swiper`;
+	const blocksSwiperHeight = 'blocks' === sourceType && sliderHeight?.desktop
+		? `${swiperViewport} { height: ${sliderHeight.desktop}; }`
+		: '';
+
 	const blocksInner = `#bsbCarousel-${clientId} .bsbCarousel:not(.carousel-item *) > .carousel-inner`;
 	const blocksSlide = `${blocksInner} > .carousel-item, ${blocksInner} > .block-editor-inner-blocks > .block-editor-block-list__layout > .carousel-item`;
 
@@ -619,12 +637,28 @@ ${layerMotionCSS}
 		object-fit:cover;
 	}
 
+	/*
+	 * The fixed height every other source wants.
+	 *
+	 * The Swiper viewport is left out for a blocks slider - see swiperHeightSelector above, and
+	 * the opt-in rule below. Those sources put a picture in each slide and crop it to a box, so
+	 * a height is what makes the slider a consistent shape. A slide built from blocks is
+	 * whatever the author stacked in it, and a height it never asked for would crop that.
+	 */
 	#bsbCarousel-${clientId} .item, 
 	#bsbCarousel-${clientId} .videoItem,
-	#bsbCarousel-${clientId} .carousel .swiper,
+	${swiperHeightSelector}
 	#bsbCarousel-${clientId} .thumbnails .bsb-main-carousel-wrapper .bsb-main-slider{
 		height: ${sliderHeight?.desktop || height};
 	}
+
+	/*
+	 * A blocks carousel is as tall as its slides until someone says otherwise - the same rule the
+	 * Default layout follows, and for the same reason: the height attribute is a 450px default no
+	 * control ever writes, so falling back to it would set a height nobody chose and put auto out
+	 * of reach. Only sliderHeight[device] comes from a person.
+	 */
+	${blocksSwiperHeight}
 
 	#bsbCarousel-${clientId} .bsbButtonDesign .bsbArrowButton {
 		${getColorsCSS(arrow)};
@@ -753,7 +787,9 @@ ${layerMotionCSS}
 
 		${'blocks' === sourceType && (sliderHeight?.tablet || sliderHeight?.desktop) ? `${blocksSlide} {
 			min-height: ${sliderHeight?.tablet || sliderHeight?.desktop};
-		}` : ''}
+		}
+
+		${swiperViewport} { height: ${sliderHeight?.tablet || sliderHeight?.desktop}; }` : ''}
 	}
 
 	@media (max-width: 576px) {
@@ -763,7 +799,9 @@ ${layerMotionCSS}
 
 		${'blocks' === sourceType && (sliderHeight?.mobile || sliderHeight?.tablet || sliderHeight?.desktop) ? `${blocksSlide} {
 			min-height: ${sliderHeight?.mobile || sliderHeight?.tablet || sliderHeight?.desktop};
-		}` : ''}
+		}
+
+		${swiperViewport} { height: ${sliderHeight?.mobile || sliderHeight?.tablet || sliderHeight?.desktop}; }` : ''}
 	}
 
 	#bsbCarousel-${clientId} .item .carousel-caption {

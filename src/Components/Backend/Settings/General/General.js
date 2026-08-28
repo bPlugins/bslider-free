@@ -11,7 +11,7 @@ import { HelpPanel, Label } from '../../../../../../bpl-tools/Components';
 import MainItem from '../MainItem';
 import ProPostTypesPromo from '../../ProPostTypesPromo';
 import ProListLayoutPromo from '../../ProListLayoutPromo';
-import { isPostTypeLocked } from '../../../../utils/functions';
+import { adminUrl, isPostTypeLocked, isProActive } from '../../../../utils/functions';
 import DefaultGeneral from './DefaultGeneral';
 import GridGeneral from '../GridGeneral';
 import ThumbnailsGeneral from './ThumbnailsGeneral';
@@ -40,6 +40,14 @@ const General = ({ attributes, setAttributes, activeIndex, setActiveIndex, updat
     const gap = 'mt15';
 
     const isPostSource = sourceType === 'posts' || sourceType === 'woo';
+
+    /**
+     * Carousel, for a `blocks` slider, on a free licence.
+     *
+     * Only that combination: Carousel is free for every other source and always has been, and
+     * Default is free here too. What Pro buys is laying block-built slides out several at a time.
+     */
+    const isBlocksCarouselPro = (layout) => 'blocks' === sourceType && 'carousel' === layout && !isProActive();
     /**
      * Which sources draw a caption over a picture at all.
      *
@@ -60,7 +68,20 @@ const General = ({ attributes, setAttributes, activeIndex, setActiveIndex, updat
             }
         }
 
-        setAttributes({ sourceType: val });
+        /*
+         * The layout has to come along, because `blocks` can only be drawn one way.
+         *
+         * Carousel, Grid and Thumbnails are Swiper-based and enumerate their slides as data; a
+         * `blocks` slider hands its slides over as one pre-rendered HTML string, which only the
+         * Bootstrap-Carousel Default layout knows what to do with. The tile list already hides
+         * the other three while `blocks` is chosen — but hiding a choice does not undo one
+         * already made, so a slider left on Carousel and then switched to Blocks kept a layout
+         * it could not render and came out blank on the front end.
+         */
+        setAttributes({
+            sourceType: val,
+            ...('blocks' === val && layoutType && !['default', 'carousel'].includes(layoutType) ? { layoutType: 'default' } : {}),
+        });
 
         if (val === 'woo') {
             updateObject('postsQuery', 'post_type', 'product');
@@ -134,24 +155,32 @@ const General = ({ attributes, setAttributes, activeIndex, setActiveIndex, updat
 
             <Label className="mt15 mb5">{__('Select Layout', 'b-slider')}</Label>
             <div className="bsb_panel_grid_selector">
-                {/* A `blocks`-sourced slider's content is one opaque HTML blob on the front end
-                    (see render.php's `_blocksHtml` bridge) — only the Bootstrap-Carousel-based
-                    Default layout can animate between blocks like that; Carousel/Grid/Thumbnails
-                    are Swiper-based and need each slide as a discrete, JS-enumerable item. */}
-                {(sourceType === 'blocks' ? selectLayoutOpt.filter(opt => opt.value === 'default') : selectLayoutOpt).map((opt) => (
+                {/* Grid and Thumbnails are left out for a `blocks` slider. Its content arrives on
+                    the front end as one HTML blob (see render.php's `_blocksHtml` bridge), and
+                    those two want each slide as a discrete item with a picture to crop and a
+                    thumbnail to draw — neither of which a slide built from blocks has. Default
+                    and Carousel both work: Default hands the blob to Bootstrap, and Carousel
+                    splits it back into slides for Swiper (see Layouts/Carousel.js). */}
+                {(sourceType === 'blocks' ? selectLayoutOpt.filter(opt => ['default', 'carousel'].includes(opt.value)) : selectLayoutOpt).map((opt) => (
                     <button
                         key={opt.value}
                         type="button"
-                        className={`bsb_panel_tile_btn ${(layoutType || 'default') === opt.value ? 'is-active' : ''}`}
-                        onClick={() => setAttributes({ layoutType: opt.value })}
+                        /* Carousel is Pro for a `blocks` slider. The tile is still drawn — a
+                           locked feature nobody can see is a feature nobody upgrades for — but it
+                           says so, and choosing it opens the upgrade page rather than silently
+                           doing nothing. Every other source keeps Carousel free, as it was. */
+                        className={`bsb_panel_tile_btn ${(layoutType || 'default') === opt.value ? 'is-active' : ''} ${isBlocksCarouselPro(opt.value) ? 'is-pro' : ''}`}
+                        onClick={() => isBlocksCarouselPro(opt.value)
+                            ? window.open(adminUrl(), '_blank', 'noreferrer')
+                            : setAttributes({ layoutType: opt.value })}
                     >
                         <span className="bsb_tile_icon">{opt.icon}</span>
-                        <span className="bsb_tile_label">{opt.label}</span>
+                        <span className="bsb_tile_label">{opt.label}{isBlocksCarouselPro(opt.value) ? ` - ${__('Pro', 'b-slider')}` : ''}</span>
                     </button>
                 ))}
             </div>
 
-            <ProListLayoutPromo variant="compact" />
+            <ProListLayoutPromo variant="compact" sourceType={sourceType} />
         </PanelBody>
 
         {(sourceType !== "posts" && sourceType !== "woo" && sourceType !== "blocks") &&

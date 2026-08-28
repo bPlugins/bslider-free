@@ -1594,3 +1594,46 @@
         font-size: var(--bsb-font-size-mobile) !important;
     }
 }
+
+/**
+ * A `blocks` slide inside a Swiper carousel.
+ *
+ * The slide markup is the same whichever layout draws it — `render.php` renders it once, and
+ * `.carousel-item` is Bootstrap's class because the Default layout hands the whole blob to
+ * Bootstrap. Bootstrap keeps every `.carousel-item` at `display: none` and puts `.active` on the
+ * one it is showing; Swiper knows nothing about either, so under Carousel every slide stayed
+ * hidden and the slider came out empty with only its arrows and dots to show for it.
+ *
+ * Inside a Swiper slide the visibility is Swiper's business, so Bootstrap's rule is undone —
+ * along with the float and negative margin it uses to stack slides on top of each other, which
+ * in a Swiper track would lay them over one another instead of side by side.
+ */
+.swiper-slide .carousel-item {
+    display: block;
+    float: none;
+    width: 100%;
+    margin-right: 0;
+    opacity: 1;
+    transform: none;
+}
+
+/**
+ * A blocks carousel with no height set is as tall as its slides.
+ *
+ * The carousel layout gives its wrapper, its track and every slide `height: 100%`, which is right
+ * for the sources it was written for: they crop a picture into a box whose height the slider
+ * decides, so each slide filling that box is the point. A blocks slide has no such box — it is as
+ * tall as whatever was stacked in it — and `100%` of an ancestor with no height of its own
+ * resolves against the viewport, so an empty-looking slider came out a screen tall.
+ *
+ * Undone only on `.blocks`, and only where no height was asked for: `Style.js` writes a height on
+ * `.carousel .swiper` when the author sets one, and an id-scoped rule beats these three.
+ */
+.bsb-main-carousel-wrapper.blocks {
+
+    .bsb-carousel-wrapper .swiper,
+    .bsb-carousel-wrapper .swiper .swiper-wrapper,
+    .bsb-carousel-wrapper .swiper .swiper-wrapper .swiper-slide {
+        height: auto;
+    }
+}

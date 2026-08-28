@@ -12,6 +12,7 @@ import VisualTimelinePanel from './Panels/VisualTimelinePanel';
 import { slideStyles } from './slideStyles';
 import { slideContentClass } from './slideContentClass';
 import SlideOverlay from './SlideOverlay';
+import SlidePlaceholder from './SlidePlaceholder';
 
 const Edit = ({ attributes, setAttributes, clientId }) => {
 	const { bsbStagger = 0, background = {}, overlay, border = {}, radius = {}, padding = {}, contentAlign, verticalAlign, wordWrap = true } = attributes;
@@ -178,6 +179,8 @@ const Edit = ({ attributes, setAttributes, clientId }) => {
 				  * heading or a picture, and the line gives no hint that anything else is
 				  * available. The `+` opens the picker on the first click instead.
 				  */}
+				<SlidePlaceholder clientId={clientId} />
+
 				<InnerBlocks renderAppender={InnerBlocks.ButtonBlockAppender} />
 			</div>
 		</div>

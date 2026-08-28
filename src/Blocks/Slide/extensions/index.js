@@ -5,6 +5,7 @@
  * entry point so the filters are installed exactly when that block is, and nowhere else.
  */
 import './noNestedSlider';
+import './detachPattern';
 import './layerAttributes';
 import './layerSaveProps';
 import './LayerControls';
