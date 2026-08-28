@@ -19,7 +19,7 @@ export const noticeIcon = <svg xmlns="http://www.w3.org/2000/svg" fill="#000000"
 	<path d="M18,21.32a1.3,1.3,0,0,0,1.3-1.3V14a1.3,1.3,0,1,0-2.6,0v6A1.3,1.3,0,0,0,18,21.32Z"></path><circle cx="17.95" cy="24.27" r="1.5"></circle><path d="M30.33,25.54,20.59,7.6a3,3,0,0,0-5.27,0L5.57,25.54A3,3,0,0,0,8.21,30H27.69a3,3,0,0,0,2.64-4.43Zm-1.78,1.94a1,1,0,0,1-.86.49H8.21a1,1,0,0,1-.88-1.48L17.07,8.55a1,1,0,0,1,1.76,0l9.74,17.94A1,1,0,0,1,28.55,27.48Z"></path>
 	<rect x="0" y="0" width="36" height="36" fillOpacity="0" /></svg>;
 
-export const video = (width, height) => <svg xmlns="http://www.w3.org/2000/svg" width={width} height={height} viewBox="0 -960 960 960" > <path d="m426-330 195-125q14-9 14-25t-14-25L426-630q-15-10-30.5-1.5T380-605v250q0 18 15.5 26.5T426-330Zm54 250q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z" /></svg>
+export const video = (width, height) => <svg xmlns="http://www.w3.org/2000/svg" width={width} height={height} viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm0 2a8 8 0 1 1 0 16 8 8 0 0 1 0-16zm-1.4 4.32a1 1 0 0 0-1.6.8v5.76a1 1 0 0 0 1.6.8l4-2.88a1 1 0 0 0 0-1.6l-4-2.88z" /></svg>
 
 export const woo = (width, height) => <svg width={width} height={height} viewBox="0 0 32 32" >
 	<title>woo</title>
@@ -148,10 +148,10 @@ export const socialFeed = (width = 24, height = 24) => (
 );
 
 export const layers = (width = 24, height = 24) => (
-	<svg xmlns='http://www.w3.org/2000/svg' width={width} height={height} viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='1.5' strokeLinecap='round' strokeLinejoin='round'>
-		<path d='M12 2 2 7l10 5 10-5-10-5Z' />
-		<path d='M2 12l10 5 10-5' />
-		<path d='M2 17l10 5 10-5' />
+	<svg xmlns='http://www.w3.org/2000/svg' width={width} height={height} viewBox='0 0 24 24'>
+		<path d='M12.45 2.11a1 1 0 0 0-.9 0l-9 4.5a1 1 0 0 0 0 1.79l9 4.5a1 1 0 0 0 .9 0l9-4.5a1 1 0 0 0 0-1.79l-9-4.5zM12 10.88 5.24 7.5 12 4.12 18.76 7.5 12 10.88z' />
+		<path d='M2.11 12.05a1 1 0 0 1 1.34-.44L12 15.88l8.55-4.27a1 1 0 1 1 .9 1.78l-9 4.5a1 1 0 0 1-.9 0l-9-4.5a1 1 0 0 1-.44-1.34z' />
+		<path d='M2.11 16.55a1 1 0 0 1 1.34-.44L12 20.38l8.55-4.27a1 1 0 1 1 .9 1.78l-9 4.5a1 1 0 0 1-.9 0l-9-4.5a1 1 0 0 1-.44-1.34z' />
 	</svg>
 );
 
