@@ -32,6 +32,30 @@ const Style = ({ attributes, clientId, postsCount, products }) => {
 	 * slide can hold another bSlider, and without it this slider's height would be handed to
 	 * that one's slides too.
 	 */
+	/**
+	 * The indicator track, laid out from a count everywhere there is one to count.
+	 *
+	 * A `blocks` slider is the one source without that number: its slides are child blocks in the
+	 * editor and a pre-rendered string on the front end, so `sliders` is empty and the usual
+	 * `repeat(0, ...)` left the grid with no explicit track at all — every dot fell onto an
+	 * implicit row of its own, and a horizontal row of dots came out as a vertical column.
+	 * `grid-auto-flow` says the same thing without needing to know how many: keep adding tracks
+	 * along this axis, each sized like the rest.
+	 *
+	 * Built here rather than inline in the stylesheet below, because the two branches are
+	 * template literals themselves and nesting a third level of backticks inside that string is
+	 * a parse error waiting to happen.
+	 */
+	const trackSize = `minmax(auto, ${isVertical ? indicator?.height : indicator?.width})`;
+	const slideCount = 'posts' === sourceType
+		? postsCount
+		: 'woo' === sourceType ? products?.length : sliders?.length;
+
+	const indicatorTrack = 'blocks' === sourceType
+		? `grid-auto-flow: ${isVertical ? 'row' : 'column'};
+		grid-auto-${isVertical ? 'rows' : 'columns'}: ${trackSize};`
+		: `grid-template-${isVertical ? 'rows' : 'columns'}: repeat(${slideCount}, ${trackSize});`;
+
 	const blocksInner = `#bsbCarousel-${clientId} .bsbCarousel:not(.carousel-item *) > .carousel-inner`;
 	const blocksSlide = `${blocksInner} > .carousel-item, ${blocksInner} > .block-editor-inner-blocks > .block-editor-block-list__layout > .carousel-item`;
 
@@ -687,7 +711,7 @@ ${layerMotionCSS}
 	}
 
 	#bsbCarousel-${clientId} .carousel-indicators {
-    	grid-template-${isVertical ? 'rows' : 'columns'}: repeat(${sourceType === "posts" ? postsCount : sourceType === "woo" ? products?.length : sliders?.length}, minmax(auto, ${isVertical ? indicator?.height : indicator?.width}));
+		${indicatorTrack}
 		padding: ${isVertical ? '5% 0' : '0 5%'};
 	}
 

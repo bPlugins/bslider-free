@@ -1,5 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import { Notice, RangeControl, SelectControl, TextControl, ToggleControl } from '@wordpress/components';
+import { TipText } from '../../../Components/Panel/TipField';
 import { clickActionOpt, hoverEffectOpt } from '../../../utils/options';
 
 /** How far each hover effect can sensibly go, and what its numbers mean. */
@@ -35,6 +36,7 @@ const InteractivityPanel = ({ layer, update, blockName }) => {
 
 		{range && <>
 			<RangeControl
+				className='mt15'
 				label={range.label}
 				value={hover.amount ?? range.initial}
 				onChange={val => update('hover', { amount: val })}
@@ -44,6 +46,7 @@ const InteractivityPanel = ({ layer, update, blockName }) => {
 			/>
 
 			<RangeControl
+				className='mt15'
 				label={__('Speed (seconds)', 'b-slider')}
 				value={hover.speed ?? 0.3}
 				onChange={val => update('hover', { speed: val })}
@@ -68,6 +71,7 @@ const InteractivityPanel = ({ layer, update, blockName }) => {
 
 				{'url' === click.action && <>
 					<TextControl
+						className='mt15'
 						label={__('Link', 'b-slider')}
 						value={click.url || ''}
 						onChange={val => update('click', { url: val })}
@@ -75,18 +79,20 @@ const InteractivityPanel = ({ layer, update, blockName }) => {
 					/>
 
 					<ToggleControl
+						className='mt15'
 						label={__('Open in a new tab', 'b-slider')}
 						checked={Boolean(click.newTab)}
 						onChange={val => update('click', { newTab: val })}
 					/>
 				</>}
 
-				{'scroll' === click.action && <TextControl
+				{'scroll' === click.action && <TipText
+					className='mt15'
 					label={__('Scroll to', 'b-slider')}
 					value={click.selector || ''}
 					onChange={val => update('click', { selector: val })}
 					placeholder="#contact"
-					help={__('The id or class of the section to scroll to, e.g. #contact', 'b-slider')}
+					tip={__('The id or class of the section to scroll to.', 'b-slider')}
 				/>}
 			</>}
 	</>;

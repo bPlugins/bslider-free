@@ -2,13 +2,6 @@ const { __ } = wp.i18n;
 import { layoutItem } from './layout-json';
 import ProListLayoutPromo from '../ProListLayoutPromo';
 
-const CardFlag = ({ item }) => {
-    if (item.isPro) {
-        return <div className="bsb_card_flag is-pro"><p>{__('Pro', 'b-slider')}</p></div>;
-    }
-    return null;
-};
-
 const SelectLayout = ({ attributes, setAttributes }) => {
     const { layoutType, sourceType } = attributes;
 
@@ -35,32 +28,22 @@ const SelectLayout = ({ attributes, setAttributes }) => {
             </div>
 
             <div className='bsb_parent_area source_grid'>
-                {availableLayouts?.map((item, index) => {
-                    const handleLayoutClick = () => {
-                        if (item.isPro) {
-                            return;
-                        }
-                        setAttributes({ layoutType: item?.layoutType });
-                    };
-
-                    return (
-                        <div key={index} className={`single_lay ${item.isPro ? 'is-locked-layout' : ''}`} onClick={handleLayoutClick}>
-                            <CardFlag item={item} />
-                            <div className="icon_wrapper">
-                                <div className="icon">
-                                    {item?.icon(32, 32)}
-                                </div>
-                            </div>
-                            <div className="title">
-                                {item?.title}
-                            </div>
-                            {item?.desc && <div className="desc">{item.desc}</div>}
-                            <div className="bsb_card_hover_btn">
-                                <span>{item.isPro ? __('Unlock with Pro', 'b-slider') : __('Apply Layout', 'b-slider')} &rarr;</span>
+                {availableLayouts?.map((item, index) => (
+                    <div key={index} className="single_lay" onClick={() => setAttributes({ layoutType: item?.layoutType })}>
+                        <div className="icon_wrapper">
+                            <div className="icon">
+                                {item?.icon(32, 32)}
                             </div>
                         </div>
-                    );
-                })}
+                        <div className="title">
+                            {item?.title}
+                        </div>
+                        {item?.desc && <div className="desc">{item.desc}</div>}
+                        <div className="bsb_card_hover_btn">
+                            <span>{__('Apply Layout', 'b-slider')} &rarr;</span>
+                        </div>
+                    </div>
+                ))}
             </div>
 
             <ProListLayoutPromo />

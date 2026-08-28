@@ -1,3 +1,4 @@
+import Blocks from './SourceType/Blocks';
 import Image from './SourceType/Image';
 import Posts from './SourceType/Posts';
 import Woo from './SourceType/Woo';
@@ -10,6 +11,8 @@ const ImageIndicators = (props) => {
 
     return (() => {
         switch (sourceType) {
+            case 'blocks':
+                return <Blocks {...{ ...props }} />;
             case 'posts':
                 return <Posts {...{ ...props }} />;
             case 'woo':

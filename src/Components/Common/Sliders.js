@@ -108,16 +108,18 @@ const Sliders = (props) => {
 	// Return All Slider
 	return <div className={`bsbCarousel slide carousel ${sourceType} ${animation === 'default' ? '' : animation} ${direction}`} ref={sliderDom} id={`bsbCarouselInner-${clientId}`}>
 		{
-			/* Not for a `blocks` slider. The dots are drawn off the `sliders` attribute, which
-			   that source never fills, so the wrapper would render with nothing inside it — and
-			   Bootstrap, on the first arrow click, reaches into it for the dot it has to move
-			   the active class off and finds nothing there. Leaving the element out entirely is
-			   what tells Bootstrap there are no indicators to keep in step. */
-			indicator.visibility && 'blocks' !== sourceType && <>
+			/* A `blocks` slider draws its dots from the DOM — see `SourceType/Blocks`. It has no
+			   `sliders` attribute to count, so for a while it had no indicators at all: the
+			   wrapper would have rendered empty, and Bootstrap, on the first slide change,
+			   reaches into `.carousel-indicators` for the dot to move the active class off and
+			   fails when there is nothing there. Counting the slides themselves gives it real
+			   buttons to find; a count of zero still renders no element at all, which is what
+			   tells Bootstrap there are no indicators to keep in step. */
+			indicator.visibility && <>
 				<div className='indicatorsWrapper'>
 					<div className={`carousel-indicators ${indicator?.type} ${indicator.direction} bsbDynamicPosition ${indicator.position?.split(' ')?.join('-')}`}>
 
-						<ImageIndicators {...{ attributes, clientId, firstPosts, products }} />
+						<ImageIndicators {...{ attributes, clientId, firstPosts, products, sliderRef: sliderDom, blocksHtml: attributes._blocksHtml }} />
 					</div>
 				</div>
 			</>

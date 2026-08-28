@@ -1,6 +1,6 @@
 import { __, sprintf } from '@wordpress/i18n';
 import { SelectControl } from '@wordpress/components';
-import { PanelBody } from '../../../Components/Panel/AccordionPanel';
+import { AccordionGroup, PanelBody } from '../../../Components/Panel/AccordionPanel';
 import ProNotice from '../../../Components/Panel/ProNotice';
 import { PremiumBadge, PremiumPanel } from '../../../../../bpl-tools/ProControls';
 import { adminUrl, DEMO_URL } from '../../../utils/functions';
@@ -29,6 +29,7 @@ const EntryExitPanel = ({ layer, update }) => {
 
 		{entry.effect && <>
 			<SelectControl
+				className='mt15'
 				label={__('Start after', 'b-slider')}
 				value={String(entry.delay ?? 0)}
 				options={entryDelayOpt.map(o => ({ ...o, value: String(o.value) }))}
@@ -38,14 +39,18 @@ const EntryExitPanel = ({ layer, update }) => {
 			<ProNotice className='mt10' features={PRO_FEATURES.layerTiming} />
 		</>}
 
-		<PanelBody className='bPlPanelBody mt10' title={<>{__('Exit Animation', 'b-slider')}<PremiumBadge /></>} initialOpen={false}>
-			<PremiumPanel
-				title={sprintf(__('Premium %s', 'b-slider'), __('Exit Animation', 'b-slider'))}
-				description={proFeatureSentence(PRO_FEATURES.layerTiming)}
-				pricingUrl={adminUrl()}
-				demoUrl={DEMO_URL}
-			/>
-		</PanelBody>
+		{/* A group of its own: this panel lives inside the `Animation` panel, so on the outer
+		    group opening it would close the panel around it and take itself off the screen. */}
+		<AccordionGroup>
+			<PanelBody className='bPlPanelBody mt10' title={<>{__('Exit Animation', 'b-slider')}<PremiumBadge /></>} initialOpen={false}>
+				<PremiumPanel
+					title={sprintf(__('Premium %s', 'b-slider'), __('Exit Animation', 'b-slider'))}
+					description={proFeatureSentence(PRO_FEATURES.layerTiming)}
+					pricingUrl={adminUrl()}
+					demoUrl={DEMO_URL}
+				/>
+			</PanelBody>
+		</AccordionGroup>
 	</>;
 };
 

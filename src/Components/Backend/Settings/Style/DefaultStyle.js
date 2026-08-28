@@ -17,9 +17,15 @@ const DefaultStyle = ({ attributes, setAttributes, updateObject }) => {
     const [DArrowWidth, setDArrowWidth] = useState('desktop');
     const [DArrowHeight, setDArrowHeight] = useState('desktop');
 
-    const { layoutType, titleTypo, titleColor, descTypo, descColor, titleMargin, descMargin, SliderOverly, borderRadius, arrowRadius, arrow, indicator, arrowBorder, deviceArrowWidth, arrowHeight, deviceArrowHeight, arrowWidth } = attributes;
+    const { layoutType, sourceType, titleTypo, titleColor, descTypo, descColor, titleMargin, descMargin, SliderOverly, borderRadius, arrowRadius, arrow, indicator, arrowBorder, deviceArrowWidth, arrowHeight, deviceArrowHeight, arrowWidth } = attributes;
 
     return <>
+        {/* Hidden for `blocks` at the user's direction. Border Radius inside does still reach
+            that source — it lands on the slides themselves — so this is a deliberate trade, not
+            a dead panel: a blocks slider gives up slider-level radius, and a slide's own radius
+            is set on the Slide block instead. Overly Color was the one with nothing to do here,
+            going only to `.carousel-caption` and the lightbox play button. */}
+        {'blocks' !== sourceType && <>
         <PanelBody className='bPlPanelBody' title={__('Slider', 'b-slider')} initialOpen={false}>
             <ColorControl className='mb20' label={__('Overly Color', 'b-slider')} value={SliderOverly} defaultColor="#59595952" onChange={(val) => { setAttributes({ SliderOverly: val }) }} />
             <small className="bsb_field_hint">{__('Laid over the image, under the title and description. Use a transparent colour to keep the image readable.', 'b-slider')}</small>
@@ -28,8 +34,15 @@ const DefaultStyle = ({ attributes, setAttributes, updateObject }) => {
             <ProNotice features={PRO_FEATURES.sliderStyle} />
 
         </PanelBody>
+        </>}
 
 
+        {/* The look of a slide's title and text — two elements a `blocks` slider does not have.
+            Its slides are whatever blocks the user stacked in them, each styled by its own
+            Gutenberg controls, and these rules are written against `.bsbTitle` and
+            `.carousel-caption` (see Style.js), which that markup never emits. Left on show they
+            were panels of settings that changed nothing. */}
+        {'blocks' !== sourceType && <>
         <PanelBody className='bPlPanelBody' title={__('Title', 'b-slider')} initialOpen={false}>
             <Typography className='mt20 mb10' label={__('Typography:', 'b-slider')} value={titleTypo} onChange={val => setAttributes({ titleTypo: val })} defaults={{ fontSize: 25 }} produce={produce} />
 
@@ -49,6 +62,7 @@ const DefaultStyle = ({ attributes, setAttributes, updateObject }) => {
 
             <ProNotice features={PRO_FEATURES.contentStyle} />
         </PanelBody>
+        </>}
 
 
 

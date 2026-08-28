@@ -1,17 +1,19 @@
 import { __, sprintf } from '@wordpress/i18n';
 import { useBlockProps, InnerBlocks, InspectorControls } from '@wordpress/block-editor';
-import { RangeControl, SelectControl, TabPanel, ToggleControl, BorderControl, __experimentalBoxControl as BoxControl } from '@wordpress/components';
+import { SelectControl, TabPanel, BorderControl, __experimentalBoxControl as BoxControl } from '@wordpress/components';
 import { AccordionGroup, PanelBody } from '../../Components/Panel/AccordionPanel';
+import { TipRange, TipToggle } from '../../Components/Panel/TipField';
 import { Background, ColorControl } from '../../../../bpl-tools/Components';
 import { PremiumBadge, PremiumPanel } from '../../../../bpl-tools/ProControls';
 import { adminUrl, DEMO_URL } from '../../utils/functions';
 import { proFeatureSentence, PRO_FEATURES } from '../../utils/pro-features';
 import { alignBtnOpt, pxUnit, perUnit, tabs } from '../../utils/options';
+import VisualTimelinePanel from './Panels/VisualTimelinePanel';
 import { slideStyles } from './slideStyles';
 import { slideContentClass } from './slideContentClass';
 import SlideOverlay from './SlideOverlay';
 
-const Edit = ({ attributes, setAttributes }) => {
+const Edit = ({ attributes, setAttributes, clientId }) => {
 	const { bsbStagger = 0, background = {}, overlay, border = {}, radius = {}, padding = {}, contentAlign, verticalAlign, wordWrap = true } = attributes;
 
 	return <>
@@ -42,26 +44,33 @@ const Edit = ({ attributes, setAttributes }) => {
 							/>
 						</PanelBody>
 
-						<PanelBody className='bPlPanelBody' title={__('Slide', 'b-slider')} initialOpen={true}>
+						<PanelBody className='bPlPanelBody' title={__('Slide', 'b-slider')} initialOpen={false}>
 							{/* Lives on the slide rather than on each block inside it, because it
 							    is a fact about the sequence, not about any one layer: each layer
 							    with an entry animation waits this much longer than the one before
 							    it. A layer that sets its own delay keeps it — see playEntry in
 							    utils/layerAnimations.js. */}
-							<RangeControl
+							<TipRange
 								label={__('Stagger layers (seconds)', 'b-slider')}
 								value={bsbStagger}
 								onChange={val => setAttributes({ bsbStagger: val ?? 0 })}
 								min={0}
 								max={1}
 								step={0.05}
-								help={__('Each layer animates in this long after the one above it. 0 starts them together.', 'b-slider')}
+								tip={__('The gap between one layer starting and the next. A layer only moves if it has an Entry animation set.', 'b-slider')}
 							/>
+						</PanelBody>
+
+						{/* After the stagger control, because it is the picture of what that
+						    number does: the bars move as it changes, and a layer given a delay
+						    of its own here steps out of that rhythm. */}
+						<PanelBody className='bPlPanelBody' title={__('Timeline', 'b-slider')} initialOpen={false}>
+							<VisualTimelinePanel clientId={clientId} stagger={bsbStagger} />
 						</PanelBody>
 					</>}
 
 					{'style' === tab.name && <>
-						<PanelBody className='bPlPanelBody' title={__('Background', 'b-slider')} initialOpen={true}>
+						<PanelBody className='bPlPanelBody' title={__('Background', 'b-slider')} initialOpen={false}>
 							<Background
 								label={__('Background', 'b-slider')}
 								value={background}
@@ -88,7 +97,7 @@ const Edit = ({ attributes, setAttributes }) => {
 							/>
 
 							<BoxControl
-								className='mt20'
+								className='mt10'
 								label={__('Corner radius', 'b-slider')}
 								values={radius}
 								onChange={val => setAttributes({ radius: val })}
@@ -132,15 +141,19 @@ const Edit = ({ attributes, setAttributes }) => {
 							    to go in a fixed-width slide and spills past its edge. Turning it
 							    off is for the slide built around a phrase that must stay on one
 							    line, a headline or a price, where a break would read as a
-							    mistake; the text may then overflow, which is the trade. */}
-							<ToggleControl
+							    mistake; the text may then overflow, which is the trade.
+
+							    The tip names the one case it applies to on purpose. Ordinary
+							    prose already wraps at its spaces and looks identical either
+							    way, so a toggle described only by what it does reads as a
+							    toggle that does nothing — the setting is invisible until
+							    someone happens to paste a URL into a narrow slide. */}
+							<TipToggle
 								className='mt20'
 								label={__('Wrap long words', 'b-slider')}
 								checked={wordWrap}
 								onChange={val => setAttributes({ wordWrap: val })}
-								help={wordWrap
-									? __('Long words and links break to fit inside the slide.', 'b-slider')
-									: __('Long words stay on one line and may overflow the slide.', 'b-slider')}
+								tip={__('Breaks a long link or other unspaced text to fit the slide.', 'b-slider')}
 							/>
 						</PanelBody>
 					</>}

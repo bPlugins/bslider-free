@@ -7,20 +7,26 @@ import { loopEffectOpt, loopSpeedOpt, PRO_LOOP_EFFECTS } from '../../../utils/op
 /**
  * The animation that never stops — a pulsing button, a drifting badge.
  *
- * Pulse and Bounce are free; the rest stay in the list too, marked "- Pro" in the dropdown, so a
- * free user can see what picking Pro would give them without a separate control to compare.
+ * Only the free effects are listed. The Premium ones are named in the notice below rather than
+ * sitting in the dropdown as options that cannot be picked — WordPress.org does not allow a free
+ * plugin to show a control that does nothing but advertise the paid version.
  */
 const LoopPanel = ({ layer, update }) => {
 	const loop = layer.loop || {};
 
-	const options = loopEffectOpt.map(o => PRO_LOOP_EFFECTS.includes(o.value) ? { ...o, label: `${o.label} - Pro` } : o);
+	/**
+	 * A layer saved under an active licence keeps its Premium effect after the licence lapses —
+	 * the CSS still ships, so it still plays. Its option has to stay in the list or the control
+	 * would show an empty box and overwrite the effect the moment anything else here is touched.
+	 */
+	const options = loopEffectOpt.filter(o => !PRO_LOOP_EFFECTS.includes(o.value) || o.value === loop.effect);
 
 	return <>
 		<SelectControl
 			label={__('Loop animation', 'b-slider')}
 			value={loop.effect || ''}
 			options={options}
-			onChange={val => PRO_LOOP_EFFECTS.includes(val) ? null : update('loop', { effect: val })}
+			onChange={val => update('loop', { effect: val })}
 		/>
 
 		{loop.effect && <SelectControl

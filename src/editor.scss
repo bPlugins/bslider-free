@@ -305,15 +305,6 @@ svg#bsbSlider {
             outline: none;
             box-shadow: var(--bsb-shadow-sm);
 
-            &.is-locked-tile {
-                opacity: 0.65;
-                cursor: not-allowed;
-
-                &:hover {
-                    border-color: rgba(255, 122, 0, 0.4);
-                }
-            }
-
             .bsb_tile_icon {
                 margin-bottom: 2px;
                 display: flex;
@@ -1184,15 +1175,6 @@ svg#bsbSlider {
             transition: all 0.25s var(--bsb-ease);
             box-shadow: var(--bsb-shadow-sm);
 
-            &.is-locked-layout {
-                opacity: 0.75;
-                cursor: not-allowed;
-
-                &:hover {
-                    border-color: rgba(255, 122, 0, 0.4);
-                }
-            }
-
             .icon_wrapper {
                 width: 60px;
                 height: 60px;
@@ -1305,11 +1287,6 @@ svg#bsbSlider {
                     background: #2e7d32;
                     box-shadow: 0 2px 6px rgba(46, 125, 50, 0.3);
                 }
-
-                &.is-pro p {
-                    background: var(--bsb-accent);
-                    box-shadow: 0 2px 6px rgba(255, 122, 0, 0.3);
-                }
             }
         }
     }
@@ -1417,30 +1394,6 @@ svg#bsbSlider {
                 margin-right: 5px;
                 font-weight: 800;
                 color: var(--bsb-primary);
-            }
-        }
-
-        &.is-social-perks {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-            margin-top: 14px;
-            width: 100%;
-
-            li {
-                display: inline-flex;
-                align-items: center;
-                gap: 5px;
-                font-size: 10px;
-                white-space: nowrap;
-
-                &::before {
-                    display: none;
-                }
-
-                svg {
-                    flex-shrink: 0;
-                }
             }
         }
     }
@@ -2056,11 +2009,13 @@ svg#bsbSlider {
        a long URL overflowed there while wrapping correctly on the published page. The pair is
        small enough to state twice; the alternative is giving the slide block its own stylesheet
        for two declarations. */
-    .bsb-slide-content {
+    .bsb-slide-content,
+    .bsb-slide-content * {
         overflow-wrap: anywhere;
     }
 
-    .bsb-slide-content.bsb-nowrap {
+    .bsb-slide-content.bsb-nowrap,
+    .bsb-slide-content.bsb-nowrap * {
         overflow-wrap: normal;
     }
 
@@ -2091,8 +2046,9 @@ svg#bsbSlider {
        slide and says which one is open, so a second label inside it repeated that and, once a
        slide had a background set, sat on top of it as stray text. */
 
-    /* The arrows step through slides that are all already on screen, and the dots count a
-       `sliders` array this source never fills. Both are still drawn on the front end. */
+    /* The canvas shows one slide at a time and the tab bar above it is what changes which, so
+       neither the arrows nor the dots have anything left to do here. Both are still drawn on
+       the front end, where they are the only way through the slides. */
     > .bsbButtonDesign,
     > .indicatorsWrapper {
         display: none;
@@ -2270,4 +2226,162 @@ svg#bsbSlider {
     [data-bsb-active-slide="#{$i}"] .carousel.blocks > .carousel-inner > *:not(.block-editor-inner-blocks):not(:nth-child(#{$i + 1})) {
         display: none !important;
     }
+}
+/**
+ * A layer hidden on some device, marked rather than hidden.
+ *
+ * The canvas deliberately does not honour `bsb-hide-*`. A block that is `display: none` cannot be
+ * clicked, typed in, or reached from the List View — so a layer hidden on mobile would become
+ * uneditable on a narrow editor window, which is the opposite of what the setting is for. The
+ * front end hides it for real; here it is only faded and labelled, so the author can see the
+ * setting is on and still work on the block.
+ *
+ * The label names the devices, built from the classes themselves in the rules below. `content`
+ * cannot be composed from several matched classes, so each combination that matters is spelled
+ * out — three single devices and the pairs; all three at once reads as "hidden everywhere".
+ */
+.carousel.blocks .bsb-layer[class*="bsb-hide-"] {
+    position: relative;
+    opacity: 0.45;
+    outline: 1px dashed var(--bsb-line-strong);
+    outline-offset: 2px;
+
+    &::after {
+        content: attr(data-bsb-hidden-on);
+        position: absolute;
+        top: 0;
+        right: 0;
+        z-index: 2;
+        padding: 1px 6px;
+        font-size: 10px;
+        font-weight: 600;
+        line-height: 1.6;
+        color: var(--bsb-warning);
+        background: var(--bsb-warning-soft);
+        border-bottom-left-radius: var(--bsb-radius-sm);
+        pointer-events: none;
+    }
+}
+
+/* Motion switched off for a device: no fading, since the layer is drawn exactly as it will be —
+   only the dashed edge to say a setting is in play here. */
+.carousel.blocks .bsb-layer[class*="bsb-still-"]:not([class*="bsb-hide-"]) {
+    outline: 1px dotted var(--bsb-line);
+    outline-offset: 2px;
+}
+
+/**
+ * The visual timeline: one row per animated layer, a bar showing when it arrives.
+ *
+ * Editor-only by nature — it draws attributes rather than output, so none of this belongs in
+ * `style.scss`. Laid out as a three-column grid — name, track, delay — so every bar starts and
+ * ends at the same x whatever its block is called, which is what makes the bars readable against
+ * each other and against the ruler underneath.
+ */
+.bsbTimeline {
+    --bsb-timeline-name: 84px;
+    --bsb-timeline-delay: 62px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.bsbTimelineRow {
+    display: grid;
+    grid-template-columns: var(--bsb-timeline-name) 1fr var(--bsb-timeline-delay);
+    align-items: center;
+    gap: 8px;
+}
+
+/* The block's name, and a way back to it: clicking selects that block, so the timeline doubles
+   as a list view of the animated layers. */
+.bsbTimelineName {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    overflow: hidden;
+    padding: 0;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--bsb-text);
+    text-align: left;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    background: none;
+    border: 0;
+    cursor: pointer;
+
+    &:hover {
+        color: var(--bsb-primary);
+    }
+}
+
+.bsbTimelineIndex {
+    flex: none;
+    min-width: 16px;
+    padding: 0 4px;
+    font-size: 10px;
+    line-height: 16px;
+    text-align: center;
+    color: var(--bsb-muted);
+    background: var(--bsb-surface-soft);
+    border-radius: 8px;
+}
+
+.bsbTimelineTrack {
+    position: relative;
+    height: 20px;
+    background: var(--bsb-surface-soft);
+    border-radius: var(--bsb-radius-sm);
+}
+
+/**
+ * The bar itself, positioned in percentages of the track's span.
+ *
+ * `min-width` because a very short duration on a long timeline rounds down to a few pixels —
+ * still draggable, but too small to read or to aim at.
+ */
+.bsbTimelineBar {
+    position: absolute;
+    top: 2px;
+    bottom: 2px;
+    min-width: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 4px;
+    font-size: 9px;
+    font-weight: 600;
+    color: #fff;
+    background: var(--bsb-primary);
+    border-radius: 3px;
+    pointer-events: none;
+
+    /* Dashed while the delay is the slide's stagger rather than the layer's own: the bar is
+       showing where the layer lands, not a number anybody typed. Setting the field beside it
+       writes one, and the bar goes solid. */
+    &.isStaggered {
+        background: var(--bsb-primary-line);
+        border: 1px dashed var(--bsb-primary);
+    }
+}
+
+/* The delay field. Narrow, so the track keeps the width it needs to stay readable — and the
+   spinner arrows are what make 0.05 steps practical in a column this size. */
+.bsbTimelineDelay input {
+    padding-right: 2px !important;
+    font-size: 11px;
+    text-align: center;
+}
+
+/* The scale the bars are read against. Indented by the name column so 0s sits under the track
+   start rather than under the labels. */
+.bsbTimelineRuler {
+    display: flex;
+    justify-content: space-between;
+    margin-left: calc(var(--bsb-timeline-name) + 8px);
+    margin-right: calc(var(--bsb-timeline-delay) + 8px);
+    font-size: 9px;
+    color: var(--bsb-muted);
 }

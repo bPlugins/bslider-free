@@ -23,7 +23,7 @@ export const buildLayerProps = (layer) => {
 		return { className: '', style: {}, dataAttrs: {} };
 	}
 
-	const { entry = {}, loop = {}, hover = {}, click = {} } = layer;
+	const { entry = {}, loop = {}, hover = {}, click = {}, visibility = {}, typo = {} } = layer;
 
 	const classNames = ['bsb-layer'];
 	const style = {};
@@ -99,6 +99,74 @@ export const buildLayerProps = (layer) => {
 		if ('scroll' === click.action && click.selector) {
 			dataAttrs['data-bsb-click-selector'] = click.selector;
 		}
+	}
+
+	/*
+	 * Responsive: which screens the layer appears on, and which it animates on.
+	 *
+	 * Classes rather than data attributes, because both are answered entirely in CSS — no
+	 * runtime involved, so they hold even where the slider's script never boots. `hideOn` is
+	 * only written when true; `stillOn` only when explicitly false, so a layer that has never
+	 * been near this panel emits nothing and keeps its markup byte-identical to before the
+	 * setting existed. That matters here: `extraProps` runs again on every page load as part of
+	 * block validation, and output that drifts marks the block invalid.
+	 */
+	const { hideOn = {}, stillOn = {} } = visibility;
+
+	['desktop', 'tablet', 'mobile'].forEach(device => {
+		if (hideOn[device]) {
+			classNames.push(`bsb-hide-${device}`);
+		}
+
+		if (false === stillOn[device]) {
+			classNames.push(`bsb-still-${device}`);
+		}
+	});
+
+	/*
+	 * Typography, as inline style rather than a stylesheet rule.
+	 *
+	 * `getTypoCSS` — what the slider's own Title and Description panels use — builds a rule
+	 * against a selector, and a layer has none: it is whatever block the user reached for, so
+	 * the styling has to ride on the element itself. The properties are written out here in the
+	 * same order that function writes them, so the two agree on what a typography value means.
+	 *
+	 * `fontSize` is per-device in the control, and an inline style has no media queries. The
+	 * desktop value is the one taken; tablet and mobile are handled by the `--bsb-*` custom
+	 * properties below, which `style.scss` reads inside its own breakpoints.
+	 */
+	const { fontFamily, fontCategory = 'sans-serif', fontWeight, fontSize, fontStyle, textTransform, textDecoration, lineHeight, letterSpace } = typo;
+	const withUnit = (size) => ('number' === typeof size ? `${size}px` : size || '');
+
+	if (fontFamily && 'Default' !== fontFamily) {
+		style.fontFamily = `'${fontFamily}', ${fontCategory}`;
+	}
+
+	if (fontWeight) style.fontWeight = fontWeight;
+	if (fontStyle) style.fontStyle = fontStyle;
+	if (textTransform) style.textTransform = textTransform;
+	if (textDecoration) style.textDecoration = textDecoration;
+	if (lineHeight) style.lineHeight = lineHeight;
+	if (letterSpace) style.letterSpacing = letterSpace;
+
+	const sizes = 'object' === typeof fontSize && null !== fontSize ? fontSize : { desktop: fontSize };
+
+	if (withUnit(sizes.desktop)) {
+		style.fontSize = withUnit(sizes.desktop);
+	}
+
+	// The smaller screens go out as custom properties for `style.scss` to pick up in its own
+	// media queries — an inline style cannot carry one of its own.
+	if (withUnit(sizes.tablet)) {
+		style['--bsb-font-size-tablet'] = withUnit(sizes.tablet);
+	}
+
+	if (withUnit(sizes.mobile)) {
+		style['--bsb-font-size-mobile'] = withUnit(sizes.mobile);
+	}
+
+	if (style.fontFamily || style['--bsb-font-size-tablet'] || style['--bsb-font-size-mobile']) {
+		classNames.push('bsb-layer-typo');
 	}
 
 	return { className: classNames.join(' '), style, dataAttrs };

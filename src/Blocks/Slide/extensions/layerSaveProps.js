@@ -1,3 +1,4 @@
+import { __ } from '@wordpress/i18n';
 import { addFilter } from '@wordpress/hooks';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { buildLayerProps, isEmptyLayer } from './layerProps';
@@ -38,9 +39,26 @@ addFilter('editor.BlockListBlock', 'bsb/layer-editor-props', createHigherOrderCo
 
 	const { className, style, dataAttrs } = buildLayerProps(props.attributes.bsbLayer);
 
+	/*
+	 * The canvas-only label naming the devices this layer is hidden on.
+	 *
+	 * Editor-side and nowhere else: `editor.scss` shows it through `content: attr(...)`, because
+	 * CSS cannot build one string out of several matched classes. It is not added in
+	 * `buildLayerProps` on purpose — that function's output is what gets written into
+	 * post_content, and a label meant for the author has no business on the published page.
+	 */
+	const hiddenOn = Object.entries(props.attributes.bsbLayer?.visibility?.hideOn || {})
+		.filter(([, isHidden]) => isHidden)
+		.map(([device]) => device.charAt(0).toUpperCase() + device.slice(1));
+
 	return <BlockListBlock
 		{...props}
 		className={[props.className, className].filter(Boolean).join(' ')}
-		wrapperProps={{ ...props.wrapperProps, ...dataAttrs, style: { ...props.wrapperProps?.style, ...style } }}
+		wrapperProps={{
+			...props.wrapperProps,
+			...dataAttrs,
+			...(hiddenOn.length ? { 'data-bsb-hidden-on': `${__('Hidden on', 'b-slider')} ${hiddenOn.join(', ')}` } : {}),
+			style: { ...props.wrapperProps?.style, ...style },
+		}}
 	/>;
 }, 'withBsbLayerProps'));

@@ -1,7 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import arrow from './arrows';
 
-import { carousel, grid, image, layers, post_thumbnails, slider, socialFeed, video, woo, wordpress } from './icons';
+import { carousel, grid, image, layers, post_thumbnails, slider, video, woo, wordpress } from './icons';
 
 
 
@@ -50,8 +50,7 @@ export const sourceTypeOpt = [
     { label: 'Posts', value: 'posts', icon: wordpress(24, 24) },
     { label: 'WooCommerce', value: 'woo', icon: woo(24, 24) },
     { label: 'Video', value: 'video', icon: video(24, 24) },
-    { label: 'Gutenberg Blocks', value: 'blocks', icon: layers(24, 24) },
-    { label: 'Social Feeds', value: 'social', icon: socialFeed(24, 24), isPro: true }
+    { label: 'Gutenberg Blocks', value: 'blocks', icon: layers(24, 24) }
 ]
 
 /**

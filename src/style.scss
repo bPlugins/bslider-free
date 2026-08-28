@@ -1424,18 +1424,30 @@
  *
  * `anywhere` rather than `break-word` because the two differ on intrinsic sizing — `anywhere`
  * lets a flex or grid track shrink to the narrowest broken line, which is what keeps a long word
- * from setting the minimum width of the whole column it sits in.
+ * from setting the minimum width of the whole column it sits in. Measured, in a 300px box with
+ * a Columns block in it: `break-word` gave the column holding the URL 387px and pushed it past
+ * the slide edge; `anywhere` gave it 268px and kept it inside. On a plain paragraph the two are
+ * indistinguishable, which is why this looks like it does nothing until a slide has columns.
  *
  * Scoped to the slide's own content wrapper so it stops at the slide: a block the user placed
  * here gets it, the rest of the page keeps the browser default. On by default; the slide's own
  * "Wrap long words" toggle turns it off by adding `bsb-nowrap` below.
+ *
+ * The descendant `*` is not belt-and-braces. `overflow-wrap` inherits, so the wrapper alone
+ * would be enough — except WordPress sets `overflow-wrap: break-word` on every rich text
+ * element (`.block-editor-rich-text__editable`, and the same declaration ships in the front-end
+ * block styles). An inherited value loses to a value the element sets for itself, so a
+ * Paragraph or Heading kept breaking whichever way the toggle was set, and the toggle looked
+ * like it did nothing at all. Naming the descendants puts the slide's answer back on top.
  */
-.bsb-slide-content {
+.bsb-slide-content,
+.bsb-slide-content * {
     overflow-wrap: anywhere;
 }
 
 /* The slide whose text must hold its line — a headline, a price — at the cost of overflowing. */
-.bsb-slide-content.bsb-nowrap {
+.bsb-slide-content.bsb-nowrap,
+.bsb-slide-content.bsb-nowrap * {
     overflow-wrap: normal;
 }
 
@@ -1470,4 +1482,115 @@
 .bsb-slide-content canvas,
 .bsb-slide-content svg {
     height: auto;
+}
+
+/**
+ * Responsive layers: hidden on a device, or shown but still.
+ *
+ * Breakpoints are the ones the rest of the plugin already uses — tablet at 768px, mobile at
+ * 576px — but each device gets a band of its own here rather than the cascading `max-width`
+ * those rules use. The difference matters: cascading is right for a *value* that should carry
+ * down when the smaller screen sets none of its own, and wrong for a switch, where the author
+ * has answered each device separately. A plain `max-width: 768px` on the tablet rule caught
+ * phones too, so turning the motion off for tablets turned it off on mobile as well. Tablet is
+ * therefore bounded at both ends, and desktop — which is "everything above tablet" — needs a
+ * `min-width` of its own or hiding on desktop would hide on every screen.
+ *
+ * `!important` on the hide, because a layer can carry an entry animation whose keyframes set
+ * their own opacity and transform: without it a hidden layer would still animate itself back
+ * into view. The still rules take the same precaution for the same reason.
+ */
+@media (min-width: 769px) {
+    .bsb-layer.bsb-hide-desktop {
+        display: none !important;
+    }
+}
+
+@media (min-width: 577px) and (max-width: 768px) {
+    .bsb-layer.bsb-hide-tablet {
+        display: none !important;
+    }
+}
+
+@media (max-width: 576px) {
+    .bsb-layer.bsb-hide-mobile {
+        display: none !important;
+    }
+}
+
+/**
+ * Motion off, layer still there.
+ *
+ * The layer has to end up where it belongs, which is why this is not simply `animation: none` —
+ * an entry animation is armed by adding `bsb-anim-pending` (opacity 0) and only taken off when
+ * the animation plays, so cancelling the animation alone would leave the layer invisible. The
+ * opacity is put back here instead, and the animation dropped on both the element and the words
+ * inside it, since a word-staggered heading animates its `.bsb-word` children rather than itself.
+ *
+ * Hover is left alone. It is a transition rather than a keyframe, and it only fires behind the
+ * `(hover: hover) and (pointer: fine)` guard in the rules above — so on the touch screens this
+ * setting is usually turned off for, there is nothing to switch off. On a small laptop, where a
+ * pointer does exist, a hover effect is still worth having even with the entry motion stilled.
+ */
+@media (min-width: 769px) {
+
+    .bsb-layer.bsb-still-desktop,
+    .bsb-layer.bsb-still-desktop .bsb-word {
+        animation: none !important;
+        opacity: 1 !important;
+    }
+}
+
+@media (min-width: 577px) and (max-width: 768px) {
+
+    .bsb-layer.bsb-still-tablet,
+    .bsb-layer.bsb-still-tablet .bsb-word {
+        animation: none !important;
+        opacity: 1 !important;
+    }
+}
+
+@media (max-width: 576px) {
+
+    .bsb-layer.bsb-still-mobile,
+    .bsb-layer.bsb-still-mobile .bsb-word {
+        animation: none !important;
+        opacity: 1 !important;
+    }
+}
+
+/**
+ * A layer's own font size on the smaller screens.
+ *
+ * The size itself is an inline style, which is the only way to reach a block this plugin does
+ * not own — but an inline style cannot carry a media query, so the tablet and mobile values ride
+ * along as custom properties and are applied here. `buildLayerProps` writes them only when the
+ * user set that device a size of its own, so a layer with one size everywhere emits neither
+ * property and falls through to the inline `font-size` at every width.
+ *
+ * The breakpoints are the plugin's usual pair — 768px and 576px — and they cascade here on
+ * purpose, unlike the hide/still rules above: this is a *value*, so a mobile that names none of
+ * its own should keep taking the tablet's, exactly as `getTypoCSS` does for the slider's own
+ * title and description.
+ *
+ * Two details that are not optional. `!important`, because the desktop size is an inline style
+ * and an inline style beats a media query however narrow the screen — without it the tablet
+ * value simply never applied. And the attribute selector, because a bare `.bsb-layer-typo` rule
+ * would fire on every layer that set only a font family: the custom property would be missing,
+ * the fallback would resolve to `inherit`, and a layer would lose the size it inherited from the
+ * page. Matching on the property being present keeps the rule to the layers it is about.
+ */
+@media (max-width: 768px) {
+
+    .bsb-layer-typo[style*="--bsb-font-size-tablet"],
+    .bsb-layer-typo[style*="--bsb-font-size-mobile"] {
+        font-size: var(--bsb-font-size-tablet, var(--bsb-font-size-mobile)) !important;
+    }
+}
+
+@media (max-width: 576px) {
+
+    .bsb-layer-typo[style*="--bsb-font-size-mobile"] {
+        font-size: var(--bsb-font-size-mobile) !important;
+    }
 }
