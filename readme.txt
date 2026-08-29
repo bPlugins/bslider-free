@@ -132,6 +132,8 @@ You can use bSlider for product showcases, portfolios, testimonials, or hero sec
 - **YouTube Feed Controls**: Filter by search term, pick from the channel's own playlists, filter on privacy status, group results, and choose the thumbnail quality.
 - **Player Options**: Theme, progress bar colour, and lazy loading so a page of videos does not embed them all at once.
 - **List Layout**: A dedicated list layout with its own styling panel, alongside the Grid and Carousel layouts.
+- **Badge a Word**: Give one word inside a heading or paragraph its own background, padding, corners and border — the pill around a word in a hero line — while it stays part of the sentence and wraps with it.
+- **Hover Colour**: Change a layer's text and background colour when the visitor points at it, on its own or alongside Grow, Lift and Fade. Core's Button block offers no hover colour at all.
 
 [Upgrade to Pro](https://bplugins.com/products/b-slider/pricing/) to unlock all premium features.
 
@@ -304,6 +306,8 @@ Please report security bugs found in the source code of the bSlider plugin throu
 * Pro: Carousel layout for block-built slides — several on screen at once;
 * Pro: Dynamic Content — bind a post or product to a slide and place Post Field blocks in it;
 * Pro: Lottie animation layer, exit animations, fine-tuned delay and duration, and word-by-word text animation;
+* Pro: Badge a Word — one word inside a heading or paragraph given its own background, padding, corners and border;
+* Pro: Hover colour on any layer — text and background, on its own or alongside Grow, Lift and Fade;
 
 = 2.1.0 - 22 August, 2026 =
 * New: Social Feeds source type tile and upsell notice in the Source & Layout sidebar panel;
@@ -543,6 +547,9 @@ Please report security bugs found in the source code of the bSlider plugin throu
 * Initial Release
 
 == Upgrade Notice ==
+
+= 2.2.0 - 28 August, 2026 =
+* Adds the Gutenberg Blocks source — build each slide from real WordPress blocks — with layer animations, a visual timeline, per-layer typography and responsive controls, badged words and hover colours.
 
 = 2.1.0 - 22 August, 2026 =
 * Adds the Social & External Feeds source (YouTube, Instagram, RSS, JSON) with feed presets, a profile header, a docking mini player, hover previews and a List layout.
