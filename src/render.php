@@ -5,7 +5,10 @@ call_user_func( function( $attributes, $content ) {
 
     if ( 'blocks' === ( isset( $attributes['sourceType'] ) ? $attributes['sourceType'] : '' ) ) {
 
-        $attributes['_blocksHtml'] = $content;
+        // The slides reach the browser as a string that JS drops in with innerHTML, so nothing
+        // downstream expands shortcodes for us the way `the_content` would. A Shortcode block
+        // inside a slide is saved as its literal text, and without this it renders as that text.
+        $attributes['_blocksHtml'] = do_shortcode( $content );
         if ( preg_match_all( '~font-family:\s*(?:\'|&\#039;|&quot;|")([A-Za-z][A-Za-z \-]{0,50})(?:\'|&\#039;|&quot;|")~', $content, $matches ) ) {
 
             foreach ( array_unique( $matches[1] ) as $family ) {
