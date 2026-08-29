@@ -292,7 +292,7 @@ Please report security bugs found in the source code of the bSlider plugin throu
 
 == Changelog ==
 
-= 2.2.0 - 28 August, 2026 =
+= 2.2.0 - 31 August, 2026 =
 * New: Gutenberg Blocks source type — build every slide from real WordPress blocks instead of a fixed title, image and button;
 * New: Layer animations on any block inside a slide, with entry effects, preset delays and a per-slide stagger;
 * New: Loop animations that keep a layer moving after it arrives (Pulse and Bounce free, Float/Flash/Shake/Swing in Pro);
