@@ -2566,6 +2566,20 @@ svg#bsbSlider {
     }
 }
 
+/* `Inserter` renders its toggle inside a wrapper div of its own, so the Browse button is a
+   grandchild of the row rather than a flex item in it. Without this the four starters stretch to
+   the tallest of them — "Two columns", whose label wraps to a second line — and Browse, sizing
+   only to its wrapper, comes out visibly shorter. Stretching the wrapper puts it back in the
+   same grid as the rest. */
+.bsbSlideStartRow > *:not(.bsbSlideStartBtn) {
+    display: flex;
+    align-self: stretch;
+
+    > .bsbSlideStartBtn.isBrowse.components-button {
+        height: 100% !important;
+    }
+}
+
 /* The way to every other block. Dashed rather than solid, so the four shortcuts read as the
    offer and this reads as "or anything else" — the same distinction the editor's own appenders
    make between a suggestion and the full list. */
