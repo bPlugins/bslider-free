@@ -39,7 +39,7 @@
                     'is_premium'          => false, 
                     'menu' => array(
                         'slug'           => 'edit.php?post_type=bsb',
-                        'first-path'     => 'edit.php?post_type=bsb&page=b-slider#/pricing',
+                        'first-path'     => 'edit.php?post_type=bsb&page=b-slider#/welcome',
                         'support'     => false,
                     )
                 ]);

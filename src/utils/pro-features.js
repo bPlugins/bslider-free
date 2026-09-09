@@ -97,6 +97,7 @@ export const PRO_FEATURES = {
 	wordStagger: [__('Word by Word Animation', 'b-slider')],
 	dynamicContent: [__('Post/Product Binding', 'b-slider'), __('Dynamic Field Block', 'b-slider')],
 	lottie: [__('Lottie Animation Layer', 'b-slider')],
+	decorations: [__('Decorative Shapes — Blob, Ring, Scribble, Wave, Confetti & more', 'b-slider')],
 };
 
 /**

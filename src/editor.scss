@@ -2089,8 +2089,41 @@ svg#bsbSlider {
         &:not([style*="background"]) {
             color: var(--bsb-ink);
 
-            h1, h2, h3, h4, h5, h6, p, li, blockquote, cite, figcaption {
-                color: inherit;
+            /* `!important` because the competition is a theme's own editor stylesheet, which
+               writes its body colour through selectors far heavier than this one —
+               `.editor-styles-wrapper p`, `.wp-block-post-content p`, its own class stacks. Being
+               nested one level deeper is not enough to win, and losing means a paragraph the
+               author cannot read while typing it.
+
+               `:not(.has-text-color)` is what keeps that from taking the author's own choice with
+               it. A colour picked from the palette arrives as a class — `has-text-color` plus
+               `has-<name>-color` — not as an inline style, so `!important` here would beat it and
+               the picker would look broken. A custom colour does arrive inline and wins on its
+               own; the class is the case that needs asking about.
+
+               `:not(.has-text-color *)` covers the same choice made one level up: a colour set on
+               a Group or a Columns reaches its children by inheritance, and those children carry
+               no class of their own to exclude them by. */
+            :is(h1, h2, h3, h4, h5, h6, p, li, blockquote, cite, figcaption):not(.has-text-color):not(.has-text-color *) {
+                color: inherit !important;
+            }
+
+            /**
+             * And the placeholder in an empty one.
+             *
+             * The rule above reaches the text an author has typed, but not the prompt they read
+             * before typing it: the editor draws "Type / to choose a block" in a `::after` on its
+             * own element, with its own colour rather than the paragraph's. On a theme that
+             * writes light text for a dark page, that prompt lands light-on-white and the author
+             * is typing into what looks like an empty box.
+             *
+             * `--bsb-faint` rather than the ink: it has to stay legible without reading as
+             * content — a placeholder that looks like text is its own kind of confusing. Muted
+             * enough to recede, dark enough to see.
+             */
+            [data-rich-text-placeholder]::after,
+            .block-editor-default-block-appender__content {
+                color: var(--bsb-faint) !important;
             }
         }
     }

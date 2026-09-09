@@ -1,4 +1,4 @@
-import { image as imageIcon, postDoc as postIcon, woo as wooIcon, video as videoIcon, socialFeed as socialFeedIcon, instagramIcon, youtubeIcon, rssIcon, syncIcon } from '../../utils/icons';
+import { image as imageIcon, postDoc as postIcon, woo as wooIcon, video as videoIcon, socialFeed as socialFeedIcon, layers as layersIcon, instagramIcon, youtubeIcon, rssIcon, syncIcon } from '../../utils/icons';
 import { elementorTabIcon, gutenbergTabIcon, phpTabIcon, shortcodeTabIcon } from './icons';
 
 
@@ -52,6 +52,52 @@ export const demoInfo = {
     allInOneLabel: 'See All Demos',
     allInOneLink: 'https://bplugins.com/products/b-slider/#demos',
     demos: [
+        {
+            icon: layersIcon(24, 24),
+            title: 'Gutenberg',
+            children: [
+                {
+                    title: 'Full Page Portfolio',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/full-page-portfolio/'
+                },
+                {
+                    title: 'Live Product Carousel',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/woocommerce-products-live-product-carousel/'
+                },
+                {
+                    title: 'Lottie Product Tour',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/lottie-product-tour-json-animation-per-slide/'
+                },
+                {
+                    title: 'Dynamic Post Slider',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/dynamic-post-slider-live-wordpress-data/'
+                },
+                {
+                    title: 'Pricing Table Slider',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/pricing-table-slider-with-staggered-cards/'
+                },
+                {
+                    title: 'Agency Portfolio Cover Slides',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/agency-portfolio-full-screen-cover-slides/'
+                },
+                {
+                    title: 'Restaurant Menu Carousel',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/restaurant-menu-carousel-with-3-cards-per-view/'
+                },
+                {
+                    title: 'SaaS Product Launch',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/saas-product-launch/'
+                }
+            ]
+        },
         {
             icon: socialFeedIcon(24, 24),
             title: 'Social feeds',
@@ -497,6 +543,23 @@ export const welcomeInfo = (adminUrl) => ({
         ]
     },
     changelogs: [
+        {
+            version: '2.2.0 - 9 September, 2026',
+            type: 'new',
+            list: [
+                '<strong>New</strong> Gutenberg Blocks source — build every slide from real WordPress blocks instead of a fixed title, image and button;',
+                '<strong>New</strong> Layer animations on any block inside a slide, with entry effects, preset delays and a per-slide stagger;',
+                '<strong>New</strong> Loop animations that keep a layer moving after it arrives — Pulse and Bounce;',
+                '<strong>New</strong> Hover and click actions on a layer — grow, lift or fade on hover; open a link, scroll to a section, or move the slider on click;',
+                '<strong>New</strong> Visual Timeline panel showing every animated layer on one scale, with the delay editable in place;',
+                '<strong>New</strong> Typography panel on text layers, Google Fonts included;',
+                '<strong>New</strong> Responsive panel — hide a layer on desktop, tablet or mobile, or let it show without animating;',
+                '<strong>New</strong> Per-slide background, overlay, border, corner radius, padding and content alignment;',
+                '<strong>New</strong> Empty slides offer Heading, Image, Button and Two columns as one-click starting points;',
+                '<strong>New</strong> Tutorial video for the Gutenberg Blocks source, linked under the Source Type tiles and on an empty slide;',
+                '<strong>New</strong> Gutenberg demo tab in the dashboard, with eight block-built slider layouts;',
+            ]
+        },
         {
             version: '2.0.10 - 5 April 2026',
             type: 'new',

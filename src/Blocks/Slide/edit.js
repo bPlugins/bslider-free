@@ -89,6 +89,19 @@ const Edit = ({ attributes, setAttributes, clientId }) => {
 							/>
 						</PanelBody>
 
+						{/* After Background, because a shape is drawn over whatever the background
+						    is — and before Border, which is the frame around the whole thing. The
+						    same place it sits in Pro, so the panel does not move when the licence
+						    arrives. */}
+						<PanelBody className='bPlPanelBody' title={<>{__('Decorations', 'b-slider')}<PremiumBadge /></>} initialOpen={false}>
+							<PremiumPanel
+								title={sprintf(__('Premium %s', 'b-slider'), __('Decorations', 'b-slider'))}
+								description={proFeatureSentence(PRO_FEATURES.decorations)}
+								pricingUrl={adminUrl()}
+								demoUrl={DEMO_URL}
+							/>
+						</PanelBody>
+
 						<PanelBody className='bPlPanelBody' title={__('Border', 'b-slider')} badge={__('New', 'b-slider')} initialOpen={false}>
 							<BorderControl
 								label={__('Border', 'b-slider')}
