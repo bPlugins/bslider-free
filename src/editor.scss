@@ -2595,6 +2595,22 @@ svg#bsbSlider {
     }
 }
 
+/**
+ * The tutorial link under the starter row.
+ *
+ * `.bsbNoticeVideo` is written for the sidebar, where it sits at the left edge of a 280px column;
+ * here it is under a centred panel, so the inline-flex box is centred as a block of its own rather
+ * than left hanging under the first starter. The size drops a step because this sits below the
+ * hint line, not beside a control — it is the last thing offered, not the first.
+ *
+ * The colour is not restated: unlike the two `<p>` lines above, an `<a>` here carries the accent a
+ * block theme has no competing opinion about.
+ */
+.bsbSlideStart > .bsbSlideStartVideo.bsbNoticeVideo {
+    margin-top: 12px;
+    font-size: 11px;
+}
+
 /* While the starter is up, the appender below it would be a second way to do the same thing in
    the same box.
    `:has()` on the content wrapper rather than a sibling combinator, because the appender is not

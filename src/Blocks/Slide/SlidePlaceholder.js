@@ -4,6 +4,7 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { Inserter, store as blockEditorStore } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
 import { heading, image, button as buttonIcon, columns, plus } from '@wordpress/icons';
+import { VideoHelpLink, videoLabels } from '../../utils/videos';
 
 /**
  * What an empty slide offers instead of a bare `+`.
@@ -106,6 +107,17 @@ const SlidePlaceholder = ({ clientId }) => {
 				</Button>}
 			/>
 		</div>
+
+		{/* Under the row rather than in it: the five above all insert a block, and a link that
+		    leaves for YouTube does not belong among them. Offered here as well as under the Source
+		    Type tiles because the two are different moments — the tile explains what a blocks
+		    slider is, this one is somebody already inside an empty slide with the question of what
+		    to put in it. */}
+		<VideoHelpLink
+			className='bsbSlideStartVideo'
+			video='blocksSource'
+			label={videoLabels.blocksSource()}
+		/>
 	</div>;
 };
 

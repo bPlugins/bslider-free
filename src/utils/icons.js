@@ -155,3 +155,9 @@ export const layers = (width = 24, height = 24) => (
 	</svg>
 );
 
+
+export const postDoc = (width = 24, height = 24) => (
+	<svg xmlns='http://www.w3.org/2000/svg' width={width} height={height} viewBox='0 0 24 24'>
+		<path d='M5 2h14a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1zm1 2v16h12V4H6zm2 2h8v5H8V6zm0 7h8v1.5H8V13zm0 3.5h5V18H8v-1.5z' />
+	</svg>
+);

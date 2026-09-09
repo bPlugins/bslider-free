@@ -23,6 +23,7 @@ import PostBadges from './PostBadges';
 import VideoGeneral from './VideoGeneral';
 import ProPanel from '../../../Panel/ProPanel';
 import { PRO_FEATURES } from '../../../../utils/pro-features';
+import { VideoHelpLink, videoLabels } from '../../../../utils/videos';
 
 const General = ({ attributes, setAttributes, activeIndex, setActiveIndex, updateObject, multipleAttrChange, getTaxonomy, premiumProps, postTypes, queriedPosts, hasSlideBlocks }) => {
 
@@ -148,6 +149,12 @@ const General = ({ attributes, setAttributes, activeIndex, setActiveIndex, updat
                 })}
             </div>
 
+            {/* Under the tiles, and only once Blocks is the chosen source. Picking it empties the
+                sidebar — the Slides panel goes, and so do Title and Content Position — because the
+                slides are child blocks edited on the canvas instead. The link is offered at that
+                moment rather than beside a control, since there is no control left to sit beside. */}
+            {sourceType === 'blocks' && <VideoHelpLink video='blocksSource' label={videoLabels.blocksSource()} />}
+
             <ProSocialPromo variant="compact" />
 
             {isPostSource && postTypes?.length > 0 && (
@@ -205,6 +212,10 @@ const General = ({ attributes, setAttributes, activeIndex, setActiveIndex, updat
             badge={__('New', 'b-slider')}
             initialOpen={false}
         >
+            {/* At the head of the panel, since the video covers the whole of it rather than any one
+                toggle in it. */}
+            <VideoHelpLink video='slideContent' label={videoLabels.slideContent()} />
+
             <ToggleControl
                 className={gap}
                 label={__('Show Title', 'b-slider')}

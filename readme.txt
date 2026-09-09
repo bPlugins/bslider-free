@@ -15,7 +15,7 @@ bSlider is a WordPress slider plugin that lets you create responsive image, post
 
 **Create responsive sliders for images, posts, WooCommerce products, and videos with multiple layouts, animations, and customization options in WordPress. Design and display carousels, grids, and thumbnail sliders directly in the block editor with simple block and shortcode support.**
 
-[bSlider](https://bplugins.com/products/b-slider/) | [Documentation](https://bplugins.com/docs/b-slider) | [Pricing](https://bplugins.com/products/b-slider/pricing/) | [Support](https://bplugins.com/support/) | [Demo](https://bplugins.com/products/b-slider/#demos)
+[bSlider](https://bplugins.com/products/b-slider/) | [Documentation](https://bplugins.com/docs/bslider) | [Pricing](https://bplugins.com/products/b-slider/pricing/) | [Support](https://bplugins.com/support/) | [Demo](https://bplugins.com/products/b-slider/#demos)
 
 https://www.youtube.com/watch?v=DOvUG5ArWHE
 
@@ -158,6 +158,28 @@ Enjoy smooth, responsive sliders on your site!
 
 * For installation help click on Installation Tab
 
+=== Video Tutorials ===
+
+Short walkthroughs of what the plugin can do. The first two cover this free version and are linked
+from inside the plugin, at the point each one is about. The rest cover the Social & External Feeds
+source, which is a [Pro](https://bplugins.com/products/b-slider/pricing/) feature — they are here so
+you can see how it works before deciding.
+
+**Works in this free version**
+
+* [Building slides out of Gutenberg blocks](https://www.youtube.com/watch?v=7KWplscyNhk&list=PLaYpMGTB1oSs&index=1)
+* [Slide content, post badges and WooCommerce badges](https://www.youtube.com/watch?v=ublq1N-Bc3o&list=PLaYpMGTB1oSs&index=2)
+
+**Pro only — [Social & External Feeds](https://bplugins.com/products/b-slider/pricing/)**
+
+* [Getting YouTube access for private and unlisted videos](https://www.youtube.com/watch?v=EqZXgw5PyKs&list=PLaYpMGTB1oSs&index=3)
+* [Creating a YouTube Data API key](https://www.youtube.com/watch?v=yFby1EJNUR4&list=PLaYpMGTB1oSs&index=4)
+* [Social feeds from start to finish](https://www.youtube.com/watch?v=AzpHDAbiHZI&list=PLaYpMGTB1oSs&index=5)
+* [Mapping a JSON feed onto slides](https://www.youtube.com/watch?v=6NngvNWhTSE&list=PLaYpMGTB1oSs&index=6)
+* [Getting an Instagram Access Token](https://www.youtube.com/watch?v=C3lNbKLdHM8&list=PLaYpMGTB1oSs&index=7)
+
+[Watch the whole playlist](https://www.youtube.com/playlist?list=PLaYpMGTB1oSs)
+
 ### User Feedback
 
 #### ⭐⭐⭐⭐⭐ [Super easy to use, and responsive support](https://wordpress.org/support/topic/super-easy-to-use-and-responsive-support/)
@@ -243,6 +265,18 @@ No. ACF is optional. Install and activate [Advanced Custom Fields](https://wordp
 
 As many as you like — there is no limit on how many fields a slide can show. Fields you assign to the slide image, title, description, or button under **Use ACF For** are a separate setting and are shown on top of the ones you pick.
 
+= How do I get a YouTube API key or an Instagram access token? =
+
+These are only needed for the Social & External Feeds source, which is a
+[Pro](https://bplugins.com/products/b-slider/pricing/) feature. Both credentials are made outside
+WordPress, so there is a video for each.
+
+* [Creating a YouTube Data API key](https://www.youtube.com/watch?v=yFby1EJNUR4&list=PLaYpMGTB1oSs&index=4)
+* [Getting an Instagram Access Token](https://www.youtube.com/watch?v=C3lNbKLdHM8&list=PLaYpMGTB1oSs&index=7)
+* [Getting YouTube OAuth access, for private and unlisted videos](https://www.youtube.com/watch?v=EqZXgw5PyKs&list=PLaYpMGTB1oSs&index=3)
+
+In Pro each of these is also linked inside the plugin, beside the field that asks for it.
+
 = Where can I get support? =
 
 You can post your questions on the [support forum here](https://wordpress.org/support/plugin/b-slider/)
@@ -292,7 +326,7 @@ Please report security bugs found in the source code of the bSlider plugin throu
 
 == Changelog ==
 
-= 2.2.0 - 31 August, 2026 =
+= 2.2.0 - 9 September, 2026 =
 * New: Gutenberg Blocks source type — build every slide from real WordPress blocks instead of a fixed title, image and button;
 * New: Layer animations on any block inside a slide, with entry effects, preset delays and a per-slide stagger;
 * New: Loop animations that keep a layer moving after it arrives (Pulse and Bounce free, Float/Flash/Shake/Swing in Pro);
@@ -303,6 +337,11 @@ Please report security bugs found in the source code of the bSlider plugin throu
 * New: Per-slide background, overlay, border, corner radius, padding and content alignment;
 * New: Auto word-wrap, so a long link breaks to fit the slide instead of spilling past its edge;
 * New: Empty slides now offer Heading, Image, Button and Two columns as one-click starting points;
+* New: Vertical and horizontal alignment per slide, so the content can sit top, middle or bottom;
+* New: Inner blocks in a slide now offer Wide and Full width, so a picture can reach the slide's edge;
+* New: A pattern dropped into a slide becomes ordinary editable blocks instead of a locked content-only group;
+* New: A bSlider cannot be placed inside a slide — blocked in the inserter, on paste and on drag, rather than failing quietly later;
+* New: Tutorial video for the Gutenberg Blocks source, linked under the Source Type tiles and on an empty slide;
 * Pro: Carousel layout for block-built slides — several on screen at once;
 * Pro: Dynamic Content — bind a post or product to a slide and place Post Field blocks in it;
 * Pro: Lottie animation layer, exit animations, fine-tuned delay and duration, and word-by-word text animation;
@@ -548,7 +587,7 @@ Please report security bugs found in the source code of the bSlider plugin throu
 
 == Upgrade Notice ==
 
-= 2.2.0 - 28 August, 2026 =
+= 2.2.0 - 9 September, 2026 =
 * Adds the Gutenberg Blocks source — build each slide from real WordPress blocks — with layer animations, a visual timeline, per-layer typography and responsive controls, badged words and hover colours.
 
 = 2.1.0 - 22 August, 2026 =

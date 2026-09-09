@@ -1,4 +1,4 @@
-import { grid as gridIcon, carousel as masonryIcon, slider as sliderIcon, carousel as tickerIcon } from '../../utils/icons';
+import { image as imageIcon, postDoc as postIcon, woo as wooIcon, video as videoIcon, socialFeed as socialFeedIcon, instagramIcon, youtubeIcon, rssIcon, syncIcon } from '../../utils/icons';
 import { elementorTabIcon, gutenbergTabIcon, phpTabIcon, shortcodeTabIcon } from './icons';
 
 
@@ -53,7 +53,73 @@ export const demoInfo = {
     allInOneLink: 'https://bplugins.com/products/b-slider/#demos',
     demos: [
         {
-            icon: gridIcon,
+            icon: socialFeedIcon(24, 24),
+            title: 'Social feeds',
+            children: [
+                {
+                    icon: instagramIcon(24, 24),
+                    title: 'Shoppable Instagram Feed Product Wall',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/shoppable-instagram-feed-product-wall/'
+                },
+                {
+                    icon: instagramIcon(24, 24),
+                    title: 'Shoppable Feed Product Display',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/shoppable-feed-product-display/'
+                },
+                {
+                    icon: instagramIcon(24, 24),
+                    title: 'Shoppable Instagram Reels Wall',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/shoppable-instagram-reels-wall/'
+                },
+                {
+                    icon: instagramIcon(24, 24),
+                    title: 'Live Outfit Video Showcase',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/live-outfit-video-showcase/'
+                },
+                {
+                    icon: youtubeIcon(24, 24),
+                    title: 'Tech Reviews Channel Hub & Subscribe Booster',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/youtube-channel-showcase-subscribe-booster/'
+                },
+                {
+                    icon: youtubeIcon(24, 24),
+                    title: 'Vogue Fashion Runway & Cinema Lounge',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/youtube-video-academy-cinema-theater/'
+                },
+                {
+                    icon: youtubeIcon(24, 24),
+                    title: 'freeCodeCamp Developer Learning Portal',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/freecodecamp-developer-learning-portal/'
+                },
+                {
+                    icon: rssIcon(24, 24),
+                    title: 'Automated RSS News Digest Magazine Grid',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/automated-rss-news-digest-magazine-grid/'
+                },
+                {
+                    icon: rssIcon(24, 24),
+                    title: 'Featured Article Multi-Column Magazine Layout',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/featured-article-multi-column-magazine-layout/'
+                },
+                {
+                    icon: syncIcon(24, 24),
+                    title: 'Dynamic E-Commerce & Product Showcase Grid',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/dynamic-api-portfolio-cdn-content-grid/'
+                }
+            ]
+        },
+        {
+            icon: imageIcon(24, 24),
             title: 'Image Slider',
             children: [
                 {
@@ -134,7 +200,7 @@ export const demoInfo = {
             ]
         },
         {
-            icon: masonryIcon,
+            icon: postIcon(24, 24),
             title: 'Posts Slider',
             children: [
                 {
@@ -190,7 +256,7 @@ export const demoInfo = {
             ]
         },
         {
-            icon: sliderIcon,
+            icon: wooIcon(24, 24),
             title: 'WooCommerce Slider',
             children: [{
                 title: 'Default Layout',
@@ -245,7 +311,7 @@ export const demoInfo = {
             ]
         },
         {
-            icon: tickerIcon,
+            icon: videoIcon(24, 24),
             title: 'Video Slider',
             children: [
                 {
