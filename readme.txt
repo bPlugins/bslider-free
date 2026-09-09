@@ -23,6 +23,8 @@ https://www.youtube.com/watch?v=DOvUG5ArWHE
 
 You can use bSlider for product showcases, portfolios, testimonials, or hero sections. It works with any WordPress theme. You can add sliders using the Gutenberg block or place them anywhere with a shortcode.
 
+https://www.youtube.com/watch?v=Pj7veTzHbQk
+
 === Key Features –  Free Version ===
 - **Shortcode Support**: Insert sliders anywhere, even outside Gutenberg.
 - **Gutenberg Block**: Add and configure sliders in the block editor.
