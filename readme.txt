@@ -342,11 +342,11 @@ Please report security bugs found in the source code of the bSlider plugin throu
 * New: A pattern dropped into a slide becomes ordinary editable blocks instead of a locked content-only group;
 * New: A bSlider cannot be placed inside a slide — blocked in the inserter, on paste and on drag, rather than failing quietly later;
 * New: Tutorial video for the Gutenberg Blocks source, linked under the Source Type tiles and on an empty slide;
-* Pro: Carousel layout for block-built slides — several on screen at once;
-* Pro: Dynamic Content — bind a post or product to a slide and place Post Field blocks in it;
-* Pro: Lottie animation layer, exit animations, fine-tuned delay and duration, and word-by-word text animation;
-* Pro: Badge a Word — one word inside a heading or paragraph given its own background, padding, corners and border;
-* Pro: Hover colour on any layer — text and background, on its own or alongside Grow, Lift and Fade;
+* New: Carousel layout for block-built slides — several on screen at once;
+* New: Dynamic Content — bind a post or product to a slide and place Post Field blocks in it;
+* New: Lottie animation layer, exit animations, fine-tuned delay and duration, and word-by-word text animation;
+* New: Badge a Word — one word inside a heading or paragraph given its own background, padding, corners and border;
+* New: Hover colour on any layer — text and background, on its own or alongside Grow, Lift and Fade;
 
 = 2.1.0 - 22 August, 2026 =
 * New: Social Feeds source type tile and upsell notice in the Source & Layout sidebar panel;
