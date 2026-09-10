@@ -76,7 +76,7 @@ const Default = ({ attributes, firstPosts, products, commonDeProps }) => {
                         </>
                     default:
                         return sliders?.map((slide, index) => <ImageItem key={index} {...{
-                            attributes, slide, index, classNames: classProps
+                            attributes, slide, index, clientId, isBackEnd, isSelected, classNames: classProps
                         }} />);
                 }
             })()}

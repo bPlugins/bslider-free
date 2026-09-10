@@ -222,7 +222,7 @@ const Carousel = (props) => {
                         case 'image':
                             return sliders?.map((slide, index) => <SwiperSlide className={carouselStyle} key={index}>
                                 <ImageItem {...{
-                                    attributes, slide, index, classNames: {
+                                    attributes, slide, index, clientId, isBackEnd, isSelected, classNames: {
                                         contentArea: 'content-area'
                                     }
                                 }} />

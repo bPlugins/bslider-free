@@ -55,6 +55,30 @@ export const PRO_FEATURES = {
 		__('Show Arrow/Navigation', 'b-slider'),
 	],
 
+	/**
+	 * The Lightbox panel. The lightbox itself is free — a picture opens full size, with the toolbar,
+	 * a caption and its styling — so what is named here is only the half that Premium adds.
+	 */
+	lightbox: [
+		__('Glass effect', 'b-slider'),
+		__('Button styling', 'b-slider'),
+		__('Caption typography', 'b-slider'),
+		__('Max width and height', 'b-slider'),
+		__('Gallery loop', 'b-slider'),
+	],
+
+	/**
+	 * The Slides panel's own lightbox settings, which are per slide rather than per slider.
+	 *
+	 * Short names on purpose: this notice sits in a 280px sidebar column beside the slide's own
+	 * fields, and a sentence built from three phrases ran to eight lines there.
+	 */
+	lightboxSlide: [
+		__('Custom caption', 'b-slider'),
+		__('Lightbox image per device', 'b-slider'),
+		__('Per-slide lightbox', 'b-slider'),
+	],
+
 	layoutSettings: [__('Slide Direction (Horizontal and Vertical)', 'b-slider'), __('Arrow Styles', 'b-slider')],
 	sliderOptions: [
 		__('Slide On MouseWheel', 'b-slider'),

@@ -75,7 +75,7 @@ const Grid = ({ attributes, commonDeProps }) => {
                     switch (sourceType) {
                         case 'image':
                             return paginatedItems()?.map((slide, index) => <ImageItem key={index} {...{
-                                attributes, slide, index, classNames: {
+                                attributes, slide, index, clientId, isBackEnd, isSelected, classNames: {
                                     contentArea: 'content-area'
                                 }
                             }} />);

@@ -112,7 +112,7 @@ const Thumbnails = ({ attributes, firstPosts, commonDeProps }) => {
                         case 'image':
                             return sliders?.map((slide, index) => <SwiperSlide key={index}>
                                 <ImageItem {...{
-                                    attributes, slide, index, classNames: {
+                                    attributes, slide, index, clientId, isBackEnd, isSelected, classNames: {
                                         contentArea: 'content-area'
                                     }
                                 }} />
