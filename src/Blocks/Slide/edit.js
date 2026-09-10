@@ -194,7 +194,16 @@ const Edit = ({ attributes, setAttributes, clientId }) => {
 				  */}
 				<SlidePlaceholder clientId={clientId} />
 
-				<InnerBlocks renderAppender={InnerBlocks.ButtonBlockAppender} />
+				{/*
+				  * `templateLock={false}` breaks an inherited lock, and there is one to break:
+				  * the `bsb` post type registers `template_lock => 'all'` (see
+				  * `includes/custom-post.php`) to keep the slider block itself from being
+				  * deleted or added to. That lock is inherited all the way down — through the
+				  * slider's `InnerBlocks` and into this one — and a locked `InnerBlocks` takes
+				  * no insertions at all, so without this a slide cannot be filled with
+				  * anything. The lock is still doing its job one level up, where it is wanted.
+				  */}
+				<InnerBlocks templateLock={false} renderAppender={InnerBlocks.ButtonBlockAppender} />
 			</div>
 		</div>
 	</>;

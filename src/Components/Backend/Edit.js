@@ -181,6 +181,22 @@ const Edit = (props) => {
 													<InnerBlocks
 														allowedBlocks={['bsb/slide']}
 														template={[['bsb/slide'], ['bsb/slide']]}
+														/* The `bsb` post type is registered with
+														   `template_lock => 'all'` so the slider
+														   block itself cannot be deleted or added
+														   to (see `includes/custom-post.php`).
+														   Core hands that lock down to any child
+														   `InnerBlocks` that does not set the prop
+														   itself, and a locked list refuses every
+														   insertion — `insertBlocks` filters
+														   through `canInsertBlockType` and
+														   dispatches nothing when it comes back
+														   empty, so the tab bar's Add Slide would
+														   silently do nothing. `false` stops the
+														   lock here; `allowedBlocks` above still
+														   says a slide is the only thing that may
+														   be inserted. */
+														templateLock={false}
 														templateInsertUpdatesSelection={false}
 														/* Adding a slide is what the tab bar above
 														   is for. An inserter at the foot of the one

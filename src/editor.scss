@@ -2228,7 +2228,10 @@ svg#bsbSlider {
  */
 .bsb_slide_tabs {
     display: flex;
-    align-items: center;
+    /* Top rather than centre: the tab list beside it wraps, and centring would float Add Slide
+       against the middle of a three-line block instead of keeping it level with the first row of
+       tabs, where it reads as belonging to the bar. */
+    align-items: flex-start;
     gap: 8px;
     margin-bottom: 12px;
     padding: 4px;
@@ -2241,16 +2244,15 @@ svg#bsbSlider {
         flex: 1;
         gap: 2px;
         min-width: 0;
-        /* One line that scrolls, rather than a block that grows taller: the bar sits above the
-           canvas, and a slider with a dozen slides would otherwise push the slide itself down
-           the screen. The scrollbar is hidden because the tabs are also reachable by keyboard
-           and by clicking into the slide. */
-        overflow-x: auto;
-        scrollbar-width: none;
-
-        &::-webkit-scrollbar {
-            display: none;
-        }
+        /* Wraps onto as many lines as it takes, rather than scrolling sideways on one. A single
+           line keeps the bar short, but it hides the later tabs behind a scroll with no
+           scrollbar to announce it — with a dozen slides the ones past the edge might as well
+           not exist. Wrapping trades a taller bar for every slide being on screen and one click
+           away, which is the point of the bar. */
+        flex-wrap: wrap;
+        /* Vertical gap comes from `gap` above; this only keeps the wrapped rows off each other
+           when a tab carries the delete button and is taller than its neighbours. */
+        align-content: flex-start;
     }
 
     /* Square, deliberately: the rounded edge belongs to the bar around them, and repeating it on

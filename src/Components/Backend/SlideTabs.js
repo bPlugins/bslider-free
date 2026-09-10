@@ -6,7 +6,7 @@ import { plus, trash } from '@wordpress/icons';
 import { createBlock } from '@wordpress/blocks';
 
 /**
- * One row of slides across the top, and only the chosen one shown underneath.
+ * The slides listed across the top, and only the chosen one shown underneath.
  *
  * Stacking every slide down the canvas is what a `blocks` slider did first, because a slide
  * hidden at Bootstrap's `display: none` cannot be clicked into or typed in. It works, and it
