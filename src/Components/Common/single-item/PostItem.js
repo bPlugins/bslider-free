@@ -3,10 +3,11 @@ import Excerpt from '../Layouts/grid/Excerpt';
 import AcfFields, { resolveSlideImage, resolveButtonLink, resolveButtonText, resolveTitle } from './AcfFields';
 import LinkedPicture from './LinkedPicture';
 import SlideLink from './SlideLink';
+import { lightboxCaption } from '../../../utils/functions';
 
 const PostItem = (props) => {
-    const { attributes, post, index, isBackEnd = false, isSelected = false, classNames = {} } = props;
-    const { title, desc, button, image } = attributes;
+    const { attributes, post, index, clientId, isBackEnd = false, isSelected = false, classNames = {} } = props;
+    const { title, desc, button, image, lightbox } = attributes;
 
     const { thumbnail } = post || {};
     // Older blocks have no `isVisible` key, so only an explicit `false` hides any of the three.
@@ -29,7 +30,35 @@ const PostItem = (props) => {
      * overlay anchor (`bsbSlideOverlay`) covers the whole item instead. It sits below the caption in
      * z-order, so the button and any links inside the caption still take their own clicks.
      */
-    const imageHref = btnLink || '';
+    /**
+     * Which of the two the picture's click is for — the post, or the picture itself.
+     *
+     * `lightbox` is the one value the removed `Clicking the picture` dropdown never wrote, so anything
+     * else — a saved `none`, a saved `button`, or nothing at all — is the link, which is what every
+     * post slide did before this setting came back. See `DefaultGeneral`, where the choice is offered.
+     */
+    const isLightbox = 'lightbox' === image?.link && !!slideImg?.url;
+
+    /* The caption inside the lightbox. `postTitle` is the title the slide itself shows, resolved above
+       — the same string, so one picture cannot carry two titles.
+
+       `custom` is an image-slider mode: a post slide comes from a query, so there is no per-slide field
+       and nothing for it to resolve to. The picker leaves the option out here, but a slider switched
+       over from the image source keeps the saved value — reading it as `title` is what stops the
+       caption silently vanishing on that switch. */
+    const captionMode = 'custom' === lightbox?.caption ? 'title' : lightbox?.caption;
+
+    const lbCaption = isLightbox
+        ? lightboxCaption(captionMode, {
+            imageCaption: slideImg?.alt || '',
+            title: String(postTitle || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
+        })
+        : '';
+
+    /* The lightbox shows the picture, so that is what the anchor points at. `Posts.php` asks
+       `get_the_post_thumbnail_url` for `fImgSize`, which is `full`, so there is no smaller render to
+       choose between here. */
+    const imageHref = isLightbox ? (slideImg?.url || '') : (btnLink || '');
     const accessibleLabel = String(postTitle || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim() || imageHref;
 
     return <div className={`item ${index === 0 ? 'active' : ''} ${imageHref ? 'is-linked' : ''} ${classNames.item || ''}`}>
@@ -54,6 +83,10 @@ const PostItem = (props) => {
                 /* The picture here carries no `alt`, so without this the link would have no accessible
                    name — an image inside a link is what names that link, and there is none to read. */
                 label={accessibleLabel}
+                lightbox={isLightbox}
+                caption={lbCaption}
+                clientId={clientId}
+                attributes={attributes}
                 isBackEnd={isBackEnd}
                 isSelected={isSelected}
             >

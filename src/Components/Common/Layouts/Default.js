@@ -48,12 +48,12 @@ const Default = ({ attributes, firstPosts, products, commonDeProps }) => {
                 switch (sourceType) {
                     case 'posts':
                         return firstPosts?.map((post, index) => <PostItem key={index} {...{
-                            attributes, post, index, isBackEnd, isSelected, classNames: classProps
+                            attributes, post, index, clientId, isBackEnd, isSelected, classNames: classProps
                         }} />)
 
                     case 'woo':
                         return firstPosts?.map((product, index) => <WooItem key={index} {...{
-                            attributes, product, index, isBackEnd, isSelected, classNames: classProps
+                            attributes, product, index, clientId, isBackEnd, isSelected, classNames: classProps
                         }} />)
 
                     case 'video':

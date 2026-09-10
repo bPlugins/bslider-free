@@ -544,6 +544,16 @@ export const welcomeInfo = (adminUrl) => ({
     },
     changelogs: [
         {
+            version: '2.2.1 - 10 September, 2026',
+            type: 'new',
+            list: [
+                '<strong>New</strong> Image, post and product slides open in a lightbox on click, as one gallery with arrows, swipe and keyboard.',
+                '<strong>New</strong> Caption under the picture — image caption, slide title, or post or product title — with colour, background, margin and alignment.',
+                '<strong>New</strong> Lightbox toolbar switches: counter, thumbnail strip, zoom, slideshow, fullscreen, rotate, flip and download.',
+                '<strong>New</strong> Backdrop colour and opacity.',
+            ]
+        },
+        {
             version: '2.2.0 - 9 September, 2026',
             type: 'new',
             list: [

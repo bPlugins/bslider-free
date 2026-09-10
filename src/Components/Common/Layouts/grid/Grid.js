@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { bsb_lightbox_config, plyrInt, bsb_open_video_popup } from '../../../../utils/config';
+import { bsb_lightbox_config, plyrInt, bsb_open_video_popup, galleryOf } from '../../../../utils/config';
 import ImageItem from '../../single-item/ImageItem';
 import PostItem from '../../single-item/PostItem';
 import WooItem from '../../single-item/WooItem';
@@ -81,14 +81,14 @@ const Grid = ({ attributes, commonDeProps }) => {
                             }} />);
                         case 'posts':
                             return paginatedItems()?.map((post, index) => <PostItem key={index} {...{
-                                attributes, post, index, isBackEnd, isSelected, classNames: {
+                                attributes, post, index, clientId, isBackEnd, isSelected, classNames: {
                                     contentArea: 'content-area'
                                 }
                             }} />);
 
                         case 'woo':
                             return paginatedItems()?.map((product, index) => <WooItem key={index} {...{
-                                attributes, product, index, isBackEnd, isSelected, classNames: {
+                                attributes, product, index, clientId, isBackEnd, isSelected, classNames: {
                                     contentArea: 'content-area'
                                 }
                             }} />);
@@ -97,7 +97,7 @@ const Grid = ({ attributes, commonDeProps }) => {
                                 <video controls poster={slide?.img.url} className="bsbvid" id="player">
                                     <source src={slide?.video?.url} type="video/mp4" /></video>
                             </div> :
-                                <a data-fancybox={`${clientId}-video-gallery`} data-caption="" key={index} className={`lightboxArea videoItem ${index === 0 ? 'active' : ''}`} href={slide?.video?.url} data-type={'html5video'} onClick={isBackEnd ? (e) => { e.preventDefault(); e.stopPropagation(); const realIdx = sliders.indexOf(slide); bsb_open_video_popup(sliders, realIdx >= 0 ? realIdx : index, attributes); } : undefined}>
+                                <a data-fancybox={galleryOf(clientId)} data-caption="" key={index} className={`lightboxArea videoItem ${index === 0 ? 'active' : ''}`} href={slide?.video?.url} data-type={'html5video'} onClick={isBackEnd ? (e) => { e.preventDefault(); e.stopPropagation(); const realIdx = sliders.indexOf(slide); bsb_open_video_popup(sliders, realIdx >= 0 ? realIdx : index, attributes); } : undefined}>
                                     <div className={`contentArea popContentArea`}>
                                         <div className="img">
                                             <img className="rounded" src={slide?.img.url || placeholderImg} alt={slide?.img?.caption || slide?.img?.alt || slide?.img?.title} />

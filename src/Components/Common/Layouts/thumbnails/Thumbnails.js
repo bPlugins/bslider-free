@@ -6,7 +6,7 @@ import "swiper/css/autoplay";
 import 'swiper/css/navigation';
 import 'swiper/css/thumbs';
 import 'swiper/css/free-mode';
-import { bsb_lightbox_config, plyrInt, bsb_open_video_popup } from '../../../../utils/config';
+import { bsb_lightbox_config, plyrInt, bsb_open_video_popup, galleryOf } from '../../../../utils/config';
 import arrows from '../../../../utils/arrows';
 import ImageItem from '../../single-item/ImageItem';
 import PostItem from '../../single-item/PostItem';
@@ -120,7 +120,7 @@ const Thumbnails = ({ attributes, firstPosts, commonDeProps }) => {
                         case 'posts':
                             return firstPosts?.map((post, index) => <SwiperSlide key={index}>
                                 <PostItem {...{
-                                    attributes, post, index, isBackEnd, isSelected, classNames: {
+                                    attributes, post, index, clientId, isBackEnd, isSelected, classNames: {
                                         contentArea: 'content-area'
                                     }
                                 }} />
@@ -128,7 +128,7 @@ const Thumbnails = ({ attributes, firstPosts, commonDeProps }) => {
                         case 'woo':
                             return firstPosts?.map((product, index) => <SwiperSlide key={index}>
                                 <WooItem {...{
-                                    attributes, product, index, isBackEnd, isSelected, classNames: {
+                                    attributes, product, index, clientId, isBackEnd, isSelected, classNames: {
                                         contentArea: 'content-area'
                                     }
                                 }} />
@@ -143,7 +143,7 @@ const Thumbnails = ({ attributes, firstPosts, commonDeProps }) => {
                                             <video controls poster={slide?.img?.url} className="bsbvid" id="player">
                                                 <source src={slide?.video?.url} type="video/mp4" /></video>
                                         </div> :
-                                            <a data-fancybox={`${clientId}-video-gallery`} data-caption="" className={`lightboxArea db_carousel ${index === 0 ? 'active' : ''}`} href={slide?.video?.url} data-type={'html5video'} onClick={isBackEnd ? (e) => { e.preventDefault(); e.stopPropagation(); bsb_open_video_popup(sliders, index, attributes); } : undefined}> <div className={`contentArea popContentArea`}>
+                                            <a data-fancybox={galleryOf(clientId)} data-caption="" className={`lightboxArea db_carousel ${index === 0 ? 'active' : ''}`} href={slide?.video?.url} data-type={'html5video'} onClick={isBackEnd ? (e) => { e.preventDefault(); e.stopPropagation(); bsb_open_video_popup(sliders, index, attributes); } : undefined}> <div className={`contentArea popContentArea`}>
                                                 <div className="img">
                                                     <img className="rounded" src={slide?.img?.url || placeholderImg} alt={slide?.img?.caption || slide?.img?.alt || slide?.img?.title} />
                                                     {icon && <div className="play">

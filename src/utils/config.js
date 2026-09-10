@@ -1,5 +1,4 @@
 import { Fancybox } from '@fancyapps/ui';
-import { getBoxValue } from './functions';
 import '@fancyapps/ui/dist/fancybox/fancybox.css';
 
 export const controlsHandler = (controls) => {
@@ -195,6 +194,58 @@ const bsb_fancybox_options = (attributes) => ({
  * `html5video`, images carry nothing and take Fancybox's own `image` default.
  */
 /**
+ * A `BoxControl` value as a CSS shorthand, read by side name.
+ *
+ * **Why not `getBoxValue`.** That one is `Object.values(...).join(' ')`, so it takes the sides in
+ * whatever order the keys were inserted — and `BoxControl` builds its value with `{...values}` plus
+ * the one side just edited, so the order is the order the user happened to touch the fields in.
+ * Filling in only `bottom` gave `margin: 30px`, which CSS reads as all four sides; filling in
+ * `bottom` then `left` gave `margin: 30px 10px`, which lands on the wrong pair entirely.
+ *
+ * Naming the four sides is what makes the result independent of that. A blank side becomes `0`
+ * rather than being left out, because a shorthand with a hole in it is a different shorthand.
+ *
+ * @return {string} `top right bottom left`, or `''` where no side was filled in at all — the caller
+ *                  writes nothing in that case rather than `0 0 0 0` over what Fancybox had.
+ */
+/**
+ * The `align-self` that puts the caption box where the `Caption Alignment` control asks.
+ *
+ * The panel stores `text-align` words, and those are not the words the flex property takes: a slide
+ * is a flex column, so moving a child left and right across it is `align-self`, which reads
+ * `flex-start`/`flex-end`. Mapping here rather than storing flex words in the attribute keeps the
+ * saved value the one that describes the *setting* — and `text-align` is written from it too, for the
+ * lines inside a caption that wraps.
+ */
+const CAPTION_SELF = {
+    left: 'flex-start',
+    center: 'center',
+    right: 'flex-end'
+};
+
+const boxShorthand = box => {
+    if (!box || 'object' !== typeof box) {
+        return '';
+    }
+
+    const sides = ['top', 'right', 'bottom', 'left'].map(side => {
+        const value = box[side];
+
+        if ('' === value || undefined === value || null === value) {
+            return '';
+        }
+
+        const text = String(value).trim();
+
+        // A bare number is what `BoxControl` stores when its unit is px — see the same rule in Pro's
+        // `getBoxValue`. Anything already carrying a unit is passed through untouched.
+        return /^-?\d+(\.\d+)?$/.test(text) ? `${text}px` : text;
+    });
+
+    return sides.some(Boolean) ? sides.map(side => side || '0').join(' ') : '';
+};
+
+/**
  * The caption's colours and the backdrop, painted on the overlay itself.
  *
  * Fancybox appends its overlay to a `body`, so nothing `Style.js` writes under `#bsbCarousel-<id>`
@@ -239,14 +290,23 @@ const paintLightbox = (fancybox, attributes) => {
 
     if (conf.captionAlign) {
         set('--bsb-lb-caption-align', conf.captionAlign);
+
+        /* Where the caption box sits, as against where its text sits inside the box.
+
+           The box hugs its text, so `text-align` alone moves nothing — see the rule this feeds in
+           `style.scss`. The slide is a flex *column*, so what moves a child left and right across it
+           is `align-self`, and that takes `flex-start`/`flex-end` rather than the `left`/`right` the
+           panel stores. Both are written: this one places the box, `text-align` lines up the lines
+           inside it once a caption is long enough to wrap. */
+        set('--bsb-lb-caption-self', CAPTION_SELF[conf.captionAlign] || 'center');
     }
 
-    const margin = conf.captionMargin;
+    const margin = boxShorthand(conf.captionMargin);
 
-    /* Only where a side was actually filled in: `getBoxValue` answers `0` for an empty side, so four
-       blanks would write `margin: 0 0 0 0` over whatever Fancybox had. */
-    if (margin && Object.values(margin).some(side => '' !== side && undefined !== side && null !== side)) {
-        set('--bsb-lb-caption-margin', getBoxValue(margin));
+    /* Only where a side was actually filled in — four blanks would write `margin: 0 0 0 0` over
+       whatever Fancybox had. */
+    if (margin) {
+        set('--bsb-lb-caption-margin', margin);
     }
 };
 

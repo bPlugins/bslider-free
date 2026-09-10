@@ -1687,20 +1687,41 @@
 }
 
 /**
- * The width the alignment control needs, and only when that control is in use.
+ * What the alignment control moves: the caption box itself, not the text inside a full-width bar.
  *
- * **Why alignment does nothing without this.** `.fancybox__slide` is a flex column with
+ * **Why `text-align` alone does nothing here.** `.fancybox__slide` is a flex column with
  * `align-items: center`, and Fancybox puts `align-self: center` on the caption — so the box is only as
  * wide as its own text. `text-align` inside a box that hugs its text has nothing to move: measured in
  * a browser, the caption was 86px wide inside a 528px slide, and `text-align: right` computed
  * correctly while changing nothing on screen.
  *
- * Keyed off the variable rather than written into the rule above, because stretching is not free: a
- * caption with a colour behind it would go from hugging its text to spanning the whole slide, which is
- * a different design and not one anybody asked for by leaving alignment on Default.
+ * **Why not `align-self: stretch`, which is what this used to do.** Stretching made `text-align` bite,
+ * but it stretched the *box* to the full width of the slide — which is wider than the picture, since
+ * the picture is a sibling that sits at its own size. With a background colour set, the result was a
+ * bar running the whole width of the overlay with a few words adrift in the middle of it. The pane is
+ * meant to be the caption, not a band across the screen.
+ *
+ * So the box keeps hugging its text and `align-self` places it instead. `justify-content` is not the
+ * lever here — the slide is a column, so its main axis is vertical and `align-self` is what moves a
+ * child across it. `text-align` still rides along for the multi-line case: a caption long enough to
+ * wrap is a block of several lines, and those line up inside the box the way the control asks.
+ *
+ * `max-width: 100%` is Fancybox's own and stays: it is what keeps a long caption inside the slide
+ * rather than pushing the overlay wider.
  */
-.fancybox__container[style*="--bsb-lb-caption-align"] .fancybox__caption,
-.fancybox__container[style*="--bsb-lb-caption-align"] .fancybox__footer .fancybox__caption {
+.fancybox__container[style*="--bsb-lb-caption-align"] .fancybox__caption {
+    align-self: var(--bsb-lb-caption-self, center);
+}
+
+/**
+ * The footer caption is a full-width bar by design, so only its text moves.
+ *
+ * Fancybox gives `.fancybox__footer .fancybox__caption` `width: 100%` — the compact/mobile layout
+ * where the caption is a strip pinned to the bottom of the screen. Hugging the text there would
+ * detach the strip from the bar it belongs to, so this variant keeps its width and lets `text-align`
+ * do the aligning, which is the one case where that works on its own.
+ */
+.fancybox__container .fancybox__footer .fancybox__caption {
     align-self: stretch;
 }
 

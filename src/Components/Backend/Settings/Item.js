@@ -6,7 +6,7 @@ import ProNotice from '../../Panel/ProNotice';
 import { PRO_FEATURES } from '../../../utils/pro-features';
 
 const Item = ({ attributes, setAttributes, arrKey, index, setActiveIndex = false }) => {
-    const { sourceType, image } = attributes;
+    const { sourceType } = attributes;
     const sliders = attributes[arrKey];
     const { title, img, video, desc, altText, } = sliders[index];
 
@@ -41,10 +41,12 @@ const Item = ({ attributes, setAttributes, arrKey, index, setActiveIndex = false
                   */}
                 <ProNotice className='mt15' features={PRO_FEATURES.slides} />
 
-                {/* Only while the slider's own `Lightbox on click` is on: with it off no picture opens
-                    anything, so naming what Premium adds to a lightbox nobody has would be an upsell
-                    for a feature the reader is not using yet. */}
-                {'lightbox' === image?.link && <ProNotice className='mt10' features={PRO_FEATURES.lightboxSlide} />}
+                {/* Always, not only while the slider's `Lightbox on click` is on. A free build has no
+                    per-slide lightbox settings at all, so there is nothing here for the switch to
+                    reveal — the notice is the whole of what this panel says about them, and hiding it
+                    behind a setting in another panel would leave an author who has not found that
+                    switch believing the feature does not exist. */}
+                <ProNotice className='mt10' features={PRO_FEATURES.lightboxSlide} />
             </>}
         </div>
     </>
