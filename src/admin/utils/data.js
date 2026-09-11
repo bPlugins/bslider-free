@@ -67,19 +67,14 @@ export const demoInfo = {
                     url: 'https://b-slider.bplugins.com/demo/woocommerce-products-live-product-carousel/'
                 },
                 {
-                    title: 'Lottie Product Tour',
-                    type: 'iframe',
-                    url: 'https://b-slider.bplugins.com/demo/lottie-product-tour-json-animation-per-slide/'
-                },
-                {
                     title: 'Dynamic Post Slider',
                     type: 'iframe',
                     url: 'https://b-slider.bplugins.com/demo/dynamic-post-slider-live-wordpress-data/'
                 },
                 {
-                    title: 'Pricing Table Slider',
+                    title: 'What Our Customers Say',
                     type: 'iframe',
-                    url: 'https://b-slider.bplugins.com/demo/pricing-table-slider-with-staggered-cards/'
+                    url: 'https://b-slider.bplugins.com/demo/what-our-customers-say/'
                 },
                 {
                     title: 'Agency Portfolio Cover Slides',
@@ -643,6 +638,6 @@ export const welcomeInfo = (adminUrl) => ({
 });
 
 export const settingsInfo = {
-	ajaxAction: 'bsbSaveUninstallOption',
-	cleanupItems: []
+    ajaxAction: 'bsbSaveUninstallOption',
+    cleanupItems: []
 };
