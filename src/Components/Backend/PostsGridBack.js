@@ -6,14 +6,21 @@ import Excerpt from '../Common/Layouts/grid/Excerpt';
 import AcfFields, { resolveSlideImage, resolveButtonLink, resolveButtonText, resolveTitle } from '../Common/single-item/AcfFields';
 import LinkedPicture from '../Common/single-item/LinkedPicture';
 import SlideLink from '../Common/single-item/SlideLink';
+import { bsb_lightbox_config } from '../../utils/config';
+import { lightboxCaption } from '../../utils/functions';
 
 const PostsGridBack = ({ attributes, firstPosts, totalPosts, updateObject, commonDeProps = {} }) => {
 
     const [posts, setPosts] = useState(firstPosts);
     const [pageNumber, setPageNumber] = useState(1);
-    const { columns, button, title, desc, postsQuery, grid, image } = attributes;
+    const { columns, button, title, desc, postsQuery, grid, image, lightbox } = attributes;
     // What tells every link on a slide that the first click belongs to the editor — see useEditorLink.
-    const { isSelected = false } = commonDeProps;
+    const { clientId, isSelected = false } = commonDeProps;
+
+    /* The same switch the four slider layouts read — see `PostItem`. A post grid draws its own slides
+       rather than going through `PostItem`, so the setting has to be resolved here too. */
+    const isLightboxOn = 'lightbox' === image?.link;
+    const captionMode = 'custom' === lightbox?.caption ? 'title' : lightbox?.caption;
     const { per_page } = postsQuery;
     const [loadMore, setLoadMore] = useState(firstPosts);
     const { paginationType } = grid;
@@ -33,6 +40,12 @@ const PostsGridBack = ({ attributes, firstPosts, totalPosts, updateObject, commo
         }
     }, [postsQuery, shownPosts]);
 
+    /* The other four layouts bind the lightbox from their own effect; this renderer replaces `Grid`
+       for a post source, so without this its triggers are markup nothing is listening for. */
+    useEffect(() => {
+        bsb_lightbox_config(clientId, attributes);
+    }, [clientId, isLightboxOn]);
+
     return <div className="grid-wrapper">
         <div className={`grid bsbCarousel columns-${desktop} columns-tablet-${tablet} columns-mobile-${mobile}`}>
             {
@@ -44,10 +57,16 @@ const PostsGridBack = ({ attributes, firstPosts, totalPosts, updateObject, commo
                     const itemBtnLabel = btnLabel ? resolveButtonText(post, attributes, btnLabel) : '';
                     // Mirrors PostItem: the whole picture is the link wherever the button points,
                     // and `LinkedPicture` renders the bare `<img>` when there is no link to make.
-                    const imageHref = resolveButtonLink(post, attributes) || '';
+                    const isLightbox = isLightboxOn && !!slideImg?.url;
+                    const buttonHref = resolveButtonLink(post, attributes) || '';
+                    const imageHref = isLightbox ? slideImg.url : buttonHref;
+                    const plainTitle = String(postTitle || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+                    const lbCaption = isLightbox
+                        ? lightboxCaption(captionMode, { imageCaption: slideImg?.alt || '', title: plainTitle })
+                        : '';
                     return <div key={index} className={`item ${index === 0 ? 'active' : ''} ${imageHref ? 'is-linked' : ''} `}>
                         <div className="img">
-                            {slideImg?.url && <LinkedPicture href={imageHref} linkTarget={image?.linkTarget} label={String(postTitle || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim() || imageHref} isBackEnd isSelected={isSelected}>
+                            {slideImg?.url && <LinkedPicture href={imageHref} linkTarget={image?.linkTarget} label={plainTitle || imageHref} lightbox={isLightbox} caption={lbCaption} clientId={clientId} attributes={attributes} isBackEnd isSelected={isSelected}>
                                 <img src={slideImg.url} className="d-block w-100" />
                             </LinkedPicture>}
                         </div>
@@ -64,7 +83,9 @@ const PostsGridBack = ({ attributes, firstPosts, totalPosts, updateObject, commo
                                 {itemBtnLabel && <>
                                     <div className={`carousel-button`}>
                                         {/* The same switch the picture follows. */}
-                                        <SlideLink href={imageHref} linkTarget={image?.linkTarget} isBackEnd isSelected={isSelected} dangerouslySetInnerHTML={{ __html: itemBtnLabel }} />
+                                        {/* `buttonHref`, not `imageHref`: in lightbox mode the picture
+                                            points at the image file, and the button still goes to the post. */}
+                                        <SlideLink href={buttonHref} linkTarget={image?.linkTarget} isBackEnd isSelected={isSelected} dangerouslySetInnerHTML={{ __html: itemBtnLabel }} />
                                     </div>
                                 </>}
                             </div>

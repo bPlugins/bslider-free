@@ -3,10 +3,11 @@ import Excerpt from '../Layouts/grid/Excerpt';
 import AcfFields, { resolveSlideImage, resolveButtonLink, resolveButtonText, resolveTitle } from './AcfFields';
 import LinkedPicture from './LinkedPicture';
 import SlideLink from './SlideLink';
+import { lightboxCaption } from '../../../utils/functions';
 
 const WooItem = (props) => {
-    const { attributes, product, index, isBackEnd = false, isSelected = false, classNames = {} } = props;
-    const { title, desc, button, image } = attributes;
+    const { attributes, product, index, clientId, isBackEnd = false, isSelected = false, classNames = {} } = props;
+    const { title, desc, button, image, lightbox } = attributes;
     const { thumbnail } = product || {};
     // Older blocks have no `isVisible` key, so only an explicit `false` hides any of the three.
     const btnLabel = button?.isVisible !== false ? resolveButtonText(product, attributes, button?.text) : '';
@@ -24,8 +25,35 @@ const WooItem = (props) => {
      * When there is no image the picture anchor has zero height, so a full-slide overlay anchor
      * covers the item instead — see the same pattern in `PostItem`.
      */
-    const imageHref = btnLink || '';
-    const accessibleLabel = String(wooTitle || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim() || imageHref;
+    /**
+     * Which of the two the picture's click is for — the product, or the picture itself.
+     *
+     * `lightbox` is the one value the removed `Clicking the picture` dropdown never wrote, so anything
+     * else — a saved `none`, a saved `button`, or nothing at all — is the link, which is what every
+     * product slider did before this setting came back. See `DefaultGeneral`, where the choice is offered.
+     *
+     * The lightbox needs the picture's own file, and a product image is already the full one:
+     * `Posts.php` asks `get_the_post_thumbnail_url` for `fImgSize`, which is `full` and has no control
+     * offering anything else.
+     */
+    const isLightbox = 'lightbox' === image?.link && !!slideImg?.url;
+
+    /* The caption inside the lightbox. `wooTitle` is the title the slide already shows, so the two
+       cannot disagree. A product has no custom caption field of its own — that mode yields nothing.
+
+       `custom` has no per-slide field on a product slide — see the note in `PostItem`. */
+    const captionMode = 'custom' === lightbox?.caption ? 'title' : lightbox?.caption;
+
+    const accessibleLabel = String(wooTitle || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+
+    const lbCaption = isLightbox
+        ? lightboxCaption(captionMode, {
+            imageCaption: slideImg?.alt || '',
+            title: accessibleLabel
+        })
+        : '';
+
+    const imageHref = isLightbox ? slideImg.url : (btnLink || '');
 
     return <div className={`item ${index === 0 ? 'active' : ''} ${imageHref ? 'is-linked' : ''} ${classNames.item || ''}`}>
         {imageHref && !slideImg?.url && <SlideLink
@@ -43,7 +71,11 @@ const WooItem = (props) => {
                 href={imageHref}
                 linkTarget={image?.linkTarget}
                 /* The picture carries no `alt`, so without this the link would have no accessible name. */
-                label={accessibleLabel}
+                label={accessibleLabel || imageHref}
+                lightbox={isLightbox}
+                caption={lbCaption}
+                clientId={clientId}
+                attributes={attributes}
                 isBackEnd={isBackEnd}
                 isSelected={isSelected}
             >

@@ -4,7 +4,7 @@ Donate link: https://www.buymeacoffee.com/abuhayat
 Tags: block, carousel, slider, bootstrap, Gutenberg block
 Requires at least: 6.5
 Tested up to: 7.1
-Stable tag: 2.2.0
+Stable tag: 2.2.1
 Requires PHP: 7.2
 License: GPLv2 or later 
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -79,6 +79,11 @@ https://www.youtube.com/watch?v=Pj7veTzHbQk
 - **Basic Video Controls**: A large play button and a restart option.
 - **Playback Settings**: Auto-play, loop and muted starts.
 - **Comprehensive Player Controls**: Play/Pause, Mute, Rewind, Fast-Forward, progress, current time and duration.
+- **Image Lightbox on Click**: Click a slide picture to open it full size — images, posts and products alike, on every layout.
+- **Lightbox Gallery**: The pictures of one slider open as a single gallery, with arrows, keyboard, swipe and pinch-to-zoom.
+- **Lightbox Caption**: Show the image caption, or the slide, post or product title, under the picture — with colour, background, margin and alignment.
+- **Lightbox Toolbar**: Counter, thumbnail strip, zoom, slideshow, fullscreen, rotate, flip and download, each its own switch.
+- **Lightbox Backdrop**: Set the colour and opacity behind the picture from the panel.
 
 === bSlider Pro – Unlock Premium Features ===
 [bSlider Pro](https://bplugins.com/products/b-slider/pricing/) gives you more design power and control. Add advanced effects, flexible layouts, and interactive options to create engaging, professional sliders.
@@ -136,6 +141,13 @@ https://www.youtube.com/watch?v=Pj7veTzHbQk
 - **Advanced Video Tools**: Mute, PIP, AirPlay, Download and Fullscreen.
 - **Video Reset On End**: Restart a video from the beginning once it finishes.
 - **Video Auto Hide Controls**: Hide the playback UI while the visitor is idle.
+- **Lightbox Glass Effect**: Frost the caption and the backdrop instead of tinting them flat — the picture behind stays visible through the blur.
+- **Lightbox Button Styling**: Colour, size, corner radius, spacing and edge distance for the close, arrow and toolbar buttons, gradients included.
+- **Lightbox Caption Typography**: Font, weight, size per device, style, transform, line height and letter spacing for the caption.
+- **Custom Lightbox Caption**: Type a caption per slide, separate from the title the slide already shows.
+- **Lightbox Image per Device**: Open a different file than the slide shows — the original on desktop, something lighter on a phone.
+- **Per-Slide Lightbox Control**: Decide picture by picture which ones open a lightbox, so a banner can sit out of a gallery of photographs.
+- **Lightbox Size and Loop**: Cap how large a picture opens, and choose whether the gallery wraps from the last back to the first.
 
 [Upgrade to Pro](https://bplugins.com/products/b-slider/pricing/) to unlock all premium features.
 
@@ -327,6 +339,16 @@ Please report security bugs found in the source code of the bSlider plugin throu
 
 
 == Changelog ==
+
+= 2.2.1 - 10 September, 2026 =
+* New: Image slides open in a lightbox on click — the engine was already bundled for video, and this is the setting that lets a photograph use it;
+* New: Post and WooCommerce slides open their featured image in the same lightbox, on every layout including the grids;
+* New: The pictures of one slider open as a single gallery, so the arrows walk the whole set instead of stopping at the first slide;
+* New: Caption under the picture, taken from the image caption or from the slide, post or product title;
+* New: Caption colour, background, margin and alignment, all from the panel — no CSS to write;
+* New: Lightbox toolbar switches — counter, thumbnail strip, zoom, slideshow and fullscreen, each on its own;
+* New: Rotate, flip and download buttons in the lightbox, off by default;
+* New: Backdrop colour and opacity;
 
 = 2.2.0 - 9 September, 2026 =
 * New: Gutenberg Blocks source type — build every slide from real WordPress blocks instead of a fixed title, image and button;
@@ -588,6 +610,9 @@ Please report security bugs found in the source code of the bSlider plugin throu
 * Initial Release
 
 == Upgrade Notice ==
+
+= 2.2.1 - 10 September, 2026 =
+* Adds the image lightbox — click a slide picture to open it full size, with a caption, a toolbar and gallery navigation. Post and product slides open the same way. Existing sliders are untouched: every new setting is off until you turn it on.
 
 = 2.2.0 - 9 September, 2026 =
 * Adds the Gutenberg Blocks source — build each slide from real WordPress blocks — with layer animations, a visual timeline, per-layer typography and responsive controls, badged words and hover colours.

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { placeholderImg, play } from '../../../../utils/icons';
-import { bsb_open_video_popup } from '../../../../utils/config';
+import { bsb_open_video_popup, galleryOf } from '../../../../utils/config';
 import { useSelect } from '@wordpress/data';
 
 const CheckPopUp = ({ sliders, videoRefs, attributes, id, isBackEnd }) => {
@@ -31,7 +31,7 @@ const CheckPopUp = ({ sliders, videoRefs, attributes, id, isBackEnd }) => {
                 <video controls poster={posterImage} className="bsbvid" id="player">
                     <source src={video?.url} type="video/mp4" /></video>
             </div> :
-                <a key={index} data-fancybox={`${id}-video-gallery`} data-caption="" className={`carousel-item videoItem lightboxArea ${index === 0 ? 'active' : ''}`} href={video?.url} data-type={'html5video'} onClick={isBackEnd ? (e) => { e.preventDefault(); if (blockActivated) { e.stopPropagation(); bsb_open_video_popup(sliders, index, attributes); } else { setBlockActivated(true); } } : undefined}>
+                <a key={index} data-fancybox={galleryOf(id)} data-caption="" className={`carousel-item videoItem lightboxArea ${index === 0 ? 'active' : ''}`} href={video?.url} data-type={'html5video'} onClick={isBackEnd ? (e) => { e.preventDefault(); if (blockActivated) { e.stopPropagation(); bsb_open_video_popup(sliders, index, attributes); } else { setBlockActivated(true); } } : undefined}>
                     <div className={`contentArea`}>
                         <div className="img">
                             <img className="rounded" src={posterImage || placeholderImg} alt={img?.caption || img?.alt || img?.title} />

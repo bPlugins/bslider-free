@@ -9,7 +9,7 @@ import 'swiper/css/pagination';
 import 'swiper/css/effect-cards';
 import 'swiper/css/grid';
 
-import { bsb_lightbox_config, plyrInt, bsb_open_video_popup } from '../../../utils/config';
+import { bsb_lightbox_config, plyrInt, bsb_open_video_popup, galleryOf } from '../../../utils/config';
 import { initLayerAnimations } from '../../../utils/layerAnimations';
 import { reviveSlideScripts } from '../../../utils/reviveSlideScripts';
 import { mountSlidersIn } from '../../../utils/sliderMounter';
@@ -222,7 +222,7 @@ const Carousel = (props) => {
                         case 'image':
                             return sliders?.map((slide, index) => <SwiperSlide className={carouselStyle} key={index}>
                                 <ImageItem {...{
-                                    attributes, slide, index, classNames: {
+                                    attributes, slide, index, clientId, isBackEnd, isSelected, classNames: {
                                         contentArea: 'content-area'
                                     }
                                 }} />
@@ -231,7 +231,7 @@ const Carousel = (props) => {
                         case 'posts':
                             return firstPosts?.map((post, index) => <SwiperSlide className={carouselStyle} key={index}>
                                 <PostItem {...{
-                                    attributes, post, index, isBackEnd, isSelected, classNames: {
+                                    attributes, post, index, clientId, isBackEnd, isSelected, classNames: {
                                         contentArea: 'content-area'
                                     }
                                 }} />
@@ -240,7 +240,7 @@ const Carousel = (props) => {
                         case 'woo':
                             return products?.map((product, index) => <SwiperSlide className={carouselStyle} key={index}>
                                 <WooItem {...{
-                                    attributes, product, index, isBackEnd, isSelected, classNames: {
+                                    attributes, product, index, clientId, isBackEnd, isSelected, classNames: {
                                         contentArea: 'content-area'
                                     }
                                 }} />
@@ -252,7 +252,7 @@ const Carousel = (props) => {
                                     <video controls poster={slide?.img.url} className="bsbvid" id="player">
                                         <source src={slide?.video?.url} type="video/mp4" /></video>
                                 </div> :
-                                    <a data-fancybox={`${clientId}-video-gallery`} data-caption="" className={`lightboxArea videoItem db_carousel ${index === 0 ? 'active' : ''}`} href={slide?.video?.url} data-type={'html5video'} onClick={isBackEnd ? (e) => { e.preventDefault(); e.stopPropagation(); bsb_open_video_popup(sliders, index, attributes); } : undefined}>
+                                    <a data-fancybox={galleryOf(clientId)} data-caption="" className={`lightboxArea videoItem db_carousel ${index === 0 ? 'active' : ''}`} href={slide?.video?.url} data-type={'html5video'} onClick={isBackEnd ? (e) => { e.preventDefault(); e.stopPropagation(); bsb_open_video_popup(sliders, index, attributes); } : undefined}>
                                         <div className={`contentArea popContentArea`}>
                                             <div className="img">
                                                 <img className="rounded" src={slide?.img.url || placeholderImg} alt={slide?.img?.caption || slide?.img?.alt || slide?.img?.title} />

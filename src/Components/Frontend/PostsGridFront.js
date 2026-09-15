@@ -5,12 +5,20 @@ import Excerpt from '../Common/Layouts/grid/Excerpt';
 import AcfFields, { resolveSlideImage, resolveButtonLink, resolveButtonText, resolveTitle } from '../Common/single-item/AcfFields';
 import LinkedPicture from '../Common/single-item/LinkedPicture';
 import Pagination from '../Common/Layouts/grid/Pagination/Pagination';
+import { bsb_lightbox_config } from '../../utils/config';
+import { lightboxCaption } from '../../utils/functions';
 
-const PostsGridFront = ({ attributes, firstPosts, totalPosts, nonce }) => {
+const PostsGridFront = ({ attributes, firstPosts, totalPosts, nonce, commonDeProps = {} }) => {
     const [posts, setPosts] = useState(firstPosts);
     const [pageNumber, setPageNumber] = useState(1);
-    const { columns, button, title, desc, grid, image } = attributes;
+    const { columns, button, title, desc, grid, image, lightbox } = attributes;
+    const { clientId } = commonDeProps;
     const { paginationType } = grid;
+
+    /* The same switch the four slider layouts read — see `PostItem`. A post grid draws its own slides
+       rather than going through `PostItem`, so the setting has to be resolved here too. */
+    const isLightboxOn = 'lightbox' === image?.link;
+    const captionMode = 'custom' === lightbox?.caption ? 'title' : lightbox?.caption;
 
     const { posts: ajaxPosts, isLoading: isAPLoading } = useAjaxPosts(nonce, attributes, pageNumber);
 
@@ -33,6 +41,12 @@ const PostsGridFront = ({ attributes, firstPosts, totalPosts, nonce }) => {
         }
     }, paginationType === 'pagination' ? [ajaxPosts, isAPLoading, pageNumber] : [ajaxPosts]);
 
+    /* The other four layouts bind the lightbox from their own effect; this renderer replaces `Grid`
+       for a post source, so without this its triggers are markup nothing is listening for. */
+    useEffect(() => {
+        bsb_lightbox_config(clientId, attributes);
+    }, [clientId, isLightboxOn]);
+
     return <div className="grid-wrapper">
         <div className={`grid bsbCarousel columns-${desktop} columns-tablet-${tablet} columns-mobile-${mobile}`}>
             {
@@ -44,10 +58,15 @@ const PostsGridFront = ({ attributes, firstPosts, totalPosts, nonce }) => {
                     const itemBtnLabel = btnLabel ? resolveButtonText(post, attributes, btnLabel) : '';
                     // Mirrors PostItem: the whole picture is the link wherever the button points,
                     // and `LinkedPicture` renders the bare `<img>` when there is no link to make.
-                    const imageHref = resolveButtonLink(post, attributes) || '';
+                    const isLightbox = isLightboxOn && !!slideImg?.url;
+                    const imageHref = isLightbox ? slideImg.url : (resolveButtonLink(post, attributes) || '');
+                    const plainTitle = String(postTitle || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+                    const lbCaption = isLightbox
+                        ? lightboxCaption(captionMode, { imageCaption: slideImg?.alt || '', title: plainTitle })
+                        : '';
                     return <div key={index} className={`item ${index === 0 ? 'active' : ''} ${imageHref ? 'is-linked' : ''} `}>
                         <div className="img">
-                            {slideImg?.url && <LinkedPicture href={imageHref} linkTarget={image?.linkTarget} label={String(postTitle || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim() || imageHref}>
+                            {slideImg?.url && <LinkedPicture href={imageHref} linkTarget={image?.linkTarget} label={plainTitle || imageHref} lightbox={isLightbox} caption={lbCaption} clientId={clientId} attributes={attributes}>
                                 <img src={slideImg.url} className="d-block w-100 " />
                             </LinkedPicture>}
                         </div>

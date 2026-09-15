@@ -243,3 +243,48 @@ export const sanitizeHref = (url) => {
     // Anything else -> block
     return '#';
 };
+
+/**
+ * What the lightbox writes under the picture — the `Caption` setting.
+ *
+ * **One resolver, because four renderers ask the question.** `ImageItem`, `PostItem`, `WooItem` and
+ * the two grid renderers each draw a lightbox trigger, and a caption that meant something different
+ * in one of them would be a second description of the same setting.
+ *
+ * **Off is the absence of the attribute, not an empty one.** Fancybox reads `data-caption` off the
+ * trigger's dataset, and an empty string still counts as a caption — it renders the caption element,
+ * which changes the layout of every existing lightbox. So this answers `''` and the callers leave the
+ * attribute off altogether, which is what `none` has to mean for a setting that ships off.
+ *
+ * The Premium build adds a `custom` mode, where each slide carries its own caption text. Here the
+ * three sources are the ones a slide already has, so an unknown mode simply resolves to nothing.
+ *
+ * @param {string} mode    `none` | `image` | `title` — the `lightbox.caption` setting.
+ * @param {object} sources `{ imageCaption, title }`, whichever the caller has.
+ * @return {string} The caption text, or `''` where there is to be no caption at all.
+ */
+export const lightboxCaption = (mode, sources = {}) => {
+    const { imageCaption = '', title = '' } = sources;
+
+    const picked = {
+        image: imageCaption || '',
+        title: title || ''
+    }[mode] || '';
+
+    return stripCaptionTags(picked);
+};
+
+/**
+ * Caption text with its markup taken out.
+ *
+ * Fancybox assigns a caption through `innerHTML`, so whatever reaches it is parsed as markup — and the
+ * strings here are not all ours to trust: an image caption is typed into the media library and a post
+ * title can hold whatever an editor put there. `<img onerror>` in either would run.
+ *
+ * Tags are removed rather than escaped, because a caption is one line of text under a picture: markup
+ * in it is either an accident or an attack, and neither is worth rendering.
+ */
+const stripCaptionTags = value => String(value || '')
+    .replace(/<[^>]*>/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();

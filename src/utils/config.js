@@ -108,7 +108,9 @@ export const manageVideo = (player) => {
 
 const bsb_fancybox_options = (attributes) => ({
     on: {
-        done: () => {
+        done: (fancybox) => {
+            paintLightbox(fancybox, attributes);
+
             const videoElement = document.querySelectorAll('.fancybox__html5video');
             const youtubeVideos = document.querySelectorAll('.has-youtube .fancybox__content');
             const vimeoVideos = document.querySelectorAll('.has-vimeo .fancybox__content');
@@ -132,12 +134,229 @@ const bsb_fancybox_options = (attributes) => ({
     contentClick: "toggleZoom",
     contentDblClick: "toggleCover",
     defaultDisplay: "flex",
-    Thumbs: { type: 'classic' },
+
+    /**
+     * The toolbar, built from the switches rather than left to Fancybox's own list.
+     *
+     * **Every one of these is on unless it is switched off, and that is deliberate.** Fancybox v5
+     * ships its toolbar enabled — `["infobar"]` on the left, `["iterateZoom","slideshow",
+     * "fullscreen","thumbs","close"]` on the right — so all of it is already what a visitor sees in
+     * the video lightbox. Defaulting the switches to `false` would not be adding a feature, it would
+     * be taking one away from every site that already has it, which is why `block.json` defaults them
+     * all to `true`. Read with `!== false` on top of that, so a slider saved before the keys existed
+     * keeps the toolbar it was showing.
+     *
+     * `close` is not offered as a switch. A lightbox that cannot be closed by its own button is a trap
+     * on any device without a keyboard, and Esc and the backdrop are not discoverable enough to be the
+     * only ways out.
+     *
+     * `infobar` is the counter — the "3 / 9" in the top left; the name is Fancybox's rather than ours.
+     */
+    Toolbar: {
+        display: {
+            left: [...(attributes?.lightbox?.counter !== false ? ['infobar'] : [])],
+            middle: [],
+            right: [
+                ...(attributes?.lightbox?.zoom !== false ? ['iterateZoom'] : []),
+                /* Rotate, flip and reset read as one tool: turning a picture and putting it back.
+                   Off by default unlike the rest — the others were already showing before they were
+                   switches, so defaulting them off would take something away; these have never
+                   shown, so defaulting them on would add five buttons to every existing lightbox. */
+                ...(attributes?.lightbox?.rotate ? ['rotateCCW', 'rotateCW', 'flipX', 'flipY', 'reset'] : []),
+                ...(attributes?.lightbox?.slideshow !== false ? ['slideshow'] : []),
+                ...(attributes?.lightbox?.fullscreen !== false ? ['fullscreen'] : []),
+                ...(attributes?.lightbox?.thumbs !== false ? ['thumbs'] : []),
+                ...(attributes?.lightbox?.download ? ['download'] : []),
+                'close'
+            ]
+        }
+    },
+
+    Thumbs: {
+        type: 'classic',
+        /* The strip itself, which is a separate question from the button that toggles it: with the
+           button gone the strip would still open on start and there would be no way to put it away.
+           Both come off the one switch. */
+        showOnStart: attributes?.lightbox?.thumbs !== false,
+    },
 });
 
+/**
+ * What one slider's lightbox triggers are named.
+ *
+ * The name still says `video` for the sake of what is already on the page: it was `-video-gallery`
+ * before images could open at all, and a slide rendered by an older cached script has that value
+ * baked into its markup. Renaming it now would leave those slides in a gallery of their own.
+ *
+ * One name for both kinds, so a slider holding images and videos opens as a single gallery —
+ * Fancybox groups by the attribute's value, and two names would split it in half, stopping the
+ * arrows at the first boundary. What tells the two apart inside is `data-type`: videos carry
+ * `html5video`, images carry nothing and take Fancybox's own `image` default.
+ */
+/**
+ * A `BoxControl` value as a CSS shorthand, read by side name.
+ *
+ * **Why not `getBoxValue`.** That one is `Object.values(...).join(' ')`, so it takes the sides in
+ * whatever order the keys were inserted — and `BoxControl` builds its value with `{...values}` plus
+ * the one side just edited, so the order is the order the user happened to touch the fields in.
+ * Filling in only `bottom` gave `margin: 30px`, which CSS reads as all four sides; filling in
+ * `bottom` then `left` gave `margin: 30px 10px`, which lands on the wrong pair entirely.
+ *
+ * Naming the four sides is what makes the result independent of that. A blank side becomes `0`
+ * rather than being left out, because a shorthand with a hole in it is a different shorthand.
+ *
+ * @return {string} `top right bottom left`, or `''` where no side was filled in at all — the caller
+ *                  writes nothing in that case rather than `0 0 0 0` over what Fancybox had.
+ */
+/**
+ * The `align-self` that puts the caption box where the `Caption Alignment` control asks.
+ *
+ * The panel stores `text-align` words, and those are not the words the flex property takes: a slide
+ * is a flex column, so moving a child left and right across it is `align-self`, which reads
+ * `flex-start`/`flex-end`. Mapping here rather than storing flex words in the attribute keeps the
+ * saved value the one that describes the *setting* — and `text-align` is written from it too, for the
+ * lines inside a caption that wraps.
+ */
+const CAPTION_SELF = {
+    left: 'flex-start',
+    center: 'center',
+    right: 'flex-end'
+};
+
+const boxShorthand = box => {
+    if (!box || 'object' !== typeof box) {
+        return '';
+    }
+
+    const sides = ['top', 'right', 'bottom', 'left'].map(side => {
+        const value = box[side];
+
+        if ('' === value || undefined === value || null === value) {
+            return '';
+        }
+
+        const text = String(value).trim();
+
+        // A bare number is what `BoxControl` stores when its unit is px — see the same rule in Pro's
+        // `getBoxValue`. Anything already carrying a unit is passed through untouched.
+        return /^-?\d+(\.\d+)?$/.test(text) ? `${text}px` : text;
+    });
+
+    return sides.some(Boolean) ? sides.map(side => side || '0').join(' ') : '';
+};
+
+/**
+ * The caption's colours and the backdrop, painted on the overlay itself.
+ *
+ * Fancybox appends its overlay to a `body`, so nothing `Style.js` writes under `#bsbCarousel-<id>`
+ * can reach it. Setting variables on the container works because our own rules in `style.scss` read
+ * them from there.
+ *
+ * **Our own variables rather than Fancybox's.** `--fancybox-opacity` is spent on five things at once
+ * — backdrop, caption, toolbar, nav arrows, thumbnail strip — so writing it to dim the backdrop dims
+ * the arrows too; `--fancybox-color` paints the caption *and* every toolbar button. `--bsb-lb-*` is
+ * read only by rules that name one element each.
+ *
+ * Only what was actually set is written, so a slider that set nothing renders exactly as before.
+ */
+const paintLightbox = (fancybox, attributes) => {
+    const el = fancybox?.container;
+    const conf = attributes?.lightbox || {};
+
+    if (!el) {
+        return;
+    }
+
+    const set = (prop, value) => el.style.setProperty(prop, value);
+
+    if (conf.backdrop) {
+        set('--fancybox-bg', conf.backdrop);
+    }
+
+    const opacity = Number(conf.backdropOpacity);
+
+    // Our own, so the backdrop dims alone — see the note above.
+    if (Number.isFinite(opacity) && opacity >= 0 && opacity < 100) {
+        set('--bsb-lb-backdrop-opacity', String(opacity / 100));
+    }
+
+    if (conf.captionColor) {
+        set('--bsb-lb-caption-color', conf.captionColor);
+    }
+
+    if (conf.hasCaptionBg && conf.captionBg) {
+        set('--bsb-lb-caption-bg', conf.captionBg);
+    }
+
+    if (conf.captionAlign) {
+        set('--bsb-lb-caption-align', conf.captionAlign);
+
+        /* Where the caption box sits, as against where its text sits inside the box.
+
+           The box hugs its text, so `text-align` alone moves nothing — see the rule this feeds in
+           `style.scss`. The slide is a flex *column*, so what moves a child left and right across it
+           is `align-self`, and that takes `flex-start`/`flex-end` rather than the `left`/`right` the
+           panel stores. Both are written: this one places the box, `text-align` lines up the lines
+           inside it once a caption is long enough to wrap. */
+        set('--bsb-lb-caption-self', CAPTION_SELF[conf.captionAlign] || 'center');
+    }
+
+    const margin = boxShorthand(conf.captionMargin);
+
+    /* Only where a side was actually filled in — four blanks would write `margin: 0 0 0 0` over
+       whatever Fancybox had. */
+    if (margin) {
+        set('--bsb-lb-caption-margin', margin);
+    }
+};
+
+export const galleryOf = id => `${id}-video-gallery`;
+
+/** The selector matching every trigger of one slider's gallery. */
+const gallerySelector = id => `[data-fancybox='${galleryOf(id)}']`;
+
 export const bsb_lightbox_config = (id, attributes) => {
-    Fancybox.bind(`[data-fancybox='${id}-video-gallery']`, bsb_fancybox_options(attributes));
+    Fancybox.bind(gallerySelector(id), bsb_fancybox_options(attributes));
 }
+
+/**
+ * The same lightbox, opened without waiting for Fancybox to notice the click.
+ *
+ * **Why the editor needs this.** Fancybox opens from a delegated click handler, and the first thing
+ * that handler does is give up if anything has already called `preventDefault` on the event. Inside
+ * the editor canvas a click on a slide is not just a click — it is also how a block is selected —
+ * and by the time it reaches the slider the default is long gone. So the popup simply never opened
+ * there, while the same markup worked on the front end.
+ *
+ * `fromNodes` rather than `show`, so the editor gets the gallery the visitor gets: every trigger in
+ * the slider, opened at the one that was clicked, each slide read off its own attributes exactly as
+ * the delegated path reads them. Building a slide list here by hand would be a second description of
+ * what a slide is, and the two would drift.
+ */
+export const bsb_open_popup = (id, attributes, trigger, container = null) => {
+    /* Nothing to do if a lightbox is already up: Fancybox's delegated listener sits on the slider
+       itself, so on a click it runs first, and where it succeeds this would open a second lightbox
+       on top of the one already showing. */
+    if (Fancybox.getInstance()) {
+        return;
+    }
+
+    const root = container || trigger?.ownerDocument?.body || document.body;
+    const triggers = [...root.querySelectorAll(gallerySelector(id))];
+
+    if (!triggers.length) {
+        return;
+    }
+
+    Fancybox.fromNodes(triggers, {
+        ...bsb_fancybox_options(attributes),
+        /* `indexOf` can only miss if the trigger sits outside the container it was given, which would
+           be a wiring mistake rather than a state to handle — opening at the first slide is a better
+           answer to it than opening nothing. */
+        startIndex: Math.max(0, triggers.indexOf(trigger)),
+        triggerEl: trigger
+    });
+};
 
 export const bsb_open_video_popup = (sliders, index, attributes) => {
     const items = sliders.map(slide => ({

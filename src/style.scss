@@ -57,6 +57,7 @@
      * It sits inside `.img` rather than around it, because the picture is sized by `.item > .img img`
      * and a wrapper outside that box takes it out of the rule's reach.
      */
+    .bsbLightboxImage,
     .bsbSlideLink {
         display: block;
         position: relative;
@@ -1636,4 +1637,98 @@
     .bsb-carousel-wrapper .swiper .swiper-wrapper .swiper-slide {
         height: auto;
     }
+}
+
+/**
+ * The lightbox's backdrop and caption — the Lightbox panel's colour fields.
+ *
+ * **Why these rules exist rather than just setting Fancybox's variables.** Fancybox shares its
+ * variables across the whole overlay: `--fancybox-opacity` dims the backdrop, the caption, the
+ * toolbar, the nav arrows and the thumbnail strip together, and `--fancybox-color` paints the caption
+ * and every toolbar button from one value. So "make the backdrop 40%" faded the arrows, and "make the
+ * caption red" turned the buttons red. Our variables are read only here, by rules that name one
+ * element each.
+ *
+ * **Every selector is two classes deep, and that is the whole reason they work.** Fancybox's own
+ * `.fancybox__caption { color: ... }` is a single class, so a rule of ours written the same way ties
+ * it on specificity — and `config.js` imports `fancybox.css`, which webpack emits *after* this file.
+ * The tie went to whichever came last, which was theirs. `.fancybox__container` is the element these
+ * variables are written onto, and an ancestor of both, so naming it wins the tie.
+ *
+ * Top level and not nested under `#bsbCarousel-<id>`, because the overlay is appended to a `body`.
+ * Every value falls back to what Fancybox already does, so a slider that set none of them renders
+ * exactly as before.
+ */
+.fancybox__container .fancybox__backdrop {
+    /* Fancybox's own `opacity: var(--fancybox-opacity, 1)` still applies; this multiplies it, which is
+       why the fallback is 1 and not the value of theirs. */
+    opacity: var(--bsb-lb-backdrop-opacity, 1);
+}
+
+.fancybox__container .fancybox__caption {
+    color: var(--bsb-lb-caption-color, var(--fancybox-color, currentColor));
+    text-align: var(--bsb-lb-caption-align, center);
+
+    /* No padding until there is a background to pad — an unset background with padding would move the
+       caption for no visible reason. */
+    background: var(--bsb-lb-caption-bg, transparent);
+    padding: var(--bsb-lb-caption-pad, 14px 0 4px 0);
+
+    /* Fancybox sets `margin: 0` on its caption, so this needs to be here to be overridable at all. */
+    margin: var(--bsb-lb-caption-margin, 0);
+}
+
+/* The footer variant Fancybox pads to 24px, which is two classes on their side — so this needs three
+   to stay ahead of it. */
+.fancybox__container .fancybox__footer .fancybox__caption {
+    padding: var(--bsb-lb-caption-pad, 24px);
+    text-align: var(--bsb-lb-caption-align, center);
+    margin: var(--bsb-lb-caption-margin, 0);
+}
+
+/**
+ * What the alignment control moves: the caption box itself, not the text inside a full-width bar.
+ *
+ * **Why `text-align` alone does nothing here.** `.fancybox__slide` is a flex column with
+ * `align-items: center`, and Fancybox puts `align-self: center` on the caption — so the box is only as
+ * wide as its own text. `text-align` inside a box that hugs its text has nothing to move: measured in
+ * a browser, the caption was 86px wide inside a 528px slide, and `text-align: right` computed
+ * correctly while changing nothing on screen.
+ *
+ * **Why not `align-self: stretch`, which is what this used to do.** Stretching made `text-align` bite,
+ * but it stretched the *box* to the full width of the slide — which is wider than the picture, since
+ * the picture is a sibling that sits at its own size. With a background colour set, the result was a
+ * bar running the whole width of the overlay with a few words adrift in the middle of it. The pane is
+ * meant to be the caption, not a band across the screen.
+ *
+ * So the box keeps hugging its text and `align-self` places it instead. `justify-content` is not the
+ * lever here — the slide is a column, so its main axis is vertical and `align-self` is what moves a
+ * child across it. `text-align` still rides along for the multi-line case: a caption long enough to
+ * wrap is a block of several lines, and those line up inside the box the way the control asks.
+ *
+ * `max-width: 100%` is Fancybox's own and stays: it is what keeps a long caption inside the slide
+ * rather than pushing the overlay wider.
+ */
+.fancybox__container[style*="--bsb-lb-caption-align"] .fancybox__caption {
+    align-self: var(--bsb-lb-caption-self, center);
+}
+
+/**
+ * The footer caption is a full-width bar by design, so only its text moves.
+ *
+ * Fancybox gives `.fancybox__footer .fancybox__caption` `width: 100%` — the compact/mobile layout
+ * where the caption is a strip pinned to the bottom of the screen. Hugging the text there would
+ * detach the strip from the bar it belongs to, so this variant keeps its width and lets `text-align`
+ * do the aligning, which is the one case where that works on its own.
+ */
+.fancybox__container .fancybox__footer .fancybox__caption {
+    align-self: stretch;
+}
+
+/* The padding a background needs, applied only when one was set. `:not()` on a custom property is not
+   possible, so this leans on the variable being present in the container's inline style. */
+.fancybox__container[style*="--bsb-lb-caption-bg"] .fancybox__caption,
+.fancybox__container[style*="--bsb-lb-caption-bg"] .fancybox__footer .fancybox__caption {
+    padding: 10px 16px;
+    border-radius: 4px;
 }
