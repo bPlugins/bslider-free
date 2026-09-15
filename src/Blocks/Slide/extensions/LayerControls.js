@@ -7,12 +7,14 @@ import { AccordionGroup, PanelBody } from '../../../Components/Panel/AccordionPa
 import { PremiumBadge, PremiumPanel } from '../../../../../bpl-tools/ProControls';
 import { adminUrl, DEMO_URL } from '../../../utils/functions';
 import { proFeatureSentence, PRO_FEATURES } from '../../../utils/pro-features';
-import { canCarryLayer, canCarryTypography, WORD_STAGGER_BLOCKS } from './allowedLayerBlocks';
+import { canCarryCounter, canCarryLayer, canCarryTypography, WORD_STAGGER_BLOCKS } from './allowedLayerBlocks';
 import EntryExitPanel from '../Panels/EntryExitPanel';
 import LoopPanel from '../Panels/LoopPanel';
 import InteractivityPanel from '../Panels/InteractivityPanel';
+import LightboxPanel from '../Panels/LightboxPanel';
 import TypographyPanel from '../Panels/TypographyPanel';
 import ResponsivePanel from '../Panels/ResponsivePanel';
+import { TipToggle } from '../../../Components/Panel/TipField';
 
 /**
  * The Animation & Interactivity controls, added to any block sitting inside a `bsb/slide`.
@@ -30,6 +32,24 @@ const withLayerControls = createHigherOrderComponent((BlockEdit) => (props) => {
 			&& select('core/block-editor').getBlockParentsByBlockName(clientId, 'bsb/slide').length > 0,
 		[name, clientId]
 	);
+
+	/* The source of the slider this layer sits in. Only a `blocks` slider is offered the Lightbox
+	   panel: every other source keeps those settings in the slider's own sidebar, where the
+	   picture being clicked belongs to the slider rather than to one layer. */
+	const isBlocksSource = useSelect(select => {
+		const { getBlockParentsByBlockName, getBlockAttributes } = select('core/block-editor');
+		const parents = getBlockParentsByBlockName(clientId, 'bsb/slider');
+		const sliderId = parents.length ? parents[parents.length - 1] : null;
+
+		return sliderId ? 'blocks' === getBlockAttributes(sliderId)?.sourceType : false;
+	}, [clientId]);
+
+	/* And only once this layer is actually set to open one. The settings themselves belong to the
+	   slider, but the panel is only worth a slot in the sidebar where the author has just asked
+	   for a lightbox — on a layer that does nothing on click, it describes something that cannot
+	   happen. Read from the layer's own attributes rather than the store, so it appears the moment
+	   the dropdown in Hover & Click changes. */
+	const opensLightbox = 'lightbox' === attributes?.bsbLayer?.click?.action;
 
 	if (!isInsideSlide) {
 		return <BlockEdit {...props} />;
@@ -49,7 +69,9 @@ const withLayerControls = createHigherOrderComponent((BlockEdit) => (props) => {
 		bsbLayer: { ...layer, [section]: replace ? changes : { ...(layer[section] || {}), ...changes } },
 	});
 
-	const panelProps = { layer, update, blockName: name };
+	/* `clientId` travels with the rest so a panel can reach the blocks around it — `Hover & Click`
+	   uses it to find the ancestor slider and write its lightbox settings. */
+	const panelProps = { layer, update, blockName: name, clientId };
 
 	return <>
 		<BlockEdit {...props} />
@@ -89,8 +111,36 @@ const withLayerControls = createHigherOrderComponent((BlockEdit) => (props) => {
 				/>
 			</PanelBody>}
 
+			{/* Premium throughout, like Word by Word above, so it is shown the same way: the panel
+			    is here and named, with the upsell inside it rather than a row of dead controls.
+			    Only on the blocks whose text is a figure — see `COUNTER_BLOCKS`. */}
+			{canCarryCounter(name) && <PanelBody className='bPlPanelBody' title={<>{__('Number Counter', 'b-slider')}<PremiumBadge /></>} initialOpen={false}>
+				<PremiumPanel
+					title={sprintf(__('Premium %s', 'b-slider'), __('Number Counter', 'b-slider'))}
+					description={proFeatureSentence(PRO_FEATURES.numberCounter)}
+					pricingUrl={adminUrl()}
+					demoUrl={DEMO_URL}
+				/>
+			</PanelBody>}
+
 			<PanelBody className='bPlPanelBody' title={__('Hover & Click', 'b-slider')} badge={__('New', 'b-slider')} initialOpen={false}>
 				<InteractivityPanel {...panelProps} />
+			</PanelBody>
+
+			{/* Its own panel rather than a tail on Hover & Click: that panel answers what the layer
+			    does, and this one answers how the thing it opens is dressed — long enough on its own
+			    that the two read as separate subjects under one title. */}
+			{isBlocksSource && opensLightbox && <PanelBody className='bPlPanelBody' title={__('Lightbox', 'b-slider')} badge={__('New', 'b-slider')} initialOpen={false}>
+				<LightboxPanel clientId={clientId} />
+			</PanelBody>}
+
+			<PanelBody className='bPlPanelBody' title={__('Layout & Sizing', 'b-slider')} badge={__('New', 'b-slider')} initialOpen={false}>
+				<TipToggle
+					label={__('Fit to Content', 'b-slider')}
+					checked={Boolean(layer.fitContent)}
+					onChange={val => update('fitContent', val, true)}
+					tip={__('Shrinks the block background and container width to hug the inner content instead of stretching full width.', 'b-slider')}
+				/>
 			</PanelBody>
 
 			{/* Last, because it qualifies everything above it: which screens any of this applies

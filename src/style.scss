@@ -1452,6 +1452,13 @@
     overflow-wrap: normal;
 }
 
+/* A layer whose author asked it to fit its content rather than stretching full width */
+.bsb-slide-content .bsb-fit-content,
+.bsb-layer.bsb-fit-content {
+    display: inline-block !important;
+    max-width: 100%;
+}
+
 /**
  * Anything wide inside a slide is held to the slide's width.
  *

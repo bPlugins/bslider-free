@@ -1,12 +1,13 @@
 import { __ } from '@wordpress/i18n';
-import { SelectControl, __experimentalUnitControl as UnitControl, __experimentalNumberControl as NumberControl, ToggleControl, PanelRow, RangeControl, __experimentalBoxControl as BoxControl } from "@wordpress/components";
+import { SelectControl, __experimentalUnitControl as UnitControl, __experimentalNumberControl as NumberControl, ToggleControl, PanelRow, RangeControl } from "@wordpress/components";
 import { PanelBody } from '../../../Panel/AccordionPanel';
 import { emUnit, perUnit, caroDirectionOpt, carouselStyOpt, contentPosition, animationFreeOptions, indicatorOption, indicatorOptions, vhUnit } from '../../../../utils/options';
 
-import { BtnGroup, ColorControl, Label } from '../../../../../../bpl-tools/Components';
+import { BtnGroup, Label } from '../../../../../../bpl-tools/Components';
 import { pxUnit } from '../../../../../../bpl-tools/utils/options';
 import { BDevice } from '../../../../../../bpl-tools/Components/Deprecated';
 import Controls from './Carousel/Controls';
+import LightboxSettings from '../../../../Blocks/Slide/Panels/LightboxSettings';
 import ProNotice from '../../../Panel/ProNotice';
 import { PRO_FEATURES } from '../../../../utils/pro-features';
 
@@ -150,8 +151,14 @@ const DefaultGeneral = ({ attributes, setAttributes, updateObject, device, setDe
           *
           * `close` is deliberately not a switch — a lightbox with no close button is a trap on a touch
           * device, where Esc does not exist and the backdrop is a guess.
+          *
+          * **Not for `blocks`.** A slide built from blocks carries no `data-fancybox` of its own: its
+          * lightbox exists only where an author set some layer to "On click → Open Lightbox" in
+          * Hover & Click, so the settings live in that panel now, beside the dropdown that brings the
+          * lightbox into being — see `InteractivityPanel`. They still write the attribute below;
+          * only the controls moved.
           */}
-        <PanelBody className='bPlPanelBody' title={__('Lightbox', 'b-slider')} badge={__('New', 'b-slider')} initialOpen={false}>
+        {'blocks' !== sourceType && <PanelBody className='bPlPanelBody' title={__('Lightbox', 'b-slider')} badge={__('New', 'b-slider')} initialOpen={false}>
             {/**
               * Whether a click on the picture opens the lightbox.
               *
@@ -182,97 +189,14 @@ const DefaultGeneral = ({ attributes, setAttributes, updateObject, device, setDe
               * here — which is what lets this be a plain check rather than a search through the
               * slides.
               */}
-            {(!['image', 'posts', 'woo'].includes(sourceType) || 'lightbox' === image?.link) && <>
-                <ToggleControl className='mt10' label={__('Counter', 'b-slider')} checked={lightbox?.counter !== false} onChange={val => setAttributes({ lightbox: { ...lightbox, counter: val } })} />
-                <ToggleControl className='mt10' label={__('Thumbnail strip', 'b-slider')} checked={lightbox?.thumbs !== false} onChange={val => setAttributes({ lightbox: { ...lightbox, thumbs: val } })} />
-                <ToggleControl className='mt10' label={__('Zoom', 'b-slider')} checked={lightbox?.zoom !== false} onChange={val => setAttributes({ lightbox: { ...lightbox, zoom: val } })} />
-                <ToggleControl className='mt10' label={__('Slideshow', 'b-slider')} checked={lightbox?.slideshow !== false} onChange={val => setAttributes({ lightbox: { ...lightbox, slideshow: val } })} />
-                <ToggleControl className='mt10' label={__('Fullscreen', 'b-slider')} checked={lightbox?.fullscreen !== false} onChange={val => setAttributes({ lightbox: { ...lightbox, fullscreen: val } })} />
-
-                {/* These two default off, where the five above default on — the others were already
-                    showing before they became switches, so defaulting them off would take something away;
-                    these have never shown, so defaulting them on would add buttons to every lightbox. */}
-                <ToggleControl className='mt10' label={__('Rotate & Flip', 'b-slider')} checked={!!lightbox?.rotate} onChange={val => setAttributes({ lightbox: { ...lightbox, rotate: val } })} />
-                <ToggleControl className='mt10' label={__('Download', 'b-slider')} checked={!!lightbox?.download} onChange={val => setAttributes({ lightbox: { ...lightbox, download: val } })} />
-
-                {/**
-                  * The line under the picture, and where it comes from.
-                  *
-                  * `none` by default, so no existing lightbox gains a caption on update — and the off
-                  * state is the `data-caption` attribute being absent rather than empty, since Fancybox
-                  * renders the caption element for an empty one too.
-                  *
-                  * Named for what the slide actually is: a post slide's title is the post's, a product
-                  * slide's is the product's. Same `title` value either way — only the wording changes.
-                  */}
-                <SelectControl
-                    className='mt10'
-                    label={__('Caption', 'b-slider')}
-                    value={lightbox?.caption || 'none'}
-                    options={[
-                        { label: __('None', 'b-slider'), value: 'none' },
-                        { label: __('Image caption', 'b-slider'), value: 'image' },
-                        {
-                            label: 'posts' === sourceType
-                                ? __('Post title', 'b-slider')
-                                : 'woo' === sourceType
-                                    ? __('Product title', 'b-slider')
-                                    : __('Slide title', 'b-slider'),
-                            value: 'title'
-                        }
-                    ]}
-                    onChange={val => setAttributes({ lightbox: { ...lightbox, caption: val } })}
-                />
-
-                {/* Only where there is a caption to design. Shown with `None` selected these would be
-                    styling something the visitor never sees. */}
-                {'none' !== (lightbox?.caption || 'none') && <>
-                    <ColorControl className='mt10 mb20' label={__('Caption Color', 'b-slider')} value={lightbox?.captionColor} onChange={val => setAttributes({ lightbox: { ...lightbox, captionColor: val } })} />
-
-                    <ToggleControl className='mt10' label={__('Caption Background', 'b-slider')} checked={!!lightbox?.hasCaptionBg} onChange={val => setAttributes({ lightbox: { ...lightbox, hasCaptionBg: val } })} />
-
-                    {lightbox?.hasCaptionBg && <ColorControl className='mt10 mb20' label={__('Background Color', 'b-slider')} value={lightbox?.captionBg} onChange={val => setAttributes({ lightbox: { ...lightbox, captionBg: val } })} />}
-
-                    <SelectControl
-                        className='mt10'
-                        label={__('Caption Alignment', 'b-slider')}
-                        value={lightbox?.captionAlign || ''}
-                        options={[
-                            { label: __('Default (center)', 'b-slider'), value: '' },
-                            { label: __('Left', 'b-slider'), value: 'left' },
-                            { label: __('Center', 'b-slider'), value: 'center' },
-                            { label: __('Right', 'b-slider'), value: 'right' }
-                        ]}
-                        onChange={val => setAttributes({ lightbox: { ...lightbox, captionAlign: val } })}
-                    />
-
-                    {/* Margin and not padding: the padding belongs to the surface — it is what gives a
-                        coloured pane room around its text — while this moves the box relative to the
-                        picture. Sides left blank write nothing at all. */}
-                    {/* Wrapped rather than given a `className`: `BoxControl` does not accept one — its props
-                        list has no `className` at all, so the class was silently dropped and the gap never
-                        appeared. The wrapper is what carries the spacing. */}
-                    <div className='mt10'>
-                    <BoxControl
-                        label={__('Caption Margin', 'b-slider')}
-                        values={lightbox?.captionMargin}
-                        onChange={val => setAttributes({ lightbox: { ...lightbox, captionMargin: val } })}
-                        resetValues={{ top: '', right: '', bottom: '', left: '' }}
-                    />
-                    </div>
-                </>}
-
-                <Label className='mt15'>{__('Backdrop', 'b-slider')}</Label>
-
-                {/* Empty leaves Fancybox's own near-black in place — `paintLightbox` only writes a
-                    variable that was actually set. */}
-                <ColorControl className='mt10 mb20' label={__('Color', 'b-slider')} value={lightbox?.backdrop} onChange={val => setAttributes({ lightbox: { ...lightbox, backdrop: val } })} />
-
-                <RangeControl className='mt10' label={__('Opacity (%)', 'b-slider')} value={undefined === lightbox?.backdropOpacity ? 100 : lightbox.backdropOpacity} min={0} max={100} onChange={val => setAttributes({ lightbox: { ...lightbox, backdropOpacity: val } })} />
-            </>}
+            {(!['image', 'posts', 'woo'].includes(sourceType) || 'lightbox' === image?.link) && <LightboxSettings
+                lightbox={lightbox}
+                setLightbox={changes => setAttributes({ lightbox: { ...lightbox, ...changes } })}
+                sourceType={sourceType}
+            />}
 
             <ProNotice features={PRO_FEATURES.lightbox} />
-        </PanelBody>
+        </PanelBody>}
 
         {(isDefault && indicator.visibility) && <PanelBody className='bPlPanelBody' title={__('Indicators', 'b-slider')} initialOpen={false}>
 

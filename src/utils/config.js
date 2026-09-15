@@ -106,7 +106,9 @@ export const manageVideo = (player) => {
     player.elements?.container?.classList?.add('fancybox__content');
 }
 
-const bsb_fancybox_options = (attributes) => ({
+/* Exported so a layer's "Open Lightbox" action can open with the same settings the slider's own
+   gallery uses — see `layerAnimations`. One options builder, so the two cannot drift apart. */
+export const bsb_fancybox_options = (attributes) => ({
     on: {
         done: (fancybox) => {
             paintLightbox(fancybox, attributes);

@@ -1,4 +1,6 @@
+import { Fancybox } from '@fancyapps/ui';
 import { ownCarouselItems, sanitizeHref } from './functions';
+import { bsb_fancybox_options } from './config';
 
 const ANIMATED = 'animate__animated';
 const PENDING = 'bsb-anim-pending';
@@ -90,6 +92,31 @@ const arm = (item, isBackend) => {
 export const initLayerAnimations = (root, { isBackend = false } = {}) => {
 	if (!root) return () => { };
 
+	/**
+	 * The slider's own attributes, for the settings a layer's lightbox opens with.
+	 *
+	 * Read off the DOM rather than passed in: this is called with the carousel node alone, and on
+	 * the front end the slide markup arrives as a string with no React component behind it to
+	 * carry props. `Sliders.js` leaves the attributes on the slider element for exactly this.
+	 *
+	 * An empty object is a working answer — `bsb_fancybox_options` reads every key with a
+	 * fallback, so a lightbox with no settings saved opens with Fancybox's own.
+	 */
+	const getSliderAttributes = () => {
+		try {
+			const sliderEl = root.closest('.wp-block-bsb-slider') || root;
+			if (sliderEl?._bsbAttributes) {
+				return sliderEl._bsbAttributes;
+			}
+			const raw = sliderEl?.dataset?.attributesB64
+				? atob(sliderEl.dataset.attributesB64)
+				: sliderEl?.dataset?.attributes;
+			return raw ? JSON.parse(raw) : {};
+		} catch (e) {
+			return {};
+		}
+	};
+
 	root.classList.add(READY);
 
 	const staggerOffset = (item) => parseFloat(item?.dataset?.bsbStagger || 0) || 0;
@@ -169,6 +196,29 @@ export const initLayerAnimations = (root, { isBackend = false } = {}) => {
 		if ('next' === action || 'prev' === action) {
 			// eslint-disable-next-line no-undef
 			bootstrap?.Carousel?.getInstance(root)?.[action]();
+			return;
+		}
+
+		if ('lightbox' === action) {
+			/* The layer may sit inside a link or a button of its own — a `core/button` is an
+			   anchor — and letting that run would navigate away from the lightbox as it opens. */
+			e.preventDefault();
+			e.stopPropagation();
+
+			/* What opens is the slide's own picture: its background image, or the first `img` in
+			   it if the background is not where the picture lives. Choosing a gallery or a video
+			   instead is Premium — see `PRO_FEATURES.lightbox`. */
+			const slide = el.closest('.carousel-item, .bsb-slide');
+			if (!slide) return;
+
+			const bgEl = slide.querySelector('.bsb-slide-bg') || slide;
+			const bgImg = bgEl?.style?.backgroundImage || '';
+			const match = bgImg && bgImg.match(/url\(["']?([^"')]+)["']?\)/);
+			const imgUrl = match ? match[1] : (slide.querySelector('img')?.src || '');
+
+			if (imgUrl) {
+				Fancybox.show([{ src: imgUrl, caption: '' }], bsb_fancybox_options(getSliderAttributes()));
+			}
 		}
 	};
 

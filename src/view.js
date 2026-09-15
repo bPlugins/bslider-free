@@ -63,6 +63,15 @@ export const mountSliders = (scope = document) => {
 			<RenderLayout {...{ attributes, firstPosts, totalPosts, isBackend, nonce, id }} />
 		</>);
 
+		/* Kept on the element before the attributes are stripped below.
+		 *
+		 * A layer's "Open Lightbox" action opens from a DOM handler with no React props to read
+		 * — `layerAnimations` is handed the carousel node alone — so without this the lightbox
+		 * would open with Fancybox's own defaults and ignore every setting in the panel. The
+		 * `data-*` copies cannot serve: they are what marks a slider unmounted, and are removed
+		 * on the next two lines. */
+		sliderEl._bsbAttributes = attributes;
+
 		sliderEl?.removeAttribute('data-attributes');
 		sliderEl?.removeAttribute('data-attributes-b64');
 	});

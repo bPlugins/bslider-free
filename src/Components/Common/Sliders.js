@@ -102,8 +102,13 @@ const Sliders = (props) => {
 	 */
 	useEffect(() => {
 		if ('blocks' !== sourceType || !sliderDom?.current) return;
+		/* Left on the node for the layer click handler to find: a layer's "Open Lightbox" opens
+		   from a DOM listener with no props to read. `view.js` does the same on the front end. */
+		sliderDom.current._bsbAttributes = attributes;
 		return initLayerAnimations(sliderDom.current, { isBackend });
-	}, [sourceType, isBackend, attributes._blocksHtml, carousel]);
+		/* `lightbox` is in the list so the editor's own lightbox picks up a setting as it is
+		   changed, rather than at the next unrelated re-render. */
+	}, [sourceType, isBackend, attributes._blocksHtml, carousel, attributes?.lightbox]);
 
 	// Return All Slider
 	return <div className={`bsbCarousel slide carousel ${sourceType} ${animation === 'default' ? '' : animation} ${direction}`} ref={sliderDom} id={`bsbCarouselInner-${clientId}`}>

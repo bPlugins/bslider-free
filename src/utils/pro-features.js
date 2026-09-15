@@ -119,9 +119,24 @@ export const PRO_FEATURES = {
 	layerTiming: [__('Exit Animation', 'b-slider'), __('Fine-tuned Delay & Duration', 'b-slider')],
 	loopAnimation: [__('Float, Flash, Shake & Swing Loop Effects', 'b-slider')],
 	wordStagger: [__('Word by Word Animation', 'b-slider')],
+
+	/**
+	 * The layer's Number Counter panel, which is Premium all the way through.
+	 *
+	 * The figure itself stays in the block's own text either way — what Premium adds is the count
+	 * that runs up to it as the slide arrives, and the progress ring that can be drawn around it.
+	 */
+	numberCounter: [
+		__('Count-up Number Animation', 'b-slider'),
+		__('Prefix & Suffix', 'b-slider'),
+		__('Progress Ring', 'b-slider'),
+	],
 	dynamicContent: [__('Post/Product Binding', 'b-slider'), __('Dynamic Field Block', 'b-slider')],
 	lottie: [__('Lottie Animation Layer', 'b-slider')],
 	decorations: [__('Decorative Shapes — Blob, Ring, Scribble, Wave, Confetti & more', 'b-slider')],
+
+	/** The slide Background panel — the slow zoom over a background image is the Premium half. */
+	slideBackground: [__('Ken Burns Effect', 'b-slider')],
 };
 
 /**

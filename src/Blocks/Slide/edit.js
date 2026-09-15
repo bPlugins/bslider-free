@@ -7,6 +7,7 @@ import { Background, ColorControl } from '../../../../bpl-tools/Components';
 import { PremiumBadge, PremiumPanel } from '../../../../bpl-tools/ProControls';
 import { adminUrl, DEMO_URL } from '../../utils/functions';
 import { proFeatureSentence, PRO_FEATURES } from '../../utils/pro-features';
+import ProNotice from '../../Components/Panel/ProNotice';
 import { alignBtnOpt, pxUnit, perUnit, tabs } from '../../utils/options';
 import VisualTimelinePanel from './Panels/VisualTimelinePanel';
 import { slideStyles } from './slideStyles';
@@ -87,6 +88,12 @@ const Edit = ({ attributes, setAttributes, clientId }) => {
 								value={overlay}
 								onChange={val => setAttributes({ overlay: val })}
 							/>
+
+							{/* Inside this panel rather than a locked panel of its own, the way
+							    Decorations gets one below: Ken Burns is an option belonging to the
+							    background picture, not a subject in its own right, and a panel with
+							    one switch in it would say otherwise. */}
+							<ProNotice features={PRO_FEATURES.slideBackground} />
 						</PanelBody>
 
 						{/* After Background, because a shape is drawn over whatever the background

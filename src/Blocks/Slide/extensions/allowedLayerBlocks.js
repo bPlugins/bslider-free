@@ -20,6 +20,23 @@ export const canCarryLayer = (name) => Boolean(name) && !LAYER_INCAPABLE_BLOCKS.
 export const WORD_STAGGER_BLOCKS = ['core/heading', 'core/paragraph'];
 
 /**
+ * The blocks worth offering the count-up panel on — Premium.
+ *
+ * An allow list, and a short one: the count reads the figure out of the layer's own text and then
+ * overwrites that text frame by frame, so it only belongs on a block whose text is the whole of
+ * its content. A Group or a Columns holds other blocks, and counting one would mean writing a
+ * number over its children.
+ *
+ * Narrower than `TEXT_LAYER_BLOCKS` on purpose. A list or a quote carries sentences rather than a
+ * figure, and a button's label is a call to action — a statistic in any of them is possible but
+ * unusual, and offering the panel everywhere would put a control nobody wants on every block.
+ */
+export const COUNTER_BLOCKS = ['core/heading', 'core/paragraph'];
+
+/** Whether this block type should be offered the count-up panel. */
+export const canCarryCounter = (name) => COUNTER_BLOCKS.includes(name);
+
+/**
  * The blocks that carry text of their own, and so are worth a typography panel.
  *
  * An allow list here rather than the exclusion list above, and for the opposite reason: an

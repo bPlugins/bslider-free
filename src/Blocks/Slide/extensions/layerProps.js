@@ -23,11 +23,20 @@ export const buildLayerProps = (layer) => {
 		return { className: '', style: {}, dataAttrs: {} };
 	}
 
-	const { entry = {}, loop = {}, hover = {}, click = {}, visibility = {}, typo = {} } = layer;
+	const { entry = {}, loop = {}, hover = {}, click = {}, visibility = {}, typo = {}, fitContent } = layer;
 
 	const classNames = ['bsb-layer'];
 	const style = {};
 	const dataAttrs = {};
+
+	/* Both the class and the inline pair: the class is what the stylesheet can reach with
+	   `!important` to beat a theme's own full-width rule, and the inline styles are what the
+	   editor canvas shows before that stylesheet is in play. */
+	if (fitContent) {
+		classNames.push('bsb-fit-content');
+		style.display = 'inline-block';
+		style.maxWidth = '100%';
+	}
 
 	// Entry
 	if (entry.effect) {

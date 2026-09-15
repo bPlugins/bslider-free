@@ -224,6 +224,9 @@ export const clickActionOpt = [
     { label: __('Scroll to', 'b-slider'), value: 'scroll' },
     { label: __('Next slide', 'b-slider'), value: 'next' },
     { label: __('Previous slide', 'b-slider'), value: 'prev' },
+    /* Opens the slide's own background image full size. A gallery or a video instead of that
+       picture is Premium — see `PRO_FEATURES.lightbox` and the notice in `InteractivityPanel`. */
+    { label: __('Open Lightbox', 'b-slider'), value: 'lightbox' },
 ];
 
 export const pxUnit = (def = 0) => ({ value: 'px', label: 'px', default: def });
