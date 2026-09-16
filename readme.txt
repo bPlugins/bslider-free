@@ -291,39 +291,22 @@ Please report security bugs found in the source code of the bSlider plugin throu
 
 1. Choose Source Type
 2. Select Layout Type
-3. Settings 1
-4. Settings 2
-5. Settings 3
-6. Posts Carousel Layout Center Style
-7. Posts Carousel Layout 3D Style
-8. Posts Carousel Layout grid Style
-9. Posts Carousel Layout
-10. Woo Carousel Layout Center Style
-11. Post Thumbnails Layout
-12. Woo Carousel Layout Grid Style
-13. Woo Carousel Layout Ticker Style
-14. Woo Carousel Layout
-15. Woo Thumbnails Layout
-16. Video Carousel Layout 3D Style
-17. Video Carousel Layout
-18. Video Thumbnails Layout
-19. Video Default Layout Fade Effect
-20. Video Default Layout Image Indicators
-21. Video Default Layout
-22. Video Grid layout
-23. Posts Carousel Layout Ticker Style
-24. Default
-25. Default Content
-26. Customization
-27. Content Slider
-28. Full Width
-29. Image Indicator Right
-30. Image Slider
-31. Image Indicators 
-32. Image Indicators Left
-33. Vertical
-34. Shortcode Generator
-
+3. Demo-1: Movie Showcase Slider — Counters, Gallery & Trailer Lightbox
+4. Demo-2: Luxury Real Estate Lightbox Slider
+5. Demo-3: Business Intro to Contact
+6. Demo-4: Full Page Portfolio
+7. Demo-5: Shoppable Instagram Feed & Product Wall
+8. Demo-6: Shoppable Instagram Reels Wall
+9. Demo-7: Live Outfit Video Showcase
+10. Demo-8: Vogue Fashion Runway & Cinema Lounge
+11. Demo-9:  Tech Reviews Channel Hub & Subscribe Booster
+12. Demo-10: freeCodeCamp Developer Learning Portal
+13. Demo-11: Dynamic E-Commerce & Product Showcase Grid
+14. Demo-12: Featured Article & Multi-Column Magazine Layout
+15. Demo-13: Automated RSS News Digest & Magazine Grid
+16. Demo-14: Agency Portfolio — Full-Screen Cover Slides
+17. Demo-15: What Our Customers Say
+18. Demo-16: WooCommerce Products — Live Product Carousel
 
 == Changelog ==
 
