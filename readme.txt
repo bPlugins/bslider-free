@@ -23,20 +23,133 @@ bSlider makes it easy to build engaging sliders without coding. Choose transitio
 
 Use it for product showcases, portfolios, testimonials or hero sections. It works with any theme — add the Gutenberg block, or place a shortcode anywhere.
 
-=== Key Features — Free Version ===
 
-* **Five sources** — images, posts, WooCommerce products, videos, and slides built from real Gutenberg blocks.
-* **Four layouts** — slider, carousel, grid with pagination, and thumbnail navigation.
-* **Layer animations** — entry and loop effects, hover and click actions, on a visual timeline.
-* **Image lightbox** — click a picture to open it full size; one slider opens as a single gallery with arrows, keyboard, swipe and pinch-to-zoom.
-* **Lightbox options** — captions with colour, background and alignment; a toolbar of counter, thumbnails, zoom, slideshow, fullscreen, rotate and download; backdrop colour and opacity.
-* **Post & product sliders** — query by category, tag, order and offset, with excerpts and badges for date, author, price and sale.
-* **ACF integration** — show custom fields on a slide, or map one to the image, title, description or button.
-* **Video sliders** — popup playback with autoplay, loop, mute and full player controls.
-* **Styling control** — typography, colours, overlays, hover effects, arrows, indicators and height, per device.
-* **Shortcode support** — insert a slider anywhere, even outside the block editor.
 
-The complete feature list, including Pro, is in the FAQ below.
+=== Key Features –  Free Version ===
+- **Shortcode Support**: Insert sliders anywhere, even outside Gutenberg.
+- **Gutenberg Block**: Add and configure sliders in the block editor.
+- **Unlimited Slides**: As many slides as you need.
+- **Easy Slide Management**: Duplicate or remove slides in a click.
+- **Gutenberg Blocks Source**: Build each slide from real WordPress blocks — headings, images, buttons, columns.
+- **Layer Animations**: Give any block in a slide an entry animation, with preset delays.
+- **Loop Animations**: Keep a layer moving after it arrives — Pulse and Bounce.
+- **Hover & Click Actions**: Grow, lift or fade on hover; open a link, scroll, or move the slider on click.
+- **Visual Timeline**: Every animated layer on one timeline, with its delay editable in place.
+- **Layer Typography**: Font, size, weight and spacing on any text layer, Google Fonts included.
+- **Responsive Layers**: Hide a layer per device, or show it without animating.
+- **Slide Styling**: Background, overlay, border, radius, padding and alignment, per slide.
+- **Auto Word-Wrap**: Long links break to fit the slide instead of spilling past it.
+- **Carousel Layout**: Looping autoplay carousels, horizontal or vertical.
+- **Grid Layout**: Responsive grids with adjustable column and row gaps.
+- **Thumbnails Layout**: Thumbnail navigation with overlay, autoplay and border options.
+- **Grid Flexibility**: Items per page, with Standard Button or Load More pagination.
+- **Custom Slider Height**: Set the height that suits your slider.
+- **Slide Animations**: Fade, slide and flip transitions.
+- **Autoplay Controls**: Autoplay on or off, with custom duration per slide.
+- **Hover Pause**: Pause the slider while the visitor is pointing at it.
+- **Navigation Buttons**: Left and right arrows with size, colour and radius controls.
+- **Arrow Styling**: Arrow size, height, width, border and colour.
+- **Slide Indicators**: Several indicator styles and positions.
+- **Dynamic Indicators**: Indicator type, position and direction.
+- **Carousel Enhancements**: Toggle arrows and indicators in one click.
+- **Overlay Colors**: Colour overlays for contrast behind text.
+- **Content Positioning**: Align slide content to the default or middle area.
+- **Customizable Content Styles**: Typography and design controls for titles and descriptions.
+- **Slide Content Panel**: Show or hide a slide's title, description and button, and set the button label.
+- **Content on Hover**: Reveal the title, description and button only on hover.
+- **Content Background**: Tint the whole picture, fade colour in behind the text, or neither.
+- **Picture Hover Effects**: Zoom in, zoom out, or hold the picture grey until hover.
+- **Linked Slide Pictures**: The whole picture links where the button points, with a new-tab switch.
+- **Selective Hover Controls**: Choose exactly which parts appear on hover, independently.
+- **Post Slider Options**: Query posts by category or tag, with excerpts and content length.
+- **Default Post Types**: Posts, Pages and WooCommerce Products.
+- **Post Per Page**: Control how many items a slider pulls.
+- **Advanced Sorting**: Order by your own criteria, ascending or descending.
+- **Post Offset**: Skip posts to avoid duplication across layouts.
+- **WooCommerce Slider**: Product sliders with content length and excerpt controls.
+- **ACF Fields on Slides**: Up to three Advanced Custom Fields per slide, placed anywhere.
+- **ACF Display Presets**: Six looks for your fields, each with icon, label, prefix and suffix.
+- **ACF Content Mapping**: Use an ACF field as the slide image, title, description or button.
+- **Post Badges**: Publish date and author over a slide, each with its own icon and placement.
+- **WooCommerce Product Price Badge**: Regular and sale prices as a badge, or the sale price alone.
+- **WooCommerce Sale Badge**: A "Sale!" badge or the exact discount percentage.
+- **Badge Animation**: Pick the effect and delay, and space several so they cascade.
+- **Badge Styling**: One set of typography and colours for every badge.
+- **Video Slider Options**: Popup playback with repeat, mute, autoplay, reset or hidden controls.
+- **Basic Video Controls**: A large play button and a restart option.
+- **Playback Settings**: Auto-play, loop and muted starts.
+- **Comprehensive Player Controls**: Play/Pause, Mute, Rewind, Fast-Forward, progress, current time and duration.
+- **Image Lightbox on Click**: Click a slide picture to open it full size — images, posts and products alike, on every layout.
+- **Lightbox Gallery**: The pictures of one slider open as a single gallery, with arrows, keyboard, swipe and pinch-to-zoom.
+- **Lightbox Caption**: Show the image caption, or the slide, post or product title, under the picture — with colour, background, margin and alignment.
+- **Lightbox Toolbar**: Counter, thumbnail strip, zoom, slideshow, fullscreen, rotate, flip and download, each its own switch.
+- **Lightbox Backdrop**: Set the colour and opacity behind the picture from the panel.
+
+=== bSlider Pro – Unlock Premium Features ===
+[bSlider Pro](https://bplugins.com/products/b-slider/pricing/) gives you more design power and control. Add advanced effects, flexible layouts, and interactive options to create engaging, professional sliders.
+
+==What’s New in the Pro Version?==
+
+- **Social & External Feeds Source**: Build a slider from a YouTube channel, Instagram account, RSS feed or any JSON endpoint, cached on your schedule.
+- **Feed Presets**: Ready-made feed sliders — channel grid, player grid, theater, reels, card and hover-overlay.
+- **Profile Header Card**: Name, picture and follower count above the slider, with a Follow button.
+- **Mini Player**: A video that docks into a corner and keeps playing as the visitor scrolls.
+- **Hover Preview**: Point at a video slide and a preview plays in place.
+- **YouTube Feed Controls**: Filter by search term, playlist, or privacy status; group results and set thumbnail quality.
+- **Player Options**: Player theme, progress bar colour and lazy loading.
+- **Dynamic Content**: Bind a post or product to a slide and drop in Post Field blocks.
+- **Post Field per Block**: Point each field at its own post, so one slide can show several.
+- **Convert to Core Blocks**: Turn a Post Field into a real Heading, Paragraph or Image.
+- **Carousel Layout for Block Slides**: Two or three block-built slides side by side, with Swiper effects.
+- **Lottie Animation Layer**: Drop a Lottie JSON into a slide and play it as the slide arrives.
+- **Exit Animations**: Animate a layer out as its slide leaves, not only in.
+- **Fine-tuned Timing**: Set an exact delay and duration on any layer.
+- **Advanced Loop Animations**: Float, Flash, Shake and Swing, on top of the free Pulse and Bounce.
+- **Word by Word Animation**: Animate a heading or paragraph one word at a time.
+- **Badge a Word**: Give one word its own background, padding, corners and border, inside the sentence.
+- **Hover Colour**: Change a layer's text and background colour on hover.
+- **ACF Query – Sort by Custom Field**: Order slides by any ACF field, as numbers or text, either direction.
+- **ACF Query – Filter by Custom Field**: Show only posts matching your rules, with all or any of them.
+- **Rules Built From Your Fields**: Each rule offers the comparisons and choices that suit the field.
+- **Unlimited ACF Fields**: As many Advanced Custom Fields per slide as you need.
+- **Custom Post Type Sliders**: Build a slider from any registered CPT — portfolio, services, testimonials.
+- **Include/Exclude Posts & Products**: Pick exactly which items to show or hide.
+- **Exclude Current Post**: Keep the post being viewed out of its own slider.
+- **List Layout**: A dedicated list layout with its own styling panel.
+- **Advanced Carousel Styles**: Ticker, grid and 3D carousel effects.
+- **Slider Transition Effects**: Professional animation effects between slides.
+- **Dual Slide Direction**: Horizontal and vertical movement paths.
+- **Slide on Mouse Wheel**: Navigate slides with the scroll wheel.
+- **Slide on Mouse Drag**: Drag-to-slide for a tactile feel.
+- **Arrow Follow Mouse**: Navigation arrows that follow the cursor.
+- **Grab Cursor Interaction**: A grab icon that shows the carousel can be dragged.
+- **Custom Arrow Styles**: Navigation arrow designs to match your branding.
+- **Thumbnail Direction & Navigation**: Thumbnail flow with its own arrows.
+- **Thumbnail Styling**: Position, dimensions, borders and colour overlays.
+- **Box Model Controls**: Margin, padding, border and border radius throughout.
+- **Advanced Typography**: Fonts, sizes and text behaviour on every part of a slide.
+- **Interactive Color States**: Separate colours for standard and hover states.
+- **Animation Timing**: Control animation duration and start delay.
+- **Clickable CTA Buttons**: Custom button labels and URLs in slide content.
+- **Smart Link Behavior**: Open button links in a new tab.
+- **Badge & Field Icon Library**: Icons from Font Awesome, Bootstrap or Lucide instead of emoji.
+- **Custom HTML Wrapper Tags**: Tags like h1–h6 for better structure and SEO.
+- **Left/Right Inner Gap**: Internal spacing between slider items.
+- **Move From Edge**: Control the spacing of content from the slider edges.
+- **Pagination Position**: Alignment for pagination buttons in grid layouts.
+- **Lazy Load Enable**: Defer offscreen images for faster pages.
+- **Advanced Video Tools**: Mute, PIP, AirPlay, Download and Fullscreen.
+- **Video Reset On End**: Restart a video from the beginning once it finishes.
+- **Video Auto Hide Controls**: Hide the playback UI while the visitor is idle.
+- **Lightbox Glass Effect**: Frost the caption and the backdrop instead of tinting them flat — the picture behind stays visible through the blur.
+- **Lightbox Button Styling**: Colour, size, corner radius, spacing and edge distance for the close, arrow and toolbar buttons, gradients included.
+- **Lightbox Caption Typography**: Font, weight, size per device, style, transform, line height and letter spacing for the caption.
+- **Custom Lightbox Caption**: Type a caption per slide, separate from the title the slide already shows.
+- **Lightbox Image per Device**: Open a different file than the slide shows — the original on desktop, something lighter on a phone.
+- **Per-Slide Lightbox Control**: Decide picture by picture which ones open a lightbox, so a banner can sit out of a gallery of photographs.
+- **Lightbox Size and Loop**: Cap how large a picture opens, and choose whether the gallery wraps from the last back to the first.
+
+[Upgrade to Pro](https://bplugins.com/products/b-slider/pricing/) to unlock all premium features.
 
 === Getting Started ===
 
@@ -100,136 +213,6 @@ WordPress, so there is a video for each.
 * [Getting YouTube OAuth access, for private and unlisted videos](https://www.youtube.com/watch?v=EqZXgw5PyKs&list=PLaYpMGTB1oSs&index=3)
 
 In Pro each of these is also linked inside the plugin, beside the field that asks for it.
-
-= What is included in the free version? =
-
-- **Shortcode Support**: Insert sliders anywhere, even outside Gutenberg.
-- **Gutenberg Block**: Add and configure sliders in the block editor.
-- **Unlimited Slides**: As many slides as you need.
-- **Easy Slide Management**: Duplicate or remove slides in a click.
-- **Gutenberg Blocks Source**: Build each slide from real WordPress blocks — headings, images, buttons, columns.
-- **Layer Animations**: Give any block in a slide an entry animation, with preset delays.
-- **Loop Animations**: Keep a layer moving after it arrives — Pulse and Bounce.
-- **Hover & Click Actions**: Grow, lift or fade on hover; open a link, scroll, or move the slider on click.
-- **Visual Timeline**: Every animated layer on one timeline, with its delay editable in place.
-- **Layer Typography**: Font, size, weight and spacing on any text layer, Google Fonts included.
-- **Responsive Layers**: Hide a layer per device, or show it without animating.
-- **Slide Styling**: Background, overlay, border, radius, padding and alignment, per slide.
-- **Auto Word-Wrap**: Long links break to fit the slide instead of spilling past it.
-- **Carousel Layout**: Looping autoplay carousels, horizontal or vertical.
-- **Grid Layout**: Responsive grids with adjustable column and row gaps.
-- **Thumbnails Layout**: Thumbnail navigation with overlay, autoplay and border options.
-- **Grid Flexibility**: Items per page, with Standard Button or Load More pagination.
-- **Custom Slider Height**: Set the height that suits your slider.
-- **Slide Animations**: Fade, slide and flip transitions.
-- **Autoplay Controls**: Autoplay on or off, with custom duration per slide.
-- **Hover Pause**: Pause the slider while the visitor is pointing at it.
-- **Navigation Buttons**: Left and right arrows with size, colour and radius controls.
-- **Arrow Styling**: Arrow size, height, width, border and colour.
-- **Slide Indicators**: Several indicator styles and positions.
-- **Dynamic Indicators**: Indicator type, position and direction.
-- **Carousel Enhancements**: Toggle arrows and indicators in one click.
-- **Overlay Colors**: Colour overlays for contrast behind text.
-- **Content Positioning**: Align slide content to the default or middle area.
-- **Customizable Content Styles**: Typography and design controls for titles and descriptions.
-- **Slide Content Panel**: Show or hide a slide's title, description and button, and set the button label.
-- **Content on Hover**: Reveal the title, description and button only on hover.
-- **Content Background**: Tint the whole picture, fade colour in behind the text, or neither.
-- **Picture Hover Effects**: Zoom in, zoom out, or hold the picture grey until hover.
-- **Linked Slide Pictures**: The whole picture links where the button points, with a new-tab switch.
-- **Selective Hover Controls**: Choose exactly which parts appear on hover, independently.
-- **Post Slider Options**: Query posts by category or tag, with excerpts and content length.
-- **Default Post Types**: Posts, Pages and WooCommerce Products.
-- **Post Per Page**: Control how many items a slider pulls.
-- **Advanced Sorting**: Order by your own criteria, ascending or descending.
-- **Post Offset**: Skip posts to avoid duplication across layouts.
-- **WooCommerce Slider**: Product sliders with content length and excerpt controls.
-- **ACF Fields on Slides**: Up to three Advanced Custom Fields per slide, placed anywhere.
-- **ACF Display Presets**: Six looks for your fields, each with icon, label, prefix and suffix.
-- **ACF Content Mapping**: Use an ACF field as the slide image, title, description or button.
-- **Post Badges**: Publish date and author over a slide, each with its own icon and placement.
-- **WooCommerce Product Price Badge**: Regular and sale prices as a badge, or the sale price alone.
-- **WooCommerce Sale Badge**: A "Sale!" badge or the exact discount percentage.
-- **Badge Animation**: Pick the effect and delay, and space several so they cascade.
-- **Badge Styling**: One set of typography and colours for every badge.
-- **Video Slider Options**: Popup playback with repeat, mute, autoplay, reset or hidden controls.
-- **Basic Video Controls**: A large play button and a restart option.
-- **Playback Settings**: Auto-play, loop and muted starts.
-- **Comprehensive Player Controls**: Play/Pause, Mute, Rewind, Fast-Forward, progress, current time and duration.
-- **Image Lightbox on Click**: Click a slide picture to open it full size — images, posts and products alike, on every layout.
-- **Lightbox Gallery**: The pictures of one slider open as a single gallery, with arrows, keyboard, swipe and pinch-to-zoom.
-- **Lightbox Caption**: Show the image caption, or the slide, post or product title, under the picture — with colour, background, margin and alignment.
-- **Lightbox Toolbar**: Counter, thumbnail strip, zoom, slideshow, fullscreen, rotate, flip and download, each its own switch.
-- **Lightbox Backdrop**: Set the colour and opacity behind the picture from the panel.
-
-
-= What do I get with bSlider Pro? =
-
-[bSlider Pro](https://bplugins.com/products/b-slider/pricing/) gives you more design power and control. Add advanced effects, flexible layouts, and interactive options to create engaging, professional sliders.
-
-**Pro features:**
-
-- **Social & External Feeds Source**: Build a slider from a YouTube channel, Instagram account, RSS feed or any JSON endpoint, cached on your schedule.
-- **Feed Presets**: Ready-made feed sliders — channel grid, player grid, theater, reels, card and hover-overlay.
-- **Profile Header Card**: Name, picture and follower count above the slider, with a Follow button.
-- **Mini Player**: A video that docks into a corner and keeps playing as the visitor scrolls.
-- **Hover Preview**: Point at a video slide and a preview plays in place.
-- **YouTube Feed Controls**: Filter by search term, playlist, or privacy status; group results and set thumbnail quality.
-- **Player Options**: Player theme, progress bar colour and lazy loading.
-- **Dynamic Content**: Bind a post or product to a slide and drop in Post Field blocks.
-- **Post Field per Block**: Point each field at its own post, so one slide can show several.
-- **Convert to Core Blocks**: Turn a Post Field into a real Heading, Paragraph or Image.
-- **Carousel Layout for Block Slides**: Two or three block-built slides side by side, with Swiper effects.
-- **Lottie Animation Layer**: Drop a Lottie JSON into a slide and play it as the slide arrives.
-- **Exit Animations**: Animate a layer out as its slide leaves, not only in.
-- **Fine-tuned Timing**: Set an exact delay and duration on any layer.
-- **Advanced Loop Animations**: Float, Flash, Shake and Swing, on top of the free Pulse and Bounce.
-- **Word by Word Animation**: Animate a heading or paragraph one word at a time.
-- **Badge a Word**: Give one word its own background, padding, corners and border, inside the sentence.
-- **Hover Colour**: Change a layer's text and background colour on hover.
-- **ACF Query – Sort by Custom Field**: Order slides by any ACF field, as numbers or text, either direction.
-- **ACF Query – Filter by Custom Field**: Show only posts matching your rules, with all or any of them.
-- **Rules Built From Your Fields**: Each rule offers the comparisons and choices that suit the field.
-- **Unlimited ACF Fields**: As many Advanced Custom Fields per slide as you need.
-- **Custom Post Type Sliders**: Build a slider from any registered CPT — portfolio, services, testimonials.
-- **Include/Exclude Posts & Products**: Pick exactly which items to show or hide.
-- **Exclude Current Post**: Keep the post being viewed out of its own slider.
-- **List Layout**: A dedicated list layout with its own styling panel.
-- **Advanced Carousel Styles**: Ticker, grid and 3D carousel effects.
-- **Slider Transition Effects**: Professional animation effects between slides.
-- **Dual Slide Direction**: Horizontal and vertical movement paths.
-- **Slide on Mouse Wheel**: Navigate slides with the scroll wheel.
-- **Slide on Mouse Drag**: Drag-to-slide for a tactile feel.
-- **Arrow Follow Mouse**: Navigation arrows that follow the cursor.
-- **Grab Cursor Interaction**: A grab icon that shows the carousel can be dragged.
-- **Custom Arrow Styles**: Navigation arrow designs to match your branding.
-- **Thumbnail Direction & Navigation**: Thumbnail flow with its own arrows.
-- **Thumbnail Styling**: Position, dimensions, borders and colour overlays.
-- **Box Model Controls**: Margin, padding, border and border radius throughout.
-- **Advanced Typography**: Fonts, sizes and text behaviour on every part of a slide.
-- **Interactive Color States**: Separate colours for standard and hover states.
-- **Animation Timing**: Control animation duration and start delay.
-- **Clickable CTA Buttons**: Custom button labels and URLs in slide content.
-- **Smart Link Behavior**: Open button links in a new tab.
-- **Badge & Field Icon Library**: Icons from Font Awesome, Bootstrap or Lucide instead of emoji.
-- **Custom HTML Wrapper Tags**: Tags like h1–h6 for better structure and SEO.
-- **Left/Right Inner Gap**: Internal spacing between slider items.
-- **Move From Edge**: Control the spacing of content from the slider edges.
-- **Pagination Position**: Alignment for pagination buttons in grid layouts.
-- **Lazy Load Enable**: Defer offscreen images for faster pages.
-- **Advanced Video Tools**: Mute, PIP, AirPlay, Download and Fullscreen.
-- **Video Reset On End**: Restart a video from the beginning once it finishes.
-- **Video Auto Hide Controls**: Hide the playback UI while the visitor is idle.
-- **Lightbox Glass Effect**: Frost the caption and the backdrop instead of tinting them flat — the picture behind stays visible through the blur.
-- **Lightbox Button Styling**: Colour, size, corner radius, spacing and edge distance for the close, arrow and toolbar buttons, gradients included.
-- **Lightbox Caption Typography**: Font, weight, size per device, style, transform, line height and letter spacing for the caption.
-- **Custom Lightbox Caption**: Type a caption per slide, separate from the title the slide already shows.
-- **Lightbox Image per Device**: Open a different file than the slide shows — the original on desktop, something lighter on a phone.
-- **Per-Slide Lightbox Control**: Decide picture by picture which ones open a lightbox, so a banner can sit out of a gallery of photographs.
-- **Lightbox Size and Loop**: Cap how large a picture opens, and choose whether the gallery wraps from the last back to the first.
-
-[Upgrade to Pro](https://bplugins.com/products/b-slider/pricing/) to unlock all premium features.
-
 
 = Are there video tutorials? =
 
@@ -344,7 +327,7 @@ Please report security bugs found in the source code of the bSlider plugin throu
 
 == Changelog ==
 
-= 2.2.1 - 10 September, 2026 =
+= 2.2.1 - 16 September, 2026 =
 * New: Image slides open in a lightbox on click — the engine was already bundled for video, and this is the setting that lets a photograph use it;
 * New: Post and WooCommerce slides open their featured image in the same lightbox, on every layout including the grids;
 * New: The pictures of one slider open as a single gallery, so the arrows walk the whole set instead of stopping at the first slide;
@@ -615,7 +598,7 @@ Please report security bugs found in the source code of the bSlider plugin throu
 
 == Upgrade Notice ==
 
-= 2.2.1 - 10 September, 2026 =
+= 2.2.1 - 16 September, 2026 =
 * Adds the image lightbox — click a slide picture to open it full size, with a caption, a toolbar and gallery navigation. Post and product slides open the same way. Existing sliders are untouched: every new setting is off until you turn it on.
 
 = 2.2.0 - 9 September, 2026 =
