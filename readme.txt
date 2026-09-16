@@ -9,11 +9,11 @@ Requires PHP: 7.2
 License: GPLv2 or later 
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-bSlider is a WordPress slider plugin that lets you create responsive image, post, product, and video carousels using the Gutenberg block & shortcode.
+Responsive WordPress sliders from images, posts, WooCommerce products, videos or Gutenberg blocks — via the block editor or a shortcode.
 
 == Description ==
 
-**Create responsive sliders for images, posts, WooCommerce products, and videos — with multiple layouts, animations, and styling controls, right in the block editor.**
+**Create responsive sliders from images, posts, WooCommerce products, videos, or slides built out of Gutenberg blocks — with multiple layouts, animations, and styling controls, right in the block editor.**
 
 [Documentation](https://bplugins.com/docs/bslider) | [Demo](https://bplugins.com/products/b-slider/#demos) | [Pricing](https://bplugins.com/products/b-slider/pricing/) | [Support](https://bplugins.com/support/)
 
