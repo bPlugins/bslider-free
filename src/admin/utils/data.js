@@ -11,8 +11,8 @@ export const dashboardInfo = (info) => {
 
     return {
         name: `B Slider Block${proSuffix}`,
-        displayName: `B Slider Block${proSuffix} - Create Responsive Image, Post, Product, and Video Sliders`,
-        description: 'bSlider is a WordPress slider plugin that lets you create responsive image, post, product, and video carousels using the Gutenberg block & shortcode.',
+        displayName: `B Slider Block${proSuffix} - Create Responsive Image, Post, Product, Video and Block Sliders`,
+        description: 'bSlider is a WordPress slider plugin that lets you create responsive sliders from images, posts, WooCommerce products, videos, or slides built out of Gutenberg blocks, using the block or a shortcode.',
         slug,
         version,
         isPremium,
@@ -442,12 +442,12 @@ export const welcomeInfo = (adminUrl) => ({
                     {
                         num: 2,
                         title: 'Select Source Type',
-                        body: 'Choose your preferred source type below (<strong>image</strong>, <strong>posts</strong>, <strong>woocommerce</strong>, <strong>video</strong>) to configure your slider.'
+                        body: 'Pick what the slides are built from — <strong>Image</strong>, <strong>Posts</strong>, <strong>WooCommerce</strong>, <strong>Video</strong>, or <strong>Gutenberg Blocks</strong> to build each slide out of real blocks. <strong>Social &amp; External Feeds</strong> (YouTube, Instagram, RSS, JSON) is available in Pro.'
                     },
                     {
                         num: 3,
                         title: 'Select Layout Type',
-                        body: 'Choose your preferred layout type below (<strong>slider</strong>, <strong>carousel</strong>, <strong>grid</strong>, <strong>thumbnails</strong>) to configure your slider.'
+                        body: 'Choose how the slides are arranged — <strong>Slider</strong>, <strong>Carousel</strong>, <strong>Grid</strong>, or <strong>Thumbnails</strong>. Pro adds a <strong>List</strong> layout. Gutenberg Blocks slides support Slider and Carousel.'
                     },
                     {
                         num: 4,
@@ -470,12 +470,12 @@ export const welcomeInfo = (adminUrl) => ({
                     {
                         num: 2,
                         title: 'Select Source Type',
-                        body: 'Choose your preferred source type below (image, posts, woocommerce, video) to configure your slider.'
+                        body: 'Pick what the slides are built from — Image, Posts, WooCommerce, Video, or Gutenberg Blocks. Social &amp; External Feeds (YouTube, Instagram, RSS, JSON) is available in Pro.'
                     },
                     {
                         num: 3,
                         title: 'Select Layout Type',
-                        body: 'Choose your preferred layout type below (slider, carousel, grid, thumbnails) to configure your slider.'
+                        body: 'Choose how the slides are arranged — Slider, Carousel, Grid, or Thumbnails. Pro adds a List layout.'
                     },
                     {
                         num: 4,
@@ -626,6 +626,15 @@ export const welcomeInfo = (adminUrl) => ({
     changelogsLimit: 6,
     changelogsReadMoreLabel: 'View More Changelogs',
     proFeatures: [
+        'Social & External Feeds: Build a slider from a YouTube channel, Instagram account, RSS feed, or any JSON endpoint, auto-synced on your schedule.',
+        'Feed Presets: Ready-made feed sliders — channel grid, player grid, theater, reels, card, and hover overlay.',
+        'Profile Header & Mini Player: Show name, picture and follower count with a Follow button, and let a video dock into a corner as visitors scroll.',
+        'Dynamic Content: Bind a post or product to a block-built slide and drop in Post Field blocks.',
+        'Lottie Animation Layer: Drop a Lottie JSON into a slide and play it as the slide arrives.',
+        'Advanced Layer Animations: Exit animations, word-by-word text, custom timing, and Float, Flash, Shake and Swing loops.',
+        'ACF Query Controls: Sort and filter slides by any Advanced Custom Field, with unlimited fields per slide.',
+        'Custom Post Type Sliders: Build a slider from any registered CPT — portfolio, services, testimonials.',
+        'Lightbox Styling: Glass effect, button styling, caption typography, per-slide captions and images, size and loop controls.',
         'Advanced Carousel Styles: Create unique carousels with ticker, grid, and 3D effects.',
         'Creative Effects: Use coverflow and card-style transitions for modern visual appeal.',
         'Buttons in Content: Add clickable buttons inside slides for CTAs and product links.',

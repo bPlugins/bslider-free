@@ -23,7 +23,7 @@ bSlider makes it easy to build engaging sliders without coding. Choose transitio
 
 Use it for product showcases, portfolios, testimonials or hero sections. It works with any theme — add the Gutenberg block, or place a shortcode anywhere.
 
-
+https://www.youtube.com/watch?v=Pj7veTzHbQk
 
 === Key Features –  Free Version ===
 - **Shortcode Support**: Insert sliders anywhere, even outside Gutenberg.
