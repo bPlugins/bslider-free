@@ -13,19 +13,96 @@ bSlider is a WordPress slider plugin that lets you create responsive image, post
 
 == Description ==
 
-**Create responsive sliders for images, posts, WooCommerce products, and videos with multiple layouts, animations, and customization options in WordPress. Design and display carousels, grids, and thumbnail sliders directly in the block editor with simple block and shortcode support.**
+**Create responsive sliders for images, posts, WooCommerce products, and videos — with multiple layouts, animations, and styling controls, right in the block editor.**
 
-[bSlider](https://bplugins.com/products/b-slider/) | [Documentation](https://bplugins.com/docs/bslider) | [Pricing](https://bplugins.com/products/b-slider/pricing/) | [Support](https://bplugins.com/support/) | [Demo](https://bplugins.com/products/b-slider/#demos)
+[Documentation](https://bplugins.com/docs/bslider) | [Demo](https://bplugins.com/products/b-slider/#demos) | [Pricing](https://bplugins.com/products/b-slider/pricing/) | [Support](https://bplugins.com/support/)
 
 https://www.youtube.com/watch?v=DOvUG5ArWHE
 
-[bSlider](https://bplugins.com/products/b-slider/) makes it easy to build engaging sliders without coding. Choose from smooth transitions like fade, slide, or flip, and customize titles, buttons, indicators, and arrows. Add slides quickly, reorder them with drag-and-drop, and adjust settings per device for fully responsive layouts.
+bSlider makes it easy to build engaging sliders without coding. Choose transitions like fade, slide or flip, customize titles, buttons, indicators and arrows, reorder slides by drag-and-drop, and adjust settings per device.
 
-You can use bSlider for product showcases, portfolios, testimonials, or hero sections. It works with any WordPress theme. You can add sliders using the Gutenberg block or place them anywhere with a shortcode.
+Use it for product showcases, portfolios, testimonials or hero sections. It works with any theme — add the Gutenberg block, or place a shortcode anywhere.
 
-https://www.youtube.com/watch?v=Pj7veTzHbQk
+=== Key Features — Free Version ===
 
-=== Key Features –  Free Version ===
+* **Five sources** — images, posts, WooCommerce products, videos, and slides built from real Gutenberg blocks.
+* **Four layouts** — slider, carousel, grid with pagination, and thumbnail navigation.
+* **Layer animations** — entry and loop effects, hover and click actions, on a visual timeline.
+* **Image lightbox** — click a picture to open it full size; one slider opens as a single gallery with arrows, keyboard, swipe and pinch-to-zoom.
+* **Lightbox options** — captions with colour, background and alignment; a toolbar of counter, thumbnails, zoom, slideshow, fullscreen, rotate and download; backdrop colour and opacity.
+* **Post & product sliders** — query by category, tag, order and offset, with excerpts and badges for date, author, price and sale.
+* **ACF integration** — show custom fields on a slide, or map one to the image, title, description or button.
+* **Video sliders** — popup playback with autoplay, loop, mute and full player controls.
+* **Styling control** — typography, colours, overlays, hover effects, arrows, indicators and height, per device.
+* **Shortcode support** — insert a slider anywhere, even outside the block editor.
+
+The complete feature list, including Pro, is in the FAQ below.
+
+=== Getting Started ===
+
+Add the **bSlider** block, choose a source and layout, then publish — or paste the generated shortcode anywhere.
+
+[Live Demo](https://bplugins.com/products/b-slider/#demos) | [Try Pro](https://bplugins.com/products/b-slider/pricing/) | [Tutorials](https://www.youtube.com/playlist?list=PLaYpMGTB1oSs)
+
+
+== Installation ==
+
+### From Gutenberg Editor:
+1. Go to the WordPress Block/Gutenberg Editor
+2. Search For **b-Slider Block**
+3. Click on the **b-Slider Block** to add the block
+
+### Download & Upload:
+1. Download the **b-Slider** plugin (*.zip file*)
+2. In your admin area, go to the Plugins menu and click on **Add New**
+3. Click on **Upload Plugin** and choose the **`b-slider.zip`** file and click on **Install Now**
+4. Activate the plugin and Enjoy!
+
+### Manually:
+1. Download and upload the **b-Slider Block** plugin to the **`/wp-content/plugins/`** directory
+2. Activate the plugin through the Plugins menu in WordPress
+
+
+== Frequently Asked Questions ==
+
+= Is Slider Block free? =
+
+Yes, Slider Block is a free Gutenberg block plugin.
+
+= Does it work with any WordPress theme? =
+
+Yes, it will work with any standard WordPress theme.
+
+= Can I change block settings? =
+
+Yes, you can change block settings from the Gutenberg block editor's right sidebar.
+
+= How many times can I reuse a block? =
+
+You can use unlimited times as you want.
+
+= Do I need Advanced Custom Fields to use bSlider? =
+
+No. ACF is optional. Install and activate [Advanced Custom Fields](https://wordpress.org/plugins/advanced-custom-fields/) only if you want to show your own custom fields on a slide. The ACF Integration panel appears once you have a field group whose location rules target the post type your slider is querying.
+
+= How many ACF fields can I show on a slide? =
+
+As many as you like — there is no limit on how many fields a slide can show. Fields you assign to the slide image, title, description, or button under **Use ACF For** are a separate setting and are shown on top of the ones you pick.
+
+= How do I get a YouTube API key or an Instagram access token? =
+
+These are only needed for the Social & External Feeds source, which is a
+[Pro](https://bplugins.com/products/b-slider/pricing/) feature. Both credentials are made outside
+WordPress, so there is a video for each.
+
+* [Creating a YouTube Data API key](https://www.youtube.com/watch?v=yFby1EJNUR4&list=PLaYpMGTB1oSs&index=4)
+* [Getting an Instagram Access Token](https://www.youtube.com/watch?v=C3lNbKLdHM8&list=PLaYpMGTB1oSs&index=7)
+* [Getting YouTube OAuth access, for private and unlisted videos](https://www.youtube.com/watch?v=EqZXgw5PyKs&list=PLaYpMGTB1oSs&index=3)
+
+In Pro each of these is also linked inside the plugin, beside the field that asks for it.
+
+= What is included in the free version? =
+
 - **Shortcode Support**: Insert sliders anywhere, even outside Gutenberg.
 - **Gutenberg Block**: Add and configure sliders in the block editor.
 - **Unlimited Slides**: As many slides as you need.
@@ -85,10 +162,12 @@ https://www.youtube.com/watch?v=Pj7veTzHbQk
 - **Lightbox Toolbar**: Counter, thumbnail strip, zoom, slideshow, fullscreen, rotate, flip and download, each its own switch.
 - **Lightbox Backdrop**: Set the colour and opacity behind the picture from the panel.
 
-=== bSlider Pro – Unlock Premium Features ===
+
+= What do I get with bSlider Pro? =
+
 [bSlider Pro](https://bplugins.com/products/b-slider/pricing/) gives you more design power and control. Add advanced effects, flexible layouts, and interactive options to create engaging, professional sliders.
 
-==What’s New in the Pro Version?==
+**Pro features:**
 
 - **Social & External Feeds Source**: Build a slider from a YouTube channel, Instagram account, RSS feed or any JSON endpoint, cached on your schedule.
 - **Feed Presets**: Ready-made feed sliders — channel grid, player grid, theater, reels, card and hover-overlay.
@@ -151,28 +230,8 @@ https://www.youtube.com/watch?v=Pj7veTzHbQk
 
 [Upgrade to Pro](https://bplugins.com/products/b-slider/pricing/) to unlock all premium features.
 
-=== How to Use bSlider – Quick Start Guide ===
 
-Getting started is easy!
-
-https://www.youtube.com/watch?v=qgSBHjGdegg
-
-Follow these steps:
-
-===Step-by-Step Setup===
-1. Go to **Plugins → Add New**.
-2. Search for **bSlider**.
-3. Click **Install Now**, then **Activate**.
-4. In the block editor, add the **bSlider block**, choose a slider type and layout, configure settings, and publish.
-5. Or insert the provided **shortcode** anywhere to show your slider.
-
-Enjoy smooth, responsive sliders on your site!
-
-[Live Demo](https://bplugins.com/products/b-slider/#demos) | [Try the Pro Version](https://bplugins.com/products/b-slider/pricing/)
-
-* For installation help click on Installation Tab
-
-=== Video Tutorials ===
+= Are there video tutorials? =
 
 Short walkthroughs of what the plugin can do. The first two cover this free version and are linked
 from inside the plugin, at the point each one is about. The rest cover the Social & External Feeds
@@ -194,7 +253,16 @@ you can see how it works before deciding.
 
 [Watch the whole playlist](https://www.youtube.com/playlist?list=PLaYpMGTB1oSs)
 
-### User Feedback
+= Where can I get support? =
+
+You can post your questions on the [support forum here](https://wordpress.org/support/plugin/b-slider/)
+
+= Where do I report security bugs found in this plugin? =
+
+Please report security bugs found in the source code of the bSlider plugin through the [Patchstack Vulnerability Disclosure Program](https://patchstack.com/database/vdp/9e5fbc26-c6d5-4897-9a0e-866ad3861bd5). The Patchstack team will assist you with verification, CVE assignment, and notify the developers of this plugin.
+
+
+== Reviews ==
 
 #### ⭐⭐⭐⭐⭐ [Super easy to use, and responsive support](https://wordpress.org/support/topic/super-easy-to-use-and-responsive-support/)
 
@@ -229,76 +297,12 @@ you can see how it works before deciding.
 
 #### - Did you like this plugin? Dislike it? Have a feature request? [Please share your feedback with us](mailto:support@bplugins.com 'Send feedback')
 
-=== Check out our other WordPress Plugins ===
+== Our Other Plugins ==
+
 - [HTML5 Audio Player](https://bplugins.com/products/html5-audio-player/) – Best audio player plugin for WordPress.
 - [PDF Poster](https://bplugins.com/products/pdf-poster/) – A fully-featured PDF Viewer Plugin for WordPress.
 - [StreamCast](https://bplugins.com/products/streamcast-radio-player/) – A fully-featured Radio Player Plugin for WordPress.
 - [3D Viewer](https://bplugins.com/products/3d-viewer/) – Display interactive 3D models on the webs.
-
-== Installation ==
-
-### From Gutenberg Editor:
-1. Go to the WordPress Block/Gutenberg Editor
-2. Search For **b-Slider Block**
-3. Click on the **b-Slider Block** to add the block
-
-### Download & Upload:
-1. Download the **b-Slider** plugin (*.zip file*)
-2. In your admin area, go to the Plugins menu and click on **Add New**
-3. Click on **Upload Plugin** and choose the **`b-slider.zip`** file and click on **Install Now**
-4. Activate the plugin and Enjoy!
-
-### Manually:
-1. Download and upload the **b-Slider Block** plugin to the **`/wp-content/plugins/`** directory
-2. Activate the plugin through the Plugins menu in WordPress
-
-
-== Frequently Asked Questions ==
-
-= Is Slider Block free? =
-
-Yes, Slider Block is a free Gutenberg block plugin.
-
-= Does it work with any WordPress theme? =
-
-Yes, it will work with any standard WordPress theme.
-
-= Can I change block settings? =
-
-Yes, you can change block settings from the Gutenberg block editor's right sidebar.
-
-= How many times can I reuse a block? =
-
-You can use unlimited times as you want.
-
-= Do I need Advanced Custom Fields to use bSlider? =
-
-No. ACF is optional. Install and activate [Advanced Custom Fields](https://wordpress.org/plugins/advanced-custom-fields/) only if you want to show your own custom fields on a slide. The ACF Integration panel appears once you have a field group whose location rules target the post type your slider is querying.
-
-= How many ACF fields can I show on a slide? =
-
-As many as you like — there is no limit on how many fields a slide can show. Fields you assign to the slide image, title, description, or button under **Use ACF For** are a separate setting and are shown on top of the ones you pick.
-
-= How do I get a YouTube API key or an Instagram access token? =
-
-These are only needed for the Social & External Feeds source, which is a
-[Pro](https://bplugins.com/products/b-slider/pricing/) feature. Both credentials are made outside
-WordPress, so there is a video for each.
-
-* [Creating a YouTube Data API key](https://www.youtube.com/watch?v=yFby1EJNUR4&list=PLaYpMGTB1oSs&index=4)
-* [Getting an Instagram Access Token](https://www.youtube.com/watch?v=C3lNbKLdHM8&list=PLaYpMGTB1oSs&index=7)
-* [Getting YouTube OAuth access, for private and unlisted videos](https://www.youtube.com/watch?v=EqZXgw5PyKs&list=PLaYpMGTB1oSs&index=3)
-
-In Pro each of these is also linked inside the plugin, beside the field that asks for it.
-
-= Where can I get support? =
-
-You can post your questions on the [support forum here](https://wordpress.org/support/plugin/b-slider/)
-
-= Where do I report security bugs found in this plugin? =
-
-Please report security bugs found in the source code of the bSlider plugin through the [Patchstack Vulnerability Disclosure Program](https://patchstack.com/database/vdp/9e5fbc26-c6d5-4897-9a0e-866ad3861bd5). The Patchstack team will assist you with verification, CVE assignment, and notify the developers of this plugin.
-
 
 == Screenshots ==
 
