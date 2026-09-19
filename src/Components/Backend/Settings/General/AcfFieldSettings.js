@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import { Label } from '../../../../../../bpl-tools/Components';
+import Label from '../../../../../../bpl-tools/Components/Label/Label';
 import { DEFAULT_PRESET, FIELD_ROLES } from '../../../Common/single-item/AcfFields';
 import AcfFieldPanel from './AcfFieldPanel';
 import PresetPicker from './PresetPicker';

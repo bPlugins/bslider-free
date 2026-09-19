@@ -3,7 +3,8 @@ import { SelectControl, __experimentalUnitControl as UnitControl, __experimental
 import { PanelBody } from '../../../Panel/AccordionPanel';
 import { emUnit, perUnit, caroDirectionOpt, carouselStyOpt, contentPosition, animationFreeOptions, indicatorOption, indicatorOptions, vhUnit } from '../../../../utils/options';
 
-import { BtnGroup, Label } from '../../../../../../bpl-tools/Components';
+import BtnGroup from '../../../../../../bpl-tools/Components/BtnGroup/BtnGroup';
+import Label from '../../../../../../bpl-tools/Components/Label/Label';
 import { pxUnit } from '../../../../../../bpl-tools/utils/options';
 import { BDevice } from '../../../../../../bpl-tools/Components/Deprecated';
 import Controls from './Carousel/Controls';

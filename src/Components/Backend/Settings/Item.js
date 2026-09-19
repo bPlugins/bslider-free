@@ -1,6 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import { TextControl, TextareaControl } from "@wordpress/components";
-import { InlineDetailMediaUpload, Label } from '../../../../../bpl-tools/Components';
+import Label from '../../../../../bpl-tools/Components/Label/Label';
+import { InlineDetailMediaUpload } from '../../../../../bpl-tools/Components/MediaControl/MediaControl';
 import { isPostSource, updateArrayItem } from '../../../utils/functions';
 import ProNotice from '../../Panel/ProNotice';
 import { PRO_FEATURES } from '../../../utils/pro-features';

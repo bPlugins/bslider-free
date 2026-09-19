@@ -1,7 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import { useEffect } from '@wordpress/element';
-import { Typography } from '../../../../../bpl-tools/Components';
-
+import Typography from '../../../../../bpl-tools/Components/Typography/Typography';
 /**
  * Puts a Google font stylesheet into the editor, once per family.
  *

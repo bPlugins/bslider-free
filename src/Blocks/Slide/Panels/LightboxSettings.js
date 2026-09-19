@@ -1,7 +1,8 @@
 import { __ } from '@wordpress/i18n';
 import { RangeControl, SelectControl, ToggleControl, __experimentalBoxControl as BoxControl } from '@wordpress/components';
-import { ColorControl, Label, Typography } from '../../../../../bpl-tools/Components';
-
+import { ColorControl } from '../../../../../bpl-tools/Components/ColorControl/ColorControl';
+import Label from '../../../../../bpl-tools/Components/Label/Label';
+import Typography from '../../../../../bpl-tools/Components/Typography/Typography';
 /**
  * Everything the lightbox looks like, as a body that two panels can host.
  *

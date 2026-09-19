@@ -1,7 +1,7 @@
 import { __, sprintf } from '@wordpress/i18n';
 import { RangeControl, SelectControl, __experimentalNumberControl as NumberControl, ToggleControl } from "@wordpress/components";
 import { PanelBody } from '../../../Panel/AccordionPanel';
-import { Label } from '../../../../../../bpl-tools/Components';
+import Label from '../../../../../../bpl-tools/Components/Label/Label';
 import { filterSelected, postTypeTaxonomies } from '../../../../utils/functions';
 import SelectTokenField from '../../../Panel/SelectTokenField';
 import ProNotice from '../../../Panel/ProNotice';

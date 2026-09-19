@@ -1,6 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import { PanelBody } from '../../../Panel/AccordionPanel';
-import { ColorControl } from '../../../../../../bpl-tools/Components';
+import { ColorControl } from '../../../../../../bpl-tools/Components/ColorControl/ColorControl';
 import ProNotice from '../../../Panel/ProNotice';
 import ProPanel from '../../../Panel/ProPanel';
 import { PRO_FEATURES } from '../../../../utils/pro-features';

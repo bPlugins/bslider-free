@@ -5,9 +5,8 @@ import { PanelBody } from '../../../Panel/AccordionPanel';
 import HelpTip from '../../../Panel/HelpTip';
 
 import { withSelect } from '@wordpress/data';
-import { HelpPanel, Label } from '../../../../../../bpl-tools/Components';
-
-
+import HelpPanel from '../../../../../../bpl-tools/Components/HelpPanel/HelpPanel';
+import Label from '../../../../../../bpl-tools/Components/Label/Label';
 import MainItem from '../MainItem';
 import ProPostTypesPromo from '../../ProPostTypesPromo';
 import ProSocialPromo from '../../ProSocialPromo';

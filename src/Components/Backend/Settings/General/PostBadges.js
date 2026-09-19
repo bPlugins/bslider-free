@@ -1,7 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import { PanelBody, AccordionGroup } from '../../../Panel/AccordionPanel';
 import { ToggleControl, TextControl, SelectControl, RangeControl } from '@wordpress/components';
-import { Label } from '../../../../../../bpl-tools/Components';
+import Label from '../../../../../../bpl-tools/Components/Label/Label';
 import SelectTokenField from '../../../Panel/SelectTokenField';
 import FieldGroup from '../../../Panel/FieldGroup';
 import { contentAniOption } from '../../../../utils/options';

@@ -2,7 +2,7 @@ import { __, _n, sprintf } from '@wordpress/i18n';
 import { useEffect, useState } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
 import { AccordionGroup, PanelBody } from '../../../Panel/AccordionPanel';
-import { Label } from '../../../../../../bpl-tools/Components';
+import Label from '../../../../../../bpl-tools/Components/Label/Label';
 import { FIELD_ROLES } from '../../../Common/single-item/AcfFields';
 import Notice from '../../Notice';
 import ProNotice from '../../../Panel/ProNotice';

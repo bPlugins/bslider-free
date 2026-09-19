@@ -1,4 +1,4 @@
-import { ItemsPanel } from '../../../../../bpl-tools/Components';
+import ItemsPanel from '../../../../../bpl-tools/Components/ItemsPanel/ItemsPanel';
 import Item from './Item'
 
 const MainItem = ({ itemsProps }) => {

@@ -1,9 +1,6 @@
 
 import { Button, ButtonGroup, Tooltip } from '@wordpress/components';
-import { Label } from '../../../../../bpl-tools/Components';
-
-
-
+import Label from '../../../../../bpl-tools/Components/Label/Label';
 /**
  * @props className (optional): 'mt20' (String)
  * @props value (String)

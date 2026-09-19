@@ -4,7 +4,10 @@ import { __experimentalUnitControl as UnitControl, __experimentalBoxControl as B
 import { PanelBody } from '../../../Panel/AccordionPanel';
 import { useState } from 'react';
 
-import { ColorControl, ColorsControl, Label, Typography } from '../../../../../../bpl-tools/Components';
+import { ColorControl } from '../../../../../../bpl-tools/Components/ColorControl/ColorControl';
+import ColorsControl from '../../../../../../bpl-tools/Components/ColorsControl/ColorsControl';
+import Label from '../../../../../../bpl-tools/Components/Label/Label';
+import Typography from '../../../../../../bpl-tools/Components/Typography/Typography';
 import { emUnit, perUnit, pxUnit, styles, vhUnit } from '../../../../utils/options';
 import ProNotice from '../../../Panel/ProNotice';
 import ProPanel from '../../../Panel/ProPanel';

@@ -1,7 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import { PanelBody } from '../../../Panel/AccordionPanel';
-import { ColorsControl, Typography } from '../../../../../../bpl-tools/Components';
-
+import ColorsControl from '../../../../../../bpl-tools/Components/ColorsControl/ColorsControl';
+import Typography from '../../../../../../bpl-tools/Components/Typography/Typography';
 /**
  * How everything on the slide's overlay looks — one set of values, not one per chip.
  *

@@ -3,7 +3,8 @@ import { useBlockProps, InnerBlocks, InspectorControls } from '@wordpress/block-
 import { SelectControl, TabPanel, BorderControl, __experimentalBoxControl as BoxControl } from '@wordpress/components';
 import { AccordionGroup, PanelBody } from '../../Components/Panel/AccordionPanel';
 import { TipRange, TipToggle } from '../../Components/Panel/TipField';
-import { Background, ColorControl } from '../../../../bpl-tools/Components';
+import Background from '../../../../bpl-tools/Components/Background/Background';
+import { ColorControl } from '../../../../bpl-tools/Components/ColorControl/ColorControl';
 import { PremiumBadge, PremiumPanel } from '../../../../bpl-tools/ProControls';
 import { adminUrl, DEMO_URL } from '../../utils/functions';
 import { proFeatureSentence, PRO_FEATURES } from '../../utils/pro-features';

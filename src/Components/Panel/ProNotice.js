@@ -9,7 +9,7 @@
  * @props className (optional): 'mt10' (String)
  */
 
-import { Notice } from '../../../../bpl-tools/Components';
+import Notice from '../../../../bpl-tools/Components/Notice';
 import { proFeatureSentence } from '../../utils/pro-features';
 
 const ProNotice = ({ features = [], className }) => {
