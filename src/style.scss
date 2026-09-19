@@ -1716,8 +1716,14 @@
  * `max-width: 100%` is Fancybox's own and stays: it is what keeps a long caption inside the slide
  * rather than pushing the overlay wider.
  */
-.fancybox__container[style*="--bsb-lb-caption-align"] .fancybox__caption {
+.fancybox__container[style*="--bsb-lb-caption-align"] .fancybox__caption,
+.fancybox__container[style*="--bsb-lb-caption-width"] .fancybox__caption {
     align-self: var(--bsb-lb-caption-self, center);
+
+    /* `Fit to Content` writes `fit-content` here and `Full width` writes `100%`, so one property
+       carries both answers. The fallback is what a slider saved before the switch existed gets —
+       the hugging box it already had. */
+    width: var(--bsb-lb-caption-width, fit-content);
 }
 
 /**

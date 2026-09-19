@@ -31,6 +31,10 @@ const LightboxPanel = ({ clientId }) => {
 			lightbox={lightbox}
 			setLightbox={setLightbox}
 			sourceType={sourceType}
+			/* No title on this source: a `blocks` slide is a block tree, not a record with a title
+			   field, so there would be nothing for `title` to resolve to and the option would sit
+			   in the list doing nothing. */
+			captionTitleLabel={null}
 		/>
 
 		<ProNotice features={PRO_FEATURES.lightbox} />

@@ -21,19 +21,15 @@ https://www.youtube.com/watch?v=DOvUG5ArWHE
 
 bSlider makes it easy to build engaging sliders without coding. Choose transitions like fade, slide or flip, customize titles, buttons, indicators and arrows, reorder slides by drag-and-drop, and adjust settings per device.
 
-Use it for product showcases, portfolios, testimonials or hero sections. It works with any theme — add the Gutenberg block, or place a shortcode anywhere.
+Use it for product showcases, portfolios, testimonials or hero sections. It works with any theme add the Gutenberg block, or place a shortcode anywhere.
 
-Show your Advanced Custom Fields on a slide — choosing which fields appear, picking a display preset, and using a field for the slide image, title, description or button:
+Show your Advanced Custom Fields on a slide choosing which fields appear, picking a display preset, and using a field for the slide image, title, description or button:
 
 https://www.youtube.com/watch?v=Pj7veTzHbQk
 
-Build each slide out of real Gutenberg blocks — headings, images, buttons, columns, anything in your editor — instead of a fixed title, image and button:
+Build each slide out of real Gutenberg blocks headings, images, buttons, columns, anything in your editor instead of a fixed title, image and button:
 
 https://www.youtube.com/watch?v=Zy23dW0uQDc
-
-Open any slide in a lightbox — with a counter, a thumbnail strip, zoom, and a caption taken from the slide:
-
-https://www.youtube.com/watch?v=elkAkihgH70
 
 === Key Features –  Free Version ===
 - **Shortcode Support**: Insert sliders anywhere, even outside Gutenberg.
@@ -92,6 +88,7 @@ https://www.youtube.com/watch?v=elkAkihgH70
 - **Image Lightbox on Click**: Click a slide picture to open it full size — images, posts and products alike, on every layout.
 - **Lightbox Gallery**: The pictures of one slider open as a single gallery, with arrows, keyboard, swipe and pinch-to-zoom.
 - **Lightbox Caption**: Show the image caption, or the slide, post or product title, under the picture — with colour, background, margin and alignment.
+- **Lightbox Caption Typography**: Font, weight, size per device, style, transform, line height and letter spacing for the caption, and a switch between a box that hugs its text and one that spans the picture.
 - **Lightbox Toolbar**: Counter, thumbnail strip, zoom, slideshow, fullscreen, rotate, flip and download, each its own switch.
 - **Lightbox Backdrop**: Set the colour and opacity behind the picture from the panel.
 
@@ -153,7 +150,6 @@ https://www.youtube.com/watch?v=elkAkihgH70
 - **Video Auto Hide Controls**: Hide the playback UI while the visitor is idle.
 - **Lightbox Glass Effect**: Frost the caption and the backdrop instead of tinting them flat — the picture behind stays visible through the blur.
 - **Lightbox Button Styling**: Colour, size, corner radius, spacing and edge distance for the close, arrow and toolbar buttons, gradients included.
-- **Lightbox Caption Typography**: Font, weight, size per device, style, transform, line height and letter spacing for the caption.
 - **Custom Lightbox Caption**: Type a caption per slide, separate from the title the slide already shows.
 - **Lightbox Image per Device**: Open a different file than the slide shows — the original on desktop, something lighter on a phone.
 - **Per-Slide Lightbox Control**: Decide picture by picture which ones open a lightbox, so a banner can sit out of a gallery of photographs.

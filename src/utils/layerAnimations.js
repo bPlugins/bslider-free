@@ -1,5 +1,5 @@
 import { Fancybox } from '@fancyapps/ui';
-import { ownCarouselItems, sanitizeHref } from './functions';
+import { lightboxCaption, ownCarouselItems, sanitizeHref } from './functions';
 import { bsb_fancybox_options } from './config';
 
 const ANIMATED = 'animate__animated';
@@ -205,6 +205,8 @@ export const initLayerAnimations = (root, { isBackend = false } = {}) => {
 			e.preventDefault();
 			e.stopPropagation();
 
+			const sliderAttrs = getSliderAttributes();
+
 			/* What opens is the slide's own picture: its background image, or the first `img` in
 			   it if the background is not where the picture lives. Choosing a gallery or a video
 			   instead is Premium — see `PRO_FEATURES.lightbox`. */
@@ -214,10 +216,45 @@ export const initLayerAnimations = (root, { isBackend = false } = {}) => {
 			const bgEl = slide.querySelector('.bsb-slide-bg') || slide;
 			const bgImg = bgEl?.style?.backgroundImage || '';
 			const match = bgImg && bgImg.match(/url\(["']?([^"')]+)["']?\)/);
-			const imgUrl = match ? match[1] : (slide.querySelector('img')?.src || '');
+			const pictureEl = match ? null : slide.querySelector('img');
+			const imgUrl = match ? match[1] : (pictureEl?.src || '');
+
+			/*
+			 * The line under the picture, read off the picture itself.
+			 *
+			 * A `blocks` slide is a block tree rather than a record with fields, so there is no
+			 * slide attribute holding this. All three strings below come from the media library
+			 * and `core/image` writes each into the markup — the caption as the figure's
+			 * `<figcaption>`, the other two as attributes on the `img` — so the rendered slide is
+			 * where they are read back from.
+			 *
+			 * **Three, because emptying one is not the same as having none.** Clearing the caption
+			 * in the editor takes the `<figcaption>` out of the markup altogether (WordPress drops
+			 * an empty one on render), and a picture that then showed nothing would look broken to
+			 * an author who never thought of the caption field as the thing driving it. Alt text
+			 * is the next description of the same picture, and the title after that.
+			 *
+			 * Only for a picture found as an `img`. A background image belongs to the slide rather
+			 * than to a figure, so it carries none of these and none is invented for it.
+			 *
+			 * Through `lightboxCaption` like every other source, so `None` means no attribute at
+			 * all and the text is stripped of markup before Fancybox assigns it with `innerHTML`.
+			 */
+			const figure = pictureEl?.closest('figure');
+			const caption = lightboxCaption(sliderAttrs?.lightbox?.caption, {
+				imageCaption: figure?.querySelector('figcaption')?.textContent?.trim()
+					|| pictureEl?.getAttribute('alt')?.trim()
+					|| pictureEl?.getAttribute('title')?.trim()
+					|| ''
+			});
 
 			if (imgUrl) {
-				Fancybox.show([{ src: imgUrl, caption: '' }], bsb_fancybox_options(getSliderAttributes()));
+				// Spread, so the key is absent rather than empty: Fancybox renders its caption
+				// element for an empty string too, which changes the layout of every lightbox.
+				Fancybox.show(
+					[caption ? { src: imgUrl, caption } : { src: imgUrl }],
+					bsb_fancybox_options(sliderAttrs)
+				);
 			}
 		}
 	};

@@ -1,5 +1,6 @@
 import { Fancybox } from '@fancyapps/ui';
 import '@fancyapps/ui/dist/fancybox/fancybox.css';
+import { getTypoCSS } from '../../../bpl-tools/utils/getCSS';
 
 export const controlsHandler = (controls) => {
     const newControls = [];
@@ -292,14 +293,24 @@ const paintLightbox = (fancybox, attributes) => {
 
     if (conf.captionAlign) {
         set('--bsb-lb-caption-align', conf.captionAlign);
+    }
 
-        /* Where the caption box sits, as against where its text sits inside the box.
+    /* Whether the caption box hugs its text or spans the picture, and where it sits when it hugs.
 
-           The box hugs its text, so `text-align` alone moves nothing — see the rule this feeds in
-           `style.scss`. The slide is a flex *column*, so what moves a child left and right across it
-           is `align-self`, and that takes `flex-start`/`flex-end` rather than the `left`/`right` the
-           panel stores. Both are written: this one places the box, `text-align` lines up the lines
-           inside it once a caption is long enough to wrap. */
+       Written unconditionally, because the two halves answer each other: a full-width box has
+       nowhere to be placed, so `align-self` becomes `stretch` and the alignment above is left to
+       line up the text inside it instead. Fit-to-content is the default — `!== false` — so a
+       slider saved before this switch existed keeps the hugging box it already had.
+
+       The box hugs its text, so `text-align` alone moves nothing — see the rule this feeds in
+       `style.scss`. The slide is a flex *column*, so what moves a child left and right across it
+       is `align-self`, and that takes `flex-start`/`flex-end` rather than the `left`/`right` the
+       panel stores. */
+    if (false === conf.captionFitContent) {
+        set('--bsb-lb-caption-width', '100%');
+        set('--bsb-lb-caption-self', 'stretch');
+    } else {
+        set('--bsb-lb-caption-width', 'fit-content');
         set('--bsb-lb-caption-self', CAPTION_SELF[conf.captionAlign] || 'center');
     }
 
@@ -309,6 +320,46 @@ const paintLightbox = (fancybox, attributes) => {
        whatever Fancybox had. */
     if (margin) {
         set('--bsb-lb-caption-margin', margin);
+    }
+
+    paintCaptionTypo(el, conf.captionTypo);
+};
+
+/**
+ * The caption's own font, written as a stylesheet rather than as variables.
+ *
+ * Everything else here is a single value and fits in a custom property. Typography is not: it is a
+ * family that may need a Google Fonts link, a weight, a size per device behind media queries, plus
+ * style, transform, decoration, line height and letter spacing — which is a block of rules, and
+ * `getTypoCSS` already builds exactly that block for the rest of the plugin.
+ *
+ * Scoped to this overlay rather than to the slider. Fancybox appends its container to `body`, out
+ * of reach of anything `Style.js` writes under `#bsbCarousel-<id>`, so the container is given a
+ * one-off id and the rules are written against it. Two sliders open one at a time, and the element
+ * is destroyed on close, so the id need only be unique while it exists.
+ *
+ * Nothing set takes the stylesheet back out, rather than leaving stale rules behind for the next
+ * lightbox to inherit.
+ */
+const paintCaptionTypo = (el, typo) => {
+    const styleId = `bsbLightboxTypo-${el.id || (el.id = `bsbLb-${Math.random().toString(36).slice(2, 9)}`)}`;
+    const existing = document.getElementById(styleId);
+
+    if (!typo || !Object.keys(typo).length) {
+        existing?.remove();
+
+        return;
+    }
+
+    const { googleFontLink = '', styles = '' } = getTypoCSS(`#${el.id} .fancybox__caption`, typo) || {};
+
+    const style = existing || document.createElement('style');
+
+    style.id = styleId;
+    style.textContent = `${googleFontLink}\n${styles}`;
+
+    if (!existing) {
+        document.head.appendChild(style);
     }
 };
 

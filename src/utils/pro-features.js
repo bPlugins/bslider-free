@@ -62,7 +62,6 @@ export const PRO_FEATURES = {
 	lightbox: [
 		__('Glass effect', 'b-slider'),
 		__('Button styling', 'b-slider'),
-		__('Caption typography', 'b-slider'),
 		__('Max width and height', 'b-slider'),
 		__('Gallery loop', 'b-slider'),
 	],

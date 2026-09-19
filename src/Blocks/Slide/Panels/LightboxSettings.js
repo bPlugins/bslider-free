@@ -1,6 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import { RangeControl, SelectControl, ToggleControl, __experimentalBoxControl as BoxControl } from '@wordpress/components';
-import { ColorControl, Label } from '../../../../../bpl-tools/Components';
+import { ColorControl, Label, Typography } from '../../../../../bpl-tools/Components';
 
 /**
  * Everything the lightbox looks like, as a body that two panels can host.
@@ -18,11 +18,23 @@ import { ColorControl, Label } from '../../../../../bpl-tools/Components';
  * slider through a dispatch rather than its own setter. `sourceType` only words the caption
  * options.
  *
- * The Premium half of this panel — glass, button styling, caption typography, max width/height
- * and gallery loop — is absent rather than locked, which is how the rest of this build handles a
- * Pro control. `PRO_FEATURES.lightbox` is what names them, and the host renders that notice.
+ * The Premium half of this panel — glass, button styling, max width/height and gallery loop — is
+ * absent rather than locked, which is how the rest of this build handles a Pro control.
+ * `PRO_FEATURES.lightbox` is what names them, and the host renders that notice.
  */
-const LightboxSettings = ({ lightbox = {}, setLightbox, sourceType, showCaptionCustom = true }) => <>
+const LightboxSettings = ({ lightbox = {}, setLightbox, sourceType, showCaptionCustom = true, captionTitleLabel: titleLabelProp }) => {
+	/* Worked out here rather than as a destructuring default, which cannot see `sourceType`.
+	   `undefined` means "the caller did not say", and the wording follows the source as it always
+	   has; `null` is the caller deliberately dropping the option. */
+	const captionTitleLabel = undefined === titleLabelProp
+		? ('posts' === sourceType
+			? __('Post title', 'b-slider')
+			: 'woo' === sourceType
+				? __('Product title', 'b-slider')
+				: __('Slide title', 'b-slider'))
+		: titleLabelProp;
+
+	return <>
 	<ToggleControl
 		className='mt10'
 		label={__('Counter', 'b-slider')}
@@ -87,14 +99,13 @@ const LightboxSettings = ({ lightbox = {}, setLightbox, sourceType, showCaptionC
 		options={[
 			{ label: __('None', 'b-slider'), value: 'none' },
 			{ label: __('Image caption', 'b-slider'), value: 'image' },
-			{
-				label: 'posts' === sourceType
-					? __('Post title', 'b-slider')
-					: 'woo' === sourceType
-						? __('Product title', 'b-slider')
-						: __('Slide title', 'b-slider'),
-				value: 'title'
-			}
+			/* Named for what the slide actually is: a post slide's title is the post's, a product
+			   slide's is the product's. Same `title` value either way — the renderers already
+			   resolve it per source — only the wording changes.
+
+			   Left out where the caller passes `null`: a `blocks` slide is a block tree and has no
+			   title string of its own, so there would be nothing for `title` to resolve to. */
+			...(null === captionTitleLabel ? [] : [{ label: captionTitleLabel, value: 'title' }])
 		]}
 		onChange={val => setLightbox({ caption: val })}
 	/>
@@ -123,6 +134,25 @@ const LightboxSettings = ({ lightbox = {}, setLightbox, sourceType, showCaptionC
 			onChange={val => setLightbox({ captionBg: val })}
 		/>}
 
+		{/**
+		  * The caption's own typography — family, weight, size per device, style, transform,
+		  * decoration, line height and letter spacing.
+		  *
+		  * It does not go through `Style.js`: that scopes everything to `#bsbCarousel-<id>` and the
+		  * lightbox overlay is appended to a `body`, out of its reach. The rules are written into a
+		  * stylesheet of the overlay's own instead — see `paintCaptionTypo`.
+		  *
+		  * No `defaults`, deliberately. An empty value is what leaves Fancybox's own caption sizing
+		  * alone, and naming a default size here would set one on every slider that never opened
+		  * this panel.
+		  */}
+		<Typography
+			className='mt20 mb20'
+			label={__('Caption Typography', 'b-slider')}
+			value={lightbox?.captionTypo || {}}
+			onChange={val => setLightbox({ captionTypo: val })}
+		/>
+
 		<SelectControl
 			className='mt10'
 			label={__('Caption Alignment', 'b-slider')}
@@ -134,6 +164,16 @@ const LightboxSettings = ({ lightbox = {}, setLightbox, sourceType, showCaptionC
 				{ label: __('Right', 'b-slider'), value: 'right' }
 			]}
 			onChange={val => setLightbox({ captionAlign: val })}
+		/>
+
+		{/* Whether the box hugs its text or spans the picture. On by default, so a slider saved
+		    before this switch existed keeps the hugging box it already had. */}
+		<ToggleControl
+			className='mt10'
+			label={__('Fit to Content', 'b-slider')}
+			help={lightbox?.captionFitContent !== false ? __('Caption fits to content size', 'b-slider') : __('Caption takes full width', 'b-slider')}
+			checked={lightbox?.captionFitContent !== false}
+			onChange={val => setLightbox({ captionFitContent: val })}
 		/>
 
 		{/* Margin and not padding: the padding belongs to the surface — it is what gives a coloured
@@ -171,6 +211,7 @@ const LightboxSettings = ({ lightbox = {}, setLightbox, sourceType, showCaptionC
 		max={100}
 		onChange={val => setLightbox({ backdropOpacity: val })}
 	/>
-</>;
+	</>;
+};
 
 export default LightboxSettings;
