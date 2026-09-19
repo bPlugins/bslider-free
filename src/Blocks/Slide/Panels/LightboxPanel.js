@@ -2,6 +2,7 @@ import LightboxSettings from './LightboxSettings';
 import useSliderLightbox from '../extensions/useSliderLightbox';
 import ProNotice from '../../../Components/Panel/ProNotice';
 import { PRO_FEATURES } from '../../../utils/pro-features';
+import { VideoHelpLink, videoLabels } from '../../../utils/videos';
 
 /**
  * How the lightbox looks, for a slider built from blocks.
@@ -22,6 +23,10 @@ const LightboxPanel = ({ clientId }) => {
 	const { lightbox, setLightbox, sourceType } = useSliderLightbox(clientId);
 
 	return <>
+		{/* At the head of the panel, since the video covers the whole of it rather than any one
+		    toggle in it. */}
+		<VideoHelpLink video='lightbox' label={videoLabels.lightbox()} />
+
 		<LightboxSettings
 			lightbox={lightbox}
 			setLightbox={setLightbox}

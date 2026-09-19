@@ -36,6 +36,11 @@ export const TUTORIAL_VIDEOS = {
        Position panels away and moves the work onto the canvas, so the sidebar is at its emptiest
        exactly when somebody most needs telling where the slides went. */
     blocksSource: watch('7KWplscyNhk', 1),
+
+    /* The lightbox: what the toolbar switches do, and how the caption is put together. Offered at
+       the head of both Lightbox hosts — the slider's own panel, and the layer panel a `blocks`
+       slider uses instead — since it covers the whole of them rather than any one toggle. */
+    lightbox: watch('elkAkihgH70', 1),
 };
 
 /**
@@ -90,6 +95,7 @@ export const VideoHelpLink = ({ video, label, className = '' }) => {
 export const videoLabels = {
     slideContent: () => __('Watch: slide content and badges', 'b-slider'),
     blocksSource: () => __('Watch: build slides with blocks', 'b-slider'),
+    lightbox: () => __('Watch: set up the lightbox', 'b-slider'),
 };
 
 export default VideoHelpLink;

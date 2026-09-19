@@ -31,6 +31,10 @@ Build each slide out of real Gutenberg blocks — headings, images, buttons, col
 
 https://www.youtube.com/watch?v=Zy23dW0uQDc
 
+Open any slide in a lightbox — with a counter, a thumbnail strip, zoom, and a caption taken from the slide:
+
+https://www.youtube.com/watch?v=elkAkihgH70
+
 === Key Features –  Free Version ===
 - **Shortcode Support**: Insert sliders anywhere, even outside Gutenberg.
 - **Gutenberg Block**: Add and configure sliders in the block editor.
@@ -222,7 +226,7 @@ In Pro each of these is also linked inside the plugin, beside the field that ask
 
 = Are there video tutorials? =
 
-Short walkthroughs of what the plugin can do. The first two cover this free version and are linked
+Short walkthroughs of what the plugin can do. The first three cover this free version and are linked
 from inside the plugin, at the point each one is about. The rest cover the Social & External Feeds
 source, which is a [Pro](https://bplugins.com/products/b-slider/pricing/) feature — they are here so
 you can see how it works before deciding.
@@ -231,6 +235,7 @@ you can see how it works before deciding.
 
 * [Building slides out of Gutenberg blocks](https://www.youtube.com/watch?v=7KWplscyNhk&list=PLaYpMGTB1oSs&index=1)
 * [Slide content, post badges and WooCommerce badges](https://www.youtube.com/watch?v=ublq1N-Bc3o&list=PLaYpMGTB1oSs&index=2)
+* [Setting up the lightbox](https://www.youtube.com/watch?v=elkAkihgH70&list=PLaYpMGTB1oSs&index=1)
 
 **Pro only — [Social & External Feeds](https://bplugins.com/products/b-slider/pricing/)**
 

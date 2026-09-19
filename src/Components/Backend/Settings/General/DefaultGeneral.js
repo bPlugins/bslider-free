@@ -10,6 +10,7 @@ import Controls from './Carousel/Controls';
 import LightboxSettings from '../../../../Blocks/Slide/Panels/LightboxSettings';
 import ProNotice from '../../../Panel/ProNotice';
 import { PRO_FEATURES } from '../../../../utils/pro-features';
+import { VideoHelpLink, videoLabels } from '../../../../utils/videos';
 
 import { AlignmentMatrixControl } from '@wordpress/components';
 import { checkDirection, isDefaultLayout } from '../../../../utils/functions';
@@ -159,6 +160,10 @@ const DefaultGeneral = ({ attributes, setAttributes, updateObject, device, setDe
           * only the controls moved.
           */}
         {'blocks' !== sourceType && <PanelBody className='bPlPanelBody' title={__('Lightbox', 'b-slider')} badge={__('New', 'b-slider')} initialOpen={false}>
+            {/* At the head of the panel, above the switch that brings the lightbox into being, since
+                the video covers the whole of it rather than any one toggle in it. */}
+            <VideoHelpLink video='lightbox' label={videoLabels.lightbox()} />
+
             {/**
               * Whether a click on the picture opens the lightbox.
               *
