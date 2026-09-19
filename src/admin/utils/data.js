@@ -90,6 +90,31 @@ export const demoInfo = {
                     title: 'SaaS Product Launch',
                     type: 'iframe',
                     url: 'https://b-slider.bplugins.com/demo/saas-product-launch/'
+                },
+                {
+                    title: 'Luxury Real Estate Lightbox Slider',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/luxury-real-estate-lightbox-slider/'
+                },
+                {
+                    title: 'Photography Portfolio Slider',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/photography-portfolio-slider-with-lightbox-captions/'
+                },
+                {
+                    title: 'Movie Showcase Slider',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/movie-showcase-slider-counters-gallery-trailer-lightbox/'
+                },
+                {
+                    title: 'Business Intro to Contact',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/business-intro-to-contact/'
+                },
+                {
+                    title: 'Software Products & Reviews',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/software-products-reviews/'
                 }
             ]
         },

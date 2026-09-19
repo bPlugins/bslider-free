@@ -23,7 +23,13 @@ bSlider makes it easy to build engaging sliders without coding. Choose transitio
 
 Use it for product showcases, portfolios, testimonials or hero sections. It works with any theme — add the Gutenberg block, or place a shortcode anywhere.
 
+Show your Advanced Custom Fields on a slide — choosing which fields appear, picking a display preset, and using a field for the slide image, title, description or button:
+
 https://www.youtube.com/watch?v=Pj7veTzHbQk
+
+Build each slide out of real Gutenberg blocks — headings, images, buttons, columns, anything in your editor — instead of a fixed title, image and button:
+
+https://www.youtube.com/watch?v=Zy23dW0uQDc
 
 === Key Features –  Free Version ===
 - **Shortcode Support**: Insert sliders anywhere, even outside Gutenberg.
