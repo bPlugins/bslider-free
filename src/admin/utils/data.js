@@ -22,13 +22,11 @@ export const dashboardInfo = (info) => {
             logo: `https://ps.w.org/${slug}/assets/icon-256x256.png`,
             banner: `https://ps.w.org/${slug}/assets/banner-772x250.png`,
             thumbnail: `https://bplugins.com/wp-content/themes/b-technologies/assets/images/products/${slug}.png`,
-            // proThumbnail: `https://bplugins.com/wp-content/themes/b-technologies/assets/images/products/${slug}-pro.png`,
             video: 'https://www.youtube.com/watch?v=DOvUG5ArWHE&t=3s',
             isYoutube: true
         },
         pages: {
             org: `https://wordpress.org/plugins/${slug}/`,
-            // landing: `https://bplugins.com/products/${slug}/`,
             docs: `https://bplugins.com/docs/${slug}/`,
             pricing: `https://bplugins.com/products/${slug}/pricing`,
         },
