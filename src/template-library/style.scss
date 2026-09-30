@@ -1,0 +1,17 @@
+/**
+ * bSlider's theming for the shared TemplateLibrary component.
+ *
+ * The component exposes its palette as `--bpl-template-*` variables with built-in defaults, and its
+ * default primary is already `#146ef5` — the same blue as `--bsb-primary` in editor.scss. The
+ * variables are still written out rather than left implicit, so that a change to the plugin's brand
+ * colour has one obvious place to be mirrored, instead of silently drifting from a default that
+ * happens to agree today.
+ *
+ * Keep the `-rgb` triplet in step with the hex above it: the component builds its `rgba()` tints
+ * from it, and the two falling out of sync shows up as a hover state in the wrong colour.
+ */
+:root {
+	--bpl-template-primary-color: #146ef5;
+	--bpl-template-primary-color-rgb: 20, 110, 245;
+	--bpl-template-primary-dark-color: #0b53c7;
+}

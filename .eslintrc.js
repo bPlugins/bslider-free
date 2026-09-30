@@ -20,7 +20,8 @@ module.exports = {
 		bootstrap: 'readonly',
 		bsbInfo: 'readonly',
 		Plyr: 'readonly',
-		bsbpipecheck: 'readonly'
+		bsbpipecheck: 'readonly',
+		bsbtemplatenonce: 'readonly'
 	},
 	parserOptions: {
 		ecmaFeatures: {

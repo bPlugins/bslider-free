@@ -4,7 +4,7 @@ Donate link: https://www.buymeacoffee.com/abuhayat
 Tags: block, carousel, slider, bootstrap, Gutenberg block
 Requires at least: 6.5
 Tested up to: 7.1
-Stable tag: 2.2.1
+Stable tag: 2.2.2
 Requires PHP: 7.2
 License: GPLv2 or later 
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -317,6 +317,13 @@ Please report security bugs found in the source code of the bSlider plugin throu
 
 == Changelog ==
 
+= 2.2.2 - 29 September, 2026 =
+* New: Template Library — pick a ready-made slider from the editor toolbar and insert it in one click, its images brought into your media library;
+* New: Browse Templates button under the source cards, so a new slider can start from a template instead of an empty block;
+* New: Lightbox caption typography — font, weight, size per device, style, transform, line height and letter spacing;
+* Fix: Lightbox issues reported after 2.2.1;
+* Improvement: Smaller editor script — settings panels now load only the controls they use;
+
 = 2.2.1 - 16 September, 2026 =
 * New: Image slides open in a lightbox on click — the engine was already bundled for video, and this is the setting that lets a photograph use it;
 * New: Post and WooCommerce slides open their featured image in the same lightbox, on every layout including the grids;
@@ -587,6 +594,9 @@ Please report security bugs found in the source code of the bSlider plugin throu
 * Initial Release
 
 == Upgrade Notice ==
+
+= 2.2.2 - 29 September, 2026 =
+* Adds the Template Library — start a slider from a ready-made design and insert it in one click — plus lightbox caption typography and lightbox fixes. Existing sliders are untouched.
 
 = 2.2.1 - 16 September, 2026 =
 * Adds the image lightbox — click a slide picture to open it full size, with a caption, a toolbar and gallery navigation. Post and product slides open the same way. Existing sliders are untouched: every new setting is off until you turn it on.

@@ -16,6 +16,77 @@ const CardFlag = ({ item }) => {
     return null;
 };
 
+/**
+ * The way into the Template Library from where somebody is actually standing.
+ *
+ * The toolbar button is the discoverable entry point; this is the useful one. An author who has just
+ * added the block is looking at these source cards with the question "what can this make?", and that
+ * is the question the template modal answers — asking them to notice a button at the top of the
+ * screen first is asking them to already know.
+ *
+ * It clicks the toolbar button rather than rendering a second copy of the modal: two mounted copies
+ * would mean two sets of AJAX requests and two portals fighting over the same DOM id. If the button
+ * is not there — the editor's toolbar has been renamed twice and `index.js` may not have found it —
+ * this renders nothing rather than a control that does nothing.
+ *
+ * The lookup goes through `window.top` because the block canvas is an iframe from WP 6.5 on: this
+ * component's own `document` is the canvas's, and the toolbar is in the document above it. Wrapped
+ * because reading across frames throws if they are ever not same-origin.
+ */
+const editorDocument = () => {
+    try {
+        return window.top?.document || document;
+    } catch (e) {
+        return document;
+    }
+};
+
+const TemplateLibraryPrompt = () => {
+    const [hasLibrary, setHasLibrary] = useState(false);
+
+    useEffect(() => {
+        // The toolbar button mounts on `domReady` and is re-placed on editor re-renders, so it may
+        // not be there on this component's first paint. Polling rather than observing: the target
+        // is in another document, and this stops as soon as it is found.
+        const check = () => {
+            const found = Boolean(editorDocument().querySelector('.bPlTemplatesButton'));
+
+            setHasLibrary(found);
+
+            return found;
+        };
+
+        if (check()) {
+            return undefined;
+        }
+
+        const timer = setInterval(() => {
+            if (check()) {
+                clearInterval(timer);
+            }
+        }, 500);
+
+        return () => clearInterval(timer);
+    }, []);
+
+    if (!hasLibrary) {
+        return null;
+    }
+
+    return (
+        <div className="bsb_template_prompt">
+            <p>{__('Not sure where to start? Pick a ready-made slider and change what you like.', 'b-slider')}</p>
+
+            <button
+                type="button"
+                onClick={() => editorDocument().querySelector('.bPlTemplatesButton')?.click()}
+            >
+                {__('Browse Templates', 'b-slider')}
+            </button>
+        </div>
+    );
+};
+
 const SelectSource = (props) => {
     const { attributes, setAttributes, updateObject } = props;
     const { sourceType } = attributes;
@@ -159,6 +230,8 @@ const SelectSource = (props) => {
                             </div>
                         ))}
                     </div>
+
+                    <TemplateLibraryPrompt />
 
                     <ProSocialPromo />
                 </div>

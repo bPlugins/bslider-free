@@ -1181,6 +1181,50 @@ svg#bsbSlider {
         }
     }
 
+    /**
+     * The way to the Template Library from the source picker.
+     *
+     * Under the source cards rather than among them: picking a source and starting from a template
+     * are not the same kind of choice, and a card sitting in that grid would read as a seventh
+     * source. This is the alternative to the whole grid, so it sits below the whole grid.
+     */
+    .bsb_template_prompt {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 14px;
+        margin-top: 20px;
+        padding: 16px 20px;
+        background: var(--bsb-surface);
+        border: 1.5px dashed var(--bsb-line);
+        border-radius: 10px;
+
+        p {
+            margin: 0;
+            padding: 0;
+            font-size: 13px;
+            color: var(--bsb-muted);
+        }
+
+        button {
+            padding: 8px 18px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--bsb-surface);
+            background: var(--bsb-primary);
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+
+            &:hover {
+                box-shadow: var(--bsb-shadow-primary);
+                transform: translateY(-1px);
+            }
+        }
+    }
+
     .bsb_parent_area {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
