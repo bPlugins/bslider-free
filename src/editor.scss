@@ -1179,6 +1179,10 @@ svg#bsbSlider {
             color: var(--bsb-muted);
             font-weight: 400;
         }
+
+        .bsbNoticeVideo {
+            font-size: 13px;
+        }
     }
 
     /**
@@ -1205,6 +1209,12 @@ svg#bsbSlider {
             padding: 0;
             font-size: 13px;
             color: var(--bsb-muted);
+        }
+
+        /* Canvas links take the theme's size; match the sentence beside it. */
+        .bsbNoticeVideo {
+            margin-top: 0;
+            font-size: 13px;
         }
 
         button {
@@ -2098,6 +2108,9 @@ svg#bsbSlider {
         position: relative;
         float: none;
         margin-right: 0;
+        /* Fade keeps non-active slides at opacity 0, and selecting a block inside a slide drops
+           `.active` from its class; without this the slide goes blank while it is being edited. */
+        opacity: 1 !important;
         min-height: 70px;
         overflow: visible !important;
 
@@ -2440,6 +2453,32 @@ svg#bsbSlider {
         background: var(--bsb-warning-soft);
         border-bottom-left-radius: var(--bsb-radius-sm);
         pointer-events: none;
+    }
+}
+
+/**
+ * Nothing moves on the canvas.
+ *
+ * Sliders.js already skips the entry animations and the autoplay here, but a loop with no entry
+ * is saved straight into the markup as animate.css classes, and hover is a CSS transition — so
+ * both are stopped here too. The published page still plays all of it.
+ */
+.carousel.blocks {
+
+    .carousel-item:not(.carousel-item *),
+    .bsb-layer,
+    .bsb-layer .bsb-word {
+        animation: none !important;
+        transition: none !important;
+    }
+
+    .carousel-item:not(.carousel-item *),
+    .bsb-layer:is(.bsb-hover--scale, .bsb-hover--lift):is(:hover, :focus-within) {
+        transform: none !important;
+    }
+
+    .bsb-layer.bsb-hover--fade:not([class*="bsb-hide-"]):is(:hover, :focus-within) {
+        opacity: 1;
     }
 }
 

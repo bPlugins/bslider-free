@@ -1,6 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import { produce } from 'immer';
-import { __experimentalUnitControl as UnitControl, __experimentalBoxControl as BoxControl, RangeControl, BorderControl, SelectControl, PanelRow } from "@wordpress/components";
+import { ToggleControl, __experimentalUnitControl as UnitControl, __experimentalBoxControl as BoxControl, __experimentalAlignmentMatrixControl as AlignmentMatrixControl, RangeControl, BorderControl, SelectControl, PanelRow } from "@wordpress/components";
 import { PanelBody } from '../../../Panel/AccordionPanel';
 import { useState } from 'react';
 
@@ -20,7 +20,7 @@ const DefaultStyle = ({ attributes, setAttributes, updateObject }) => {
     const [DArrowWidth, setDArrowWidth] = useState('desktop');
     const [DArrowHeight, setDArrowHeight] = useState('desktop');
 
-    const { layoutType, sourceType, titleTypo, titleColor, descTypo, descColor, titleMargin, descMargin, SliderOverly, borderRadius, arrowRadius, arrow, indicator, arrowBorder, deviceArrowWidth, arrowHeight, deviceArrowHeight, arrowWidth } = attributes;
+    const { layoutType, sourceType, titleTypo, titleColor, descTypo, descColor, titleMargin, descMargin, SliderOverly, borderRadius, arrowRadius, arrow, indicator, arrowBorder, deviceArrowWidth, arrowHeight, deviceArrowHeight, arrowWidth, arrowOffset, arrowPlacement = 'split', arrowGroupPosition = 'center right', arrowGap = '10px', arrowGroupDirection = 'auto', arrowOffsetY = '', arrowHideOn = {} } = attributes;
 
     return <>
         {/* Hidden for `blocks` at the user's direction. Border Radius inside does still reach
@@ -107,6 +107,43 @@ const DefaultStyle = ({ attributes, setAttributes, updateObject }) => {
                 <BorderControl className='mt10' label={__("Border", "b-slider")} value={arrowBorder} onChange={val => setAttributes({ arrowBorder: val })} />
 
                 <BoxControl className='mt10' label={__("Border Radius", 'b-slider')} values={arrowRadius} onChange={val => setAttributes({ arrowRadius: val })} resetValues={{ top: '0px', left: '0px', right: '0px', bottom: '0px' }} />
+
+                {/* Split = one arrow per edge (the original layout); Group = both together at one spot.
+                    Only the Default layout draws these buttons — Carousel/Thumbnails have their own. */}
+                {'carousel' !== layoutType && 'thumbnails' !== layoutType && <>
+                    <UnitControl className='mt10' label={__('Edge Spacing', 'b-slider')} labelPosition='left' value={arrowOffset} onChange={val => setAttributes({ arrowOffset: val })} units={[pxUnit(200), perUnit(20)]} isResetValueOnUnitChange={true} beforeIcon='align-center' />
+
+                    <SelectControl className='mt10' label={__('Position', 'b-slider')} labelPosition='left' value={arrowPlacement}
+                        options={[
+                            { label: __('Split (opposite edges)', 'b-slider'), value: 'split' },
+                            { label: __('Grouped together', 'b-slider'), value: 'group' },
+                        ]}
+                        onChange={val => setAttributes({ arrowPlacement: val })} />
+
+                    {'group' === arrowPlacement && <>
+                        <PanelRow className='mt10'>
+                            <span>{__('Group Position', 'b-slider')}</span>
+                            <AlignmentMatrixControl value={arrowGroupPosition} onChange={val => setAttributes({ arrowGroupPosition: val })} />
+                        </PanelRow>
+
+                        <UnitControl className='mt10' label={__('Gap Between Arrows', 'b-slider')} labelPosition='left' value={arrowGap} onChange={val => setAttributes({ arrowGap: val })} units={[pxUnit(100)]} isResetValueOnUnitChange={true} />
+
+                        <SelectControl className='mt10' label={__('Arrow Direction', 'b-slider')} labelPosition='left' value={arrowGroupDirection}
+                            options={[
+                                { label: __('Auto (follow slide direction)', 'b-slider'), value: 'auto' },
+                                { label: __('Side by side', 'b-slider'), value: 'row' },
+                                { label: __('Stacked', 'b-slider'), value: 'column' },
+                            ]}
+                            onChange={val => setAttributes({ arrowGroupDirection: val })} />
+
+                        {/* Edge Spacing stays the left/right inset; empty here = the same for top/bottom. */}
+                        <UnitControl className='mt10' label={__('Top/Bottom Spacing', 'b-slider')} labelPosition='left' value={arrowOffsetY} placeholder={arrowOffset} onChange={val => setAttributes({ arrowOffsetY: val })} units={[pxUnit(200), perUnit(20)]} isResetValueOnUnitChange={true} />
+                    </>}
+
+                    {/* Hides the built-in arrows on that device; swiping still changes slides. */}
+                    <ToggleControl className='mt10' label={__('Hide on Tablet', 'b-slider')} checked={Boolean(arrowHideOn?.tablet)} onChange={val => setAttributes({ arrowHideOn: { ...arrowHideOn, tablet: val } })} />
+                    <ToggleControl className='mt10' label={__('Hide on Mobile', 'b-slider')} checked={Boolean(arrowHideOn?.mobile)} onChange={val => setAttributes({ arrowHideOn: { ...arrowHideOn, mobile: val } })} />
+                </>}
 
             </PanelBody>}
         </>}

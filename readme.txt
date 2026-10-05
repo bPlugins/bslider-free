@@ -1,7 +1,7 @@
 === bSlider – Build Sliders That Bring Your Content to Life ===
 Contributors: bplugins, abuhayat, btechnologies, farazi1, freemius
 Donate link: https://www.buymeacoffee.com/abuhayat
-Tags: block, carousel, slider, bootstrap, Gutenberg block
+Tags: block, carousel, slider, templates, Gutenberg block
 Requires at least: 6.5
 Tested up to: 7.1
 Stable tag: 2.2.2
@@ -9,11 +9,11 @@ Requires PHP: 7.2
 License: GPLv2 or later 
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Responsive WordPress sliders from images, posts, WooCommerce products, videos or Gutenberg blocks — via the block editor or a shortcode.
+Responsive sliders from images, posts, WooCommerce, videos or blocks — or start from 50+ ready-made templates. Block editor & shortcode.
 
 == Description ==
 
-**Create responsive sliders from images, posts, WooCommerce products, videos, or slides built out of Gutenberg blocks — with multiple layouts, animations, and styling controls, right in the block editor.**
+**Create responsive sliders from images, posts, WooCommerce products, videos, or slides built out of Gutenberg blocks — or start from more than 50 ready-made templates — with multiple layouts, animations, and styling controls, right in the block editor.**
 
 [Documentation](https://bplugins.com/docs/bslider) | [Demo](https://bplugins.com/products/b-slider/#demos) | [Pricing](https://bplugins.com/products/b-slider/pricing/) | [Support](https://bplugins.com/support/)
 
@@ -22,6 +22,14 @@ https://www.youtube.com/watch?v=DOvUG5ArWHE
 bSlider makes it easy to build engaging sliders without coding. Choose transitions like fade, slide or flip, customize titles, buttons, indicators and arrows, reorder slides by drag-and-drop, and adjust settings per device.
 
 Use it for product showcases, portfolios, testimonials or hero sections. It works with any theme add the Gutenberg block, or place a shortcode anywhere.
+
+Start from a ready-made design. The Template Library, opened from the block editor toolbar, has more than 50 sliders for agencies, shops, restaurants, real estate, portfolios, video and social feeds. Pick one, click Import, and change anything you like:
+
+https://www.youtube.com/watch?v=y7jrdRujlpY
+
+In [bSlider Pro](https://bplugins.com/products/b-slider/pricing/), describe the look you want in one sentence and Style with AI sets the slider's colours, type, buttons and arrows. It also writes each slide's title, description, button label and alt text from its picture, using your own Google Gemini key:
+
+https://www.youtube.com/watch?v=wF-Jh-O3dig
 
 Show your Advanced Custom Fields on a slide choosing which fields appear, picking a display preset, and using a field for the slide image, title, description or button:
 
@@ -142,7 +150,6 @@ https://www.youtube.com/watch?v=Zy23dW0uQDc
 - **Badge & Field Icon Library**: Icons from Font Awesome, Bootstrap or Lucide instead of emoji.
 - **Custom HTML Wrapper Tags**: Tags like h1–h6 for better structure and SEO.
 - **Left/Right Inner Gap**: Internal spacing between slider items.
-- **Move From Edge**: Control the spacing of content from the slider edges.
 - **Pagination Position**: Alignment for pagination buttons in grid layouts.
 - **Lazy Load Enable**: Defer offscreen images for faster pages.
 - **Advanced Video Tools**: Mute, PIP, AirPlay, Download and Fullscreen.
@@ -180,6 +187,12 @@ Add the **bSlider** block, choose a source and layout, then publish — or paste
 ### Manually:
 1. Download and upload the **b-Slider Block** plugin to the **`/wp-content/plugins/`** directory
 2. Activate the plugin through the Plugins menu in WordPress
+
+### Watch: your first slider in 2 minutes
+
+Recorded with bSlider Pro, so a few options in it, such as the AI features, are Pro only.
+
+https://www.youtube.com/watch?v=bZo16kmZiXE
 
 
 == Frequently Asked Questions ==
@@ -222,16 +235,18 @@ In Pro each of these is also linked inside the plugin, beside the field that ask
 
 = Are there video tutorials? =
 
-Short walkthroughs of what the plugin can do. The first three cover this free version and are linked
+Short walkthroughs of what the plugin can do. The first group covers this free version and is linked
 from inside the plugin, at the point each one is about. The rest cover the Social & External Feeds
 source, which is a [Pro](https://bplugins.com/products/b-slider/pricing/) feature — they are here so
 you can see how it works before deciding.
 
 **Works in this free version**
 
+* [Getting started: your first slider in 2 minutes](https://www.youtube.com/watch?v=bZo16kmZiXE) (shown with bSlider Pro)
 * [Building slides out of Gutenberg blocks](https://www.youtube.com/watch?v=7KWplscyNhk&list=PLaYpMGTB1oSs&index=1)
 * [Slide content, post badges and WooCommerce badges](https://www.youtube.com/watch?v=ublq1N-Bc3o&list=PLaYpMGTB1oSs&index=2)
 * [Setting up the lightbox](https://www.youtube.com/watch?v=elkAkihgH70&list=PLaYpMGTB1oSs&index=1)
+* [Importing a ready-made slider from the Template Library](https://www.youtube.com/watch?v=_69AgIdXM_U&list=PLaYpMGTB1oSs)
 
 **Pro only — [Social & External Feeds](https://bplugins.com/products/b-slider/pricing/)**
 
@@ -240,6 +255,10 @@ you can see how it works before deciding.
 * [Social feeds from start to finish](https://www.youtube.com/watch?v=AzpHDAbiHZI&list=PLaYpMGTB1oSs&index=5)
 * [Mapping a JSON feed onto slides](https://www.youtube.com/watch?v=6NngvNWhTSE&list=PLaYpMGTB1oSs&index=6)
 * [Getting an Instagram Access Token](https://www.youtube.com/watch?v=C3lNbKLdHM8&list=PLaYpMGTB1oSs&index=7)
+
+**Pro only — [Style with AI](https://bplugins.com/products/b-slider/pricing/)**
+
+* [Styling a slider and writing slide text with AI](https://www.youtube.com/watch?v=-Q-yWZ3pbEo&list=PLaYpMGTB1oSs)
 
 [Watch the whole playlist](https://www.youtube.com/playlist?list=PLaYpMGTB1oSs)
 
@@ -296,28 +315,30 @@ Please report security bugs found in the source code of the bSlider plugin throu
 
 == Screenshots ==
 
-1. Choose Source Type
-2. Select Layout Type
-3. Demo-1: Movie Showcase Slider — Counters, Gallery & Trailer Lightbox
-4. Demo-2: Luxury Real Estate Lightbox Slider
-5. Demo-3: Business Intro to Contact
-6. Demo-4: Full Page Portfolio
-7. Demo-5: Shoppable Instagram Feed & Product Wall
-8. Demo-6: Shoppable Instagram Reels Wall
-9. Demo-7: Live Outfit Video Showcase
-10. Demo-8: Vogue Fashion Runway & Cinema Lounge
-11. Demo-9:  Tech Reviews Channel Hub & Subscribe Booster
-12. Demo-10: freeCodeCamp Developer Learning Portal
-13. Demo-11: Dynamic E-Commerce & Product Showcase Grid
-14. Demo-12: Featured Article & Multi-Column Magazine Layout
-15. Demo-13: Automated RSS News Digest & Magazine Grid
-16. Demo-14: Agency Portfolio — Full-Screen Cover Slides
-17. Demo-15: What Our Customers Say
-18. Demo-16: WooCommerce Products — Live Product Carousel
+1. Template Library — pick a ready-made slider and import it in one click
+2. Style with AI (Pro) — describe the look in one sentence and the slider restyles itself
+3. Choose Source Type
+4. Select Layout Type
+5. Demo-1: Movie Showcase Slider — Counters, Gallery & Trailer Lightbox
+6. Demo-2: Luxury Real Estate Lightbox Slider
+7. Demo-3: Business Intro to Contact
+8. Demo-4: Full Page Portfolio
+9. Demo-5: Shoppable Instagram Feed & Product Wall
+10. Demo-6: Shoppable Instagram Reels Wall
+11. Demo-7: Live Outfit Video Showcase
+12. Demo-8: Vogue Fashion Runway & Cinema Lounge
+13. Demo-9:  Tech Reviews Channel Hub & Subscribe Booster
+14. Demo-10: freeCodeCamp Developer Learning Portal
+15. Demo-11: Dynamic E-Commerce & Product Showcase Grid
+16. Demo-12: Featured Article & Multi-Column Magazine Layout
+17. Demo-13: Automated RSS News Digest & Magazine Grid
+18. Demo-14: Agency Portfolio — Full-Screen Cover Slides
+19. Demo-15: What Our Customers Say
+20. Demo-16: WooCommerce Products — Live Product Carousel
 
 == Changelog ==
 
-= 2.2.2 - 29 September, 2026 =
+= 2.2.2 - 5 October, 2026 =
 * New: Template Library — pick a ready-made slider from the editor toolbar and insert it in one click, its images brought into your media library;
 * New: Browse Templates button under the source cards, so a new slider can start from a template instead of an empty block;
 * New: Lightbox caption typography — font, weight, size per device, style, transform, line height and letter spacing;
@@ -797,6 +818,18 @@ Please report security bugs found in the source code of the bSlider plugin throu
 
 You can find the source code, report bugs, and contribute to the development of this plugin on our GitHub repository:
 [**BSlider on GitHub**](https://github.com/bPlugins/bslider-free)
+
+== External Services ==
+
+This plugin contacts one service outside your site, and only while you use the feature that needs it.
+
+= bPlugins Template Library =
+Used when you open the Template Library from the block editor toolbar or the source picker.
+
+* **What is sent:** the template type, category, page number and any search words you choose, and this plugin's name. WordPress also adds your site's address to every request it sends. Nothing about your posts, your users or your visitors is sent.
+* **When:** only while you browse the library in the editor, and when you click Import. Importing downloads the template's images from `https://templates.bplugins.com` into your Media Library. Requests are made by your server, not by your visitors' browsers.
+* **Endpoint:** `https://templates.bplugins.com/wp-json/gutenberg-templates/v1/`
+* **Terms of Service:** https://bplugins.com/terms-of-service/ — **Privacy Policy:** https://bplugins.com/privacy-policy/
 
 == Third-Party Libraries ==
 

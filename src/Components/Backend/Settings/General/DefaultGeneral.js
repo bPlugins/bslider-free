@@ -226,7 +226,7 @@ const DefaultGeneral = ({ attributes, setAttributes, updateObject, device, setDe
                 <AlignmentMatrixControl value={indicator.position}
                     onChange={val => {
                         setAttributes({
-                            indicator: { ...indicator, position: val, ...checkDirection(val) },
+                            indicator: { ...indicator, position: val, ...checkDirection(val), customEdge: false },
                         })
                     }}
                 />
@@ -234,7 +234,11 @@ const DefaultGeneral = ({ attributes, setAttributes, updateObject, device, setDe
 
             <SelectControl label={__('Direction', 'b-slider')} labelPosition='side' value={indicator.direction} onChange={(val) => { updateObject('indicator', 'direction', val) }} options={indicatorOptions} />
 
-            <ProNotice features={PRO_FEATURES.indicators} />
+            {/* customEdge marks a value set here; see Style.js for why older values are not applied. */}
+            {indicator.position !== 'center center' && <>
+                <UnitControl className='mb20 mt20 marginLeft' label={__('Move From Edge', 'b-slider')} labelPosition='left' value={indicator?.customEdge ? indicator.moveFromEdge : ''} onChange={(val) => setAttributes({ indicator: { ...indicator, moveFromEdge: val, customEdge: true } })} units={[pxUnit(40), perUnit(50)]} isResetValueOnUnitChange={true} />
+                <small className='warning'>{__('Use a negative or positive value to move in or out.', 'b-slider')}</small>
+            </>}
         </PanelBody>}
     </>
 }

@@ -9,6 +9,8 @@ languages
 build/
 *.map
 demos
+new-demos
+CLAUDE.md
 
 # OS files
 .DS_Store

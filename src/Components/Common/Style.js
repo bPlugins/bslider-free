@@ -2,8 +2,18 @@ import { getBoxValue } from '../../../../bpl-tools/utils/functions';
 import { getTypoCSS, getColorsCSS } from '../../../../bpl-tools/utils/getCSS';
 import arrows from '../../utils/arrows';
 
+/** Grouped arrows: matrix spot → flex alignment. Allow-listed, since the value lands in a <style> tag. */
+const ARROW_SPOTS = { top: 'flex-start', center: 'center', bottom: 'flex-end', left: 'flex-start', right: 'flex-end' };
+const arrowGroupAlign = (position) => {
+	const [v, h] = String(position || '').split(/[\s-]+/);
+	return { v: ARROW_SPOTS[v] || 'center', h: ARROW_SPOTS[h] || 'flex-end' };
+};
+
+/** A plain CSS length or a safe fallback; the value is printed into the slider's stylesheet. */
+const safeLength = (value, fallback) => (/^\d+(\.\d+)?(px|em|rem|%|vw|vh)$/.test(String(value || '').trim()) ? String(value).trim() : fallback);
+
 const Style = ({ attributes, clientId, postsCount, products }) => {
-	const { badgeStyle = {}, sliders, slideInnerGap, slideInnerGapDevice, titleTypo, titleColor, descTypo, descColor, titleMargin, descMargin, arrow, arrowStyle, indicator, SliderOverly, height, sliderHeight, borderRadius, arrowWidth, deviceArrowWidth, arrowHeight, deviceArrowHeight, arrowRadius, btnColors, btnHovColors, btnPadding, btnBorder, btnRadius, direction, columnGap, rowGap, grid, arrowBorder, thumbnails, sourceType, carousel, caption, image, title, desc, button, postsQuery, layoutType } = attributes;
+	const { badgeStyle = {}, sliders, slideInnerGap, slideInnerGapDevice, titleTypo, titleColor, descTypo, descColor, titleMargin, descMargin, arrow, arrowStyle, indicator, SliderOverly, height, sliderHeight, borderRadius, arrowWidth, deviceArrowWidth, arrowHeight, deviceArrowHeight, arrowRadius, arrowOffset, arrowPlacement, arrowGroupPosition, arrowGap, arrowGroupDirection, arrowOffsetY, arrowHideOn = {}, btnColors, btnHovColors, btnPadding, btnBorder, btnRadius, direction, columnGap, rowGap, grid, arrowBorder, thumbnails, sourceType, carousel, caption, image, title, desc, button, postsQuery, layoutType } = attributes;
 	const { loadMoreBtn } = grid;
 	const { overly, height: thumbnailsHeight, width: thumbnailsWidth, active } = thumbnails;
 	const { carouselStyle } = carousel;
@@ -702,20 +712,67 @@ ${layerMotionCSS}
 	}
 
 	#bsbCarousel-${clientId} .default .bsbButtonDesign button{
-		width:calc(40px + ${deviceArrowWidth?.desktop || arrowWidth});
+		width:calc(${safeLength(arrowOffset, '40px')} + ${deviceArrowWidth?.desktop || arrowWidth});
 	}
 
 	@media (max-width: 768px) {
 		#bsbCarousel-${clientId} .default .bsbButtonDesign button {
-			width:calc(40px + ${deviceArrowWidth?.tablet || deviceArrowWidth?.desktop || arrowWidth});	 
+			width:calc(${safeLength(arrowOffset, '40px')} + ${deviceArrowWidth?.tablet || deviceArrowWidth?.desktop || arrowWidth});	 
 		}
 	}
 
 	@media (max-width: 576px) { 
 		#bsbCarousel-${clientId} .default .bsbButtonDesign button { 
-			width:calc(40px + ${deviceArrowWidth?.mobile || deviceArrowWidth?.tablet || deviceArrowWidth?.desktop || arrowWidth});
+			width:calc(${safeLength(arrowOffset, '40px')} + ${deviceArrowWidth?.mobile || deviceArrowWidth?.tablet || deviceArrowWidth?.desktop || arrowWidth});
 		}
 	}
+
+	${arrowHideOn?.tablet ? `@media (min-width: 577px) and (max-width: 768px) {
+		#bsbCarousel-${clientId} .bsbButtonDesign { display: none !important; }
+	}` : ''}
+
+	${arrowHideOn?.mobile ? `@media (max-width: 576px) {
+		#bsbCarousel-${clientId} .bsbButtonDesign { display: none !important; }
+	}` : ''}
+
+	${'group' === arrowPlacement ? (() => {
+		/* Grouped: both arrows side by side (stacked for vertical sliders) at one matrix spot,
+		   inset by Edge Spacing. Overrides the split layout's full-height buttons, hence the
+		   !important on position and size. */
+		const { v, h } = arrowGroupAlign(arrowGroupPosition);
+		// Auto follows the slide direction; Side by side / Stacked override it.
+		const isColumn = 'column' === arrowGroupDirection || ('row' !== arrowGroupDirection && 'vertical' === direction);
+		const edge = safeLength(arrowOffset, '40px');
+		// Top/Bottom Spacing left empty = same as Edge Spacing.
+		const edgeY = safeLength(arrowOffsetY, edge);
+
+		return `
+		#bsbCarousel-${clientId} .bsbButtonDesign.bsbArrowsGrouped {
+			position: absolute;
+			inset: 0;
+			z-index: 4;
+			display: flex;
+			flex-direction: ${isColumn ? 'column' : 'row'};
+			justify-content: ${isColumn ? v : h};
+			align-items: ${isColumn ? h : v};
+			gap: ${safeLength(arrowGap, '10px')};
+			padding: ${edgeY} ${edge};
+			pointer-events: none;
+		}
+
+		#bsbCarousel-${clientId} .bsbButtonDesign.bsbArrowsGrouped button.carousel-control-prev,
+		#bsbCarousel-${clientId} .bsbButtonDesign.bsbArrowsGrouped button.carousel-control-next {
+			position: static !important;
+			inset: auto !important;
+			width: auto !important;
+			height: auto !important;
+			flex: 0 0 auto;
+			padding: 0;
+			pointer-events: auto;
+			/* Bootstrap dims controls to 0.5; grouped arrows show the colours as set. */
+			opacity: 1;
+		}`;
+	})() : ''}
 
 	#bsbCarousel-${clientId} .item:after{
 		content: '';
@@ -743,6 +800,42 @@ ${layerMotionCSS}
 		top: 0;
 		left: 0;
 	}
+
+	/*
+	 * Move From Edge. Only when it was set in this plugin (customEdge): older sliders still carry
+	 * a moveFromEdge the free build never applied (the -15px default, or 50% from a position
+	 * change), and applying it now would shift their dots. Same edge logic as Pro.
+	 */
+	${(() => {
+		const edge = String(indicator?.moveFromEdge || '').trim();
+
+		if (!indicator?.customEdge || !/^-?\d+(\.\d+)?(px|%)$/.test(edge)) {
+			return '';
+		}
+
+		const sel = `#bsbCarousel-${clientId} .carousel-indicators.${isVertical ? 'vertical' : 'horizontal'}`;
+		const [vertical, horizontal] = String(indicator?.position || 'bottom-center').split(/[\s-]+/);
+
+		/* The vertical half of the position picks the edge. */
+		if ('top' === vertical) {
+			return `${sel} { top: ${edge}; bottom: auto; }`;
+		}
+
+		if ('bottom' === vertical) {
+			return `${sel} { bottom: ${edge}; top: auto; }`;
+		}
+
+		// A centred row: pinned to neither top nor bottom, so the offset moves it in from the side.
+		if ('right' === horizontal) {
+			return `${sel} { right: ${edge}; left: auto; }`;
+		}
+
+		if ('left' === horizontal) {
+			return `${sel} { left: ${edge}; right: auto; }`;
+		}
+
+		return '';
+	})()}
 
 	#bsbCarousel-${clientId} .carousel-indicators {
 		${indicatorTrack}

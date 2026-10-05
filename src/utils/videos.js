@@ -41,6 +41,15 @@ export const TUTORIAL_VIDEOS = {
        the head of both Lightbox hosts — the slider's own panel, and the layer panel a `blocks`
        slider uses instead — since it covers the whole of them rather than any one toggle. */
     lightbox: watch('elkAkihgH70', 1),
+
+    /* Getting started, under the heading of the source picker's first step. */
+    gettingStarted: 'https://www.youtube.com/watch?v=bZo16kmZiXE',
+
+    /* Template Library, under "Browse Templates" in the source picker. */
+    templateLibrary: watch('_69AgIdXM_U'),
+
+    /* Style with AI, the demo link on its Premium panel in the Style tab. */
+    styleWithAi: watch('wF-Jh-O3dig'),
 };
 
 /**
@@ -96,6 +105,9 @@ export const videoLabels = {
     slideContent: () => __('Watch: slide content and badges', 'b-slider'),
     blocksSource: () => __('Watch: build slides with blocks', 'b-slider'),
     lightbox: () => __('Watch: set up the lightbox', 'b-slider'),
+    gettingStarted: () => __('Watch: your first slider in 2 minutes (shown with bSlider Pro)', 'b-slider'),
+    templateLibrary: () => __('Watch: import a ready-made slider', 'b-slider'),
+    styleWithAi: () => __('Watch: what AI can do for your slider', 'b-slider'),
 };
 
 export default VideoHelpLink;

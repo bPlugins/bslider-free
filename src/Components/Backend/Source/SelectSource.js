@@ -7,6 +7,7 @@ import ProPostTypesPromo from '../ProPostTypesPromo';
 import ProSocialPromo from '../ProSocialPromo';
 import { lock, wordpress, woo } from '../../../utils/icons';
 import { adminUrl, isPostTypeLocked } from '../../../utils/functions';
+import { VideoHelpLink, videoLabels } from '../../../utils/videos';
 
 const CardFlag = ({ item }) => {
     if (item.isNew) {
@@ -83,6 +84,8 @@ const TemplateLibraryPrompt = () => {
             >
                 {__('Browse Templates', 'b-slider')}
             </button>
+
+            <VideoHelpLink video='templateLibrary' label={videoLabels.templateLibrary()} />
         </div>
     );
 };
@@ -213,6 +216,7 @@ const SelectSource = (props) => {
                     <div className="bsb_wizard_header">
                         <h2>{__('Choose Content Source', 'b-slider')}</h2>
                         <p className="bsb_wizard_subtitle">{__('Select the type of content you want to display in your slider', 'b-slider')}</p>
+                        <VideoHelpLink video='gettingStarted' label={videoLabels.gettingStarted()} />
                     </div>
 
                     <div className="bsb_parent_area source_grid">

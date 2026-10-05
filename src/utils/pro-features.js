@@ -19,6 +19,8 @@ const GRAB_CURSOR = __('Grab Cursor', 'b-slider');
 export const PRO_FEATURES = {
 	/* General tab */
 	slides: [__('Button label', 'b-slider'), __('Button Url', 'b-slider'), __('Open In New Tab', 'b-slider')],
+	slidesFromPictures: [__('Slides from many pictures at once', 'b-slider')],
+	slidesAiText: [__('AI-written slide text', 'b-slider')],
 	postQuery: [__('Include', 'b-slider'), __('Exclude', 'b-slider'), __('Current Post', 'b-slider')],
 	acfQuery: [__('Sort by ACF Field', 'b-slider'), __('Filter by ACF Field', 'b-slider')],
 	title: [__('Custom HTML wrapper tags (e.g., h1-h6)', 'b-slider')],
@@ -85,7 +87,6 @@ export const PRO_FEATURES = {
 		__('Arrow Follow Mouse', 'b-slider'),
 		__('Lazy Load Enable', 'b-slider'),
 	],
-	indicators: [__('Move From Edge', 'b-slider')],
 	gridPagination: [__('Position (Left, Right, Center)', 'b-slider')],
 	video: [__('Reset On End', 'b-slider'), __('Auto Hide Control', 'b-slider')],
 	videoControls: [
@@ -98,6 +99,7 @@ export const PRO_FEATURES = {
 	],
 
 	/* Style tab */
+	styleWithAi: [__('Styling the slider from one sentence', 'b-slider'), __('AI-written slide text and alt text', 'b-slider')],
 	sliderStyle: [__('Margin', 'b-slider')],
 	contentStyle: [__('Animation', 'b-slider'), __('Delay', 'b-slider'), __('Duration', 'b-slider')],
 	buttonStyle: [

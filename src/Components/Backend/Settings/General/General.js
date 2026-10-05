@@ -1,7 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import { useState } from '@wordpress/element';
 import { SelectControl, TextControl, ToggleControl } from "@wordpress/components";
-import { PanelBody } from '../../../Panel/AccordionPanel';
+import { PanelBody, AccordionGroup } from '../../../Panel/AccordionPanel';
 import HelpTip from '../../../Panel/HelpTip';
 
 import { withSelect } from '@wordpress/data';
@@ -22,7 +22,7 @@ import PostBadges from './PostBadges';
 import VideoGeneral from './VideoGeneral';
 import ProPanel from '../../../Panel/ProPanel';
 import { PRO_FEATURES } from '../../../../utils/pro-features';
-import { VideoHelpLink, videoLabels } from '../../../../utils/videos';
+import { VideoHelpLink, videoLabels, TUTORIAL_VIDEOS } from '../../../../utils/videos';
 
 const General = ({ attributes, setAttributes, activeIndex, setActiveIndex, updateObject, multipleAttrChange, getTaxonomy, premiumProps, postTypes, queriedPosts, hasSlideBlocks }) => {
 
@@ -192,6 +192,16 @@ const General = ({ attributes, setAttributes, activeIndex, setActiveIndex, updat
 
         {(sourceType !== "posts" && sourceType !== "woo" && sourceType !== "blocks") &&
             <PanelBody className='bPlPanelBody' title={__('Slides', 'b-slider')} initialOpen={false}>
+                {/* Above the slides, where Pro has its picture and AI tools; its own group, or opening it closes Slides. */}
+                <AccordionGroup>
+                    <ProPanel
+                        title={__('Slides with AI', 'b-slider')}
+                        proTitle={__('Slides with AI', 'b-slider')}
+                        features={'image' === sourceType ? [PRO_FEATURES.slidesFromPictures, PRO_FEATURES.slidesAiText] : PRO_FEATURES.slidesAiText}
+                        demoUrl={TUTORIAL_VIDEOS.styleWithAi}
+                    />
+                </AccordionGroup>
+
                 <MainItem itemsProps={itemsProps} />
             </PanelBody>}
 

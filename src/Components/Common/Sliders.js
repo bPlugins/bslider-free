@@ -27,8 +27,18 @@ const Sliders = (props) => {
 
 			ensureActiveCarouselItem(sliderDom.current);
 
+			// A `blocks` slider stands still in the editor: no autoplay, and no arrow keys or swipes
+			// moving it while someone types in a slide. The tab bar picks the slide there.
+			const isStill = isBackend && 'blocks' === sourceType;
+
 			// eslint-disable-next-line no-undef
-			var initialize = new bootstrap.Carousel(sliderDom.current, {
+			var initialize = new bootstrap.Carousel(sliderDom.current, isStill ? {
+				interval: false,
+				ride: false,
+				pause: false,
+				keyboard: false,
+				touch: false,
+			} : {
 				interval: options.interval,
 				ride: options.ride === true ? 'carousel' : false,
 				pause: options.pause === true ? 'hover' : false,
@@ -105,6 +115,8 @@ const Sliders = (props) => {
 		/* Left on the node for the layer click handler to find: a layer's "Open Lightbox" opens
 		   from a DOM listener with no props to read. `view.js` does the same on the front end. */
 		sliderDom.current._bsbAttributes = attributes;
+		// No layer animations in the editor; the published page plays them.
+		if (isBackend) return;
 		return initLayerAnimations(sliderDom.current, { isBackend });
 		/* `lightbox` is in the list so the editor's own lightbox picks up a setting as it is
 		   changed, rather than at the next unrelated re-render. */
@@ -132,7 +144,8 @@ const Sliders = (props) => {
 		}
 		{children}
 		{arrow.visibility && <>
-			<div className={`bsbButtonDesign`}>
+			{/* Grouped arrows sit together at one spot. */}
+			<div className={`bsbButtonDesign ${'group' === attributes?.arrowPlacement ? 'bsbArrowsGrouped' : ''}`}>
 
 				<button className={`carousel-control-prev`} id={`bsbCarousel-prev-${clientId}`} type="button" onClick={(e) => { e.stopPropagation(); carousel && carousel.prev(); }} aria-label='Carousel left arrow'>
 
