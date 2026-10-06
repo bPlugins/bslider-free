@@ -1,5 +1,5 @@
 import { image as imageIcon, postDoc as postIcon, woo as wooIcon, video as videoIcon, socialFeed as socialFeedIcon, layers as layersIcon, instagramIcon, youtubeIcon, rssIcon, syncIcon } from '../../utils/icons';
-import { elementorTabIcon, gutenbergTabIcon, phpTabIcon, shortcodeTabIcon } from './icons';
+import { businessDemoIcon, elementorTabIcon, gutenbergTabIcon, phpTabIcon, shortcodeTabIcon } from './icons';
 
 
 const slug = 'b-slider';
@@ -113,6 +113,167 @@ export const demoInfo = {
                     title: 'Software Products & Reviews',
                     type: 'iframe',
                     url: 'https://b-slider.bplugins.com/demo/software-products-reviews/'
+                }
+            ]
+        },
+        {
+            icon: businessDemoIcon(24, 24),
+            title: 'Business Sliders',
+            children: [
+                {
+                    title: 'Creative Digital Agency Slider',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/creative-digital-agency-slider/'
+                },
+                {
+                    title: 'Digital Marketing Agency Slider',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/digital-marketing-agency-slider/'
+                },
+                {
+                    title: 'Interior Design Studio Slider',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/interior-design-studio-slider/'
+                },
+                {
+                    title: 'Creative Design Agency Slider',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/creative-design-agency-slider/'
+                },
+                {
+                    title: 'Dark Digital Agency Hero Slider',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/dark-digital-agency-hero-slider/'
+                },
+                {
+                    title: 'Gradient Illustration Agency Slider',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/gradient-illustration-agency-slider/'
+                },
+                {
+                    title: 'Arch Photo Business Slider',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/arch-photo-business-slider/'
+                },
+                {
+                    title: 'Gradient Wave Business Slider',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/gradient-wave-business-slider/'
+                },
+                {
+                    title: 'Elegant Corporate Agency Slider',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/elegant-corporate-agency-slider/'
+                },
+                {
+                    title: 'Bold Corporate Business Slider',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/bold-corporate-business-slider/'
+                },
+                {
+                    title: 'Modern Consulting Agency Slider',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/modern-consulting-agency-slider/'
+                },
+                {
+                    title: 'Charity & Donation Slider',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/charity-donation-slider/'
+                },
+                {
+                    title: 'Fullscreen Business Hero Slider',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/fullscreen-business-hero-slider/'
+                },
+                {
+                    title: 'Elegant Business Consulting Slider',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/elegant-business-consulting-slider/'
+                },
+                {
+                    title: 'Corporate Leadership Slider',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/corporate-leadership-slider/'
+                },
+                {
+                    title: 'Dark Business Agency Slider',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/dark-business-agency-slider/'
+                },
+                {
+                    title: 'Creative Brand Agency Slider',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/creative-brand-agency-slider/'
+                },
+                {
+                    title: 'SaaS Business Hero Slider',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/saas-business-hero-slider/'
+                },
+                {
+                    title: 'Bold Creative Agency Slider',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/bold-creative-agency-slider/'
+                },
+                {
+                    title: 'Business Web Agency Slider',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/business-web-agency-slider/'
+                },
+                {
+                    title: 'Banking & Fintech Hero Slider – Split Color Panel',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/banking-fintech-hero-slider-split-color-panel/'
+                },
+                {
+                    title: 'SaaS App Showcase Slider – Laptop Mockup Hero',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/saas-app-showcase-slider-laptop-mockup-hero/'
+                },
+                {
+                    title: 'Analytics Hero Slider – Full-Screen Business Slider',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/analytics-hero-slider-full-screen-business-slider/'
+                },
+                {
+                    title: 'Creative Agency Hero Slider',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/creative-agency-hero-slider/'
+                },
+                {
+                    title: 'Split Hero Slider – Agency & Startup',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/split-hero-slider-agency-startup/'
+                },
+                {
+                    title: 'Service Hero Block – Cyber Security',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/service-hero-block-cyber-security/'
+                },
+                {
+                    title: 'Feature Slider – Product Highlights',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/feature-slider-product-highlights/'
+                },
+                {
+                    title: 'Animated City Slider – Day to Night',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/animated-city-slider-day-to-night/'
+                },
+                {
+                    title: 'Static Hero Slider – Interior Design Studio',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/static-hero-slider-interior-design-studio/'
+                },
+                {
+                    title: 'Full Width Blog Hero Slider – Travel & Lifestyle',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/full-width-blog-hero-slider-travel-lifestyle/'
+                },
+                {
+                    title: 'Gradient Hero Slider – SaaS & App Landing',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/gradient-hero-slider-saas-app-landing/'
                 }
             ]
         },

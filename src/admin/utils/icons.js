@@ -36,3 +36,6 @@ export const allPostsDemoIcon = <svg xmlns='http://www.w3.org/2000/svg' viewBox=
     <line x1='3' y1='12' x2='3.01' y2='12' />
     <line x1='3' y1='18' x2='3.01' y2='18' />
 </svg>;
+export const businessDemoIcon = (width = 24, height = 24) => <svg xmlns='http://www.w3.org/2000/svg' width={width} height={height} viewBox='0 0 24 24'>
+    <path fillRule='evenodd' d='M9 3a2 2 0 0 0-2 2v1H4a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-3V5a2 2 0 0 0-2-2H9zm6 3H9V5h6v1zM4 8h16v4h-7v-1h-2v1H4V8zm0 6h7v1h2v-1h7v5H4v-5z' />
+</svg>;
