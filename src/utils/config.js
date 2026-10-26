@@ -370,6 +370,11 @@ export const galleryOf = id => `${id}-video-gallery`;
 const gallerySelector = id => `[data-fancybox='${galleryOf(id)}']`;
 
 export const bsb_lightbox_config = (id, attributes) => {
+    // A blocks slide carries no trigger of its own, so any `data-fancybox` in its saved HTML was written by hand; its lightbox opens through layerAnimations.
+    if ('blocks' === attributes?.sourceType) {
+        return;
+    }
+
     Fancybox.bind(gallerySelector(id), bsb_fancybox_options(attributes));
 }
 

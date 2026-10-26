@@ -75,6 +75,8 @@ const LightboxPicture = ({ enabled, clientId, href, caption = '', attributes, is
         className='bsbLightboxImage'
         data-fancybox={galleryOf(clientId)}
         href={href}
+        /* Fancybox fills its thumbnail and video poster templates from this, unescaped, instead of the inner img. */
+        data-thumb-src={href}
         /* Left off entirely where there is no caption, rather than set empty: Fancybox reads this off
            the dataset and an empty string is still a caption to it — it renders the caption element
            and every existing lightbox gets a taller pane. Absence is the off state. */

@@ -74,7 +74,7 @@ call_user_func( function( $attributes, $content ) {
         if ( isset( $slider['img'] ) && is_array( $slider['img'] ) ) {
             foreach ( [ 'caption', 'title' ] as $key ) {
                 if ( isset( $slider['img'][ $key ] ) && is_string( $slider['img'][ $key ] ) ) {
-                    $slider['img'][ $key ] = wp_kses_post( $slider['img'][ $key ] );
+                    $slider['img'][ $key ] = wp_strip_all_tags( $slider['img'][ $key ] );
                 }
             }
 
@@ -103,14 +103,13 @@ call_user_func( function( $attributes, $content ) {
     $fimg_size = isset( $posts_query['fImgSize'] ) ? $posts_query['fImgSize'] : 'full';
     $meta_date_format = isset( $posts_query['metaDateFormat'] ) ? $posts_query['metaDateFormat'] : 'M j, Y';
     $is_excerpt_from_content = isset( $posts_query['isExcerptFromContent'] ) ? $posts_query['isExcerptFromContent'] : true;
-    $excerpt_length = isset( $posts_query['excerptLength'] ) ? $posts_query['excerptLength'] : 25;
+    $excerpt_length = \B_SLIDER\Posts::excerptLengthOf( $posts_query );
 
     $selected_acf_fields = \B_SLIDER\Posts::acfFieldsToFetch( $posts_query, $post_type );
 
-    // The AJAX pages send the field list back from the browser, so it is signed here and checked in PostsAjax.
-    $acf_sig = \B_SLIDER\Posts::acfFieldsSignature( $selected_acf_fields, $post_type );
-    if ( $acf_sig && is_array( $posts_query ) ) {
-        $attributes['postsQuery'] = array_merge( $posts_query, [ 'acfSig' => $acf_sig ] );
+    // The AJAX pages send the query back from the browser, so its ACF fields and excerpt length are signed here and checked in PostsAjax.
+    if ( is_array( $posts_query ) ) {
+        $attributes['postsQuery'] = array_merge( $posts_query, [ 'querySig' => \B_SLIDER\Posts::querySignature( $posts_query ) ] );
     }
 
     $posts = \B_SLIDER\Posts::arrangedPosts( get_posts( $query ), $post_type, $fimg_size, $meta_date_format, $is_excerpt_from_content, $excerpt_length, $selected_acf_fields );

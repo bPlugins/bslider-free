@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import useEditorLink from '../../../hooks/useEditorLink';
 import { bsb_open_popup, galleryOf } from '../../../utils/config';
+import { safeMediaUrl } from '../../../utils/functions';
 
 /**
  * A slide picture that is itself the link — the `Clicking the picture` setting.
@@ -103,7 +104,9 @@ const LinkedPicture = ({ href, linkTarget, label = '', lightbox = false, caption
             ref={anchor}
             className='bsbLightboxImage'
             data-fancybox={galleryOf(clientId)}
-            href={href}
+            href={safeMediaUrl(href)}
+            /* Fancybox fills its thumbnail and video poster templates from this, unescaped, instead of the inner img. */
+            data-thumb-src={safeMediaUrl(href)}
             /* Left off entirely where there is no caption, rather than set empty: Fancybox reads this
                off the dataset and an empty string is still a caption to it — it renders the caption
                element and every existing lightbox gets a taller pane. Absence is the off state. */
