@@ -1,5 +1,5 @@
 import { Fancybox } from '@fancyapps/ui';
-import { lightboxCaption, ownCarouselItems, sanitizeHref } from './functions';
+import { lightboxCaption, ownCarouselItems, safeMediaUrl, sanitizeHref } from './functions';
 import { bsb_fancybox_options } from './config';
 
 const ANIMATED = 'animate__animated';
@@ -248,11 +248,15 @@ export const initLayerAnimations = (root, { isBackend = false } = {}) => {
 					|| ''
 			});
 
-			if (imgUrl) {
+			// `type` is fixed because Fancybox would otherwise guess it from the extension, and a guessed
+			// `html5video` pastes the URL into its player markup as a string.
+			const src = safeMediaUrl(imgUrl);
+
+			if (src) {
 				// Spread, so the key is absent rather than empty: Fancybox renders its caption
 				// element for an empty string too, which changes the layout of every lightbox.
 				Fancybox.show(
-					[caption ? { src: imgUrl, caption } : { src: imgUrl }],
+					[caption ? { src, type: 'image', caption } : { src, type: 'image' }],
 					bsb_fancybox_options(sliderAttrs)
 				);
 			}

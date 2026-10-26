@@ -6,7 +6,7 @@ import AcfFields, { resolveSlideImage, resolveButtonLink, resolveButtonText, res
 import LinkedPicture from '../Common/single-item/LinkedPicture';
 import Pagination from '../Common/Layouts/grid/Pagination/Pagination';
 import { bsb_lightbox_config } from '../../utils/config';
-import { lightboxCaption } from '../../utils/functions';
+import { lightboxCaption, plainText } from '../../utils/functions';
 
 const PostsGridFront = ({ attributes, firstPosts, totalPosts, nonce, commonDeProps = {} }) => {
     const [posts, setPosts] = useState(firstPosts);
@@ -60,9 +60,10 @@ const PostsGridFront = ({ attributes, firstPosts, totalPosts, nonce, commonDePro
                     // and `LinkedPicture` renders the bare `<img>` when there is no link to make.
                     const isLightbox = isLightboxOn && !!slideImg?.url;
                     const imageHref = isLightbox ? slideImg.url : (resolveButtonLink(post, attributes) || '');
-                    const plainTitle = String(postTitle || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+                    // Decoded for the `aria-label` only. Fancybox sets the caption with `innerHTML`, so it keeps the entities.
+                    const plainTitle = plainText(postTitle);
                     const lbCaption = isLightbox
-                        ? lightboxCaption(captionMode, { imageCaption: slideImg?.alt || '', title: plainTitle })
+                        ? lightboxCaption(captionMode, { imageCaption: slideImg?.alt || '', title: String(postTitle || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim() })
                         : '';
                     return <div key={index} className={`item ${index === 0 ? 'active' : ''} ${imageHref ? 'is-linked' : ''} `}>
                         <div className="img">

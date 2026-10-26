@@ -1,6 +1,6 @@
 import { createElement, useEffect, useRef } from 'react';
 import { bsb_open_popup, galleryOf } from '../../../utils/config';
-import { lightboxCaption } from '../../../utils/functions';
+import { lightboxCaption, safeMediaUrl } from '../../../utils/functions';
 
 /**
  * The picture, wrapped in a lightbox trigger where the slider asks for one.
@@ -125,7 +125,7 @@ const ImageItem = (props) => {
 
     return <div className={`item ${index === 0 ? 'active' : ''} ${isLightbox ? 'is-linked' : ''} ${classNames.item || ''}`}>
         <div className="img">
-            {img?.url && <LightboxPicture enabled={isLightbox} clientId={clientId} href={img.url} caption={lbCaption} attributes={attributes} isBackEnd={isBackEnd} isSelected={isSelected}>
+            {img?.url && <LightboxPicture enabled={isLightbox} clientId={clientId} href={safeMediaUrl(img.url)} caption={lbCaption} attributes={attributes} isBackEnd={isBackEnd} isSelected={isSelected}>
                 <img src={img.url} className="d-block w-100" alt={altText || img?.alt || img?.title} />
             </LightboxPicture>}
         </div>

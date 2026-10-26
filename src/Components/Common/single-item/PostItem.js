@@ -3,7 +3,7 @@ import Excerpt from '../Layouts/grid/Excerpt';
 import AcfFields, { resolveSlideImage, resolveButtonLink, resolveButtonText, resolveTitle } from './AcfFields';
 import LinkedPicture from './LinkedPicture';
 import SlideLink from './SlideLink';
-import { lightboxCaption } from '../../../utils/functions';
+import { lightboxCaption, plainText } from '../../../utils/functions';
 
 const PostItem = (props) => {
     const { attributes, post, index, clientId, isBackEnd = false, isSelected = false, classNames = {} } = props;
@@ -59,7 +59,7 @@ const PostItem = (props) => {
        `get_the_post_thumbnail_url` for `fImgSize`, which is `full`, so there is no smaller render to
        choose between here. */
     const imageHref = isLightbox ? (slideImg?.url || '') : (btnLink || '');
-    const accessibleLabel = String(postTitle || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim() || imageHref;
+    const accessibleLabel = plainText(postTitle) || imageHref;
 
     return <div className={`item ${index === 0 ? 'active' : ''} ${imageHref ? 'is-linked' : ''} ${classNames.item || ''}`}>
         {/* Overlay anchor — only when there is a link but no image to carry it. The picture anchor

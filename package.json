@@ -1,6 +1,6 @@
 {
 	"name": "slider-block",
-	"version": "2.2.2",
+	"version": "2.2.4",
 	"description": "Bootstrap Slider Plugin",
 	"main": "build/index.js",
 	"scripts": {

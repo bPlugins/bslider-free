@@ -1,6 +1,7 @@
 import { Fancybox } from '@fancyapps/ui';
 import '@fancyapps/ui/dist/fancybox/fancybox.css';
 import { getTypoCSS } from '../../../bpl-tools/utils/getCSS';
+import { safeMediaUrl } from './functions';
 
 export const controlsHandler = (controls) => {
     const newControls = [];
@@ -413,7 +414,7 @@ export const bsb_open_popup = (id, attributes, trigger, container = null) => {
 
 export const bsb_open_video_popup = (sliders, index, attributes) => {
     const items = sliders.map(slide => ({
-        src: slide?.video?.url,
+        src: safeMediaUrl(slide?.video?.url),
         type: 'html5video',
         caption: ''
     }));

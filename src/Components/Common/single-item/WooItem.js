@@ -3,7 +3,7 @@ import Excerpt from '../Layouts/grid/Excerpt';
 import AcfFields, { resolveSlideImage, resolveButtonLink, resolveButtonText, resolveTitle } from './AcfFields';
 import LinkedPicture from './LinkedPicture';
 import SlideLink from './SlideLink';
-import { lightboxCaption } from '../../../utils/functions';
+import { lightboxCaption, plainText } from '../../../utils/functions';
 
 const WooItem = (props) => {
     const { attributes, product, index, clientId, isBackEnd = false, isSelected = false, classNames = {} } = props;
@@ -44,12 +44,13 @@ const WooItem = (props) => {
        `custom` has no per-slide field on a product slide — see the note in `PostItem`. */
     const captionMode = 'custom' === lightbox?.caption ? 'title' : lightbox?.caption;
 
-    const accessibleLabel = String(wooTitle || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+    // Decoded for the `aria-label` only. Fancybox sets the caption with `innerHTML`, so it keeps the entities.
+    const accessibleLabel = plainText(wooTitle);
 
     const lbCaption = isLightbox
         ? lightboxCaption(captionMode, {
             imageCaption: slideImg?.alt || '',
-            title: accessibleLabel
+            title: String(wooTitle || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
         })
         : '';
 

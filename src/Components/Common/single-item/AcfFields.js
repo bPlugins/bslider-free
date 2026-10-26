@@ -8,7 +8,7 @@
  */
 
 import { __ } from '@wordpress/i18n';
-import { sanitizeHref } from '../../../utils/functions';
+import { plainText, sanitizeHref } from '../../../utils/functions';
 import SlideLink from './SlideLink';
 
 const MEDIA_TYPES = ['image', 'gallery'];
@@ -268,7 +268,8 @@ const Value = ({ acf, cfg }) => {
         {hasHTML ? (
             <span className="bsb-acf-html-value" dangerouslySetInnerHTML={{ __html: acf.value }} />
         ) : (
-            acf.value
+            // AcfFields.php kses's the value, which turns a bare `&` into `&amp;`; as text it would show.
+            plainText(acf.value)
         )}
         {cfg.suffix && <span className="bsb-acf-affix">{cfg.suffix}</span>}
     </>;

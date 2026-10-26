@@ -245,6 +245,27 @@ export const sanitizeHref = (url) => {
 };
 
 /**
+ * A slide's video or picture URL, safe to hand to Fancybox.
+ *
+ * Fancybox builds its video player by pasting the URL into `<source src="{{src}}">` as a string, so a
+ * quote in the URL would end the attribute and let the rest add its own. `URL` percent-encodes quotes
+ * in the path and query, but not in the host, so whatever still holds one after parsing is refused.
+ * Anything that is not http(s), or not a URL at all, gives `undefined`.
+ */
+export const safeMediaUrl = (url) => {
+    const raw = String(url || '').trim();
+    if (!raw) return undefined;
+
+    try {
+        const { protocol, href } = new URL(raw, window.location.href);
+
+        return ['http:', 'https:'].includes(protocol) && !/["<>`\s\\]/.test(href) ? href : undefined;
+    } catch {
+        return undefined;
+    }
+};
+
+/**
  * What the lightbox writes under the picture — the `Caption` setting.
  *
  * **One resolver, because four renderers ask the question.** `ImageItem`, `PostItem`, `WooItem` and
@@ -286,5 +307,19 @@ export const lightboxCaption = (mode, sources = {}) => {
  */
 const stripCaptionTags = value => String(value || '')
     .replace(/<[^>]*>/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+/**
+ * Markup as the words a screen reader should hear — tags gone, entities decoded.
+ *
+ * render.php hex-escapes the JSON it prints, so titles arrive with their entities intact (`&amp;`)
+ * instead of decoded by the browser on the way in. That is right for `dangerouslySetInnerHTML`, but an
+ * `aria-label` is plain text and would read the entity out. `DOMParser` documents are inert: nothing
+ * in them loads or runs.
+ */
+export const plainText = value => new DOMParser()
+    .parseFromString(String(value || '').replace(/<[^>]*>/g, ' '), 'text/html')
+    .documentElement.textContent
     .replace(/\s+/g, ' ')
     .trim();
