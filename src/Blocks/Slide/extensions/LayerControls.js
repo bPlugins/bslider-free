@@ -14,6 +14,12 @@ import InteractivityPanel from '../Panels/InteractivityPanel';
 import LightboxPanel from '../Panels/LightboxPanel';
 import TypographyPanel from '../Panels/TypographyPanel';
 import ResponsivePanel from '../Panels/ResponsivePanel';
+import PositionPanel from '../Panels/PositionPanel';
+import LayerCanvasHandles from './LayerCanvasHandles';
+import LayerGroupTools from './LayerGroupTools';
+import { LayerPicker, usePicked } from './pickedLayers';
+import { layerOn, useLayerDevice } from './layerDevice';
+import { placeWith } from '../../../utils/layerDevices';
 import { TipToggle } from '../../../Components/Panel/TipField';
 
 /**
@@ -51,6 +57,16 @@ const withLayerControls = createHigherOrderComponent((BlockEdit) => (props) => {
 	   the dropdown in Hover & Click changes. */
 	const opensLightbox = 'lightbox' === attributes?.bsbLayer?.click?.action;
 
+	/* The Shift-clicked layers, else Gutenberg's multi-selected absolute ones (as one string so the selector stays stable); the first draws the bar. */
+	const picked = usePicked();
+	const groupIds = useSelect(select => {
+		const { getMultiSelectedBlockClientIds, getBlockAttributes } = select('core/block-editor');
+
+		return getMultiSelectedBlockClientIds().filter(id => getBlockAttributes(id)?.bsbLayer?.position?.absolute).join(',');
+	}, []);
+	const group = picked.length > 1 ? picked : (groupIds ? groupIds.split(',') : []);
+	const device = useLayerDevice();
+
 	if (!isInsideSlide) {
 		return <BlockEdit {...props} />;
 	}
@@ -65,16 +81,35 @@ const withLayerControls = createHigherOrderComponent((BlockEdit) => (props) => {
 	 * a font size the user had just cleared, because a cleared field comes back as absent, not
 	 * as null.
 	 */
-	const update = (section, changes, replace = false) => setAttributes({
-		bsbLayer: { ...layer, [section]: replace ? changes : { ...(layer[section] || {}), ...changes } },
-	});
+	const update = (section, changes, replace = false) => {
+		const next = { ...layer, [section]: replace ? changes : { ...(layer[section] || {}), ...changes } };
+
+		// A place written on Tablet or Mobile keeps its own values there; the shared ones go to Desktop.
+		if ('position' === section && !replace && changes?.desktop) {
+			next.position = placeWith({ ...next.position, desktop: layer.position?.desktop }, device, changes.desktop);
+		}
+
+		// An `undefined` key is dropped on save but not on the reload check, which would mark the block invalid.
+		if (undefined === next[section]) {
+			delete next[section];
+		}
+
+		setAttributes({ bsbLayer: next });
+	};
 
 	/* `clientId` travels with the rest so a panel can reach the blocks around it — `Hover & Click`
 	   uses it to find the ancestor slider and write its lightbox settings. */
-	const panelProps = { layer, update, blockName: name, clientId };
+	const shown = layerOn(layer, device);
+	const panelProps = { layer: shown, update, blockName: name, clientId };
 
 	return <>
 		<BlockEdit {...props} />
+
+		{isSelected && layer.position?.absolute && <LayerCanvasHandles clientId={clientId} layer={shown} update={update} />}
+
+		{group.length > 1 && group[0] === clientId && <LayerGroupTools ids={group} />}
+
+		{layer.position?.absolute && <LayerPicker clientId={clientId} />}
 
 		{/* Only while this block is the selected one: the filter runs for every block in the
 		    tree, and an InspectorControls rendered by an unselected block would pile its panels
@@ -89,7 +124,7 @@ const withLayerControls = createHigherOrderComponent((BlockEdit) => (props) => {
 			{/* Ahead of the animation panels, because a font is a fact about the layer itself
 			    and the rest is about how it arrives. Only where there is text to set. */}
 			{canCarryTypography(name) && <PanelBody className='bPlPanelBody' title={__('Typography', 'b-slider')} badge={__('New', 'b-slider')} initialOpen={false}>
-				<TypographyPanel {...panelProps} />
+				<TypographyPanel {...panelProps} device={device} />
 			</PanelBody>}
 
 			<PanelBody className='bPlPanelBody' title={__('Animation', 'b-slider')} badge={__('New', 'b-slider')} initialOpen={false}>
@@ -141,6 +176,10 @@ const withLayerControls = createHigherOrderComponent((BlockEdit) => (props) => {
 					onChange={val => update('fitContent', val, true)}
 					tip={__('Shrinks the block background and container width to hug the inner content instead of stretching full width.', 'b-slider')}
 				/>
+			</PanelBody>
+
+			<PanelBody className='bPlPanelBody' title={__('Position', 'b-slider')} badge={__('New', 'b-slider')} initialOpen={false}>
+				<PositionPanel {...panelProps} device={device} />
 			</PanelBody>
 
 			{/* Last, because it qualifies everything above it: which screens any of this applies

@@ -1,6 +1,18 @@
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { useEffect } from '@wordpress/element';
+import { Button, Flex, __experimentalUnitControl as UnitControl } from '@wordpress/components';
 import Typography from '../../../../../bpl-tools/Components/Typography/Typography';
+import Label from '../../../../../bpl-tools/Components/Label/Label';
+import HelpTip from '../../../Components/Panel/HelpTip';
+
+const SIZE_UNITS = [
+	{ value: 'px', label: 'px', default: 16 },
+	{ value: 'rem', label: 'rem', default: 1 },
+	{ value: 'em', label: 'em', default: 1 },
+	{ value: 'vw', label: 'vw', default: 1 },
+];
+
+const withUnit = (size) => ('number' === typeof size ? `${size}px` : size || '');
 /**
  * Puts a Google font stylesheet into the editor, once per family.
  *
@@ -45,21 +57,51 @@ const loadEditorFont = (family) => {
  * Offered only on blocks that carry text (see `TEXT_LAYER_BLOCKS`). Everything else inherits it
  * from the page as it always did.
  */
-const TypographyPanel = ({ layer, update }) => {
+const TypographyPanel = ({ layer, update, device = 'desktop' }) => {
 	const typo = layer.typo || {};
+
+	/* The size follows the editor's preview device; an empty one takes the device above's. */
+	const sizes = 'object' === typeof typo.fontSize && null !== typo.fontSize ? typo.fontSize : { desktop: typo.fontSize ?? null };
+	const above = 'mobile' === device && withUnit(sizes.tablet) ? 'tablet' : 'desktop';
+	const DEVICE_NAMES = { desktop: __('Desktop', 'b-slider'), tablet: __('Tablet', 'b-slider'), mobile: __('Mobile', 'b-slider') };
+	const setSize = (val) => update('typo', { ...typo, fontSize: { desktop: null, tablet: null, mobile: null, ...sizes, [device]: val || null } }, true);
 
 	// On every render rather than only on change, so a font already saved is loaded when the
 	// block is selected again — `loadEditorFont` is a no-op once the link is there.
 	useEffect(() => loadEditorFont(typo.fontFamily), [typo.fontFamily]);
 
-	return <Typography
-		label={__('Font', 'b-slider')}
-		value={typo}
-		onChange={val => {
-			loadEditorFont(val?.fontFamily);
-			update('typo', val, true);
-		}}
-	/>;
+	return <>
+		<Typography
+			label={__('Font', 'b-slider')}
+			value={typo}
+			onChange={val => {
+				loadEditorFont(val?.fontFamily);
+				update('typo', val, true);
+			}}
+		/>
+
+		<Flex className='mt15 bsb-device-place' align='center'>
+			<Label className=''>
+				{__('Font size', 'b-slider')}
+				<HelpTip>{__('Follows the device shown in the editor (Desktop, Tablet, Mobile). Empty takes the size of the device above. With Auto-scale on, a Tablet or Mobile size is the size seen on that screen.', 'b-slider')}</HelpTip>
+			</Label>
+
+			{'desktop' !== device && <span className='bsb-device-badge'>{DEVICE_NAMES[device]}</span>}
+		</Flex>
+
+		<UnitControl
+			className='mt5'
+			value={withUnit(sizes[device])}
+			onChange={setSize}
+			units={SIZE_UNITS}
+			placeholder={'desktop' === device ? __('Theme', 'b-slider') : withUnit(sizes[above]) || __('Theme', 'b-slider')}
+		/>
+
+		{'desktop' !== device && withUnit(sizes[device]) && <Button className='mt5' variant='link' onClick={() => setSize(null)}>
+			{/* translators: %s: Desktop or Tablet */}
+			{sprintf(__('Same as %s', 'b-slider'), DEVICE_NAMES[above])}
+		</Button>}
+	</>;
 };
 
 export default TypographyPanel;

@@ -1,4 +1,5 @@
 import { __, sprintf } from '@wordpress/i18n';
+import { useEffect } from '@wordpress/element';
 import { useBlockProps, InnerBlocks, InspectorControls } from '@wordpress/block-editor';
 import { SelectControl, TabPanel, BorderControl, __experimentalBoxControl as BoxControl } from '@wordpress/components';
 import { AccordionGroup, PanelBody } from '../../Components/Panel/AccordionPanel';
@@ -15,9 +16,22 @@ import { slideStyles } from './slideStyles';
 import { slideContentClass } from './slideContentClass';
 import SlideOverlay from './SlideOverlay';
 import SlidePlaceholder from './SlidePlaceholder';
+import { syncSlidePads } from '../../utils/slidePads';
+import { findBlockElement } from './extensions/layerGeometry';
 
 const Edit = ({ attributes, setAttributes, clientId }) => {
 	const { bsbStagger = 0, background = {}, overlay, border = {}, radius = {}, padding = {}, contentAlign, verticalAlign, wordWrap = true } = attributes;
+
+	// `--bsb-pad-*` for "Full slide" layers, read off the slide as drawn; never saved.
+	useEffect(() => {
+		const element = findBlockElement(clientId);
+		const observer = element && 'undefined' !== typeof ResizeObserver ? new ResizeObserver(() => syncSlidePads(element)) : null;
+
+		syncSlidePads(element);
+		observer?.observe(element);
+
+		return () => observer?.disconnect();
+	}, [clientId, JSON.stringify(padding)]);
 
 	return <>
 		{/* The same two tabs the slider itself carries, and the same one-panel-at-a-time

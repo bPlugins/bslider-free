@@ -17,6 +17,7 @@ import { allowedAcfFields, FIELD_ROLES } from '../Common/single-item/AcfFields';
 import SelectSource from './Source/SelectSource';
 import Default from '../Common/Layouts/Default';
 import ClipBoard from './ClipBoard';
+import { hasOwnBreakpoints } from '../../utils/breakpoints';
 import useIframeAssetSync from '../../../../bpl-tools/hooks/useIframeAssetSync';
 // The sidebar markup leans on bpl-tools' `mt*`/`mb*` spacing classes, which live here.
 import '../../../../bpl-tools/Components/style.scss';
@@ -155,7 +156,7 @@ const Edit = (props) => {
 			    everything inside them are real blocks with their own selection. Reaching up to
 			    the parent on every click there would take the click meant for a heading or a
 			    button and leave the user unable to edit anything inside a slide. */}
-			<div id={`bsbCarousel-${clientId}`} onClick={sourceType === 'blocks' ? undefined : () => selectBlock(clientId)}>
+			<div id={`bsbCarousel-${clientId}`} className={hasOwnBreakpoints(attributes) ? 'bsb-custom-bp' : undefined} onClick={sourceType === 'blocks' ? undefined : () => selectBlock(clientId)}>
 				<div className={`mainLayout ${layoutType}`}>
 
 					{isOld ? <>

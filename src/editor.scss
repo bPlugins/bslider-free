@@ -2754,3 +2754,225 @@ svg#bsbSlider {
         margin-top: 8px;
     }
 }
+
+/* The canvas `display: block` above outranks style.scss's absolute-layer grid, so it is restated here. */
+.carousel.blocks .carousel-item:not(.carousel-item *):has(> .bsb-slide-content .bsb-abs) {
+    display: grid;
+}
+
+/* Plain blocks around a layer stay unpositioned as on the page, so X/Y count from the slide. */
+.carousel.blocks .bsb-slide-content .block-editor-block-list__block:not(.bsb-abs):has(.bsb-abs) {
+    position: static;
+}
+
+/* Move and rotate handles beside a selected absolute layer; placed every frame by LayerCanvasHandles. */
+.bsb-layer-drag-handle,
+.bsb-layer-rotate-handle {
+    position: fixed;
+    z-index: 100000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border: 0;
+    border-radius: 4px;
+    background: var(--wp-admin-theme-color, #3858e9);
+    color: #fff;
+    cursor: grab;
+    touch-action: none;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+
+    &:active {
+        cursor: grabbing;
+    }
+}
+
+.bsb-layer-rotate-handle {
+    border-radius: 50%;
+}
+
+/* Hidden on the canvas for this session; faint while selected so the author can still find it. */
+.bsb-editor-hidden:not(.is-selected) {
+    visibility: hidden !important;
+}
+
+.bsb-editor-hidden.is-selected {
+    opacity: 0.3 !important;
+}
+
+/* A layer shown on every slide is labelled on the canvas, under it: the block toolbar covers the top. */
+.carousel.blocks .bsb-layer[data-bsb-static-label]::before {
+    content: attr(data-bsb-static-label);
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 2;
+    padding: 1px 6px;
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 1.6;
+    letter-spacing: 0;
+    color: var(--bsb-primary-dark, #095edc);
+    background: var(--bsb-primary-soft, #e7f0fe);
+    border-radius: 0 0 3px 3px;
+    pointer-events: none;
+}
+
+/* Small grey notes in the layer and slider panels. */
+.bsb-attach-note {
+    margin-bottom: 0;
+    color: #757575;
+    font-size: 12px;
+}
+
+/* A Tablet or Mobile font size on the canvas stays its size on screen under Auto-scale, as on the page. */
+.bsb-layer-scaled .bsb-abs.bsb-font-device,
+.bsb-layer-scaled .bsb-abs .bsb-font-device {
+    font-size: calc(var(--bsb-font-device) / var(--bsb-layer-scale, 1)) !important;
+}
+
+/* Which device's place the Position panel is changing, outside the Desktop view. */
+.bsb-device-place {
+    justify-content: space-between;
+
+    .bsb-device-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 2px 8px;
+        border-radius: 2px;
+        background: var(--wp-admin-theme-color, #3858e9);
+        color: #fff;
+        font-size: 11px;
+        font-weight: 500;
+        text-transform: uppercase;
+    }
+}
+
+/* A Shift-clicked layer, drawn like Gutenberg's own selection. */
+.bsb-layer-picked {
+    outline: 2px solid var(--wp-admin-theme-color, #3858e9) !important;
+    outline-offset: 1px;
+}
+
+/* Lock badge in place of the move handle on a locked layer. */
+.bsb-layer-lock-badge {
+    position: fixed;
+    z-index: 100000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    background: #757575;
+    color: #fff;
+    pointer-events: none;
+}
+
+/* Focused move handle: the arrow keys now nudge the layer. */
+.bsb-layer-drag-handle:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--wp-admin-theme-color, #3858e9);
+}
+
+/* Bar under two or more selected absolute layers: move together, align, space evenly. */
+.bsb-layer-group-bar {
+    position: fixed;
+    z-index: 100000;
+    display: flex;
+    gap: 2px;
+    padding: 3px;
+    border: 1px solid #1e1e1e;
+    border-radius: 4px;
+    background: #fff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+
+    button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 30px;
+        height: 30px;
+        padding: 0;
+        border: 0;
+        border-radius: 3px;
+        background: transparent;
+        color: #1e1e1e;
+        cursor: pointer;
+
+        &:hover:not(:disabled) {
+            color: var(--wp-admin-theme-color, #3858e9);
+            background: #f0f0f0;
+        }
+
+        &:disabled {
+            opacity: 0.3;
+            cursor: default;
+        }
+    }
+
+    .bsb-layer-group-divider {
+        width: 1px;
+        margin: 4px 3px;
+        background: #ddd;
+    }
+
+    .bsb-layer-group-move {
+        margin-right: 4px;
+        background: var(--wp-admin-theme-color, #3858e9);
+        color: #fff;
+        cursor: grab;
+        touch-action: none;
+
+        &:hover:not(:disabled) {
+            color: #fff;
+            background: var(--wp-admin-theme-color, #3858e9);
+        }
+
+        &:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--wp-admin-theme-color, #3858e9);
+        }
+    }
+}
+
+/* Snap line while dragging; hidden until an edge snaps. */
+.bsb-layer-guide {
+    position: fixed;
+    z-index: 99998;
+    display: none;
+    background: #ff3ea5;
+    pointer-events: none;
+}
+
+/* Sits over the layer without taking clicks, so the text inside stays editable; only the handles catch the pointer. */
+.bsb-layer-resize-frame {
+    position: fixed;
+    z-index: 99999;
+    pointer-events: none;
+}
+
+.bsb-layer-resize-handle {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    margin: -5px 0 0 -5px;
+    border: 1.5px solid var(--wp-admin-theme-color, #3858e9);
+    border-radius: 2px;
+    background: #fff;
+    box-sizing: border-box;
+    pointer-events: auto;
+    touch-action: none;
+
+    &.is-nw { left: 0; top: 0; cursor: nwse-resize; }
+    &.is-n { left: 50%; top: 0; cursor: ns-resize; }
+    &.is-ne { left: 100%; top: 0; cursor: nesw-resize; }
+    &.is-e { left: 100%; top: 50%; cursor: ew-resize; }
+    &.is-se { left: 100%; top: 100%; cursor: nwse-resize; }
+    &.is-s { left: 50%; top: 100%; cursor: ns-resize; }
+    &.is-sw { left: 0; top: 100%; cursor: nesw-resize; }
+    &.is-w { left: 0; top: 50%; cursor: ew-resize; }
+}

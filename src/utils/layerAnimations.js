@@ -137,7 +137,13 @@ export const initLayerAnimations = (root, { isBackend = false } = {}) => {
 	slides.forEach(item => {
 		if (item !== first) arm(item, isBackend);
 	});
-	const raf = requestAnimationFrame(() => enter(first));
+
+	// Layers shown on every slide play in once, with the page.
+	const statics = [...root.children].find(el => el.classList.contains('bsb-static-layers'));
+	const raf = requestAnimationFrame(() => {
+		enter(first);
+		enter(statics);
+	});
 
 	// Bootstrap's carousel events bubble, so a slider nested in one of these slides announces
 	// every one of its own slide changes to this handler too. Only the ones this element fired

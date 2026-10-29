@@ -1,6 +1,8 @@
 import { getBoxValue } from '../../../../bpl-tools/utils/functions';
 import { getTypoCSS, getColorsCSS } from '../../../../bpl-tools/utils/getCSS';
 import arrows from '../../utils/arrows';
+import { breakpointsOf, hasOwnBreakpoints, toPluginBreakpoints } from '../../utils/breakpoints';
+import { deviceRulesCSS } from '../../utils/deviceRules';
 
 /** Grouped arrows: matrix spot → flex alignment. Allow-listed, since the value lands in a <style> tag. */
 const ARROW_SPOTS = { top: 'flex-start', center: 'center', bottom: 'flex-end', left: 'flex-start', right: 'flex-end' };
@@ -531,8 +533,13 @@ ${layerMotionCSS}
 		${postsQuery?.badgeSettings?.price?.showSaleOnly === true ? 'display: none !important;' : ''}
 	}`;
 
+	// Custom Breakpoints: the stylesheet's device rules skip this slider, so they come in here, and every query moves to its widths.
+	const ownBreakpoints = hasOwnBreakpoints(attributes);
+	const atWidths = (css) => (ownBreakpoints ? toPluginBreakpoints(css, breakpointsOf(attributes)) : css);
+
 	return <style dangerouslySetInnerHTML={{
-		__html: `
+		__html: atWidths(`
+	${ownBreakpoints ? deviceRulesCSS(`#bsbCarousel-${clientId}`, attributes) : ''}
 	${getTypoCSS('', loadMoreBtn?.typo)?.googleFontLink}
 	${getTypoCSS('', titleTypo)?.googleFontLink}
 	${getTypoCSS('', descTypo)?.googleFontLink}
@@ -961,7 +968,7 @@ ${layerMotionCSS}
 		width: calc( 100% - ${thumbnailsWidth?.desktop} );
 	}
 
-	`.replace(/\s+/g, ' ')
+	`.replace(/\s+/g, ' '))
 	}} />
 }
 export default Style;

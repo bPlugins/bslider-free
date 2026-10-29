@@ -1285,9 +1285,12 @@
     }
 }
 
+/* Device rules below skip a slider with Custom Breakpoints; its own CSS (Style.js) has them at its widths. `:where` adds no specificity. */
+$bsb-std-bp: ':where(:not(.bsb-custom-bp *))';
+
 @media (max-width: 768px) {
     @for $i from 1 through 12 {
-        .columns-tablet-#{$i} {
+        .columns-tablet-#{$i}#{$bsb-std-bp} {
             grid-template-columns: repeat(#{$i}, 1fr);
             columns: $i;
         }
@@ -1296,7 +1299,7 @@
 
 @media (max-width: 576px) {
     @for $i from 1 through 12 {
-        .columns-mobile-#{$i} {
+        .columns-mobile-#{$i}#{$bsb-std-bp} {
             grid-template-columns: repeat(#{$i}, 1fr);
             columns: $i;
         }
@@ -1492,6 +1495,43 @@
     height: auto;
 }
 
+/* A slide with an absolute layer: the content area fills the slide and frames the X/Y offsets. */
+.carousel-item:has(> .bsb-slide-content .bsb-abs),
+.carousel-item.bsb-had-static {
+    display: grid;
+
+    /* Isolated, so a layer's z-index orders it among the slide's layers and never behind the slide's background. */
+    > .bsb-slide-content {
+        position: relative;
+        isolation: isolate;
+    }
+
+    /* Vertical Align puts the slide in flex; the alignment moves into the now full-height content area. */
+    &[style*="justify-content"] > .bsb-slide-content {
+        flex: 1 1 auto;
+        display: flex;
+        flex-direction: column;
+        justify-content: inherit;
+    }
+}
+
+/* "Show on all slides" layers, lifted over the slides on the active slide's content box; under the arrows and dots. */
+.bsbCarousel > .bsb-static-layers.bsb-slide-content {
+    position: absolute;
+    z-index: 3;
+    isolation: isolate;
+    pointer-events: none;
+
+    > * {
+        pointer-events: auto;
+    }
+}
+
+/* Only X/Y place the layer; layout margins would shift it. */
+.bsb-slide-content .bsb-abs {
+    margin-block: 0 !important;
+}
+
 /**
  * Responsive layers: hidden on a device, or shown but still.
  *
@@ -1509,19 +1549,19 @@
  * into view. The still rules take the same precaution for the same reason.
  */
 @media (min-width: 769px) {
-    .bsb-layer.bsb-hide-desktop {
+    .bsb-layer.bsb-hide-desktop:not(.block-editor-block-list__block)#{$bsb-std-bp} {
         display: none !important;
     }
 }
 
 @media (min-width: 577px) and (max-width: 768px) {
-    .bsb-layer.bsb-hide-tablet {
+    .bsb-layer.bsb-hide-tablet:not(.block-editor-block-list__block)#{$bsb-std-bp} {
         display: none !important;
     }
 }
 
 @media (max-width: 576px) {
-    .bsb-layer.bsb-hide-mobile {
+    .bsb-layer.bsb-hide-mobile:not(.block-editor-block-list__block)#{$bsb-std-bp} {
         display: none !important;
     }
 }
@@ -1542,8 +1582,8 @@
  */
 @media (min-width: 769px) {
 
-    .bsb-layer.bsb-still-desktop,
-    .bsb-layer.bsb-still-desktop .bsb-word {
+    .bsb-layer.bsb-still-desktop#{$bsb-std-bp},
+    .bsb-layer.bsb-still-desktop .bsb-word#{$bsb-std-bp} {
         animation: none !important;
         opacity: 1 !important;
     }
@@ -1551,8 +1591,8 @@
 
 @media (min-width: 577px) and (max-width: 768px) {
 
-    .bsb-layer.bsb-still-tablet,
-    .bsb-layer.bsb-still-tablet .bsb-word {
+    .bsb-layer.bsb-still-tablet#{$bsb-std-bp},
+    .bsb-layer.bsb-still-tablet .bsb-word#{$bsb-std-bp} {
         animation: none !important;
         opacity: 1 !important;
     }
@@ -1560,8 +1600,8 @@
 
 @media (max-width: 576px) {
 
-    .bsb-layer.bsb-still-mobile,
-    .bsb-layer.bsb-still-mobile .bsb-word {
+    .bsb-layer.bsb-still-mobile#{$bsb-std-bp},
+    .bsb-layer.bsb-still-mobile .bsb-word#{$bsb-std-bp} {
         animation: none !important;
         opacity: 1 !important;
     }
@@ -1590,17 +1630,53 @@
  */
 @media (max-width: 768px) {
 
-    .bsb-layer-typo[style*="--bsb-font-size-tablet"],
-    .bsb-layer-typo[style*="--bsb-font-size-mobile"] {
-        font-size: var(--bsb-font-size-tablet, var(--bsb-font-size-mobile)) !important;
+    .bsb-layer-typo[style*="--bsb-font-size-tablet"]#{$bsb-std-bp} {
+        font-size: var(--bsb-font-size-tablet) !important;
+    }
+
+    /* Auto-scale: a size set for the device is the size on screen, so the layer's zoom is taken back off. */
+    .bsb-layer-scaled .bsb-abs.bsb-layer-typo[style*="--bsb-font-size-tablet"]#{$bsb-std-bp},
+    .bsb-layer-scaled .bsb-abs .bsb-layer-typo[style*="--bsb-font-size-tablet"]#{$bsb-std-bp} {
+        font-size: calc(var(--bsb-font-size-tablet) / var(--bsb-layer-scale, 1)) !important;
     }
 }
 
 @media (max-width: 576px) {
 
-    .bsb-layer-typo[style*="--bsb-font-size-mobile"] {
+    .bsb-layer-typo[style*="--bsb-font-size-mobile"]#{$bsb-std-bp} {
         font-size: var(--bsb-font-size-mobile) !important;
     }
+
+    .bsb-layer-scaled .bsb-abs.bsb-layer-typo[style*="--bsb-font-size-mobile"]#{$bsb-std-bp},
+    .bsb-layer-scaled .bsb-abs .bsb-layer-typo[style*="--bsb-font-size-mobile"]#{$bsb-std-bp} {
+        font-size: calc(var(--bsb-font-size-mobile) / var(--bsb-layer-scale, 1)) !important;
+    }
+}
+
+/* Auto-scale: a slider's outer layers shrink together; `zoom` scales their px offsets, sizes and text, while % stays a share of the slide. */
+.bsb-layer-scaled .bsb-abs:not(.bsb-abs .bsb-abs) {
+    zoom: var(--bsb-layer-scale, 1);
+}
+
+/* Per-device layer places: the inline style reads `--bsb-<property>`, which each breakpoint points at that device's value. */
+$bsb-device-props: left, right, top, bottom, translate, width, max-width, margin-left, margin-right, height, box-sizing;
+
+@mixin bsb-device-place($device) {
+    .bsb-abs[data-bsb-devices]#{$bsb-std-bp} {
+        @each $prop in $bsb-device-props {
+            --bsb-#{$prop}: var(--bsb-#{$prop}-#{$device});
+        }
+    }
+}
+
+@include bsb-device-place(desktop);
+
+@media (max-width: 768px) {
+    @include bsb-device-place(tablet);
+}
+
+@media (max-width: 576px) {
+    @include bsb-device-place(mobile);
 }
 
 /**

@@ -17,6 +17,14 @@
 			"type": "string",
 			"default": ""
 		},
+		"layerScale": {
+			"type": "object",
+			"default": {}
+		},
+		"breakpoints": {
+			"type": "object",
+			"default": {}
+		},
 		"layoutType": {
 			"type": "string",
 			"default": null

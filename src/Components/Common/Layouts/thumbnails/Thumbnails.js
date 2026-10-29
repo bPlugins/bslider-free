@@ -13,6 +13,7 @@ import ImageItem from '../../single-item/ImageItem';
 import PostItem from '../../single-item/PostItem';
 import WooItem from '../../single-item/WooItem';
 import { placeholderImg, play } from '../../../../utils/icons';
+import { breakpointsOf } from '../../../../utils/breakpoints';
 
 const Thumbnails = ({ attributes, firstPosts, commonDeProps }) => {
 
@@ -36,15 +37,16 @@ const Thumbnails = ({ attributes, firstPosts, commonDeProps }) => {
     // const autoplay = isAutoPlay ? { delay: autoPlayDelay } : false;
     const [thumbsSwiper, setThumbsSwiper] = useState(null);
 
+    // Tablet and Desktop start just above the slider's own Mobile and Tablet widths.
+    const bp = breakpointsOf(attributes);
     const breakpoints = {
         0: {
             slidesPerView: columns?.mobile
         },
-        577: {
+        [bp.mobile + 1]: {
             slidesPerView: columns?.tablet
         },
-        // Small Desktop devices (769px to 1024px)
-        769: {
+        [bp.tablet + 1]: {
             slidesPerView: columns?.desktop
         }
     };

@@ -20,11 +20,13 @@ import PostQuery from './Post-query';
 import AcfConfigure from './AcfConfigure';
 import PostBadges from './PostBadges';
 import VideoGeneral from './VideoGeneral';
+import LayerScalePanel from './LayerScalePanel';
+import BreakpointsPanel from './BreakpointsPanel';
 import ProPanel from '../../../Panel/ProPanel';
 import { PRO_FEATURES } from '../../../../utils/pro-features';
 import { VideoHelpLink, videoLabels, TUTORIAL_VIDEOS } from '../../../../utils/videos';
 
-const General = ({ attributes, setAttributes, activeIndex, setActiveIndex, updateObject, multipleAttrChange, getTaxonomy, premiumProps, postTypes, queriedPosts, hasSlideBlocks }) => {
+const General = ({ attributes, setAttributes, clientId, activeIndex, setActiveIndex, updateObject, multipleAttrChange, getTaxonomy, premiumProps, postTypes, queriedPosts, hasSlideBlocks }) => {
 
     const [device, setDevice] = useState('desktop');
     const [gapDevice, setGapDevice] = useState('desktop');
@@ -189,6 +191,8 @@ const General = ({ attributes, setAttributes, activeIndex, setActiveIndex, updat
 
             <ProListLayoutPromo variant="compact" sourceType={sourceType} />
         </PanelBody>
+
+        {'blocks' === sourceType && <LayerScalePanel attributes={attributes} setAttributes={setAttributes} clientId={clientId} />}
 
         {(sourceType !== "posts" && sourceType !== "woo" && sourceType !== "blocks") &&
             <PanelBody className='bPlPanelBody' title={__('Slides', 'b-slider')} initialOpen={false}>
@@ -380,6 +384,9 @@ const General = ({ attributes, setAttributes, activeIndex, setActiveIndex, updat
         {layoutType === "grid" && <GridGeneral {...commonProps} multipleAttrChange={multipleAttrChange} />}
         {layoutType === "thumbnails" && <ThumbnailsGeneral {...commonProps} multipleAttrChange={multipleAttrChange} />}
         {sourceType === "video" && <VideoGeneral {...commonProps} />}
+
+        {/* Last: where every Tablet and Mobile setting above takes over. */}
+        <BreakpointsPanel attributes={attributes} setAttributes={setAttributes} />
     </>
 }
 

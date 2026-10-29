@@ -15,6 +15,12 @@ call_user_func( function( $attributes, $content ) {
         }
     }
 
+    if ( isset( $attributes['breakpoints'] ) ) {
+        $attributes['breakpoints'] = is_array( $attributes['breakpoints'] ) ? array_map( 'absint', array_intersect_key( $attributes['breakpoints'], [ 'tablet' => 0, 'mobile' => 0 ] ) ) : [];
+    }
+
+    $wrapper_extra = empty( $attributes['breakpoints'] ) ? [] : [ 'class' => 'bsb-custom-bp' ];
+
     if ( 'blocks' === ( isset( $attributes['sourceType'] ) ? $attributes['sourceType'] : '' ) ) {
 
         // The slides reach the browser as a string that JS drops in with innerHTML, so nothing
@@ -42,7 +48,7 @@ call_user_func( function( $attributes, $content ) {
         }
         ?>
         <div
-            <?php echo wp_kses_post( get_block_wrapper_attributes() ); ?>
+            <?php echo wp_kses_post( get_block_wrapper_attributes( $wrapper_extra ) ); ?>
             id='bsbCarousel-<?php echo esc_attr( isset( $attributes['cId'] ) ? $attributes['cId'] : '' ); ?>'
             data-attributes-b64='<?php echo esc_attr( base64_encode( wp_json_encode( $attributes ) ) ); ?>'
             data-nonce='<?php echo esc_attr( wp_json_encode( wp_create_nonce( \B_SLIDER\PostsAjax::NONCE_ACTION ) ) ); ?>'
@@ -116,7 +122,7 @@ call_user_func( function( $attributes, $content ) {
 
     ?>
     <div
-        <?php echo wp_kses_post( get_block_wrapper_attributes() ); ?>
+        <?php echo wp_kses_post( get_block_wrapper_attributes( $wrapper_extra ) ); ?>
         id='bsbCarousel-<?php echo esc_attr( isset( $attributes['cId'] ) ? $attributes['cId'] : '' ); ?>'
         data-attributes='<?php echo esc_attr( wp_json_encode( $attributes, BSB_JSON_IN_HTML ) ); ?>'
         data-nonce='<?php echo esc_attr( wp_json_encode( wp_create_nonce( \B_SLIDER\PostsAjax::NONCE_ACTION ), BSB_JSON_IN_HTML ) ); ?>'
