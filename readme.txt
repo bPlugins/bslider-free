@@ -4,7 +4,7 @@ Donate link: https://www.buymeacoffee.com/abuhayat
 Tags: block, carousel, slider, templates, Gutenberg block
 Requires at least: 6.5
 Tested up to: 7.1
-Stable tag: 2.2.4
+Stable tag: 2.2.5
 Requires PHP: 7.2
 License: GPLv2 or later 
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -338,6 +338,13 @@ Please report security bugs found in the source code of the bSlider plugin throu
 
 == Changelog ==
 
+= 2.2.5 - 30 October, 2026 =
+* New: Absolute positioning for Gutenberg Blocks layers — place any layer anywhere on the slide by X/Y from one of 9 anchors, in px or %, by dragging it on the canvas, with resize, rotate, snapping and arrow-key nudge;
+* New: Separate layer places and font sizes for Tablet and Mobile, plus auto-scale that shrinks the whole slide design evenly on smaller screens;
+* New: Layer order, lock and hide on canvas, align several layers at once, show a layer on every slide, and full-slide layers;
+* New: Image, Posts and WooCommerce sliders — Title, Description and Button can each leave the caption box and sit anywhere on the slide, with their own Tablet and Mobile places, auto-scale and Z-Index;
+* Update: Layers hidden on the current device stay visible, faded, on the editor canvas so they are easy to find;
+
 = 2.2.4 - 26 October, 2026 =
 * Security: Fixed a stored cross-site scripting (XSS) issue in slider settings (reported by V1T via Patchstack);
 * Security: Hardened arrow settings, video and image lightbox links, ACF field loading and Template Library image import;
@@ -409,6 +416,9 @@ Please report security bugs found in the source code of the bSlider plugin throu
 * Security: Fixed a missing authorization check;
 
 == Upgrade Notice ==
+
+= 2.2.5 =
+Adds absolute positioning: place slide layers, and the title, description and button of Image, Posts and WooCommerce sliders, anywhere on the slide, with separate places for tablet and mobile. Existing sliders are untouched.
 
 = 2.2.4 =
 Security release. Please update. Existing sliders are untouched.
