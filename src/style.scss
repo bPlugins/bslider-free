@@ -160,6 +160,31 @@
         opacity: 0.7;
     }
 
+    /* Title, Description or Button with Absolute Position: a layer over the whole slide, above the caption box; X/Y come from Style.js. */
+    .item:has(> .bsb-free-parts) {
+        position: relative;
+    }
+
+    .bsb-free-parts {
+        position: absolute;
+        inset: 0;
+        z-index: 10;
+        pointer-events: none;
+        /* Auto-scale's `cqw` in Style.js counts from the slide. */
+        container-type: size;
+
+        .bsb-free-part {
+            position: absolute;
+            max-width: 100%;
+            pointer-events: auto;
+
+            /* Only X/Y place it; the caption's own spacing would shift it. */
+            > * {
+                margin: 0 !important;
+            }
+        }
+    }
+
     /**
      * The ACF layer over one slide.
      *

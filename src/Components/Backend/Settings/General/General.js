@@ -22,6 +22,8 @@ import PostBadges from './PostBadges';
 import VideoGeneral from './VideoGeneral';
 import LayerScalePanel from './LayerScalePanel';
 import BreakpointsPanel from './BreakpointsPanel';
+import PartPlacement from './PartPlacement';
+import PartScale from './PartScale';
 import ProPanel from '../../../Panel/ProPanel';
 import { PRO_FEATURES } from '../../../../utils/pro-features';
 import { VideoHelpLink, videoLabels, TUTORIAL_VIDEOS } from '../../../../utils/videos';
@@ -236,6 +238,9 @@ const General = ({ attributes, setAttributes, clientId, activeIndex, setActiveIn
                 onChange={val => updateObject('title', 'isVisible', val)}
             />
 
+            {/* Image, Posts and Woo: one part out of the caption box, by X/Y. */}
+            {'social' !== sourceType && title?.isVisible !== false && <PartPlacement part='title' name={__('Title', 'b-slider')} place={title?.place} onChange={val => updateObject('title', 'place', val)} />}
+
             <ToggleControl
                 className={gap}
                 label={__('Show Description', 'b-slider')}
@@ -243,14 +248,20 @@ const General = ({ attributes, setAttributes, clientId, activeIndex, setActiveIn
                 onChange={val => updateObject('desc', 'isVisible', val)}
             />
 
+            {'social' !== sourceType && desc?.isVisible !== false && <PartPlacement part='desc' name={__('Description', 'b-slider')} place={desc?.place} onChange={val => updateObject('desc', 'place', val)} />}
+
             {/* An image slider's buttons are typed per slide, under Slides — there is no one button
                 here to show or hide, so the switch and its label belong to a query source only. */}
             {isPostSource && <>
                 <ToggleControl className={gap} label={__('Show Button', 'b-slider')} checked={button?.isVisible !== false} onChange={val => updateObject('button', 'isVisible', val)} />
 
+                {button?.isVisible !== false && <PartPlacement part='button' name={__('Button', 'b-slider')} place={button?.place} onChange={val => updateObject('button', 'place', val)} />}
+
                 {button?.isVisible !== false &&
                     <TextControl className={gap} label={__('Text', 'b-slider')} value={button?.text} onChange={val => updateObject('button', 'text', val)} />}
             </>}
+
+            {'social' !== sourceType && [title, desc, isPostSource && button].some(part => part && part.isVisible !== false && part.place?.absolute) && <PartScale layerScale={attributes.layerScale} setAttributes={setAttributes} clientId={clientId} />}
 
             {/**
               * The picture is the link on a post or product slider, and there is nothing to decide.

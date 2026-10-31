@@ -3,6 +3,7 @@ import Excerpt from '../Layouts/grid/Excerpt';
 import AcfFields, { resolveSlideImage, resolveButtonLink, resolveButtonText, resolveTitle } from './AcfFields';
 import LinkedPicture from './LinkedPicture';
 import SlideLink from './SlideLink';
+import FreeParts, { isPlaced } from './FreeParts';
 import { lightboxCaption, plainText } from '../../../utils/functions';
 
 const WooItem = (props) => {
@@ -56,6 +57,15 @@ const WooItem = (props) => {
 
     const imageHref = isLightbox ? slideImg.url : (btnLink || '');
 
+    const titleEl = showTitle && wooTitle && createElement("h5", {
+        className: `bsbTitle ${classNames.title || ''}`, dangerouslySetInnerHTML: { __html: wooTitle }
+    }, null);
+    const descEl = showDesc && <Excerpt attributes={attributes} post={product} classNames={classNames} />;
+    // Same new-tab switch as the picture.
+    const btnEl = btnLabel && <div className={`carousel-button ${classNames.btn || ''}`}>
+        <SlideLink href={btnLink} linkTarget={image?.linkTarget} isBackEnd={isBackEnd} isSelected={isSelected} dangerouslySetInnerHTML={{ __html: btnLabel }} />
+    </div>;
+
     return <div className={`item ${index === 0 ? 'active' : ''} ${imageHref ? 'is-linked' : ''} ${classNames.item || ''}`}>
         {imageHref && !slideImg?.url && <SlideLink
             className='bsbSlideOverlay'
@@ -86,20 +96,15 @@ const WooItem = (props) => {
 
         <div className={classNames.contentArea || 'content-area'}>
             <div className={`captionContent ${classNames.captionContent || ''}`}>
-                {showTitle && wooTitle && createElement("h5", {
-                    className: `bsbTitle ${classNames.title || ''}`, dangerouslySetInnerHTML: { __html: wooTitle }
-                }, null)}
+                {!isPlaced(attributes, 'title') && titleEl}
 
-                {showDesc && <Excerpt attributes={attributes} post={product} classNames={classNames} />}
+                {!isPlaced(attributes, 'desc') && descEl}
 
-                {btnLabel && <>
-                    <div className={`carousel-button ${classNames.btn || ''}`}>
-                        {/* The same switch the picture follows — see `Open in a new tab` in the panel. */}
-                        <SlideLink href={btnLink} linkTarget={image?.linkTarget} isBackEnd={isBackEnd} isSelected={isSelected} dangerouslySetInnerHTML={{ __html: btnLabel }} />
-                    </div>
-                </>}
+                {!isPlaced(attributes, 'button') && btnEl}
             </div>
         </div>
+
+        <FreeParts parts={[['title', isPlaced(attributes, 'title') && titleEl], ['desc', isPlaced(attributes, 'desc') && descEl], ['button', isPlaced(attributes, 'button') && btnEl]]} />
 
         {/* Last, so the ACF layer paints over the image and caption rather than under them. */}
         <AcfFields post={product} attributes={attributes} classNames={classNames} isBackEnd={isBackEnd} isSelected={isSelected} />

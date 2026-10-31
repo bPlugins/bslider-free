@@ -2820,6 +2820,13 @@ svg#bsbSlider {
     pointer-events: none;
 }
 
+/* A caption part's Absolute Position, tucked under the Show toggle it belongs to. */
+.bsb-part-place {
+    margin: 8px 0 14px 12px;
+    padding-left: 10px;
+    border-left: 2px solid #e0e0e0;
+}
+
 /* Small grey notes in the layer and slider panels. */
 .bsb-attach-note {
     margin-bottom: 0;
