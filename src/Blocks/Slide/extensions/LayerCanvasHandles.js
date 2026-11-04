@@ -83,7 +83,7 @@ const LayerCanvasHandles = ({ clientId, layer, update }) => {
 			const rotating = 'rotate' === dragRef.current?.mode;
 
 			if (moveRef.current) {
-				Object.assign(moveRef.current.style, { display: shown, left: `${rect.left - 30}px`, top: `${rect.top}px` });
+				Object.assign(moveRef.current.style, { display: shown, left: `${rect.right + 6}px`, top: `${rect.top}px` });
 			}
 
 			// Below the layer: the block toolbar sits over the top edge and would take the pointer.

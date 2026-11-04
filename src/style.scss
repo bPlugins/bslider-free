@@ -1523,8 +1523,6 @@ $bsb-std-bp: ':where(:not(.bsb-custom-bp *))';
 /* A slide with an absolute layer: the content area fills the slide and frames the X/Y offsets. */
 .carousel-item:has(> .bsb-slide-content .bsb-abs),
 .carousel-item.bsb-had-static {
-    display: grid;
-
     /* Isolated, so a layer's z-index orders it among the slide's layers and never behind the slide's background. */
     > .bsb-slide-content {
         position: relative;
@@ -1540,6 +1538,12 @@ $bsb-std-bp: ':where(:not(.bsb-custom-bp *))';
     }
 }
 
+/* Grid only on a shown slide, so it never undoes Bootstrap's hiding of the others. */
+.carousel-item:is(.active, .carousel-item-next, .carousel-item-prev, .swiper-slide *):has(> .bsb-slide-content .bsb-abs),
+.carousel-item.bsb-had-static:is(.active, .carousel-item-next, .carousel-item-prev) {
+    display: grid;
+}
+
 /* "Show on all slides" layers, lifted over the slides on the active slide's content box; under the arrows and dots. */
 .bsbCarousel > .bsb-static-layers.bsb-slide-content {
     position: absolute;
@@ -1550,6 +1554,16 @@ $bsb-std-bp: ':where(:not(.bsb-custom-bp *))';
     > * {
         pointer-events: auto;
     }
+}
+
+/* Blocks around a layer that core positions, e.g. a Cover, are unpositioned so X/Y count from the slide. */
+.bsb-slide-content :not(.bsb-abs):has(.bsb-abs):not(:has(.bsb-slide-content)) {
+    position: static;
+}
+
+/* A Cover's content stays over its overlay without its own position; it is a flex item, so z-index works. */
+.bsb-slide-content .wp-block-cover__inner-container:has(.bsb-abs) {
+    z-index: 1;
 }
 
 /* Only X/Y place the layer; layout margins would shift it. */

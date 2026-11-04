@@ -188,6 +188,8 @@ export const initLayerAnimations = (root, { isBackend = false } = {}) => {
 		}
 
 		if ('scroll' === action && el.dataset.bsbClickSelector) {
+			// The action overrides a button's own link.
+			e.preventDefault();
 			try {
 				// A hand-typed selector can be anything at all, and an invalid one throws —
 				// which would take the whole handler down with it, click actions included.
@@ -200,6 +202,7 @@ export const initLayerAnimations = (root, { isBackend = false } = {}) => {
 		}
 
 		if ('next' === action || 'prev' === action) {
+			e.preventDefault();
 			// eslint-disable-next-line no-undef
 			bootstrap?.Carousel?.getInstance(root)?.[action]();
 			return;
