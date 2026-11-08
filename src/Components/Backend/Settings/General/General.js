@@ -25,6 +25,8 @@ import BreakpointsPanel from './BreakpointsPanel';
 import PartPlacement from './PartPlacement';
 import PartScale from './PartScale';
 import ProPanel from '../../../Panel/ProPanel';
+import AiSlidesPanel from './AiSlidesPanel';
+import ImageLinksPanel from './ImageLinksPanel';
 import { PRO_FEATURES } from '../../../../utils/pro-features';
 import { VideoHelpLink, videoLabels, TUTORIAL_VIDEOS } from '../../../../utils/videos';
 
@@ -196,14 +198,19 @@ const General = ({ attributes, setAttributes, clientId, activeIndex, setActiveIn
 
         {'blocks' === sourceType && <LayerScalePanel attributes={attributes} setAttributes={setAttributes} clientId={clientId} />}
 
+        {'blocks' === sourceType && <AiSlidesPanel clientId={clientId} />}
+
         {(sourceType !== "posts" && sourceType !== "woo" && sourceType !== "blocks") &&
             <PanelBody className='bPlPanelBody' title={__('Slides', 'b-slider')} initialOpen={false}>
-                {/* Above the slides, where Pro has its picture and AI tools; its own group, or opening it closes Slides. */}
+                {/* Above the slides: many pictures in at once (Image source), then the Pro AI text writer. */}
+                <ImageLinksPanel attributes={attributes} setAttributes={setAttributes} />
+
+                {/* Its own group, or opening it closes Slides. */}
                 <AccordionGroup>
                     <ProPanel
-                        title={__('Slides with AI', 'b-slider')}
-                        proTitle={__('Slides with AI', 'b-slider')}
-                        features={'image' === sourceType ? [PRO_FEATURES.slidesFromPictures, PRO_FEATURES.slidesAiText] : PRO_FEATURES.slidesAiText}
+                        title={__('Slide text with AI', 'b-slider')}
+                        proTitle={__('Slide text with AI', 'b-slider')}
+                        features={PRO_FEATURES.slidesAiText}
                         demoUrl={TUTORIAL_VIDEOS.styleWithAi}
                     />
                 </AccordionGroup>

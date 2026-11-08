@@ -134,7 +134,7 @@ const ImageItem = (props) => {
     return <div className={`item ${index === 0 ? 'active' : ''} ${isLightbox ? 'is-linked' : ''} ${classNames.item || ''}`}>
         <div className="img">
             {img?.url && <LightboxPicture enabled={isLightbox} clientId={clientId} href={safeMediaUrl(img.url)} caption={lbCaption} attributes={attributes} isBackEnd={isBackEnd} isSelected={isSelected}>
-                <img src={img.url} className="d-block w-100" alt={altText || img?.alt || img?.title} />
+                <img src={img.url} className="d-block w-100" alt={altText || img?.alt || img?.title || String(slideTitle || '').replace(/<[^>]*>/g, '').trim()} />
             </LightboxPicture>}
         </div>
 

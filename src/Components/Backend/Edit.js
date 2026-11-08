@@ -15,6 +15,7 @@ import PostsGridBack from './PostsGridBack';
 import { filterNaN, filterObject, filterPassword, filterSelected, postTypeTaxonomies, updateArrayItem, wordCount } from '../../utils/functions';
 import { allowedAcfFields, FIELD_ROLES } from '../Common/single-item/AcfFields';
 import SelectSource from './Source/SelectSource';
+import AiStyleStepPromo from './Source/AiStyleStepPromo';
 import Default from '../Common/Layouts/Default';
 import ClipBoard from './ClipBoard';
 import { hasOwnBreakpoints } from '../../utils/breakpoints';
@@ -46,6 +47,7 @@ const Edit = (props) => {
 	}, [attributes.grid.paginationType]);
 
 	const [carousel, setCarousel] = useState(null);
+	const [aiStyleStep, setAiStyleStep] = useState(false);
 	const [acfValuesMap, setAcfValuesMap] = useState({});
 	const { sliders, layoutType, postsQuery, sourceType } = attributes;
 
@@ -168,11 +170,13 @@ const Edit = (props) => {
 						<Default {...{ attributes, firstPosts: formattedPosts, commonDeProps, products: formattedPosts, device }} />
 					</> : <>
 						{!layoutType ?
-							<SelectSource {...{ attributes, setAttributes, updateObject }} /> : <>
+							<SelectSource {...{ attributes, setAttributes, updateObject, clientId }} onAiCreated={() => setAiStyleStep(true)} /> : <>
 								<Settings {...settingsProps} />
 								<Style {...{ attributes, clientId, postsCount: formattedPosts?.length, products: formattedPosts, device }} />
 								{sourceType === 'blocks' ? (
 									<>
+										{aiStyleStep && <AiStyleStepPromo onDone={() => setAiStyleStep(false)} />}
+
 										<SlideTabs {...{ clientId, activeSlide, setActiveSlide }} />
 
 										{/* The number rides on the element as a data attribute so

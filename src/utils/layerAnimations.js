@@ -108,9 +108,7 @@ export const initLayerAnimations = (root, { isBackend = false } = {}) => {
 			if (sliderEl?._bsbAttributes) {
 				return sliderEl._bsbAttributes;
 			}
-			const raw = sliderEl?.dataset?.attributesB64
-				? atob(sliderEl.dataset.attributesB64)
-				: sliderEl?.dataset?.attributes;
+			const raw = sliderEl?.querySelector(':scope > script.bsb-slider-data[type="application/json"]')?.textContent;
 			return raw ? JSON.parse(raw) : {};
 		} catch (e) {
 			return {};

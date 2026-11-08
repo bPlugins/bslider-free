@@ -10,6 +10,7 @@ import { PremiumBadge, PremiumPanel } from '../../../../bpl-tools/ProControls';
 import { adminUrl, DEMO_URL } from '../../utils/functions';
 import { proFeatureSentence, PRO_FEATURES } from '../../utils/pro-features';
 import ProNotice from '../../Components/Panel/ProNotice';
+import AiProPanel from '../../Components/Panel/AiProPanel';
 import { alignBtnOpt, pxUnit, perUnit, tabs } from '../../utils/options';
 import VisualTimelinePanel from './Panels/VisualTimelinePanel';
 import { slideStyles } from './slideStyles';
@@ -41,6 +42,8 @@ const Edit = ({ attributes, setAttributes, clientId }) => {
 			<TabPanel className="bPlTabPanel bsb-tab-panel" activeClass="activeTab" tabs={tabs}>
 				{(tab) => <AccordionGroup key={tab.name}>
 					{'General' === tab.name && <>
+						<AiProPanel title={__('Rewrite with AI', 'b-slider')} description={__('Rewrite the text of this slide’s headings, paragraphs and buttons in one click, for example “shorter and friendlier”. Colours, fonts, positions and animations stay.', 'b-slider')} />
+
 						{/* Ahead of the stagger control, because it decides what the slide is
 						    showing — the timing of how it arrives is the smaller question. */}
 						<PanelBody className='bPlPanelBody' title={<>{__('Dynamic Content', 'b-slider')}<PremiumBadge /></>} initialOpen={false}>

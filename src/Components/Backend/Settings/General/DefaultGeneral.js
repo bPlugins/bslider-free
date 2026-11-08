@@ -10,6 +10,7 @@ import { BDevice } from '../../../../../../bpl-tools/Components/Deprecated';
 import Controls from './Carousel/Controls';
 import LightboxSettings from '../../../../Blocks/Slide/Panels/LightboxSettings';
 import ProNotice from '../../../Panel/ProNotice';
+import HelpTip from '../../../Panel/HelpTip';
 import { PRO_FEATURES } from '../../../../utils/pro-features';
 import { VideoHelpLink, videoLabels } from '../../../../utils/videos';
 
@@ -33,6 +34,8 @@ const DefaultGeneral = ({ attributes, setAttributes, updateObject, device, setDe
 
         <ToggleControl className='mt10' label={__('Show Indicators/Pagination', 'b-slider')} checked={indicator.visibility} onChange={(value) => updateObject('indicator', 'visibility', value)} />
     </>;
+
+    const pauseButtonToggle = <ToggleControl className='mt10' label={<>{__('Show Pause Button', 'b-slider')} <HelpTip label={__('About the pause button', 'b-slider')}>{__('Shows a small button in the top right corner that stops and starts autoplay. It helps visitors who need the slider to stand still, and accessibility rules (WCAG 2.2.2) ask for it.', 'b-slider')}</HelpTip></>} checked={!!attributes.autoplayToggle} onChange={value => setAttributes({ autoplayToggle: value })} />;
 
     return <>
 
@@ -59,6 +62,8 @@ const DefaultGeneral = ({ attributes, setAttributes, updateObject, device, setDe
                 </>}
 
                 {carouselStyle === "ticker" && <ToggleControl className='mt10' label={__("Reverse Direction", 'b-slider')} checked={reverseDirection} onChange={val => updateObject("carousel", "reverseDirection", val)} />}
+
+                {('ticker' === carouselStyle || carousel?.isAutoPlay) && pauseButtonToggle}
 
                 {(carouselStyle === "standard" || carouselStyle === "ticker") && <SelectControl className='mt10' label={__('Direction', 'b-slider')} value={caroDirection} options={caroDirectionOpt} onChange={val => updateObject("carousel", "caroDirection", val)} />}
 
@@ -132,6 +137,8 @@ const DefaultGeneral = ({ attributes, setAttributes, updateObject, device, setDe
                     <small className="bsb_field_hint">{__('How long each slide holds before the next one comes in, in milliseconds. 1000 is one second.', 'b-slider')}</small>
 
                     <ToggleControl className='mt10' label={__('Pause on Mouse over', 'b-slider')} checked={options.pause} onChange={(value) => updateObject('options', 'pause', value)} />
+
+                    {pauseButtonToggle}
                 </>}
 
                 {/* Already inside `isDefault`, so both toggles apply. */}

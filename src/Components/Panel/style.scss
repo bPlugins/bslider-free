@@ -208,3 +208,27 @@
         }
     }
 }
+.bsbAiActions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+}
+
+.bsbAiCopy {
+    padding-bottom: 12px;
+    margin-bottom: 12px;
+    border-bottom: 1px solid var(--bsb-border, #e0e0e0);
+}
+
+.bsbPickMedia {
+    margin-bottom: 16px;
+}
+
+// A pasted address has no spaces to wrap at and would push the notice past the sidebar.
+.bsbLinkList {
+    margin: 6px 0 0 16px;
+    list-style: disc;
+    font-size: 12px;
+    word-break: break-all;
+}

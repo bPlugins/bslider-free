@@ -75,10 +75,9 @@ call_user_func( function( $attributes, $content ) {
         <div
             <?php echo wp_kses_post( get_block_wrapper_attributes( $wrapper_extra ) ); ?>
             id='bsbCarousel-<?php echo esc_attr( isset( $attributes['cId'] ) ? $attributes['cId'] : '' ); ?>'
-            data-attributes-b64='<?php echo esc_attr( base64_encode( wp_json_encode( $attributes ) ) ); ?>'
             data-nonce='<?php echo esc_attr( wp_json_encode( wp_create_nonce( \B_SLIDER\PostsAjax::NONCE_ACTION ) ) ); ?>'
             data-totalposts='0'
-        ></div>
+        ><script type="application/json" class="bsb-slider-data"><?php echo wp_json_encode( $attributes, BSB_JSON_IN_HTML ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- JSON_HEX_TAG: no tag can close the script. ?></script></div>
         <?php
         return;
     }
@@ -149,13 +148,11 @@ call_user_func( function( $attributes, $content ) {
     <div
         <?php echo wp_kses_post( get_block_wrapper_attributes( $wrapper_extra ) ); ?>
         id='bsbCarousel-<?php echo esc_attr( isset( $attributes['cId'] ) ? $attributes['cId'] : '' ); ?>'
-        data-attributes='<?php echo esc_attr( wp_json_encode( $attributes, BSB_JSON_IN_HTML ) ); ?>'
         data-nonce='<?php echo esc_attr( wp_json_encode( wp_create_nonce( \B_SLIDER\PostsAjax::NONCE_ACTION ), BSB_JSON_IN_HTML ) ); ?>'
         data-totalposts='<?php echo esc_attr( count( get_posts( array_merge( $query, [ 'posts_per_page' => -1, 'fields' => 'ids' ] ) ) ) ); ?>'
     >
-        <pre id='posts' style='display: none;'>
-            <?php echo esc_html( wp_json_encode( $posts, BSB_JSON_IN_HTML ) ); ?>
-        </pre>
+        <script type="application/json" class="bsb-slider-data"><?php echo wp_json_encode( $attributes, BSB_JSON_IN_HTML ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- JSON_HEX_TAG: no tag can close the script. ?></script>
+        <script type="application/json" class="bsb-slider-posts"><?php echo wp_json_encode( $posts, BSB_JSON_IN_HTML ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- JSON_HEX_TAG: no tag can close the script. ?></script>
     </div>
     <?php
 }, $attributes, $content );
