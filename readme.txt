@@ -4,7 +4,7 @@ Donate link: https://www.buymeacoffee.com/abuhayat
 Tags: block, carousel, slider, templates, Gutenberg block
 Requires at least: 6.6
 Tested up to: 7.1
-Stable tag: 2.2.6
+Stable tag: 2.3.0
 Requires PHP: 7.2
 License: GPLv2 or later 
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -338,7 +338,7 @@ Please report security bugs found in the source code of the bSlider plugin throu
 
 == Changelog ==
 
-= 2.2.6 - 8 November, 2026 =
+= 2.3.0 - 8 November, 2026 =
 * Security: Users who may not add scripts to posts (such as Contributors and Authors) can no longer add HTML that the slider script would run on the page. If your site uses a page cache, clear it after updating.
 * New: Create with AI: say what the slider is for and the AI built into WordPress 7.0 and newer writes the slides, all of them editable. Needs an AI service set up under Settings → Connectors. Authors and above can use it.
 * New: Slides with AI panel for Gutenberg Blocks sliders: add or replace slides from one line at any time.
@@ -445,7 +445,7 @@ Please report security bugs found in the source code of the bSlider plugin throu
 
 == Upgrade Notice ==
 
-= 2.2.6 =
+= 2.3.0 =
 Security fix, please update. Adds Create with AI, a pause button and better keyboard and screen reader support. Clear your page cache after updating. Existing sliders are untouched.
 
 = 2.2.5 =
