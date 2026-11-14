@@ -2,6 +2,7 @@ import { useBlockProps, InnerBlocks } from '@wordpress/block-editor';
 import { slideStyles } from './slideStyles';
 import { slideContentClass } from './slideContentClass';
 import SlideOverlay from './SlideOverlay';
+import SlideBackground from './SlideBackground';
 
 /**
  * A slide is a static block, so this is what the site renders.
@@ -15,7 +16,7 @@ import SlideOverlay from './SlideOverlay';
  * stacking position that keeps the content above it.
  */
 const save = ({ attributes }) => {
-	const { bsbStagger = 0, overlay } = attributes;
+	const { bsbStagger = 0, overlay, kenBurns } = attributes;
 
 	return (
 		<div {...useBlockProps.save({
@@ -23,9 +24,10 @@ const save = ({ attributes }) => {
 			style: slideStyles(attributes),
 			'data-bsb-stagger': bsbStagger || undefined,
 		})}>
+			<SlideBackground attributes={attributes} />
 			<SlideOverlay overlay={overlay} />
 
-			<div className={slideContentClass(attributes)} style={overlay ? { position: 'relative', zIndex: 1 } : undefined}>
+			<div className={slideContentClass(attributes)} style={(overlay || kenBurns) ? { position: 'relative', zIndex: 1 } : undefined}>
 				<InnerBlocks.Content />
 			</div>
 		</div>

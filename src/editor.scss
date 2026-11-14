@@ -3215,3 +3215,13 @@ svg#bsbSlider {
         }
     }
 }
+
+/* Block order preview on the Tablet / Mobile canvas (layerProps sets `order` and .bsb-order-live); unnumbered blocks follow the numbered ones. */
+:has(> .bsb-order-live) > :not(.bsb-order-live) {
+    order: 9999;
+}
+
+:is(.bsb-slide-content, .block-editor-block-list__layout, .is-layout-flow, .is-layout-constrained):not(.is-layout-flex, .is-layout-grid):has(> .bsb-order-live) {
+    display: flex;
+    flex-direction: column;
+}

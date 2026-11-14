@@ -12,7 +12,7 @@ import Layout from '../Common/Layouts/Layout';
 import Sliders from '../Common/Sliders';
 import SlideTabs from './SlideTabs';
 import PostsGridBack from './PostsGridBack';
-import { filterNaN, filterObject, filterPassword, filterSelected, postTypeTaxonomies, updateArrayItem, wordCount } from '../../utils/functions';
+import { filterNaN, filterObject, filterPassword, filterSelected, isRtlSlider, postTypeTaxonomies, updateArrayItem, wordCount } from '../../utils/functions';
 import { allowedAcfFields, FIELD_ROLES } from '../Common/single-item/AcfFields';
 import SelectSource from './Source/SelectSource';
 import AiStyleStepPromo from './Source/AiStyleStepPromo';
@@ -49,7 +49,23 @@ const Edit = (props) => {
 	const [carousel, setCarousel] = useState(null);
 	const [aiStyleStep, setAiStyleStep] = useState(false);
 	const [acfValuesMap, setAcfValuesMap] = useState({});
-	const { sliders, layoutType, postsQuery, sourceType } = attributes;
+	const { sliders, layoutType, postsQuery, sourceType, arrowAnim = '', arrowAnimOn = 'view' } = attributes;
+
+	// Replays the arrow entrance on the canvas whenever its setting changes.
+	const [arrowsIn, setArrowsIn] = useState(true);
+	useEffect(() => {
+		if (!arrowAnim || 'hover' === arrowAnimOn) {
+			return;
+		}
+		setArrowsIn(false);
+		const timer = setTimeout(() => setArrowsIn(true), 700);
+		return () => clearTimeout(timer);
+	}, [arrowAnim, arrowAnimOn]);
+	const arrowAnimProps = ['fade', 'slide', 'zoom'].includes(arrowAnim) ? {
+		'data-bsb-arrow-anim': arrowAnim,
+		'data-bsb-arrow-on': 'hover' === arrowAnimOn ? 'hover' : 'view',
+		className: 'hover' === arrowAnimOn ? undefined : `bsb-arrows-armed${arrowsIn ? ' bsb-arrows-in' : ''}`,
+	} : {};
 
 	// Filtered the same way Posts::acfFieldsToFetch filters it, so the preview shows what the site shows.
 	const selectedAcfFields = allowedAcfFields(postsQuery?.selectedAcfFields || []);
@@ -156,13 +172,13 @@ const Edit = (props) => {
 
 
 	return (
-		<div {...useBlockProps()}>  {CPTType === "bsb" && <ClipBoard shortcode={shortcode} />}
+		<div {...useBlockProps(arrowAnimProps)}>  {CPTType === "bsb" && <ClipBoard shortcode={shortcode} />}
 			{/* Clicking the slider selects it — except on a `blocks` slider, where the slides and
 			    everything inside them are real blocks with their own selection. Reaching up to
 			    the parent on every click there would take the click meant for a heading or a
 			    button and leave the user unable to edit anything inside a slide. */}
 			<div id={`bsbCarousel-${clientId}`} className={hasOwnBreakpoints(attributes) ? 'bsb-custom-bp' : undefined} onClick={sourceType === 'blocks' ? undefined : () => selectBlock(clientId)}>
-				<div className={`mainLayout ${layoutType}`}>
+				<div className={`mainLayout ${layoutType}${isRtlSlider(attributes) ? ' bsb-rtl' : ''}`} dir={isRtlSlider(attributes) ? 'rtl' : undefined}>
 
 					{isOld ? <>
 						<Settings {...settingsProps} />

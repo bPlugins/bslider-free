@@ -11,7 +11,8 @@ import MainItem from '../MainItem';
 import ProPostTypesPromo from '../../ProPostTypesPromo';
 import ProSocialPromo from '../../ProSocialPromo';
 import ProListLayoutPromo from '../../ProListLayoutPromo';
-import { isPostTypeLocked } from '../../../../utils/functions';
+import { isPostTypeLocked, postContentLayout } from '../../../../utils/functions';
+import ContentLayout from './ContentLayout';
 import DefaultGeneral from './DefaultGeneral';
 import GridGeneral from '../GridGeneral';
 import ThumbnailsGeneral from './ThumbnailsGeneral';
@@ -303,7 +304,9 @@ const General = ({ attributes, setAttributes, clientId, activeIndex, setActiveIn
               * conversation. A saved `hidden` still hides the caption, because `Style` still knows that
               * value — it is not offered here, but a slider set that way is not changed underneath.
               */}
-            <div className={`bsbTipRow ${gap}`}>
+            <ContentLayout attributes={attributes} setAttributes={setAttributes} className={gap} />
+
+            {'overlay' === postContentLayout(attributes) && <>            <div className={`bsbTipRow ${gap}`}>
                 <ToggleControl
                     label={__('Show content on hover', 'b-slider')}
                     checked={'hover' === (caption?.display || 'always')}
@@ -364,10 +367,12 @@ const General = ({ attributes, setAttributes, clientId, activeIndex, setActiveIn
                 options={[
                     { label: __('Tint the whole picture', 'b-slider'), value: 'solid' },
                     { label: __('Fade behind the text', 'b-slider'), value: 'gradient' },
+                    ...('image' === sourceType ? [{ label: __('Box behind the text', 'b-slider'), value: 'box' }] : []),
                     { label: __('None', 'b-slider'), value: 'none' }
                 ]}
                 onChange={val => updateObject('caption', 'background', val)}
             />
+            </>}
 
             {/* Sits beside the caption's reveal because the two are almost always chosen together:
                 a caption that appears on hover over a picture that does nothing looks half-built. */}

@@ -4,6 +4,7 @@ import metadata from './block.json';
 import './editor.scss';
 import Edit from './Components/Backend/Edit';
 import { blockIcon } from './utils/icons';
+import './utils/extraFonts';
 
 // block register
 registerBlockType(metadata, {

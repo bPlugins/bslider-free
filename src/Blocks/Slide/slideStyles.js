@@ -12,17 +12,22 @@
  * handled with a real element in the markup instead. See `SlideOverlay`.
  */
 export const slideStyles = (attributes) => {
-	const { background = {}, border = {}, radius = {}, padding = {}, contentAlign, verticalAlign } = attributes;
+	const { background = {}, border = {}, radius = {}, padding = {}, contentAlign, verticalAlign, kenBurns } = attributes;
 	const style = {};
 
 	const { type = 'solid', color, gradient, image, position, size, repeat, attachment } = background;
 
+	// Ken Burns draws the picture on its own layer (SlideBackground), so the slide leaves it out.
+	const isKenBurns = Boolean(kenBurns && 'image' === type && image?.url);
+
 	if ('image' === type && image?.url) {
-		style.backgroundImage = `url(${image.url})`;
-		if (position) style.backgroundPosition = position;
-		if (size) style.backgroundSize = size;
-		if (repeat) style.backgroundRepeat = repeat;
-		if (attachment) style.backgroundAttachment = attachment;
+		if (!isKenBurns) {
+			style.backgroundImage = `url(${image.url})`;
+			if (position) style.backgroundPosition = position;
+			if (size) style.backgroundSize = size;
+			if (repeat) style.backgroundRepeat = repeat;
+			if (attachment) style.backgroundAttachment = attachment;
+		}
 	} else if ('gradient' === type && gradient) {
 		style.background = gradient;
 	} else if (color) {

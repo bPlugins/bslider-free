@@ -15,11 +15,31 @@ call_user_func( function( $attributes, $content ) {
         }
     }
 
+    if ( isset( $attributes['arrowNext'] ) ) {
+        $attributes['arrowNext'] = is_array( $attributes['arrowNext'] ) ? array_filter(
+            array_intersect_key( $attributes['arrowNext'], [ 'color' => 0, 'bgType' => 0, 'bg' => 0, 'gradient' => 0 ] ),
+            function ( $v ) {
+                return is_string( $v ) && ! preg_match( '/[<>{};]/', $v );
+            }
+        ) : [];
+    }
+
     if ( isset( $attributes['breakpoints'] ) ) {
         $attributes['breakpoints'] = is_array( $attributes['breakpoints'] ) ? array_map( 'absint', array_intersect_key( $attributes['breakpoints'], [ 'tablet' => 0, 'mobile' => 0 ] ) ) : [];
     }
 
     $wrapper_extra = empty( $attributes['breakpoints'] ) ? [] : [ 'class' => 'bsb-custom-bp' ];
+
+    $bsb_reveal = isset( $attributes['firstReveal'] ) ? $attributes['firstReveal'] : '';
+    if ( in_array( $bsb_reveal, [ 'fade', 'zoom', 'up', 'wipe' ], true ) ) {
+        $wrapper_extra['data-bsb-reveal'] = $bsb_reveal;
+    }
+
+    $bsb_arrow_anim = isset( $attributes['arrowAnim'] ) ? $attributes['arrowAnim'] : '';
+    if ( in_array( $bsb_arrow_anim, [ 'fade', 'slide', 'zoom' ], true ) ) {
+        $wrapper_extra['data-bsb-arrow-anim'] = $bsb_arrow_anim;
+        $wrapper_extra['data-bsb-arrow-on']   = isset( $attributes['arrowAnimOn'] ) && 'hover' === $attributes['arrowAnimOn'] ? 'hover' : 'view';
+    }
 
     if ( 'blocks' === ( isset( $attributes['sourceType'] ) ? $attributes['sourceType'] : '' ) ) {
 
@@ -77,7 +97,7 @@ call_user_func( function( $attributes, $content ) {
             id='bsbCarousel-<?php echo esc_attr( isset( $attributes['cId'] ) ? $attributes['cId'] : '' ); ?>'
             data-nonce='<?php echo esc_attr( wp_json_encode( wp_create_nonce( \B_SLIDER\PostsAjax::NONCE_ACTION ) ) ); ?>'
             data-totalposts='0'
-        ><script type="application/json" class="bsb-slider-data"><?php echo wp_json_encode( $attributes, BSB_JSON_IN_HTML ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- JSON_HEX_TAG: no tag can close the script. ?></script></div>
+        ><script type="text/plain" class="bsb-slider-data"><?php echo esc_html( base64_encode( wp_json_encode( $attributes ) ) ); ?></script></div>
         <?php
         return;
     }
@@ -151,8 +171,8 @@ call_user_func( function( $attributes, $content ) {
         data-nonce='<?php echo esc_attr( wp_json_encode( wp_create_nonce( \B_SLIDER\PostsAjax::NONCE_ACTION ), BSB_JSON_IN_HTML ) ); ?>'
         data-totalposts='<?php echo esc_attr( count( get_posts( array_merge( $query, [ 'posts_per_page' => -1, 'fields' => 'ids' ] ) ) ) ); ?>'
     >
-        <script type="application/json" class="bsb-slider-data"><?php echo wp_json_encode( $attributes, BSB_JSON_IN_HTML ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- JSON_HEX_TAG: no tag can close the script. ?></script>
-        <script type="application/json" class="bsb-slider-posts"><?php echo wp_json_encode( $posts, BSB_JSON_IN_HTML ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- JSON_HEX_TAG: no tag can close the script. ?></script>
+        <script type="text/plain" class="bsb-slider-data"><?php echo esc_html( base64_encode( wp_json_encode( $attributes ) ) ); ?></script>
+        <script type="text/plain" class="bsb-slider-posts"><?php echo esc_html( base64_encode( wp_json_encode( $posts ) ) ); ?></script>
     </div>
     <?php
 }, $attributes, $content );

@@ -1,6 +1,7 @@
 import { Fancybox } from '@fancyapps/ui';
 import '@fancyapps/ui/dist/fancybox/fancybox.css';
 import { getTypoCSS } from '../../../bpl-tools/utils/getCSS';
+import { fontLinkCSS } from './fontLink';
 import { safeMediaUrl } from './functions';
 
 export const controlsHandler = (controls) => {
@@ -352,7 +353,8 @@ const paintCaptionTypo = (el, typo) => {
         return;
     }
 
-    const { googleFontLink = '', styles = '' } = getTypoCSS(`#${el.id} .fancybox__caption`, typo) || {};
+    const { styles = '' } = getTypoCSS(`#${el.id} .fancybox__caption`, typo) || {};
+    const googleFontLink = fontLinkCSS(typo);
 
     const style = existing || document.createElement('style');
 

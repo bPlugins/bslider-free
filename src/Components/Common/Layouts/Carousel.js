@@ -12,7 +12,7 @@ import 'swiper/css/effect-cards';
 import 'swiper/css/grid';
 
 import { bsb_lightbox_config, plyrInt, bsb_open_video_popup, galleryOf } from '../../../utils/config';
-import { safeMediaUrl } from '../../../utils/functions';
+import { isRtlSlider, safeMediaUrl, slideSpeedMs, tickerSpeedMs } from '../../../utils/functions';
 import { initLayerAnimations } from '../../../utils/layerAnimations';
 import { reviveSlideScripts } from '../../../utils/reviveSlideScripts';
 import { mountSlidersIn } from '../../../utils/sliderMounter';
@@ -102,6 +102,7 @@ const Carousel = (props) => {
     const prevRef = useRef(null);
     const nextRef = useRef(null);
     const { sourceType, sliders, columns, carousel, columnGap, arrow, arrowStyle, videoConf, indicator } = attributes;
+    const rtl = isRtlSlider(attributes);
     const { loop, isAutoPlay, autoPlayDelay, mousewheel, effect, carouselStyle, grabCursor, reverseDirection, caroDirection, pagination } = carousel;
 
     const { clientId, activeIndex, isBackEnd, isSelected = false } = commonDeProps;
@@ -145,6 +146,7 @@ const Carousel = (props) => {
 
     const swiperSettings = {
         modules: [Navigation, A11y, Autoplay, Mousewheel, EffectCards, EffectFlip, EffectCoverflow, EffectCube, EffectFade, Grid, Pagination],
+        speed: slideSpeedMs(attributes) || 300,
         a11y: {
             prevSlideMessage: __('Previous slide', 'b-slider'),
             nextSlideMessage: __('Next slide', 'b-slider'),
@@ -184,7 +186,7 @@ const Carousel = (props) => {
         modules: [Autoplay],
         loop: true,
         breakpoints,
-        speed: 9000,
+        speed: tickerSpeedMs(attributes),
         allowTouchMove: false,
         autoplay: {
             delay: 0,
@@ -248,7 +250,7 @@ const Carousel = (props) => {
             return;
         }
 
-        const keys = 'vertical' === swiper.params?.direction ? { ArrowUp: -1, ArrowDown: 1 } : { ArrowLeft: -1, ArrowRight: 1 };
+        const keys = 'vertical' === swiper.params?.direction ? { ArrowUp: -1, ArrowDown: 1 } : (rtl ? { ArrowLeft: 1, ArrowRight: -1 } : { ArrowLeft: -1, ArrowRight: 1 });
         const step = keys[e.key];
 
         if (!step) {
@@ -273,9 +275,9 @@ const Carousel = (props) => {
                     arrow?.visibility && (
                         <div className="bsbArrowWrapper bsbButtonDesign">
 
-                            <button ref={prevRef} className="bsbArrowButtonPrev bsbArrowButton" dangerouslySetInnerHTML={{ __html: arrows[arrowStyle].left(arrow?.size, arrow?.color) }}></button>
+                            <button ref={prevRef} className="bsbArrowButtonPrev bsbArrowButton" dangerouslySetInnerHTML={{ __html: arrows[arrowStyle][rtl ? 'right' : 'left'](arrow?.size, arrow?.color) }}></button>
 
-                            <button ref={nextRef} className="bsbArrowButtonNext bsbArrowButton" dangerouslySetInnerHTML={{ __html: arrows[arrowStyle].right(arrow?.size, arrow?.color) }}></button>
+                            <button ref={nextRef} className="bsbArrowButtonNext bsbArrowButton" dangerouslySetInnerHTML={{ __html: arrows[arrowStyle][rtl ? 'left' : 'right'](arrow?.size, arrow?.color) }}></button>
                         </div>
                     )
 
@@ -284,7 +286,7 @@ const Carousel = (props) => {
 
             {autoplays && attributes.autoplayToggle && countSlides() > 1 && <SwiperAutoplayToggle swiperRef={swiperRef} pausedRef={pausedRef} />}
 
-            <Swiper {...checkCarouselLayout}
+            <Swiper {...checkCarouselLayout} key={`${rtl ? 'rtl' : 'ltr'}-${'ticker' === carouselStyle ? tickerSpeedMs(attributes) : ''}`}
                 onBeforeInit={(swiper) => {
                     if (arrow?.visibility) {
                         swiper.params.navigation.prevEl = prevRef.current;

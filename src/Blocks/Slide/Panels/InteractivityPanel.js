@@ -8,6 +8,7 @@ const HOVER_RANGE = {
 	scale: { label: __('Amount', 'b-slider'), min: 1, max: 1.4, step: 0.01, initial: 1.05 },
 	lift: { label: __('Distance (px)', 'b-slider'), min: 2, max: 24, step: 1, initial: 6 },
 	fade: { label: __('Opacity', 'b-slider'), min: 0.2, max: 1, step: 0.05, initial: 0.7 },
+	shadow: { label: __('Shadow size (px)', 'b-slider'), min: 4, max: 60, step: 1, initial: 24 },
 };
 
 /**

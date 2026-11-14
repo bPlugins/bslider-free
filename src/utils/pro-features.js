@@ -13,7 +13,6 @@
 import { __, _n, sprintf } from '@wordpress/i18n';
 
 /** Shared between panels, so the merged lists stay spelt the same and dedupe cleanly. */
-const MOUSE_WHEEL = __('Mouse Wheel', 'b-slider');
 const GRAB_CURSOR = __('Grab Cursor', 'b-slider');
 
 export const PRO_FEATURES = {
@@ -45,13 +44,11 @@ export const PRO_FEATURES = {
 	carouselControls: [
 		__('Carousel Style (Ticker, Grid, 3D Carousel)', 'b-slider'),
 		__('Effect (Default, Cards, Coverflow)', 'b-slider'),
-		MOUSE_WHEEL,
 		GRAB_CURSOR,
 	],
 
 	/** Thumbnails panel — here the direction and arrow toggles really are Premium-only. */
 	thumbnailsControls: [
-		MOUSE_WHEEL,
 		GRAB_CURSOR,
 		__('Direction (Horizontal, Vertical)', 'b-slider'),
 		__('Show Arrow/Navigation', 'b-slider'),
@@ -80,9 +77,8 @@ export const PRO_FEATURES = {
 		__('Per-slide lightbox', 'b-slider'),
 	],
 
-	layoutSettings: [__('Slide Direction (Horizontal and Vertical)', 'b-slider'), __('Arrow Styles', 'b-slider')],
+	layoutSettings: [__('Slide Direction (Horizontal and Vertical)', 'b-slider')],
 	sliderOptions: [
-		__('Slide On MouseWheel', 'b-slider'),
 		__('Slide on Mouse Drag', 'b-slider'),
 		__('Arrow Follow Mouse', 'b-slider'),
 		__('Lazy Load Enable', 'b-slider'),
@@ -118,9 +114,9 @@ export const PRO_FEATURES = {
 	thumbnailsActive: [__('Overly Color', 'b-slider'), __('Border', 'b-slider')],
 
 	/* Layer-Based Builder (Gutenberg Blocks source) */
-	layerTiming: [__('Exit Animation', 'b-slider'), __('Fine-tuned Delay & Duration', 'b-slider')],
+	layerTiming: [__('Exit Animation', 'b-slider'), __('Fine-tuned Delay, Duration & Easing', 'b-slider'), __('Start While the Slide Moves In', 'b-slider'), __('Play Only Once', 'b-slider'), __('Start Scale, Angle & Pivot Point', 'b-slider')],
 	loopAnimation: [__('Float, Flash, Shake & Swing Loop Effects', 'b-slider')],
-	wordStagger: [__('Word by Word Animation', 'b-slider')],
+	wordStagger: [__('Word by Word Animation', 'b-slider'), __('Line by Line Animation', 'b-slider')],
 
 	/**
 	 * The layer's Number Counter panel, which is Premium all the way through.
@@ -137,8 +133,8 @@ export const PRO_FEATURES = {
 	lottie: [__('Lottie Animation Layer', 'b-slider')],
 	decorations: [__('Decorative Shapes — Blob, Ring, Scribble, Wave, Confetti & more', 'b-slider')],
 
-	/** The slide Background panel — the slow zoom over a background image is the Premium half. */
-	slideBackground: [__('Ken Burns Effect', 'b-slider')],
+	/** The slide Background panel: what Premium adds to the Ken Burns zoom. */
+	slideBackground: [__('Ken Burns Zoom Out', 'b-slider'), __('Ken Burns Duration', 'b-slider')],
 
 	/** What Premium adds to absolute layers, in the layer's Position panel. */
 	layerPosition: [__('Follow another layer', 'b-slider'), __('Group layers', 'b-slider'), __('Rulers & Guides', 'b-slider'), __('Parallax depth', 'b-slider')],

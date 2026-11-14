@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import AutoplayToggle, { isKeyboardFocusIn, prefersReducedMotion } from './AutoplayToggle';
 import ImageIndicators from './ImageIndicators/ImageIndicators';
-import { ensureActiveCarouselItem, ownCarouselItems } from '../../utils/functions';
+import { bindSlideWheel, ensureActiveCarouselItem, isRtlSlider, ownCarouselItems, slideSpeedMs } from '../../utils/functions';
 import { initLayerAnimations } from '../../utils/layerAnimations';
 import { liftStaticLayers } from '../../utils/staticLayers';
 import { watchSlidePads } from '../../utils/slidePads';
@@ -14,9 +14,10 @@ import arrows from '../../utils/arrows';
 
 const Sliders = (props) => {
 	const { attributes, clientId, carousel = null, setCarousel, isBackend = false, children, firstPosts, products } = props;
-	const { options, arrow, arrowStyle, indicator, animation, direction, sourceType } = attributes;
+	const { options, arrow, arrowStyle, indicator, animation, direction, sourceType, isMouseWheel } = attributes;
 
 	const sliderDom = useRef();
+	const rtl = isRtlSlider(attributes);
 	const autoplays = !isBackend && options.ride === true;
 	/* Reduced motion starts paused; the toggle can still start it. */
 	const [playing, setPlaying] = useState(() => !prefersReducedMotion());
@@ -55,9 +56,23 @@ const Sliders = (props) => {
 				ride: options.ride === true && (isBackend || playingRef.current) ? 'carousel' : false,
 				pause: options.pause === true ? 'hover' : false,
 			});
+			// Bootstrap reads the page's dir for keys and swipes; follow this slider's instead.
+			if (rtl) {
+				initialize._directionToOrder = dir => ('left' === dir ? 'prev' : 'next');
+			}
 			setCarousel && setCarousel(initialize);
 		}
-	}, [options, attributes._blocksHtml]);
+	}, [options, attributes._blocksHtml, rtl]);
+
+	/* Mousewheel slide, front end only: in the editor the wheel scrolls the canvas. */
+	const carouselRef = useRef(null);
+	carouselRef.current = carousel;
+	const wheelSpeed = slideSpeedMs(attributes) || 600;
+	useEffect(() => {
+		if (!isMouseWheel || isBackend || !sliderDom?.current) return;
+
+		return bindSlideWheel(sliderDom.current, { step: dir => (dir > 0 ? carouselRef.current?.next() : carouselRef.current?.prev()), rtl, lockMs: Math.max(800, wheelSpeed + 200) });
+	}, [isMouseWheel, isBackend, rtl, wheelSpeed]);
 
 	/**
 	 * Exactly one slide starts out visible, however late the slides themselves arrive.
@@ -238,13 +253,13 @@ const Sliders = (props) => {
 
 				<button className={`carousel-control-prev`} id={`bsbCarousel-prev-${clientId}`} type="button" onClick={(e) => { e.stopPropagation(); carousel && carousel.prev(); }} aria-label={__('Previous slide', 'b-slider')}>
 
-					<div className="bsbArrowButton" dangerouslySetInnerHTML={{ __html: arrows[arrowStyle].left(arrow?.size, arrow?.color) }}>
+					<div className="bsbArrowButton" dangerouslySetInnerHTML={{ __html: arrows[arrowStyle][rtl ? 'right' : 'left'](arrow?.size, arrow?.color) }}>
 					</div>
 				</button>
 
 				<button className="carousel-control-next" id={`bsbCarousel-next-${clientId}`} type="button" onClick={(e) => { e.stopPropagation(); carousel && carousel.next(); }} aria-label={__('Next slide', 'b-slider')}>
 
-					<div className="bsbArrowButton" dangerouslySetInnerHTML={{ __html: arrows[arrowStyle].right(arrow?.size, arrow?.color) }}>
+					<div className="bsbArrowButton" dangerouslySetInnerHTML={{ __html: arrows[arrowStyle][rtl ? 'left' : 'right'](arrow?.size, arrow?.color) }}>
 					</div>
 				</button>
 			</div>

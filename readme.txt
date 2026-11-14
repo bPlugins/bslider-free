@@ -138,7 +138,6 @@ https://www.youtube.com/watch?v=Zy23dW0uQDc
 - **Slide on Mouse Drag**: Drag-to-slide for a tactile feel.
 - **Arrow Follow Mouse**: Navigation arrows that follow the cursor.
 - **Grab Cursor Interaction**: A grab icon that shows the carousel can be dragged.
-- **Custom Arrow Styles**: Navigation arrow designs to match your branding.
 - **Thumbnail Direction & Navigation**: Thumbnail flow with its own arrows.
 - **Thumbnail Styling**: Position, dimensions, borders and colour overlays.
 - **Box Model Controls**: Margin, padding, border and border radius throughout.
@@ -340,16 +339,53 @@ Please report security bugs found in the source code of the bSlider plugin throu
 
 = 2.3.0 - 8 November, 2026 =
 * Security: Users who may not add scripts to posts (such as Contributors and Authors) can no longer add HTML that the slider script would run on the page. If your site uses a page cache, clear it after updating.
-* New: Create with AI: say what the slider is for and the AI built into WordPress 7.0 and newer writes the slides, all of them editable. Needs an AI service set up under Settings → Connectors. Authors and above can use it.
+* New: Create with AI in the setup wizard: say what the slider is for and the AI writes the slides, all of them editable. Uses the AI service set up under Settings → Connectors (WordPress 7.0 and newer). Authors and above can use it.
 * New: Slides with AI panel for Gutenberg Blocks sliders: add or replace slides from one line at any time.
+* New (Pro): Style with AI for Gutenberg Blocks sliders: arrows, dots, corners, height and slide transition, also offered right after Create with AI.
+* New (Pro): Rewrite with AI for a single slide, in Gutenberg Blocks sliders (with an optional instruction such as "shorter") and Custom Images sliders.
+* New (Pro): AI features can use the WordPress AI Connector (Settings → Connectors), so a separate bSlider AI key is no longer needed.
 * New: Make many slides at once for Custom Images sliders: choose images from the Media Library or paste image links, one slide per picture.
 * New: Show Pause Button: a small button that stops and starts autoplay, for visitors who need the slider to stand still (WCAG 2.2.2).
 * New: Click a slider, then use the left and right arrow keys to change slides.
-* Improvement: Screen readers now announce the slider, each slide ("2 of 5") and every slide change, and the arrows and dots have clear names.
+* New: More layer entry animations: Wipe In from four sides, Mask Reveal Up, Scale In, Rotate In, Tilt In (3D), Skew In, Custom (move, scale and rotate together) and Fade In from each corner.
+* New (Pro): Fine-tune an entry: start scale, angle, start X and Y, distance, and the point the layer grows or turns from.
+* New (Pro): Easing for each layer: Ease Out Quart, Ease Out Expo and Spring.
+* New (Pro): Line by line entry, next to word by word.
+* New (Pro): Start a layer's entry while the slide is still moving in, and play an entry only once.
+* New: Text Effects for layers: gradient text, text shadow, curved text and vertical text.
+* New: Glass Effect (background blur and tint) and Image Filters (brightness, saturation and recolour) for layers.
+* New: Font size in cqw, so text grows and shrinks with the slider's width.
+* New: Clip overflowing content on group and column layers, and Rotation and Z-Index for layers that are not absolutely positioned.
+* New: Block order on tablet and mobile, for example text before the photo on phones.
+* New: Shadow on hover for layers.
+* New (Pro): Border colour and picture colour on hover for layers.
+* New: Two more Google Fonts: Kaisei Tokumin and Be Vietnam Pro.
+* New: Reveal on first view: the whole slider fades, zooms or wipes in the first time it scrolls into view.
+* New: Slider border, and a box behind the caption text for Image sliders.
+* New: Separate background for the next arrow. (Pro) Separate icon colour for the next arrow.
+* New: Arrow entrance: arrows fade, slide or zoom in when the slider comes into view or on mouse over.
+* New: Right to left (RTL) slide direction for the Default, Carousel and Thumbnails layouts.
+* New: Wipe, Wave and Parallax slide transitions.
+* New: Transition Speed setting.
+* New (Pro): Ticker Speed setting.
+* New: Slider Width, for a boxed slider with its own width on each device.
+* New: Post Types sliders can show the title, text and button below or beside the picture, not only over it.
+* New: Title and description over Video slides. (Pro) A button too.
+* New: Cover Video controls in Gutenberg Blocks sliders: play only on its own slide, a sound button and a play/pause button.
+* Improvement: Ken Burns zoom on slide background images no longer needs Pro. Zoom Out and the duration stay Pro.
+* Improvement: Arrow hover colours, all six arrow styles and the mouse wheel option no longer need Pro.
+* Improvement: The mouse wheel now works in Firefox, changes one slide per scroll, and lets the page scroll on at the first and last slide.
+* Improvement: Screen readers now announce the slider, each slide ("2 of 5") and every slide change, and the arrows and dots have clear names that can be translated.
 * Improvement: Keyboard focus shows a clear ring and stops autoplay, and autoplay does not start when the visitor's device asks for less motion.
 * Improvement: Images without alt text use the slide title.
 * Fix: Slides with Vertical Align set showed on top of each other on the site.
 * Fix: The Post Query panel no longer breaks on sliders with no categories selected.
+* Fix: An animating layer could show above a layer placed over it.
+* Fix: Google Fonts on layers did not show in the editor, and only the 400 weight loaded.
+* Fix: Layers made with Pro settings (lightbox, entry distance, hover colours) showed "Attempt Block Recovery" without an active Pro licence.
+* Fix (Pro): In Carousel sliders made with Gutenberg Blocks, layer animations and the arrows did not work.
+* Fix (Pro): Style with AI could replace the dot settings, and its arrow size did not apply.
+* Fix (Pro): AI requests fail less often when Google's default Gemini model is busy or retired.
 
 = 2.2.5 - 4 November, 2026 =
 * New: Absolute Position for Gutenberg Blocks layers (Position panel): place any block anywhere on the slide by X and Y, in px or %, from one of 9 anchors.

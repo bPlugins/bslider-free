@@ -104,7 +104,12 @@ export const alignBtnOpt = [
 ]
 
 export const arrowStyles = [
-    { label: __('Style 1', 'b-slider'), value: 'style1', icon: arrow['style1'].right() }
+    { label: __('Style 1', 'b-slider'), value: 'style1', icon: arrow['style1'].right() },
+    { label: __('Style 2', 'b-slider'), value: 'style2', icon: arrow['style2'].right() },
+    { label: __('Style 3', 'b-slider'), value: 'style3', icon: arrow['style3'].right() },
+    { label: __('Style 4', 'b-slider'), value: 'style4', icon: arrow['style4'].right() },
+    { label: __('Style 5', 'b-slider'), value: 'style5', icon: arrow['style5'].right() },
+    { label: __('Style 6', 'b-slider'), value: 'style6', icon: arrow['style6'].right() },
 ]
 
 
@@ -130,7 +135,10 @@ export const animationOptions = [
 
 export const animationFreeOptions = [
     { label: __('Default', 'b-slider'), value: 'default' },
-    { label: __('Fade', 'b-slider'), value: 'carousel-fade' }
+    { label: __('Fade', 'b-slider'), value: 'carousel-fade' },
+    { label: __('Wipe (Mask)', 'b-slider'), value: 'bsb-wipe' },
+    { label: __('Wave', 'b-slider'), value: 'bsb-wave' },
+    { label: __('Parallax', 'b-slider'), value: 'bsb-parallax' },
 ];
 
 export const sliderOption = [
@@ -175,6 +183,10 @@ export const entryEffectOpt = [
     { label: __('Fade In Down', 'b-slider'), value: 'fadeInDown' },
     { label: __('Fade In Left', 'b-slider'), value: 'fadeInLeft' },
     { label: __('Fade In Right', 'b-slider'), value: 'fadeInRight' },
+    { label: __('Fade In From Top Left', 'b-slider'), value: 'bsbFadeInTopLeft' },
+    { label: __('Fade In From Top Right', 'b-slider'), value: 'bsbFadeInTopRight' },
+    { label: __('Fade In From Bottom Left', 'b-slider'), value: 'bsbFadeInBottomLeft' },
+    { label: __('Fade In From Bottom Right', 'b-slider'), value: 'bsbFadeInBottomRight' },
     { label: __('Zoom In', 'b-slider'), value: 'zoomIn' },
     { label: __('Slide In Up', 'b-slider'), value: 'slideInUp' },
     { label: __('Slide In Down', 'b-slider'), value: 'slideInDown' },
@@ -182,6 +194,16 @@ export const entryEffectOpt = [
     { label: __('Slide In Right', 'b-slider'), value: 'slideInRight' },
     { label: __('Bounce In', 'b-slider'), value: 'bounceIn' },
     { label: __('Flip In X', 'b-slider'), value: 'flipInX' },
+    { label: __('Scale In', 'b-slider'), value: 'bsbScaleIn' },
+    { label: __('Wipe In Left', 'b-slider'), value: 'bsbWipeInLeft' },
+    { label: __('Wipe In Right', 'b-slider'), value: 'bsbWipeInRight' },
+    { label: __('Wipe In Up', 'b-slider'), value: 'bsbWipeInUp' },
+    { label: __('Wipe In Down', 'b-slider'), value: 'bsbWipeInDown' },
+    { label: __('Mask Reveal Up', 'b-slider'), value: 'bsbMaskInUp' },
+    { label: __('Rotate In', 'b-slider'), value: 'bsbRotateIn' },
+    { label: __('Tilt In (3D)', 'b-slider'), value: 'bsbTiltIn' },
+    { label: __('Skew In', 'b-slider'), value: 'bsbSkewIn' },
+    { label: __('Custom (move, scale, rotate)', 'b-slider'), value: 'bsbCustomIn' },
 ];
 
 /** The preset delays a free layer can start after — enough to put one layer after another. */
@@ -216,6 +238,7 @@ export const hoverEffectOpt = [
     { label: __('Scale', 'b-slider'), value: 'scale' },
     { label: __('Lift', 'b-slider'), value: 'lift' },
     { label: __('Fade', 'b-slider'), value: 'fade' },
+    { label: __('Shadow', 'b-slider'), value: 'shadow' },
 ];
 
 export const clickActionOpt = [
@@ -235,3 +258,25 @@ export const emUnit = (def = 0) => ({ value: 'em', label: 'em', default: def });
 export const remUnit = (def = 0) => ({ value: 'rem', label: 'rem', default: def });
 export const vwUnit = (def = 0) => ({ value: 'vw', label: 'vw', default: def });
 export const vhUnit = (def = 0) => ({ value: 'vh', label: 'vh', default: def });
+
+/** Arrow entrance; CSS in style.scss. */
+export const arrowAnimOpt = [
+    { label: __('None', 'b-slider'), value: '' },
+    { label: __('Fade In', 'b-slider'), value: 'fade' },
+    { label: __('Slide In', 'b-slider'), value: 'slide' },
+    { label: __('Zoom In', 'b-slider'), value: 'zoom' },
+];
+
+export const arrowAnimOnOpt = [
+    { label: __('When in view', 'b-slider'), value: 'view' },
+    { label: __('On mouse over', 'b-slider'), value: 'hover' },
+];
+
+/** Whole-slider reveal the first time it scrolls into view; keyframes in style.scss. */
+export const firstRevealOpt = [
+    { label: __('None', 'b-slider'), value: '' },
+    { label: __('Fade In', 'b-slider'), value: 'fade' },
+    { label: __('Zoom In', 'b-slider'), value: 'zoom' },
+    { label: __('Fade In Up', 'b-slider'), value: 'up' },
+    { label: __('Wipe In Left', 'b-slider'), value: 'wipe' },
+];
