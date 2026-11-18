@@ -1,15 +1,20 @@
 import { __ } from '@wordpress/i18n';
 import { SelectControl, __experimentalUnitControl as UnitControl, __experimentalNumberControl as NumberControl, ToggleControl, PanelRow, RangeControl } from "@wordpress/components";
 import { PanelBody } from '../../../Panel/AccordionPanel';
-import { emUnit, perUnit, caroDirectionOpt, carouselStyOpt, contentPosition, animationFreeOptions, indicatorOption, indicatorOptions, vhUnit } from '../../../../utils/options';
+import { arrowStyles, emUnit, perUnit, caroDirectionOpt, carouselStyOpt, contentPosition, animationFreeOptions, indicatorOption, indicatorOptions, vhUnit, firstRevealOpt } from '../../../../utils/options';
+import ButtonGroupController from '../ButtonGroupController';
+import { TipSelect } from '../../../Panel/TipField';
 
 import BtnGroup from '../../../../../../bpl-tools/Components/BtnGroup/BtnGroup';
 import Label from '../../../../../../bpl-tools/Components/Label/Label';
-import { pxUnit } from '../../../../../../bpl-tools/utils/options';
+import { pxUnit, vwUnit } from '../../../../../../bpl-tools/utils/options';
 import { BDevice } from '../../../../../../bpl-tools/Components/Deprecated';
 import Controls from './Carousel/Controls';
 import LightboxSettings from '../../../../Blocks/Slide/Panels/LightboxSettings';
 import ProNotice from '../../../Panel/ProNotice';
+import HelpTip from '../../../Panel/HelpTip';
+import RtlToggle from './RtlToggle';
+import { SlideSpeed } from './SpeedControl';
 import { PRO_FEATURES } from '../../../../utils/pro-features';
 import { VideoHelpLink, videoLabels } from '../../../../utils/videos';
 
@@ -18,7 +23,7 @@ import { checkDirection, isDefaultLayout } from '../../../../utils/functions';
 
 const DefaultGeneral = ({ attributes, setAttributes, updateObject, device, setDevice }) => {
 
-    const { layoutType, titleFCaption, options, arrow, indicator, carousel, columns, rowGap, columnGap, position, animation, sliderHeight, height, sourceType, image, lightbox } = attributes;
+    const { sliderWidth = {}, layoutType, titleFCaption, options, arrow, arrowStyle, indicator, carousel, columns, rowGap, columnGap, position, animation, sliderHeight, height, sourceType, image, lightbox } = attributes;
     const { carouselStyle, reverseDirection, caroDirection } = carousel;
 
     /** The plain slider — the only layout that gets the autoplay, animation and indicator panels. */
@@ -33,6 +38,8 @@ const DefaultGeneral = ({ attributes, setAttributes, updateObject, device, setDe
 
         <ToggleControl className='mt10' label={__('Show Indicators/Pagination', 'b-slider')} checked={indicator.visibility} onChange={(value) => updateObject('indicator', 'visibility', value)} />
     </>;
+
+    const pauseButtonToggle = <ToggleControl className='mt10' label={<>{__('Show Pause Button', 'b-slider')} <HelpTip label={__('About the pause button', 'b-slider')}>{__('Shows a small button in the top right corner that stops and starts autoplay. It helps visitors who need the slider to stand still, and accessibility rules (WCAG 2.2.2) ask for it.', 'b-slider')}</HelpTip></>} checked={!!attributes.autoplayToggle} onChange={value => setAttributes({ autoplayToggle: value })} />;
 
     return <>
 
@@ -55,12 +62,16 @@ const DefaultGeneral = ({ attributes, setAttributes, updateObject, device, setDe
                 <SelectControl label={__('Carousel Style', 'b-slider')} value={carouselStyle} options={carouselStyOpt} onChange={val => updateObject("carousel", "carouselStyle", val)} />
 
                 {carouselStyle !== "ticker" && <>
-                    <Controls attributes={attributes} updateObject={updateObject} />
+                    <Controls attributes={attributes} setAttributes={setAttributes} updateObject={updateObject} />
                 </>}
 
                 {carouselStyle === "ticker" && <ToggleControl className='mt10' label={__("Reverse Direction", 'b-slider')} checked={reverseDirection} onChange={val => updateObject("carousel", "reverseDirection", val)} />}
 
+                {('ticker' === carouselStyle || carousel?.isAutoPlay) && pauseButtonToggle}
+
                 {(carouselStyle === "standard" || carouselStyle === "ticker") && <SelectControl className='mt10' label={__('Direction', 'b-slider')} value={caroDirection} options={caroDirectionOpt} onChange={val => updateObject("carousel", "caroDirection", val)} />}
+
+                <RtlToggle attributes={attributes} setAttributes={setAttributes} />
 
                 {carouselStyle !== "ticker" && visibilityToggles()}
 
@@ -99,6 +110,12 @@ const DefaultGeneral = ({ attributes, setAttributes, updateObject, device, setDe
                 position instead. */}
             {'blocks' !== sourceType && <SelectControl label={__('Content Position:', 'b-slider')} labelPosition='left' value={position} options={contentPosition} onChange={(val) => { setAttributes({ position: val }) }} />}
 
+            {arrow?.visibility && 'grid' !== layoutType && <div className='mt20'>
+                <ButtonGroupController label={__('Arrow Style:', 'b-slider')} value={arrowStyle} onChange={(arrowStyle) => setAttributes({ arrowStyle })} options={arrowStyles} />
+            </div>}
+
+            {isDefaultLayout(layoutType) && <RtlToggle attributes={attributes} setAttributes={setAttributes} className='mt20' />}
+
             {/* Height define option  */}
             <PanelRow className='bsb_device_row mt20'>
                 <Label className='mb0'>{layoutType === 'grid' ? __('Item Height:', 'b-slider') : __('Slider Height:', 'b-slider')}</Label>
@@ -113,6 +130,18 @@ const DefaultGeneral = ({ attributes, setAttributes, updateObject, device, setDe
             <UnitControl className='mb0' value={sourceType === 'blocks' ? sliderHeight[device] : (sliderHeight[device] || height)} placeholder={sourceType === 'blocks' ? __('Auto', 'b-slider') : undefined} onChange={val => { setAttributes({ sliderHeight: { ...sliderHeight, [device]: val } }) }} units={[pxUnit(400), vhUnit(30)]} isResetValueOnUnitChange={true} beforeIcon='grid-view' />
             <small className="bsb_field_hint">{__('Tablet falls back to desktop, and mobile to tablet, wherever a height is left unset.', 'b-slider')}</small>
 
+            {/* Boxed: at most this wide and centred; empty fills what the theme gives. */}
+            <UnitControl className='mt20' label={<>{__('Slider Width', 'b-slider')} <HelpTip label={__('About slider width', 'b-slider')}>{__('Keeps the slider at most this wide and centred, for example 1000px. Leave it empty to fill the space the theme gives it.', 'b-slider')}</HelpTip></>} labelPosition='left' value={sliderWidth?.[device] || ''} placeholder={__('Full', 'b-slider')} onChange={val => setAttributes({ sliderWidth: { ...(sliderWidth || {}), [device]: parseFloat(val) > 0 ? val : '' } })} units={[pxUnit(1000), perUnit(80), vwUnit(80)]} isResetValueOnUnitChange={true} />
+
+            <TipSelect
+                className='mt20'
+                label={__('Reveal on first view', 'b-slider')}
+                value={attributes.firstReveal || ''}
+                options={firstRevealOpt}
+                onChange={val => setAttributes({ firstReveal: val })}
+                tip={__('The whole slider animates in once, the first time a visitor scrolls it into view.', 'b-slider')}
+            />
+
             <ProNotice features={PRO_FEATURES.layoutSettings} />
         </PanelBody>
 
@@ -125,6 +154,8 @@ const DefaultGeneral = ({ attributes, setAttributes, updateObject, device, setDe
                     squeezed. `BtnGroup` places its own label, so the row is not needed. */}
                 <BtnGroup className='mb20' label={__('Animation/Effect:', 'b-slider')} labelPosition='top' value={animation} onChange={val => setAttributes({ animation: val })} options={animationFreeOptions} />
 
+                <SlideSpeed attributes={attributes} setAttributes={setAttributes} initial={['bsb-wipe', 'bsb-wave', 'bsb-parallax'].includes(animation) ? 900 : 600} className='mb20' />
+
                 <ToggleControl className='mt20' label={__('Autoplay', 'b-slider')} checked={options.ride} onChange={(value) => updateObject('options', 'ride', value)} />
 
                 {options.ride && <>
@@ -132,10 +163,14 @@ const DefaultGeneral = ({ attributes, setAttributes, updateObject, device, setDe
                     <small className="bsb_field_hint">{__('How long each slide holds before the next one comes in, in milliseconds. 1000 is one second.', 'b-slider')}</small>
 
                     <ToggleControl className='mt10' label={__('Pause on Mouse over', 'b-slider')} checked={options.pause} onChange={(value) => updateObject('options', 'pause', value)} />
+
+                    {pauseButtonToggle}
                 </>}
 
                 {/* Already inside `isDefault`, so both toggles apply. */}
                 {visibilityToggles('mt20')}
+
+                <ToggleControl className='mt20' label={__('Slide On MouseWheel', 'b-slider')} checked={Boolean(attributes.isMouseWheel)} onChange={val => setAttributes({ isMouseWheel: val })} />
 
                 <ProNotice features={PRO_FEATURES.sliderOptions} />
             </PanelBody>

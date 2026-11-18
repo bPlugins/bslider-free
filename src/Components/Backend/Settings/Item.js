@@ -23,6 +23,16 @@ const Item = ({ attributes, setAttributes, arrKey, index, setActiveIndex = false
 
             <InlineDetailMediaUpload label={`${sourceType === 'video' ? 'Poster Url' : ''}`} value={img} types={['image']} onChange={val => updateSlider('img', val)} placeholder={__('Enter Image URL', 'b-slider')} />
 
+            {/* Where Pro has its per-slide Rewrite with AI button. */}
+            {'image' === sourceType && <ProNotice className='mt10 mb10' features={PRO_FEATURES.slideRewriteAi} />}
+
+            {/* Shown over the poster, and over an inline player until it plays. */}
+            {'video' === sourceType && <>
+                <TextControl className='mt15' label={__("Title", 'b-slider')} labelPosition={__('top', 'b-slider')} value={title} placeholder={__('Enter Title', 'b-slider')} onChange={val => updateSlider('title', val)} />
+
+                <TextareaControl label={__("Description", 'b-slider')} labelPosition={__('top', 'b-slider')} value={desc} placeholder={__('Enter desc', 'b-slider')} onChange={val => updateSlider('desc', val)} />
+            </>}
+
             {(!isPostSource(sourceType) && sourceType !== 'video') && <>
                 <TextControl label={__("Image Alt", 'b-slider')} labelPosition={__('top', 'b-slider')} value={altText != null ? altText : img?.caption || img?.title} placeholder={__('Enter Image Alt Text', 'b-slider')} onChange={val => updateSlider('altText', val)} />
 

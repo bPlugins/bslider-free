@@ -12,11 +12,14 @@ import Layout from '../Common/Layouts/Layout';
 import Sliders from '../Common/Sliders';
 import SlideTabs from './SlideTabs';
 import PostsGridBack from './PostsGridBack';
-import { filterNaN, filterObject, filterPassword, filterSelected, postTypeTaxonomies, updateArrayItem, wordCount } from '../../utils/functions';
+import { filterNaN, filterObject, filterPassword, filterSelected, isRtlSlider, postTypeTaxonomies, updateArrayItem, wordCount } from '../../utils/functions';
 import { allowedAcfFields, FIELD_ROLES } from '../Common/single-item/AcfFields';
 import SelectSource from './Source/SelectSource';
+import AiStyleStepPromo from './Source/AiStyleStepPromo';
 import Default from '../Common/Layouts/Default';
 import ClipBoard from './ClipBoard';
+import { hasOwnBreakpoints } from '../../utils/breakpoints';
+import { useLayerDevice } from '../../Blocks/Slide/extensions/layerDevice';
 import useIframeAssetSync from '../../../../bpl-tools/hooks/useIframeAssetSync';
 // The sidebar markup leans on bpl-tools' `mt*`/`mb*` spacing classes, which live here.
 import '../../../../bpl-tools/Components/style.scss';
@@ -33,6 +36,8 @@ const Edit = (props) => {
 	useIframeAssetSync(['bsb-slider-style-css', 'bootstrap-css', 'bsb-slider-editor-style-css', 'bsb-slider-editor-script-js', 'bootstrap-js']);
 	useEffect(() => { clientId && setAttributes({ cId: clientId.substring(0, 10) }); }, [clientId]);
 	const [activeIndex, setActiveIndex] = useState(0);
+	// The canvas shows the previewed device's caption-part places (Style.js).
+	const device = useLayerDevice();
 	// Which slide the canvas is showing, for a `blocks` slider. Editor-only and deliberately not
 	// an attribute: it is where someone is working, not part of the slider.
 	const [activeSlide, setActiveSlide] = useState(0);
@@ -42,8 +47,25 @@ const Edit = (props) => {
 	}, [attributes.grid.paginationType]);
 
 	const [carousel, setCarousel] = useState(null);
+	const [aiStyleStep, setAiStyleStep] = useState(false);
 	const [acfValuesMap, setAcfValuesMap] = useState({});
-	const { sliders, layoutType, postsQuery, sourceType } = attributes;
+	const { sliders, layoutType, postsQuery, sourceType, arrowAnim = '', arrowAnimOn = 'view' } = attributes;
+
+	// Replays the arrow entrance on the canvas whenever its setting changes.
+	const [arrowsIn, setArrowsIn] = useState(true);
+	useEffect(() => {
+		if (!arrowAnim || 'hover' === arrowAnimOn) {
+			return;
+		}
+		setArrowsIn(false);
+		const timer = setTimeout(() => setArrowsIn(true), 700);
+		return () => clearTimeout(timer);
+	}, [arrowAnim, arrowAnimOn]);
+	const arrowAnimProps = ['fade', 'slide', 'zoom'].includes(arrowAnim) ? {
+		'data-bsb-arrow-anim': arrowAnim,
+		'data-bsb-arrow-on': 'hover' === arrowAnimOn ? 'hover' : 'view',
+		className: 'hover' === arrowAnimOn ? undefined : `bsb-arrows-armed${arrowsIn ? ' bsb-arrows-in' : ''}`,
+	} : {};
 
 	// Filtered the same way Posts::acfFieldsToFetch filters it, so the preview shows what the site shows.
 	const selectedAcfFields = allowedAcfFields(postsQuery?.selectedAcfFields || []);
@@ -150,25 +172,27 @@ const Edit = (props) => {
 
 
 	return (
-		<div {...useBlockProps()}>  {CPTType === "bsb" && <ClipBoard shortcode={shortcode} />}
+		<div {...useBlockProps(arrowAnimProps)}>  {CPTType === "bsb" && <ClipBoard shortcode={shortcode} />}
 			{/* Clicking the slider selects it — except on a `blocks` slider, where the slides and
 			    everything inside them are real blocks with their own selection. Reaching up to
 			    the parent on every click there would take the click meant for a heading or a
 			    button and leave the user unable to edit anything inside a slide. */}
-			<div id={`bsbCarousel-${clientId}`} onClick={sourceType === 'blocks' ? undefined : () => selectBlock(clientId)}>
-				<div className={`mainLayout ${layoutType}`}>
+			<div id={`bsbCarousel-${clientId}`} className={hasOwnBreakpoints(attributes) ? 'bsb-custom-bp' : undefined} onClick={sourceType === 'blocks' ? undefined : () => selectBlock(clientId)}>
+				<div className={`mainLayout ${layoutType}${isRtlSlider(attributes) ? ' bsb-rtl' : ''}`} dir={isRtlSlider(attributes) ? 'rtl' : undefined}>
 
 					{isOld ? <>
 						<Settings {...settingsProps} />
-						<Style {...{ attributes, clientId, postsCount: formattedPosts?.length, products: formattedPosts }} />
-						<Default {...{ attributes, firstPosts: formattedPosts, commonDeProps, products: formattedPosts }} />
+						<Style {...{ attributes, clientId, postsCount: formattedPosts?.length, products: formattedPosts, device }} />
+						<Default {...{ attributes, firstPosts: formattedPosts, commonDeProps, products: formattedPosts, device }} />
 					</> : <>
 						{!layoutType ?
-							<SelectSource {...{ attributes, setAttributes, updateObject }} /> : <>
+							<SelectSource {...{ attributes, setAttributes, updateObject, clientId }} onAiCreated={() => setAiStyleStep(true)} /> : <>
 								<Settings {...settingsProps} />
-								<Style {...{ attributes, clientId, postsCount: formattedPosts?.length, products: formattedPosts }} />
+								<Style {...{ attributes, clientId, postsCount: formattedPosts?.length, products: formattedPosts, device }} />
 								{sourceType === 'blocks' ? (
 									<>
+										{aiStyleStep && <AiStyleStepPromo onDone={() => setAiStyleStep(false)} />}
+
 										<SlideTabs {...{ clientId, activeSlide, setActiveSlide }} />
 
 										{/* The number rides on the element as a data attribute so

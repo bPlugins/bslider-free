@@ -3,6 +3,7 @@ import Excerpt from '../Layouts/grid/Excerpt';
 import AcfFields, { resolveSlideImage, resolveButtonLink, resolveButtonText, resolveTitle } from './AcfFields';
 import LinkedPicture from './LinkedPicture';
 import SlideLink from './SlideLink';
+import FreeParts, { isPlaced } from './FreeParts';
 import { lightboxCaption, plainText } from '../../../utils/functions';
 
 const PostItem = (props) => {
@@ -61,6 +62,15 @@ const PostItem = (props) => {
     const imageHref = isLightbox ? (slideImg?.url || '') : (btnLink || '');
     const accessibleLabel = plainText(postTitle) || imageHref;
 
+    const titleEl = showTitle && postTitle && createElement("h5", {
+        className: `bsbTitle ${classNames.title || ''}`, dangerouslySetInnerHTML: { __html: postTitle }
+    }, null);
+    const descEl = showDesc && <Excerpt attributes={attributes} classNames={classNames} post={post} />;
+    // Same new-tab switch as the picture.
+    const btnEl = btnLabel && <div className={`carousel-button ${classNames.btn || ''}`}>
+        <SlideLink href={btnLink} linkTarget={image?.linkTarget} isBackEnd={isBackEnd} isSelected={isSelected} dangerouslySetInnerHTML={{ __html: btnLabel }} />
+    </div>;
+
     return <div className={`item ${index === 0 ? 'active' : ''} ${imageHref ? 'is-linked' : ''} ${classNames.item || ''}`}>
         {/* Overlay anchor — only when there is a link but no image to carry it. The picture anchor
             handles the image case; this one handles the no-image case so the whole slide is still
@@ -96,21 +106,15 @@ const PostItem = (props) => {
 
         <div className={classNames.contentArea || 'content-area'}>
             <div className={`captionContent ${classNames.captionContent || ''}`}>
-                {showTitle && postTitle && createElement("h5", {
-                    className: `bsbTitle ${classNames.title || ''}`, dangerouslySetInnerHTML: { __html: postTitle }
-                }, null)}
+                {!isPlaced(attributes, 'title') && titleEl}
 
-                {showDesc && <Excerpt attributes={attributes} classNames={classNames} post={post} />}
+                {!isPlaced(attributes, 'desc') && descEl}
 
-                {btnLabel && <>
-                    <div className={`carousel-button ${classNames.btn || ''}`}>
-                        {/* The same switch the picture follows — see `Open in a new tab` in the panel.
-                            One setting, both links, so the two ways off a slide cannot open differently. */}
-                        <SlideLink href={btnLink} linkTarget={image?.linkTarget} isBackEnd={isBackEnd} isSelected={isSelected} dangerouslySetInnerHTML={{ __html: btnLabel }} />
-                    </div>
-                </>}
+                {!isPlaced(attributes, 'button') && btnEl}
             </div>
         </div>
+
+        <FreeParts parts={[['title', isPlaced(attributes, 'title') && titleEl], ['desc', isPlaced(attributes, 'desc') && descEl], ['button', isPlaced(attributes, 'button') && btnEl]]} />
 
         {/* Last, so the ACF layer paints over the image and caption rather than under them. */}
         <AcfFields post={post} attributes={attributes} classNames={classNames} isBackEnd={isBackEnd} isSelected={isSelected} />

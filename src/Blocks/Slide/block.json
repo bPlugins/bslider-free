@@ -7,7 +7,7 @@
 	"parent": [
 		"bsb/slider"
 	],
-	"version": "2.2.2",
+	"version": "2.3.0",
 	"description": "A single slide inside a bSlider Gutenberg Blocks slider.",
 	"textdomain": "b-slider",
 	"attributes": {
@@ -46,6 +46,18 @@
 		"verticalAlign": {
 			"type": "string",
 			"default": ""
+		},
+		"kenBurns": {
+			"type": "boolean",
+			"default": false
+		},
+		"kenBurnsDirection": {
+			"type": "string",
+			"default": "in"
+		},
+		"kenBurnsDuration": {
+			"type": "number",
+			"default": 8
 		}
 	},
 	"supports": {

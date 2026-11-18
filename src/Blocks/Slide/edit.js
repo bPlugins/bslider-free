@@ -1,6 +1,7 @@
 import { __, sprintf } from '@wordpress/i18n';
+import { useEffect } from '@wordpress/element';
 import { useBlockProps, InnerBlocks, InspectorControls } from '@wordpress/block-editor';
-import { SelectControl, TabPanel, BorderControl, __experimentalBoxControl as BoxControl } from '@wordpress/components';
+import { SelectControl, TabPanel, BorderControl, ToggleControl, __experimentalBoxControl as BoxControl } from '@wordpress/components';
 import { AccordionGroup, PanelBody } from '../../Components/Panel/AccordionPanel';
 import { TipRange, TipToggle } from '../../Components/Panel/TipField';
 import Background from '../../../../bpl-tools/Components/Background/Background';
@@ -9,15 +10,31 @@ import { PremiumBadge, PremiumPanel } from '../../../../bpl-tools/ProControls';
 import { adminUrl, DEMO_URL } from '../../utils/functions';
 import { proFeatureSentence, PRO_FEATURES } from '../../utils/pro-features';
 import ProNotice from '../../Components/Panel/ProNotice';
+import AiProPanel from '../../Components/Panel/AiProPanel';
 import { alignBtnOpt, pxUnit, perUnit, tabs } from '../../utils/options';
 import VisualTimelinePanel from './Panels/VisualTimelinePanel';
 import { slideStyles } from './slideStyles';
 import { slideContentClass } from './slideContentClass';
 import SlideOverlay from './SlideOverlay';
+import SlideBackground from './SlideBackground';
 import SlidePlaceholder from './SlidePlaceholder';
+import { syncSlidePads } from '../../utils/slidePads';
+import { findBlockElement } from './extensions/layerGeometry';
 
 const Edit = ({ attributes, setAttributes, clientId }) => {
-	const { bsbStagger = 0, background = {}, overlay, border = {}, radius = {}, padding = {}, contentAlign, verticalAlign, wordWrap = true } = attributes;
+	const { bsbStagger = 0, background = {}, overlay, border = {}, radius = {}, padding = {}, contentAlign, verticalAlign, wordWrap = true, kenBurns = false } = attributes;
+	const hasBgImage = 'image' === background?.type && Boolean(background?.image?.url);
+
+	// `--bsb-pad-*` for "Full slide" layers, read off the slide as drawn; never saved.
+	useEffect(() => {
+		const element = findBlockElement(clientId);
+		const observer = element && 'undefined' !== typeof ResizeObserver ? new ResizeObserver(() => syncSlidePads(element)) : null;
+
+		syncSlidePads(element);
+		observer?.observe(element);
+
+		return () => observer?.disconnect();
+	}, [clientId, JSON.stringify(padding)]);
 
 	return <>
 		{/* The same two tabs the slider itself carries, and the same one-panel-at-a-time
@@ -27,6 +44,8 @@ const Edit = ({ attributes, setAttributes, clientId }) => {
 			<TabPanel className="bPlTabPanel bsb-tab-panel" activeClass="activeTab" tabs={tabs}>
 				{(tab) => <AccordionGroup key={tab.name}>
 					{'General' === tab.name && <>
+						<AiProPanel title={__('Rewrite with AI', 'b-slider')} description={__('Rewrite the text of this slide’s headings, paragraphs and buttons in one click, for example “shorter and friendlier”. Colours, fonts, positions and animations stay.', 'b-slider')} />
+
 						{/* Ahead of the stagger control, because it decides what the slide is
 						    showing — the timing of how it arrives is the smaller question. */}
 						<PanelBody className='bPlPanelBody' title={<>{__('Dynamic Content', 'b-slider')}<PremiumBadge /></>} initialOpen={false}>
@@ -90,11 +109,20 @@ const Edit = ({ attributes, setAttributes, clientId }) => {
 								onChange={val => setAttributes({ overlay: val })}
 							/>
 
-							{/* Inside this panel rather than a locked panel of its own, the way
-							    Decorations gets one below: Ken Burns is an option belonging to the
-							    background picture, not a subject in its own right, and a panel with
-							    one switch in it would say otherwise. */}
-							<ProNotice features={PRO_FEATURES.slideBackground} />
+							{/* Ken Burns zoom in is free; Zoom Out and the duration are Pro. */}
+							<ToggleControl
+								className='mt20'
+								label={__('Ken Burns effect', 'b-slider')}
+								checked={Boolean(kenBurns) && hasBgImage}
+								onChange={val => setAttributes({ kenBurns: val })}
+								disabled={!hasBgImage}
+							/>
+
+							{!hasBgImage && <small className='bsbHint'>
+								{__('Needs a background image above.', 'b-slider')}
+							</small>}
+
+							<ProNotice className='mt10' features={PRO_FEATURES.slideBackground} />
 						</PanelBody>
 
 						{/* After Background, because a shape is drawn over whatever the background
@@ -190,9 +218,10 @@ const Edit = ({ attributes, setAttributes, clientId }) => {
 			style: slideStyles(attributes),
 			'data-bsb-stagger': bsbStagger || undefined,
 		})}>
+			<SlideBackground attributes={attributes} />
 			<SlideOverlay overlay={overlay} />
 
-			<div className={slideContentClass(attributes)} style={overlay ? { position: 'relative', zIndex: 1 } : undefined}>
+			<div className={slideContentClass(attributes)} style={(overlay || kenBurns) ? { position: 'relative', zIndex: 1 } : undefined}>
 				{/*
 				  * An empty `InnerBlocks` otherwise draws Gutenberg's own "Type / to choose a
 				  * block" line — a paragraph waiting to be typed in, which is the right offer for

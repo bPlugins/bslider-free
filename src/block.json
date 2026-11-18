@@ -4,7 +4,7 @@
 	"name": "bsb/slider",
 	"title": "Slider",
 	"category": "widgets",
-	"version": "2.2.4",
+	"version": "2.3.0",
 	"description": "Display Amazing Gutenberg Responsive Image And Content Slider",
 	"keywords": [
 		"slider",
@@ -16,6 +16,14 @@
 		"align": {
 			"type": "string",
 			"default": ""
+		},
+		"layerScale": {
+			"type": "object",
+			"default": {}
+		},
+		"breakpoints": {
+			"type": "object",
+			"default": {}
 		},
 		"layoutType": {
 			"type": "string",
@@ -498,6 +506,10 @@
 			"type": "boolean",
 			"default": false
 		},
+		"contentLayout": {
+			"type": "string",
+			"default": "overlay"
+		},
 		"cardBgColor": {
 			"type": "string",
 			"default": ""
@@ -604,6 +616,10 @@
 			"default": false
 		},
 		"isArrowFollowSlide": {
+			"type": "boolean",
+			"default": false
+		},
+		"autoplayToggle": {
 			"type": "boolean",
 			"default": false
 		},
@@ -733,6 +749,14 @@
 				"bg": "rgba(17, 17, 17, 0.55)"
 			}
 		},
+		"arrowHov": {
+			"type": "object",
+			"default": {}
+		},
+		"arrowNext": {
+			"type": "object",
+			"default": {}
+		},
 		"arrowWidth": {
 			"type": "string",
 			"default": "50px"
@@ -809,6 +833,24 @@
 			"type": "string",
 			"default": "style1"
 		},
+		"arrowAnim": {
+			"type": "string",
+			"default": ""
+		},
+		"arrowAnimOn": {
+			"type": "string",
+			"default": "view"
+		},
+		"isRtl": {
+			"type": "boolean",
+			"default": false
+		},
+		"slideSpeed": {
+			"type": "number"
+		},
+		"tickerSpeed": {
+			"type": "number"
+		},
 		"indicator": {
 			"type": "object",
 			"default": {
@@ -864,6 +906,14 @@
 			"type": "object",
 			"default": {}
 		},
+		"sliderWidth": {
+			"type": "object",
+			"default": {}
+		},
+		"sliderBorder": {
+			"type": "object",
+			"default": {}
+		},
 		"borderRadius": {
 			"type": "object",
 			"default": {
@@ -881,6 +931,10 @@
 				"bottom": "0px",
 				"left": "0px"
 			}
+		},
+		"firstReveal": {
+			"type": "string",
+			"default": ""
 		},
 		"isLazyLoad": {
 			"type": "boolean",

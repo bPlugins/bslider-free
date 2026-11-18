@@ -2,18 +2,18 @@
 Contributors: bplugins, abuhayat, btechnologies, farazi1, freemius
 Donate link: https://www.buymeacoffee.com/abuhayat
 Tags: block, carousel, slider, templates, Gutenberg block
-Requires at least: 6.5
+Requires at least: 6.6
 Tested up to: 7.1
-Stable tag: 2.2.4
+Stable tag: 2.3.0
 Requires PHP: 7.2
 License: GPLv2 or later 
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Responsive sliders from images, posts, WooCommerce, videos or blocks — or start from 50+ ready-made templates. Block editor & shortcode.
+Responsive sliders from images, posts, WooCommerce, videos or blocks — or start from 92+ ready-made templates. Block editor & shortcode.
 
 == Description ==
 
-**Create responsive sliders from images, posts, WooCommerce products, videos, or slides built out of Gutenberg blocks — or start from more than 50 ready-made templates — with multiple layouts, animations, and styling controls, right in the block editor.**
+**Create responsive sliders from images, posts, WooCommerce products, videos, or slides built out of Gutenberg blocks — or start from more than 92 ready-made templates — with multiple layouts, animations, and styling controls, right in the block editor.**
 
 [Documentation](https://bplugins.com/docs/bslider) | [Demo](https://bplugins.com/products/b-slider/#demos) | [Pricing](https://bplugins.com/products/b-slider/pricing/) | [Support](https://bplugins.com/support/)
 
@@ -23,7 +23,7 @@ bSlider makes it easy to build engaging sliders without coding. Choose transitio
 
 Use it for product showcases, portfolios, testimonials or hero sections. It works with any theme add the Gutenberg block, or place a shortcode anywhere.
 
-Start from a ready-made design. The Template Library, opened from the block editor toolbar, has more than 50 sliders for agencies, shops, restaurants, real estate, portfolios, video and social feeds. Pick one, click Import, and change anything you like:
+Start from a ready-made design. The Template Library, opened from the block editor toolbar, has more than 92 sliders for agencies, shops, restaurants, real estate, portfolios, video and social feeds. Pick one, click Import, and change anything you like:
 
 https://www.youtube.com/watch?v=y7jrdRujlpY
 
@@ -138,7 +138,6 @@ https://www.youtube.com/watch?v=Zy23dW0uQDc
 - **Slide on Mouse Drag**: Drag-to-slide for a tactile feel.
 - **Arrow Follow Mouse**: Navigation arrows that follow the cursor.
 - **Grab Cursor Interaction**: A grab icon that shows the carousel can be dragged.
-- **Custom Arrow Styles**: Navigation arrow designs to match your branding.
 - **Thumbnail Direction & Navigation**: Thumbnail flow with its own arrows.
 - **Thumbnail Styling**: Position, dimensions, borders and colour overlays.
 - **Box Model Controls**: Margin, padding, border and border radius throughout.
@@ -338,6 +337,78 @@ Please report security bugs found in the source code of the bSlider plugin throu
 
 == Changelog ==
 
+= 2.3.0 - 8 November, 2026 =
+* Security: Users who may not add scripts to posts (such as Contributors and Authors) can no longer add HTML that the slider script would run on the page. If your site uses a page cache, clear it after updating.
+* New: Create with AI in the setup wizard: say what the slider is for and the AI writes the slides, all of them editable. Uses the AI service set up under Settings → Connectors (WordPress 7.0 and newer). Authors and above can use it.
+* New: Slides with AI panel for Gutenberg Blocks sliders: add or replace slides from one line at any time.
+* New (Pro): Style with AI for Gutenberg Blocks sliders: arrows, dots, corners, height and slide transition, also offered right after Create with AI.
+* New (Pro): Rewrite with AI for a single slide, in Gutenberg Blocks sliders (with an optional instruction such as "shorter") and Custom Images sliders.
+* New (Pro): AI features can use the WordPress AI Connector (Settings → Connectors), so a separate bSlider AI key is no longer needed.
+* New: Make many slides at once for Custom Images sliders: choose images from the Media Library or paste image links, one slide per picture.
+* New: Show Pause Button: a small button that stops and starts autoplay, for visitors who need the slider to stand still (WCAG 2.2.2).
+* New: Click a slider, then use the left and right arrow keys to change slides.
+* New: More layer entry animations: Wipe In from four sides, Mask Reveal Up, Scale In, Rotate In, Tilt In (3D), Skew In, Custom (move, scale and rotate together) and Fade In from each corner.
+* New (Pro): Fine-tune an entry: start scale, angle, start X and Y, distance, and the point the layer grows or turns from.
+* New (Pro): Easing for each layer: Ease Out Quart, Ease Out Expo and Spring.
+* New (Pro): Line by line entry, next to word by word.
+* New (Pro): Start a layer's entry while the slide is still moving in, and play an entry only once.
+* New: Text Effects for layers: gradient text, text shadow, curved text and vertical text.
+* New: Glass Effect (background blur and tint) and Image Filters (brightness, saturation and recolour) for layers.
+* New: Font size in cqw, so text grows and shrinks with the slider's width.
+* New: Clip overflowing content on group and column layers, and Rotation and Z-Index for layers that are not absolutely positioned.
+* New: Block order on tablet and mobile, for example text before the photo on phones.
+* New: Shadow on hover for layers.
+* New (Pro): Border colour and picture colour on hover for layers.
+* New: Two more Google Fonts: Kaisei Tokumin and Be Vietnam Pro.
+* New: Reveal on first view: the whole slider fades, zooms or wipes in the first time it scrolls into view.
+* New: Slider border, and a box behind the caption text for Image sliders.
+* New: Separate background for the next arrow. (Pro) Separate icon colour for the next arrow.
+* New: Arrow entrance: arrows fade, slide or zoom in when the slider comes into view or on mouse over.
+* New: Right to left (RTL) slide direction for the Default, Carousel and Thumbnails layouts.
+* New: Wipe, Wave and Parallax slide transitions.
+* New: Transition Speed setting.
+* New (Pro): Ticker Speed setting.
+* New: Slider Width, for a boxed slider with its own width on each device.
+* New: Post Types sliders can show the title, text and button below or beside the picture, not only over it.
+* New: Title and description over Video slides. (Pro) A button too.
+* New: Cover Video controls in Gutenberg Blocks sliders: play only on its own slide, a sound button and a play/pause button.
+* Improvement: Ken Burns zoom on slide background images no longer needs Pro. Zoom Out and the duration stay Pro.
+* Improvement: Arrow hover colours, all six arrow styles and the mouse wheel option no longer need Pro.
+* Improvement: The mouse wheel now works in Firefox, changes one slide per scroll, and lets the page scroll on at the first and last slide.
+* Improvement: Screen readers now announce the slider, each slide ("2 of 5") and every slide change, and the arrows and dots have clear names that can be translated.
+* Improvement: Keyboard focus shows a clear ring and stops autoplay, and autoplay does not start when the visitor's device asks for less motion.
+* Improvement: Images without alt text use the slide title.
+* Fix: Slides with Vertical Align set showed on top of each other on the site.
+* Fix: The Post Query panel no longer breaks on sliders with no categories selected.
+* Fix: An animating layer could show above a layer placed over it.
+* Fix: Google Fonts on layers did not show in the editor, and only the 400 weight loaded.
+* Fix: Layers made with Pro settings (lightbox, entry distance, hover colours) showed "Attempt Block Recovery" without an active Pro licence.
+* Fix (Pro): In Carousel sliders made with Gutenberg Blocks, layer animations and the arrows did not work.
+* Fix (Pro): Style with AI could replace the dot settings, and its arrow size did not apply.
+* Fix (Pro): AI requests fail less often when Google's default Gemini model is busy or retired.
+
+= 2.2.5 - 4 November, 2026 =
+* New: Absolute Position for Gutenberg Blocks layers (Position panel): place any block anywhere on the slide by X and Y, in px or %, from one of 9 anchors.
+* New: Drag layers on the canvas, with smart guides, snapping and arrow-key nudge (Shift moves 10px).
+* New: Resize and rotate layers with handles, or type an exact width, height and rotation.
+* New: Z-Index and Layer Order buttons, to choose which layer sits on top.
+* New: Select several layers with Shift-click, then align them or space them evenly.
+* New: Lock position and Hide on canvas for layers.
+* New: Show on all slides (a logo on every slide) and Full slide (ignore the slide padding).
+* New: Separate Tablet and Mobile places and font sizes for each layer.
+* New: Auto-scale layers (Layers panel): the whole slide design shrinks evenly on smaller screens.
+* New: Breakpoints panel: choose the widths where Tablet and Mobile settings begin.
+* New: Absolute Position for the Title, Description and Button of Image, Posts and WooCommerce sliders, with Tablet and Mobile places, Auto-scale placed parts and Z-Index.
+* New (Pro): Rulers & Guides: drag out your own guide lines, and layers snap to them.
+* New (Pro): Group layers, so they move, rotate and animate as one.
+* New (Pro): Follow layer: pin a layer to a point of another layer.
+* New (Pro): Parallax depth: layers drift with the mouse, the page scroll or a phone's tilt.
+* New (Pro): 3D tilt and Background parallax (Layers panel).
+* New (Pro): Image indicators for Gutenberg Blocks sliders: round thumbnails of each slide's first picture.
+* Improvement: Layers hidden on the current device stay visible, faded, on the editor canvas.
+* Fix: A button set to Next slide, Previous slide or Scroll to a section no longer also follows its own link.
+* Fix: Layer fonts now load in the weight you pick, so bold and semi-bold text no longer shows as regular.
+
 = 2.2.4 - 26 October, 2026 =
 * Security: Fixed a stored cross-site scripting (XSS) issue in slider settings (reported by V1T via Patchstack);
 * Security: Hardened arrow settings, video and image lightbox links, ACF field loading and Template Library image import;
@@ -410,6 +481,12 @@ Please report security bugs found in the source code of the bSlider plugin throu
 
 == Upgrade Notice ==
 
+= 2.3.0 =
+Security fix, please update. Adds Create with AI, a pause button and better keyboard and screen reader support. Clear your page cache after updating. Existing sliders are untouched.
+
+= 2.2.5 =
+Adds absolute positioning for slide layers and slider captions, set per device. Bold Google Fonts in layers now show bold. Existing sliders are untouched.
+
 = 2.2.4 =
 Security release. Please update. Existing sliders are untouched.
 
@@ -423,7 +500,14 @@ You can find the source code, report bugs, and contribute to the development of 
 
 == External Services ==
 
-This plugin contacts one service outside your site, and only while you use the feature that needs it.
+This plugin contacts services outside your site only while you use the feature that needs them.
+
+= AI service you set up in WordPress (Create with AI) =
+Used only when you click Create in the "Create with AI" box of the slider's setup screen. The plugin does not hold an AI key and contacts no AI company itself: it hands the request to the AI built into WordPress 7.0 and newer, which sends it to the AI service you chose under Settings → Connectors.
+
+* **What is sent:** the sentence you type about the slider, how many slides you asked for, and the plugin's instructions for writing them. Nothing about your posts, your users or your visitors is sent.
+* **When:** only when you click Create. Nothing is sent while the box is unused, and without a connector set up nothing is sent at all.
+* **Terms and privacy:** those of the AI service you connected (for example Google, OpenAI or Anthropic), shown on its connector under Settings → Connectors.
 
 = bPlugins Template Library =
 Used when you open the Template Library from the block editor toolbar or the source picker.

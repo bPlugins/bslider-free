@@ -11,7 +11,8 @@ import MainItem from '../MainItem';
 import ProPostTypesPromo from '../../ProPostTypesPromo';
 import ProSocialPromo from '../../ProSocialPromo';
 import ProListLayoutPromo from '../../ProListLayoutPromo';
-import { isPostTypeLocked } from '../../../../utils/functions';
+import { isPostTypeLocked, postContentLayout } from '../../../../utils/functions';
+import ContentLayout from './ContentLayout';
 import DefaultGeneral from './DefaultGeneral';
 import GridGeneral from '../GridGeneral';
 import ThumbnailsGeneral from './ThumbnailsGeneral';
@@ -20,11 +21,17 @@ import PostQuery from './Post-query';
 import AcfConfigure from './AcfConfigure';
 import PostBadges from './PostBadges';
 import VideoGeneral from './VideoGeneral';
+import LayerScalePanel from './LayerScalePanel';
+import BreakpointsPanel from './BreakpointsPanel';
+import PartPlacement from './PartPlacement';
+import PartScale from './PartScale';
 import ProPanel from '../../../Panel/ProPanel';
+import AiSlidesPanel from './AiSlidesPanel';
+import ImageLinksPanel from './ImageLinksPanel';
 import { PRO_FEATURES } from '../../../../utils/pro-features';
 import { VideoHelpLink, videoLabels, TUTORIAL_VIDEOS } from '../../../../utils/videos';
 
-const General = ({ attributes, setAttributes, activeIndex, setActiveIndex, updateObject, multipleAttrChange, getTaxonomy, premiumProps, postTypes, queriedPosts, hasSlideBlocks }) => {
+const General = ({ attributes, setAttributes, clientId, activeIndex, setActiveIndex, updateObject, multipleAttrChange, getTaxonomy, premiumProps, postTypes, queriedPosts, hasSlideBlocks }) => {
 
     const [device, setDevice] = useState('desktop');
     const [gapDevice, setGapDevice] = useState('desktop');
@@ -190,14 +197,21 @@ const General = ({ attributes, setAttributes, activeIndex, setActiveIndex, updat
             <ProListLayoutPromo variant="compact" sourceType={sourceType} />
         </PanelBody>
 
+        {'blocks' === sourceType && <LayerScalePanel attributes={attributes} setAttributes={setAttributes} clientId={clientId} />}
+
+        {'blocks' === sourceType && <AiSlidesPanel clientId={clientId} />}
+
         {(sourceType !== "posts" && sourceType !== "woo" && sourceType !== "blocks") &&
             <PanelBody className='bPlPanelBody' title={__('Slides', 'b-slider')} initialOpen={false}>
-                {/* Above the slides, where Pro has its picture and AI tools; its own group, or opening it closes Slides. */}
+                {/* Above the slides: many pictures in at once (Image source), then the Pro AI text writer. */}
+                <ImageLinksPanel attributes={attributes} setAttributes={setAttributes} />
+
+                {/* Its own group, or opening it closes Slides. */}
                 <AccordionGroup>
                     <ProPanel
-                        title={__('Slides with AI', 'b-slider')}
-                        proTitle={__('Slides with AI', 'b-slider')}
-                        features={'image' === sourceType ? [PRO_FEATURES.slidesFromPictures, PRO_FEATURES.slidesAiText] : PRO_FEATURES.slidesAiText}
+                        title={__('Slide text with AI', 'b-slider')}
+                        proTitle={__('Slide text with AI', 'b-slider')}
+                        features={PRO_FEATURES.slidesAiText}
                         demoUrl={TUTORIAL_VIDEOS.styleWithAi}
                     />
                 </AccordionGroup>
@@ -232,6 +246,9 @@ const General = ({ attributes, setAttributes, activeIndex, setActiveIndex, updat
                 onChange={val => updateObject('title', 'isVisible', val)}
             />
 
+            {/* Image, Posts and Woo: one part out of the caption box, by X/Y. */}
+            {'social' !== sourceType && title?.isVisible !== false && <PartPlacement part='title' name={__('Title', 'b-slider')} place={title?.place} onChange={val => updateObject('title', 'place', val)} />}
+
             <ToggleControl
                 className={gap}
                 label={__('Show Description', 'b-slider')}
@@ -239,14 +256,20 @@ const General = ({ attributes, setAttributes, activeIndex, setActiveIndex, updat
                 onChange={val => updateObject('desc', 'isVisible', val)}
             />
 
+            {'social' !== sourceType && desc?.isVisible !== false && <PartPlacement part='desc' name={__('Description', 'b-slider')} place={desc?.place} onChange={val => updateObject('desc', 'place', val)} />}
+
             {/* An image slider's buttons are typed per slide, under Slides — there is no one button
                 here to show or hide, so the switch and its label belong to a query source only. */}
             {isPostSource && <>
                 <ToggleControl className={gap} label={__('Show Button', 'b-slider')} checked={button?.isVisible !== false} onChange={val => updateObject('button', 'isVisible', val)} />
 
+                {button?.isVisible !== false && <PartPlacement part='button' name={__('Button', 'b-slider')} place={button?.place} onChange={val => updateObject('button', 'place', val)} />}
+
                 {button?.isVisible !== false &&
                     <TextControl className={gap} label={__('Text', 'b-slider')} value={button?.text} onChange={val => updateObject('button', 'text', val)} />}
             </>}
+
+            {'social' !== sourceType && [title, desc, isPostSource && button].some(part => part && part.isVisible !== false && part.place?.absolute) && <PartScale layerScale={attributes.layerScale} setAttributes={setAttributes} clientId={clientId} />}
 
             {/**
               * The picture is the link on a post or product slider, and there is nothing to decide.
@@ -281,7 +304,9 @@ const General = ({ attributes, setAttributes, activeIndex, setActiveIndex, updat
               * conversation. A saved `hidden` still hides the caption, because `Style` still knows that
               * value — it is not offered here, but a slider set that way is not changed underneath.
               */}
-            <div className={`bsbTipRow ${gap}`}>
+            <ContentLayout attributes={attributes} setAttributes={setAttributes} className={gap} />
+
+            {'overlay' === postContentLayout(attributes) && <>            <div className={`bsbTipRow ${gap}`}>
                 <ToggleControl
                     label={__('Show content on hover', 'b-slider')}
                     checked={'hover' === (caption?.display || 'always')}
@@ -342,10 +367,12 @@ const General = ({ attributes, setAttributes, activeIndex, setActiveIndex, updat
                 options={[
                     { label: __('Tint the whole picture', 'b-slider'), value: 'solid' },
                     { label: __('Fade behind the text', 'b-slider'), value: 'gradient' },
+                    ...('image' === sourceType ? [{ label: __('Box behind the text', 'b-slider'), value: 'box' }] : []),
                     { label: __('None', 'b-slider'), value: 'none' }
                 ]}
                 onChange={val => updateObject('caption', 'background', val)}
             />
+            </>}
 
             {/* Sits beside the caption's reveal because the two are almost always chosen together:
                 a caption that appears on hover over a picture that does nothing looks half-built. */}
@@ -380,6 +407,9 @@ const General = ({ attributes, setAttributes, activeIndex, setActiveIndex, updat
         {layoutType === "grid" && <GridGeneral {...commonProps} multipleAttrChange={multipleAttrChange} />}
         {layoutType === "thumbnails" && <ThumbnailsGeneral {...commonProps} multipleAttrChange={multipleAttrChange} />}
         {sourceType === "video" && <VideoGeneral {...commonProps} />}
+
+        {/* Last: where every Tablet and Mobile setting above takes over. */}
+        <BreakpointsPanel attributes={attributes} setAttributes={setAttributes} />
     </>
 }
 

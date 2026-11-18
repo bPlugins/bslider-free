@@ -1,6 +1,23 @@
 import { getBoxValue } from '../../../../bpl-tools/utils/functions';
+import { isRtlSlider, postContentLayout, slideSpeedMs } from '../../utils/functions';
 import { getTypoCSS, getColorsCSS } from '../../../../bpl-tools/utils/getCSS';
+import { fontLinkCSS } from '../../utils/fontLink';
 import arrows from '../../utils/arrows';
+import { breakpointsOf, hasOwnBreakpoints, toPluginBreakpoints } from '../../utils/breakpoints';
+import { deviceRulesCSS } from '../../utils/deviceRules';
+import { ANCHORS } from './single-item/AcfFields';
+import { placeFor } from '../../utils/layerDevices';
+
+/** Slider border shorthand, or nothing when no width is set. */
+const sliderBorderCSS = (border) => {
+	const width = String(border?.width ?? '').trim();
+
+	if (!width || 0 === parseFloat(width)) {
+		return '';
+	}
+
+	return `border: ${[width, border.style || 'solid', border.color].filter(Boolean).join(' ')};`;
+};
 
 /** Grouped arrows: matrix spot → flex alignment. Allow-listed, since the value lands in a <style> tag. */
 const ARROW_SPOTS = { top: 'flex-start', center: 'center', bottom: 'flex-end', left: 'flex-start', right: 'flex-end' };
@@ -12,19 +29,104 @@ const arrowGroupAlign = (position) => {
 /** A plain CSS length or a safe fallback; the value is printed into the slider's stylesheet. */
 const safeLength = (value, fallback) => (/^\d+(\.\d+)?(px|em|rem|%|vw|vh)$/.test(String(value || '').trim()) ? String(value).trim() : fallback);
 
-const Style = ({ attributes, clientId, postsCount, products }) => {
-	const { badgeStyle = {}, sliders, slideInnerGap, slideInnerGapDevice, titleTypo, titleColor, descTypo, descColor, titleMargin, descMargin, arrow, arrowStyle, indicator, SliderOverly, height, sliderHeight, borderRadius, arrowWidth, deviceArrowWidth, arrowHeight, deviceArrowHeight, arrowRadius, arrowOffset, arrowPlacement, arrowGroupPosition, arrowGap, arrowGroupDirection, arrowOffsetY, arrowHideOn = {}, btnColors, btnHovColors, btnPadding, btnBorder, btnRadius, direction, columnGap, rowGap, grid, arrowBorder, thumbnails, sourceType, carousel, caption, image, title, desc, button, postsQuery, layoutType } = attributes;
+const Style = ({ attributes, clientId, postsCount, products, device }) => {
+	const { badgeStyle = {}, sliders, slideInnerGap, slideInnerGapDevice, titleTypo, titleColor, descTypo, descColor, titleMargin, descMargin, arrow, arrowStyle, indicator, SliderOverly, height, sliderHeight, borderRadius, arrowWidth, deviceArrowWidth, arrowHeight, deviceArrowHeight, arrowRadius, arrowOffset, arrowPlacement, arrowGroupPosition, arrowGap, arrowGroupDirection, arrowOffsetY, arrowHideOn = {}, arrowHov = {}, arrowNext = {}, btnColors, btnHovColors, btnPadding, btnBorder, btnRadius, direction, columnGap, rowGap, grid, arrowBorder, thumbnails, sourceType, carousel, caption, image, title, desc, button, postsQuery, layoutType } = attributes;
 	const { loadMoreBtn } = grid;
 	const { overly, height: thumbnailsHeight, width: thumbnailsWidth, active } = thumbnails;
 	const { carouselStyle } = carousel;
 	const isVertical = 'vertical' === indicator?.direction;
 
 
-	const leftCursor = encodeURIComponent(arrows[arrowStyle].left(arrow?.size, arrow?.color, direction))
+	const rtl = isRtlSlider(attributes);
+
+	/** Boxed: a max width per device (tablet and mobile inherit), centred. */
+	const boxedAt = (device) => {
+		const value = safeLength(attributes?.sliderWidth?.[device], '');
+
+		// Front: the block wrapper carries the id; editor: `#block-` wraps it, so the width is set once either way.
+		return value && parseFloat(value) > 0 ? `.wp-block-bsb-slider#bsbCarousel-${clientId}, #block-${clientId} { max-width: ${value}; margin-left: auto; margin-right: auto; }` : '';
+	};
+	/** Post Types text below or beside the picture, on a panel; the slide keeps the slider's height. */
+	const contentLayout = postContentLayout(attributes);
+	const panelItem = `#bsbCarousel-${clientId} .item`;
+	const panelCaption = `${panelItem} > .carousel-caption, ${panelItem} > .content-area`;
+	// Carousel columns are narrow: the card grows with its text and the picture keeps Item Ratio.
+	const belowRules = 'carousel' === layoutType ? `
+		#bsbCarousel-${clientId} .carousel .swiper, #bsbCarousel-${clientId} .swiper-slide { height: auto !important; }
+		${panelItem} { display: flex !important; flex-direction: column !important; height: 100% !important; }
+		${panelItem} > .img { flex: none !important; height: auto !important; aspect-ratio: ${'original' === (attributes?.gridItemRatio || '4/3') ? '4/3' : (attributes?.gridItemRatio || '4/3')} !important; }
+		${panelCaption} { flex: 1 1 auto !important; justify-content: flex-start !important; text-align: center !important; }
+		${panelItem} .captionContent { text-align: center !important; }` : `
+		${panelItem} { display: flex !important; flex-direction: column !important; }
+		${panelItem} > .img { flex: 1 1 auto !important; min-height: 0 !important; height: auto !important; }
+		${panelCaption} { flex: none !important; text-align: center !important; }
+		${panelItem} .captionContent { text-align: center !important; }`;
+	// Clear of the right-hand arrow, which sits over the text when it is beside the picture.
+	const besideArrowRoom = 'default' === layoutType && arrow?.visibility ? `padding-right: calc(${deviceArrowWidth?.desktop || arrowWidth || '50px'} + ${arrowOffset || '0px'} + 8px) !important;` : '';
+	const contentPanelCSS = 'overlay' === contentLayout ? '' : `
+	${panelItem}::after { display: none !important; }
+	${panelItem} { background: ${attributes?.cardBgColor || '#ffffff'}; }
+	${panelCaption} {
+		position: static !important;
+		inset: auto !important;
+		transform: none !important;
+		width: auto !important;
+		max-width: none !important;
+		height: auto !important;
+		margin: 0 !important;
+		padding: 20px 24px !important;
+		background: none !important;
+		display: flex !important;
+		flex-direction: column;
+		justify-content: center;
+		text-align: start !important;
+		z-index: 2;
+	}
+	${panelItem} .captionContent {
+		position: static !important;
+		inset: auto !important;
+		transform: none !important;
+		width: 100% !important;
+		max-width: none !important;
+		margin: 0 !important;
+		padding: 0 !important;
+		background: none !important;
+		text-align: start !important;
+	}
+	${'below' === contentLayout ? belowRules : `
+	${panelItem} { display: grid !important; grid-template-columns: 1fr 1fr; grid-template-rows: 100%; }
+	${panelItem} > .img { grid-column: 1; grid-row: 1; height: 100% !important; min-height: 0 !important; }
+	${panelCaption} { grid-column: 2; grid-row: 1; overflow: auto; ${besideArrowRoom} }
+	@media (max-width: 576px) { ${belowRules} ${panelItem} { display: flex !important; } ${panelCaption} { padding-right: 24px !important; } }`}
+
+	/* Bootstrap's own hiding, which the display above would undo for the slides not shown. */
+	${panelItem}.carousel-item:not(.active):not(.carousel-item-next):not(.carousel-item-prev) {
+		display: none !important;
+	}`;
+
+	const boxedCSS = `${boxedAt('desktop')}
+	${boxedAt('tablet') ? `@media (max-width: 768px) { ${boxedAt('tablet')} }` : ''}
+	${boxedAt('mobile') ? `@media (max-width: 576px) { ${boxedAt('mobile')} }` : ''}`;
+
+	/** Default layout: Bootstrap times each change by the outgoing slide's transition, so one duration covers every effect. */
+	const speed = slideSpeedMs(attributes);
+	const speedItems = `#bsbCarousel-${clientId} .bsbCarousel:not(.carousel-item *) > .carousel-inner`;
+	const slideSpeedCSS = speed ? `
+	${speedItems} > .carousel-item {
+		transition-duration: ${speed / 1000}s !important;
+	}
+
+	${speedItems.replace('.bsbCarousel:', '.bsbCarousel.carousel-fade:')} > .active.carousel-item-start,
+	${speedItems.replace('.bsbCarousel:', '.bsbCarousel.carousel-fade:')} > .active.carousel-item-end {
+		transition-duration: 0s !important;
+		transition-delay: ${speed / 1000}s !important;
+	}` : '';
+
+	const leftCursor = encodeURIComponent(arrows[arrowStyle][rtl ? 'right' : 'left'](arrow?.size, arrow?.color, direction))
 		.replace(/'/g, '%27')
 		.replace(/"/g, '%22');
 
-	const rightCursor = encodeURIComponent(arrows[arrowStyle].right(arrow?.size, arrow?.color, direction))
+	const rightCursor = encodeURIComponent(arrows[arrowStyle][rtl ? 'left' : 'right'](arrow?.size, arrowNext?.color || arrow?.color, direction))
 		.replace(/'/g, '%27')
 		.replace(/"/g, '%22');
 
@@ -100,6 +202,7 @@ const Style = ({ attributes, clientId, postsCount, products }) => {
 		`#bsbCarousel-${clientId} .item .content-area`,
 		`#bsbCarousel-${clientId} .item .carousel-caption`,
 		`#bsbCarousel-${clientId} .item .bsb-acf-layer`,
+		`#bsbCarousel-${clientId} .item .bsb-free-parts`,
 	];
 
 	/** The same, at the moment a slide is pointed at — or reached with a keyboard. */
@@ -147,12 +250,15 @@ const Style = ({ attributes, clientId, postsCount, products }) => {
 	const captionParts = [];
 	if (caption?.hoverTitle !== false) {
 		captionParts.push(['.carousel-caption .bsbTitle', 'opacity: 0; translate: -100% 0;', 0]);
+		captionParts.push(['.bsb-free-parts .bsbTitle', 'opacity: 0; translate: -100% 0;', 0]);
 	}
 	if (caption?.hoverDesc !== false) {
 		captionParts.push(['.carousel-caption p.animate__animated', 'opacity: 0; translate: 100% 0;', 0.7]);
+		captionParts.push(['.bsb-free-parts p.animate__animated', 'opacity: 0; translate: 100% 0;', 0.7]);
 	}
 	if (caption?.hoverBtn !== false) {
 		captionParts.push(['.carousel-caption .carousel-button', 'opacity: 0; scale: 0.3;', 1.4]);
+		captionParts.push(['.bsb-free-parts .carousel-button', 'opacity: 0; scale: 0.3;', 1.4]);
 	}
 
 	const hoverMotionCSS = captionParts.map(([selector, resting, delay]) => `		/* At rest, and the way back: no delay, so the caption leaves as soon as the pointer does. */
@@ -298,7 +404,8 @@ const Style = ({ attributes, clientId, postsCount, products }) => {
 	if (caption?.hoverDesc !== false) {
 		hoverIndividualSelectors.push(
 			`#bsbCarousel-${clientId} .item .content-area p`,
-			`#bsbCarousel-${clientId} .item .carousel-caption p`
+			`#bsbCarousel-${clientId} .item .carousel-caption p`,
+			`#bsbCarousel-${clientId} .item .bsb-free-parts p`
 		);
 	}
 	if (caption?.hoverBtn !== false) {
@@ -425,7 +532,7 @@ ${layerMotionCSS}
 	const captionAtTop = String(attributes?.position || '').startsWith('top');
 	const captionCentred = String(attributes?.position || '').startsWith('center');
 
-	const overlayPaint = 'none' === caption?.background
+	const overlayPaint = ['none', 'box'].includes(caption?.background)
 		? 'transparent'
 		: 'gradient' === caption?.background && !captionCentred
 			? `linear-gradient(to ${captionAtTop ? 'bottom' : 'top'}, ${SliderOverly} 0%, ${fadeOut(SliderOverly)} 65%)`
@@ -519,7 +626,7 @@ ${layerMotionCSS}
 	 * so nothing changes for a slider that never chose a colour.
 	 */
 	const badgeCSS = `
-	${getTypoCSS('', bStyle.typo)?.googleFontLink || ''}
+	${fontLinkCSS(bStyle.typo)}
 	${getTypoCSS(badgeItem, bStyle.typo)?.styles || ''}
 
 	${badgeItem} {
@@ -531,11 +638,77 @@ ${layerMotionCSS}
 		${postsQuery?.badgeSettings?.price?.showSaleOnly === true ? 'display: none !important;' : ''}
 	}`;
 
+	const scaleWidth = 'blocks' !== sourceType && attributes?.layerScale?.on ? Number(attributes.layerScale.width) || 0 : 0;
+	/** Title, Description and Button placed freely (FreeParts): X/Y in px or % of the slide, inward from their anchor; centre anchors centre the part itself. */
+	const placeRules = (d = {}) => {
+		const num = (value) => (Number.isFinite(Number(value)) ? Number(value) : 0);
+		const length = (axis) => {
+			const value = num(d[axis]);
+
+			if ('%' !== d[`${axis}Unit`]) {
+				// Auto-scale: px shrink with the slide (`.bsb-free-parts` is the container) below the design width, never grow.
+				return scaleWidth && value ? `${0 > value ? 'max' : 'min'}(${value}px, ${Math.round(value / scaleWidth * 100000) / 1000}cqw)` : `${value}px`;
+			}
+
+			return `${value}%`;
+		};
+		const [vertical, horizontal] = (ANCHORS.includes(d.anchor) ? d.anchor : 'top-left').split('-');
+		// Every side reset, so a device's place never keeps one from the device above.
+		const rules = ['left: auto', 'right: auto', 'top: auto', 'bottom: auto', 'margin-inline: 0', 'width: auto', 'translate: none'];
+
+		if ('right' === horizontal) {
+			rules.push(`right: ${length('x')}`);
+		} else if ('center' === horizontal) {
+			rules.push(`left: calc(${length('x')})`, `right: calc(-1 * ${length('x')})`, 'margin-inline: auto', 'width: fit-content');
+		} else {
+			rules.push(`left: ${length('x')}`);
+		}
+
+		if ('bottom' === vertical) {
+			rules.push(`bottom: ${length('y')}`);
+		} else if ('middle' === vertical) {
+			rules.push(`top: calc(50% + ${length('y')})`, 'translate: 0 -50%');
+		} else {
+			rules.push(`top: ${length('y')}`);
+		}
+
+		if (Number.isInteger(d.z) && 0 <= d.z) {
+			rules.push(`z-index: ${d.z}`);
+		}
+
+		return rules.join('; ');
+	};
+
+	// The canvas draws the previewed device's place; the page has each device's at the slider's breakpoints.
+	const placeCSS = ['title', 'desc', 'button'].map(part => {
+		const place = attributes?.[part]?.place;
+
+		if (!place?.absolute) {
+			return '';
+		}
+
+		const rule = (on) => `#bsbCarousel-${clientId} .item .bsb-free-${part} { ${placeRules(placeFor(place, on))}; }`;
+
+		if (device) {
+			return rule(device);
+		}
+
+		return place.tablet || place.mobile
+			? `${rule('desktop')} @media (max-width: 768px) { ${rule('tablet')} } @media (max-width: 576px) { ${rule('mobile')} }`
+			: rule('desktop');
+	}).join('\n');
+
+	// Custom Breakpoints: the stylesheet's device rules skip this slider, so they come in here, and every query moves to its widths.
+	const ownBreakpoints = hasOwnBreakpoints(attributes);
+	const atWidths = (css) => (ownBreakpoints ? toPluginBreakpoints(css, breakpointsOf(attributes)) : css);
+
 	return <style dangerouslySetInnerHTML={{
-		__html: `
-	${getTypoCSS('', loadMoreBtn?.typo)?.googleFontLink}
-	${getTypoCSS('', titleTypo)?.googleFontLink}
-	${getTypoCSS('', descTypo)?.googleFontLink}
+		__html: atWidths(`
+	${ownBreakpoints ? deviceRulesCSS(`#bsbCarousel-${clientId}`, attributes) : ''}
+	${placeCSS}
+	${fontLinkCSS(loadMoreBtn?.typo)}
+	${fontLinkCSS(titleTypo)}
+	${fontLinkCSS(descTypo)}
 	 
 	${getTypoCSS(`#bsbCarousel-${clientId} .grid-wrapper .load-more button`, loadMoreBtn?.typo)?.styles}
 	${getTypoCSS(`#bsbCarousel-${clientId} .bsbTitle`, titleTypo)?.styles}
@@ -584,6 +757,7 @@ ${layerMotionCSS}
 		position:relative;
 		height: ${sliderHeight?.desktop || height};
 		border-radius: ${getBoxValue(borderRadius)};
+		${sliderBorderCSS(attributes?.sliderBorder)}
 		box-sizing: border-box;
 		overflow: hidden;
 	}
@@ -670,6 +844,12 @@ ${layerMotionCSS}
 	 */
 	${blocksSwiperHeight}
 
+	${slideSpeedCSS}
+
+	${boxedCSS}
+
+	${contentPanelCSS}
+
 	#bsbCarousel-${clientId} .bsbButtonDesign .bsbArrowButton {
 		${getColorsCSS(arrow)};
 		font-size:${arrow?.size}px;
@@ -678,6 +858,42 @@ ${layerMotionCSS}
 		border-radius:${getBoxValue(arrowRadius)};
 		border: ${getBoxValue(arrowBorder)}
 	}	
+
+	${(arrowNext?.color || arrowNext?.bg || 'gradient' === arrowNext?.bgType) ? `
+	#bsbCarousel-${clientId} .bsbButtonDesign .carousel-control-next .bsbArrowButton,
+	#bsbCarousel-${clientId} .bsbButtonDesign .bsbArrowButtonNext {
+		${getColorsCSS(arrowNext)};
+	}` : ''}
+
+	${arrowNext?.color ? ('style6' === arrowStyle ? `
+	#bsbCarousel-${clientId} .bsbButtonDesign .carousel-control-next .bsbArrowButton svg path,
+	#bsbCarousel-${clientId} .bsbButtonDesign .bsbArrowButtonNext svg path {
+		stroke: ${arrowNext.color};
+	}` : `
+	#bsbCarousel-${clientId} .bsbButtonDesign .carousel-control-next .bsbArrowButton svg,
+	#bsbCarousel-${clientId} .bsbButtonDesign .carousel-control-next .bsbArrowButton svg path,
+	#bsbCarousel-${clientId} .bsbButtonDesign .bsbArrowButtonNext svg,
+	#bsbCarousel-${clientId} .bsbButtonDesign .bsbArrowButtonNext svg path {
+		fill: ${arrowNext.color};
+	}`) : ''}
+
+	${(arrowHov?.color || arrowHov?.bg || arrowHov?.gradient) ? `
+	#bsbCarousel-${clientId} .bsbButtonDesign .bsbArrowButton:hover,
+	#bsbCarousel-${clientId} .bsbButtonDesign button:hover .bsbArrowButton {
+		${getColorsCSS(arrowHov)};
+	}` : ''}
+
+	${arrowHov?.color ? ('style6' === arrowStyle ? `
+	#bsbCarousel-${clientId} .bsbButtonDesign .bsbArrowButton:hover svg path,
+	#bsbCarousel-${clientId} .bsbButtonDesign button:hover .bsbArrowButton svg path {
+		stroke: ${arrowHov.color} !important;
+	}` : `
+	#bsbCarousel-${clientId} .bsbButtonDesign .bsbArrowButton:hover svg,
+	#bsbCarousel-${clientId} .bsbButtonDesign button:hover .bsbArrowButton svg,
+	#bsbCarousel-${clientId} .bsbButtonDesign .bsbArrowButton:hover svg path,
+	#bsbCarousel-${clientId} .bsbButtonDesign button:hover .bsbArrowButton svg path {
+		fill: ${arrowHov.color} !important;
+	}`) : ''}
 
 	@media (max-width: 768px) {
 		#bsbCarousel-${clientId} .bsbButtonDesign .bsbArrowButton {
@@ -771,7 +987,15 @@ ${layerMotionCSS}
 			pointer-events: auto;
 			/* Bootstrap dims controls to 0.5; grouped arrows show the colours as set. */
 			opacity: 1;
-		}`;
+		}
+
+		${rtl ? `#bsbCarousel-${clientId} .bsbButtonDesign.bsbArrowsGrouped {
+			direction: ltr;
+		}
+
+		${isColumn ? '' : `#bsbCarousel-${clientId} .bsbButtonDesign.bsbArrowsGrouped button.carousel-control-next {
+			order: -1;
+		}`}` : ''}`;
 	})() : ''}
 
 	#bsbCarousel-${clientId} .item:after{
@@ -786,10 +1010,35 @@ ${layerMotionCSS}
 
 	${captionCSS}
 
+	${'box' === caption?.background && 'image' === sourceType ? `
+	#bsbCarousel-${clientId} .bsb-caption-box {
+		display: inline-block;
+		max-width: 100%;
+		padding: 1em 1.5em;
+		border-radius: 8px;
+		background: ${SliderOverly};
+		box-sizing: border-box;
+	}` : ''}
+
 	${imageCSS}
 
 	#bsbCarousel-${clientId} .mainLayout .lightboxArea .contentArea .img .play{
 		background:${SliderOverly};
+	}
+
+	/* Inline video with text: the slider's tint under the controls until it plays. */
+	#bsbCarousel-${clientId} .videoItem.hasVideoCaption .plyr__video-wrapper::after {
+		content: '';
+		position: absolute;
+		inset: 0;
+		z-index: 2;
+		background: ${SliderOverly};
+		pointer-events: none;
+		transition: opacity 0.3s ease;
+	}
+
+	#bsbCarousel-${clientId} .videoItem.hasVideoCaption .plyr--playing .plyr__video-wrapper::after {
+		opacity: 0;
 	}
 
 	#bsbCarousel-${clientId} .video .item:after {
@@ -897,12 +1146,12 @@ ${layerMotionCSS}
 		${swiperViewport} { height: ${sliderHeight?.mobile || sliderHeight?.tablet || sliderHeight?.desktop}; }` : ''}
 	}
 
-	#bsbCarousel-${clientId} .item .carousel-caption {
+	#bsbCarousel-${clientId} .item .carousel-caption, #bsbCarousel-${clientId} .videoItem .carousel-caption {
 		width:calc(100% - ${slideInnerGapDevice?.desktop || slideInnerGap});
 	}
 
 	@media (max-width: 768px) { 
-		#bsbCarousel-${clientId} .item .carousel-caption {
+		#bsbCarousel-${clientId} .item .carousel-caption, #bsbCarousel-${clientId} .videoItem .carousel-caption {
 			width:calc(100% - ${slideInnerGapDevice?.tablet || slideInnerGapDevice?.desktop || slideInnerGap});
 		}
 
@@ -916,7 +1165,7 @@ ${layerMotionCSS}
 	}
 
 	@media (max-width: 576px) { 
-		#bsbCarousel-${clientId} .item .carousel-caption {
+		#bsbCarousel-${clientId} .item .carousel-caption, #bsbCarousel-${clientId} .videoItem .carousel-caption {
 			width:calc(100% - ${slideInnerGapDevice?.mobile || slideInnerGapDevice?.tablet || slideInnerGapDevice?.desktop || slideInnerGap});
 		}
 
@@ -961,7 +1210,7 @@ ${layerMotionCSS}
 		width: calc( 100% - ${thumbnailsWidth?.desktop} );
 	}
 
-	`.replace(/\s+/g, ' ')
+	`.replace(/\s+/g, ' '))
 	}} />
 }
 export default Style;

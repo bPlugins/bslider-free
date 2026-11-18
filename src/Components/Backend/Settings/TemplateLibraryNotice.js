@@ -51,7 +51,7 @@ const TemplateLibraryNotice = () => {
         }]}
     >
         <strong>{__('New: Template Library', 'b-slider')}</strong>
-        <p>{__('Start a slider from 50+ ready-made designs, then change what you like.', 'b-slider')}</p>
+        <p>{__('Start a slider from 92+ ready-made designs, then change what you like.', 'b-slider')}</p>
         <VideoHelpLink video='templateLibrary' label={videoLabels.templateLibrary()} />
     </Notice>;
 };

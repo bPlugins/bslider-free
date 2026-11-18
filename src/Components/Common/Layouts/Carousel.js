@@ -1,5 +1,7 @@
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { __, sprintf } from '@wordpress/i18n';
+import AutoplayToggle, { isKeyboardFocusIn, prefersReducedMotion } from '../AutoplayToggle';
 import { Navigation, A11y, Autoplay, Mousewheel, EffectCards, EffectFlip, EffectCoverflow, EffectCube, EffectFade, Grid, Pagination } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
@@ -10,13 +12,14 @@ import 'swiper/css/effect-cards';
 import 'swiper/css/grid';
 
 import { bsb_lightbox_config, plyrInt, bsb_open_video_popup, galleryOf } from '../../../utils/config';
-import { safeMediaUrl } from '../../../utils/functions';
+import { isRtlSlider, safeMediaUrl, slideSpeedMs, tickerSpeedMs } from '../../../utils/functions';
 import { initLayerAnimations } from '../../../utils/layerAnimations';
 import { reviveSlideScripts } from '../../../utils/reviveSlideScripts';
 import { mountSlidersIn } from '../../../utils/sliderMounter';
 import { placeholderImg, play } from '../../../utils/icons';
 import arrows from '../../../utils/arrows';
 import ImageItem from '../single-item/ImageItem';
+import { breakpointsOf } from '../../../utils/breakpoints';
 import PostItem from '../single-item/PostItem';
 import WooItem from '../single-item/WooItem';
 
@@ -46,6 +49,49 @@ const splitBlockSlides = (html) => {
 	return [...(root?.querySelectorAll(':scope > .carousel-item') || [])].map(el => el.outerHTML);
 };
 
+/* Own state and Swiper's events, so a press does not re-render (and rebuild) the carousel. */
+const SwiperAutoplayToggle = ({ swiperRef, pausedRef }) => {
+    const [playing, setPlaying] = useState(() => !pausedRef.current);
+
+    useEffect(() => {
+        const swiper = swiperRef.current;
+
+        if (!swiper || swiper.destroyed) {
+            return undefined;
+        }
+
+        const on = () => setPlaying(true);
+        const off = () => setPlaying(false);
+
+        swiper.on('autoplayStart', on);
+        swiper.on('autoplayStop', off);
+        setPlaying(!!swiper.autoplay?.running);
+
+        return () => {
+            swiper.off('autoplayStart', on);
+            swiper.off('autoplayStop', off);
+        };
+    }, []);
+
+    const toggle = () => {
+        const swiper = swiperRef.current;
+
+        if (!swiper?.autoplay || swiper.destroyed) {
+            return;
+        }
+
+        pausedRef.current = playing;
+
+        if (playing) {
+            swiper.autoplay.stop();
+        } else {
+            swiper.autoplay.start();
+        }
+    };
+
+    return <AutoplayToggle playing={playing} onToggle={toggle} />;
+};
+
 const Carousel = (props) => {
     const { attributes, firstPosts, products, commonDeProps } = props;
     const videoRefs = useRef([]);
@@ -56,6 +102,7 @@ const Carousel = (props) => {
     const prevRef = useRef(null);
     const nextRef = useRef(null);
     const { sourceType, sliders, columns, carousel, columnGap, arrow, arrowStyle, videoConf, indicator } = attributes;
+    const rtl = isRtlSlider(attributes);
     const { loop, isAutoPlay, autoPlayDelay, mousewheel, effect, carouselStyle, grabCursor, reverseDirection, caroDirection, pagination } = carousel;
 
     const { clientId, activeIndex, isBackEnd, isSelected = false } = commonDeProps;
@@ -67,24 +114,23 @@ const Carousel = (props) => {
     }, [activeIndex]);
     const { isPopup, icon } = videoConf;
     const autoplay = isAutoPlay ? { delay: autoPlayDelay } : false;
+    /* A ticker always moves; other styles only with Autoplay on. Reduced motion starts paused. */
+    const autoplays = !isBackEnd && ('ticker' === carouselStyle || !!isAutoPlay);
+    const pausedRef = useRef(prefersReducedMotion());
     const centeredSlides = (carouselStyle === 'center' || carouselStyle === '3dcarousel') ? true : false;
 
+    // Tablet and Desktop start just above the slider's own Mobile and Tablet widths.
+    const bp = breakpointsOf(attributes);
     const breakpoints = {
         0: {
             slidesPerView: columns?.mobile,
             spaceBetween: columnGap
         },
-        577: {
+        [bp.mobile + 1]: {
             slidesPerView: columns?.tablet,
             spaceBetween: columnGap
         },
-        // Small Desktop devices (769px to 1024px)
-        769: {
-            slidesPerView: columns?.desktop,
-            spaceBetween: columnGap
-        },
-        // Large Desktop devices (1025px and above)
-        1025: {
+        [bp.tablet + 1]: {
             slidesPerView: columns?.desktop,
             spaceBetween: columnGap
         }
@@ -100,8 +146,22 @@ const Carousel = (props) => {
 
     const swiperSettings = {
         modules: [Navigation, A11y, Autoplay, Mousewheel, EffectCards, EffectFlip, EffectCoverflow, EffectCube, EffectFade, Grid, Pagination],
+        speed: slideSpeedMs(attributes) || 300,
+        a11y: {
+            prevSlideMessage: __('Previous slide', 'b-slider'),
+            nextSlideMessage: __('Next slide', 'b-slider'),
+            /* translators: Keep {{index}}, Swiper puts the slide number there. */
+            paginationBulletMessage: __('Go to slide {{index}}', 'b-slider'),
+            /* translators: Keep {{index}} and {{slidesLength}}: the slide number and how many slides. */
+            slideLabelMessage: __('{{index}} of {{slidesLength}}', 'b-slider'),
+            containerRoleDescriptionMessage: __('carousel', 'b-slider'),
+            containerRole: 'region',
+            containerMessage: __('Slider', 'b-slider'),
+            itemRoleDescriptionMessage: __('slide', 'b-slider'),
+        },
         loop,
-        mousewheel,
+        // At the first and last slide the page scrolls on, as in the Default layout.
+        mousewheel: mousewheel ? { releaseOnEdges: true } : false,
         autoplay,
         centeredSlides,
         breakpoints,
@@ -119,7 +179,8 @@ const Carousel = (props) => {
             bulletClass: 'bsb-bullet',
             bulletActiveClass: 'active',
             renderBullet: (index, className) => {
-                return `<button class="${className}" aria-label="Go to slide ${index + 1}"></button>`;
+                /* translators: %d: slide number. */
+                return `<button class="${className}" aria-label="${sprintf(__('Go to slide %d', 'b-slider'), index + 1).replace(/"/g, '&quot;')}"></button>`;
             }
         } : false
     }
@@ -128,7 +189,7 @@ const Carousel = (props) => {
         modules: [Autoplay],
         loop: true,
         breakpoints,
-        speed: 9000,
+        speed: tickerSpeedMs(attributes),
         allowTouchMove: false,
         autoplay: {
             delay: 0,
@@ -173,7 +234,43 @@ const Carousel = (props) => {
 
     const checkCarouselLayout = carouselStyle === 'ticker' ? tickerSettings : swiperSettings;
 
-    const SWIPER_ELE = () => <div ref={rootRef} className={`bsb-main-carousel-wrapper ${sourceType}`}>
+    /* Only asked when the pause button is on, since `blocks` slides are parsed to count them. */
+    const countSlides = () => ({ blocks: () => splitBlockSlides(attributes._blocksHtml).length, posts: () => firstPosts?.length, woo: () => products?.length }[sourceType]?.() ?? sliders?.length ?? 0);
+
+    /* Keyboard focus inside stops autoplay for good, so a focused link never slides away. */
+    const onFocusIn = e => {
+        if (isKeyboardFocusIn(e)) {
+            pausedRef.current = true;
+            swiperRef.current?.autoplay?.stop();
+        }
+    };
+
+    /* ← → (↑ ↓ when vertical) once the carousel has focus, e.g. after a click inside it. */
+    const onKeyDown = e => {
+        const swiper = swiperRef.current;
+
+        if (!swiper || swiper.destroyed || e.target.closest?.('input, textarea, select, [contenteditable="true"]')) {
+            return;
+        }
+
+        const keys = 'vertical' === swiper.params?.direction ? { ArrowUp: -1, ArrowDown: 1 } : (rtl ? { ArrowLeft: 1, ArrowRight: -1 } : { ArrowLeft: -1, ArrowRight: 1 });
+        const step = keys[e.key];
+
+        if (!step) {
+            return;
+        }
+
+        e.preventDefault();
+
+        if (step > 0) {
+            swiper.slideNext();
+        } else {
+            swiper.slidePrev();
+        }
+    };
+
+    /* tabIndex -1: a click anywhere focuses the carousel so ← → work, without adding a Tab stop. */
+    const SWIPER_ELE = () => <div ref={rootRef} className={`bsb-main-carousel-wrapper ${sourceType}`} tabIndex={isBackEnd ? undefined : -1} onFocus={autoplays ? onFocusIn : undefined} onKeyDown={!isBackEnd && 'ticker' !== carouselStyle ? onKeyDown : undefined}>
 
         <div className="bsb-carousel-wrapper carousel-wrapper">
             {carouselStyle !== "ticker" && <>
@@ -181,23 +278,31 @@ const Carousel = (props) => {
                     arrow?.visibility && (
                         <div className="bsbArrowWrapper bsbButtonDesign">
 
-                            <button ref={prevRef} className="bsbArrowButtonPrev bsbArrowButton" dangerouslySetInnerHTML={{ __html: arrows[arrowStyle].left(arrow?.size, arrow?.color) }}></button>
+                            <button ref={prevRef} className="bsbArrowButtonPrev bsbArrowButton" dangerouslySetInnerHTML={{ __html: arrows[arrowStyle][rtl ? 'right' : 'left'](arrow?.size, arrow?.color) }}></button>
 
-                            <button ref={nextRef} className="bsbArrowButtonNext bsbArrowButton" dangerouslySetInnerHTML={{ __html: arrows[arrowStyle].right(arrow?.size, arrow?.color) }}></button>
+                            <button ref={nextRef} className="bsbArrowButtonNext bsbArrowButton" dangerouslySetInnerHTML={{ __html: arrows[arrowStyle][rtl ? 'left' : 'right'](arrow?.size, arrow?.color) }}></button>
                         </div>
                     )
 
                 }
             </>}
 
-            <Swiper {...checkCarouselLayout}
+            {autoplays && attributes.autoplayToggle && countSlides() > 1 && <SwiperAutoplayToggle swiperRef={swiperRef} pausedRef={pausedRef} />}
+
+            <Swiper {...checkCarouselLayout} key={`${rtl ? 'rtl' : 'ltr'}-${'ticker' === carouselStyle ? tickerSpeedMs(attributes) : ''}`}
                 onBeforeInit={(swiper) => {
                     if (arrow?.visibility) {
                         swiper.params.navigation.prevEl = prevRef.current;
                         swiper.params.navigation.nextEl = nextRef.current;
                     }
                 }}
-                onSwiper={(swiper) => { swiperRef.current = swiper; }}
+                onSwiper={(swiper) => {
+                    swiperRef.current = swiper;
+
+                    if (autoplays && pausedRef.current) {
+                        swiper.autoplay?.stop();
+                    }
+                }}
                 onInit={() => {
                     plyrInt(clientId, videoRefs, hiddenVideoRefs, attributes);
                 }}>

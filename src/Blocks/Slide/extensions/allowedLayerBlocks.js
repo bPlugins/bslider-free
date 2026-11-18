@@ -66,3 +66,13 @@ export const TEXT_LAYER_BLOCKS = [
 
 /** Whether this block type should be offered the layer typography panel. */
 export const canCarryTypography = (name) => TEXT_LAYER_BLOCKS.includes(name);
+
+/** Blocks that show a picture or film, so image filters mean something. */
+export const IMAGE_LAYER_BLOCKS = ['core/image', 'core/cover', 'core/media-text', 'core/gallery', 'core/video', 'core/post-featured-image'];
+
+export const canCarryImageFilter = (name) => IMAGE_LAYER_BLOCKS.includes(name);
+
+/** Blocks that hold other blocks, so clipping what spills out of them means something. */
+export const CLIP_LAYER_BLOCKS = ['core/group', 'core/columns', 'core/column', 'core/cover', 'core/media-text'];
+
+export const canClip = (name) => CLIP_LAYER_BLOCKS.includes(name);

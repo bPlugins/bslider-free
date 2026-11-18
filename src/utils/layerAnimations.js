@@ -1,6 +1,8 @@
 import { Fancybox } from '@fancyapps/ui';
 import { lightboxCaption, ownCarouselItems, safeMediaUrl, sanitizeHref } from './functions';
 import { bsb_fancybox_options } from './config';
+import { drawCurvesIn, watchCurvesIn } from './curvedText';
+import { playCoverVideos, resetCoverVideos, setupCoverVideos } from './coverVideo';
 
 const ANIMATED = 'animate__animated';
 const PENDING = 'bsb-anim-pending';
@@ -67,8 +69,30 @@ const playEntry = (el, index, offset) => {
 const ownLayers = (item, selector) => [...item.querySelectorAll(selector)]
 	.filter(el => el.closest('.bsbCarousel') === item.closest('.bsbCarousel'));
 
+/** Cover blocks with background video settings (coverVideo.js). */
+const COVERS = '.wp-block-cover:is(.bsb-cv-slide, .bsb-cv-sound, .bsb-cv-play)';
+
+/** Restarts the Ken Burns zoom on the slide background. */
+const playKenBurns = (item) => {
+	const bg = item?.querySelector('.bsb-slide-bg.bsb-ken-burns');
+	if (bg) {
+		bg.style.animation = 'none';
+		void bg.offsetWidth;
+		bg.style.animation = '';
+	}
+};
+
+/** Halts the Ken Burns zoom while the slide is away. */
+const stopKenBurns = (item) => {
+	const bg = item?.querySelector('.bsb-slide-bg.bsb-ken-burns');
+	if (bg) {
+		bg.style.animation = 'none';
+	}
+};
+
 /** Puts a slide's layers back to their starting state, ready to animate in again. */
 const arm = (item, isBackend) => {
+	stopKenBurns(item);
 	ownLayers(item, '[data-bsb-entry]').forEach(el => {
 		removeAnimationClasses(el);
 		// Never in the editor: an invisible block cannot be clicked into or typed in.
@@ -108,21 +132,30 @@ export const initLayerAnimations = (root, { isBackend = false } = {}) => {
 			if (sliderEl?._bsbAttributes) {
 				return sliderEl._bsbAttributes;
 			}
-			const raw = sliderEl?.dataset?.attributesB64
-				? atob(sliderEl.dataset.attributesB64)
-				: sliderEl?.dataset?.attributes;
-			return raw ? JSON.parse(raw) : {};
+			const raw = sliderEl?.querySelector(':scope > script.bsb-slider-data[type="text/plain"]')?.textContent?.trim();
+			return raw ? JSON.parse(atob(raw)) : {};
 		} catch (e) {
 			return {};
 		}
 	};
 
 	root.classList.add(READY);
+	const stopCurves = isBackend ? () => { } : watchCurvesIn(root);
+	const stopCoverVideos = isBackend ? () => { } : setupCoverVideos(ownLayers(root, COVERS));
+	// Only where slides change one by one; elsewhere the videos run as before.
+	const followSlides = !isBackend && root.classList.contains('bsbCarousel');
+	const playCovers = (item) => followSlides && item && playCoverVideos(ownLayers(item, COVERS));
+	const resetCovers = (item) => followSlides && item && resetCoverVideos(ownLayers(item, COVERS));
 
 	const staggerOffset = (item) => parseFloat(item?.dataset?.bsbStagger || 0) || 0;
 
 	const enter = (item) => {
 		if (!item) return;
+		if (!isBackend) {
+			playKenBurns(item);
+			drawCurvesIn(item);
+		}
+		playCovers(item);
 		const offset = staggerOffset(item);
 		ownLayers(item, '[data-bsb-entry]').forEach((el, index) => playEntry(el, index, offset));
 	};
@@ -135,9 +168,18 @@ export const initLayerAnimations = (root, { isBackend = false } = {}) => {
 	// when the page loads, so the first slide is started by hand.
 	const first = slides.find(item => item.classList.contains('active')) || slides[0];
 	slides.forEach(item => {
-		if (item !== first) arm(item, isBackend);
+		if (item !== first) {
+			arm(item, isBackend);
+			resetCovers(item);
+		}
 	});
-	const raf = requestAnimationFrame(() => enter(first));
+
+	// Layers shown on every slide play in once, with the page.
+	const statics = [...root.children].find(el => el.classList.contains('bsb-static-layers'));
+	const raf = requestAnimationFrame(() => {
+		enter(first);
+		enter(statics);
+	});
 
 	// Bootstrap's carousel events bubble, so a slider nested in one of these slides announces
 	// every one of its own slide changes to this handler too. Only the ones this element fired
@@ -153,7 +195,16 @@ export const initLayerAnimations = (root, { isBackend = false } = {}) => {
 
 	const onSlide = (e) => {
 		if (!isOwnEvent(e)) return;
-		if (e.relatedTarget) arm(e.relatedTarget, isBackend);
+
+		// The leaving slide is the one still marked active.
+		const leaving = slides.find(item => item.classList.contains('active'));
+		if (leaving && leaving !== e.relatedTarget) resetCovers(leaving);
+
+		if (e.relatedTarget) {
+			arm(e.relatedTarget, isBackend);
+			resetCovers(e.relatedTarget);
+			playCovers(e.relatedTarget);
+		}
 	};
 
 	root.addEventListener('slid.bs.carousel', onSlid);
@@ -182,6 +233,8 @@ export const initLayerAnimations = (root, { isBackend = false } = {}) => {
 		}
 
 		if ('scroll' === action && el.dataset.bsbClickSelector) {
+			// The action overrides a button's own link.
+			e.preventDefault();
 			try {
 				// A hand-typed selector can be anything at all, and an invalid one throws —
 				// which would take the whole handler down with it, click actions included.
@@ -194,6 +247,7 @@ export const initLayerAnimations = (root, { isBackend = false } = {}) => {
 		}
 
 		if ('next' === action || 'prev' === action) {
+			e.preventDefault();
 			// eslint-disable-next-line no-undef
 			bootstrap?.Carousel?.getInstance(root)?.[action]();
 			return;
@@ -289,6 +343,8 @@ export const initLayerAnimations = (root, { isBackend = false } = {}) => {
 		root.removeEventListener('click', onClick);
 		root.removeEventListener('keydown', onKey);
 		root.classList.remove(READY);
+		stopCurves();
+		stopCoverVideos();
 		root.querySelectorAll(`.${PENDING}`).forEach(el => el.classList.remove(PENDING));
 	};
 };

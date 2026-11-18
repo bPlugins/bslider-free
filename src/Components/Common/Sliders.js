@@ -1,7 +1,12 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { __, sprintf } from '@wordpress/i18n';
+import AutoplayToggle, { isKeyboardFocusIn, prefersReducedMotion } from './AutoplayToggle';
 import ImageIndicators from './ImageIndicators/ImageIndicators';
-import { ensureActiveCarouselItem } from '../../utils/functions';
+import { bindSlideWheel, ensureActiveCarouselItem, isRtlSlider, ownCarouselItems, slideSpeedMs } from '../../utils/functions';
 import { initLayerAnimations } from '../../utils/layerAnimations';
+import { liftStaticLayers } from '../../utils/staticLayers';
+import { watchSlidePads } from '../../utils/slidePads';
+import { scaleLayersIn } from '../../utils/layerScale';
 import { reviveSlideScripts } from '../../utils/reviveSlideScripts';
 import { mountSlidersIn } from '../../utils/sliderMounter';
 import arrows from '../../utils/arrows';
@@ -9,9 +14,17 @@ import arrows from '../../utils/arrows';
 
 const Sliders = (props) => {
 	const { attributes, clientId, carousel = null, setCarousel, isBackend = false, children, firstPosts, products } = props;
-	const { options, arrow, arrowStyle, indicator, animation, direction, sourceType } = attributes;
+	const { options, arrow, arrowStyle, indicator, animation, direction, sourceType, isMouseWheel } = attributes;
 
 	const sliderDom = useRef();
+	const rtl = isRtlSlider(attributes);
+	const autoplays = !isBackend && options.ride === true;
+	/* Reduced motion starts paused; the toggle can still start it. */
+	const [playing, setPlaying] = useState(() => !prefersReducedMotion());
+	const playingRef = useRef(playing);
+	playingRef.current = playing;
+	const [liveText, setLiveText] = useState('');
+	const [slideCount, setSlideCount] = useState(0);
 	/*
 	 * Bootstrap is given the slider once its slides are actually there.
 	 *
@@ -40,12 +53,26 @@ const Sliders = (props) => {
 				touch: false,
 			} : {
 				interval: options.interval,
-				ride: options.ride === true ? 'carousel' : false,
+				ride: options.ride === true && (isBackend || playingRef.current) ? 'carousel' : false,
 				pause: options.pause === true ? 'hover' : false,
 			});
+			// Bootstrap reads the page's dir for keys and swipes; follow this slider's instead.
+			if (rtl) {
+				initialize._directionToOrder = dir => ('left' === dir ? 'prev' : 'next');
+			}
 			setCarousel && setCarousel(initialize);
 		}
-	}, [options, attributes._blocksHtml]);
+	}, [options, attributes._blocksHtml, rtl]);
+
+	/* Mousewheel slide, front end only: in the editor the wheel scrolls the canvas. */
+	const carouselRef = useRef(null);
+	carouselRef.current = carousel;
+	const wheelSpeed = slideSpeedMs(attributes) || 600;
+	useEffect(() => {
+		if (!isMouseWheel || isBackend || !sliderDom?.current) return;
+
+		return bindSlideWheel(sliderDom.current, { step: dir => (dir > 0 ? carouselRef.current?.next() : carouselRef.current?.prev()), rtl, lockMs: Math.max(800, wheelSpeed + 200) });
+	}, [isMouseWheel, isBackend, rtl, wheelSpeed]);
 
 	/**
 	 * Exactly one slide starts out visible, however late the slides themselves arrive.
@@ -82,6 +109,66 @@ const Sliders = (props) => {
 		return () => observer.disconnect();
 	}, []);
 
+	/* `ride` off while paused, or Bootstrap restarts the timer after a dot click or mouse leave. */
+	useEffect(() => {
+		if (!carousel || !autoplays) return;
+
+		carousel._config.ride = playing ? 'carousel' : false;
+
+		if (playing) {
+			carousel.cycle();
+		} else {
+			carousel.pause();
+		}
+	}, [carousel, autoplays, playing]);
+
+	/* Keyboard focus inside stops autoplay for good, so a focused link never slides away. */
+	useEffect(() => {
+		const root = sliderDom?.current;
+		if (!root || !autoplays) return;
+
+		const onFocus = e => isKeyboardFocusIn(e) && setPlaying(false);
+
+		root.addEventListener('focusin', onFocus);
+		return () => root.removeEventListener('focusin', onFocus);
+	}, [autoplays]);
+
+	/* Slide semantics and the "Slide 2 of 3" message, front end only (the editor has its own roles). */
+	useEffect(() => {
+		const root = sliderDom?.current;
+		if (!root || isBackend) return;
+
+		const label = () => {
+			const items = ownCarouselItems(root);
+
+			items.forEach((item, i) => {
+				item.setAttribute('role', 'group');
+				item.setAttribute('aria-roledescription', __('slide', 'b-slider'));
+				/* translators: 1: slide number, 2: how many slides. */
+				item.setAttribute('aria-label', sprintf(__('%1$d of %2$d', 'b-slider'), i + 1, items.length));
+			});
+
+			setSlideCount(items.length);
+		};
+
+		const onSlid = e => {
+			if (e.target !== root) return;
+			/* translators: 1: slide number, 2: how many slides. */
+			setLiveText(sprintf(__('Slide %1$d of %2$d', 'b-slider'), e.to + 1, ownCarouselItems(root).length));
+		};
+
+		label();
+
+		const observer = new MutationObserver(label);
+		observer.observe(root, { childList: true, subtree: true });
+		root.addEventListener('slid.bs.carousel', onSlid);
+
+		return () => {
+			observer.disconnect();
+			root.removeEventListener('slid.bs.carousel', onSlid);
+		};
+	}, [isBackend, attributes._blocksHtml]);
+
 	/**
 	 * Anything a third-party block inside a slide needs to run for itself.
 	 *
@@ -117,13 +204,30 @@ const Sliders = (props) => {
 		sliderDom.current._bsbAttributes = attributes;
 		// No layer animations in the editor; the published page plays them.
 		if (isBackend) return;
-		return initLayerAnimations(sliderDom.current, { isBackend });
+		const stopPads = watchSlidePads(sliderDom.current);
+		const dropStatics = liftStaticLayers(sliderDom.current);
+		const stopAnimations = initLayerAnimations(sliderDom.current, { isBackend });
+		return () => {
+			stopAnimations?.();
+			dropStatics();
+			stopPads();
+		};
 		/* `lightbox` is in the list so the editor's own lightbox picks up a setting as it is
 		   changed, rather than at the next unrelated re-render. */
 	}, [sourceType, isBackend, attributes._blocksHtml, carousel, attributes?.lightbox]);
 
+	/** Auto-scale on the canvas too, so the Tablet and Mobile previews show what the page does. */
+	useEffect(() => {
+		if ('blocks' !== sourceType || !sliderDom?.current) return;
+
+		return scaleLayersIn(sliderDom.current, attributes.layerScale?.on ? attributes.layerScale.width : 0);
+	}, [sourceType, attributes.layerScale?.on, attributes.layerScale?.width]);
+
+	/* tabIndex -1: a click anywhere focuses the slider so ← → work, without adding a Tab stop. */
+	const carouselProps = isBackend ? {} : { role: 'region', 'aria-roledescription': __('carousel', 'b-slider'), 'aria-label': __('Slider', 'b-slider'), tabIndex: -1 };
+
 	// Return All Slider
-	return <div className={`bsbCarousel slide carousel ${sourceType} ${animation === 'default' ? '' : animation} ${direction}`} ref={sliderDom} id={`bsbCarouselInner-${clientId}`}>
+	return <div className={`bsbCarousel slide carousel ${sourceType} ${animation === 'default' ? '' : animation} ${direction}`} ref={sliderDom} id={`bsbCarouselInner-${clientId}`} {...carouselProps}>
 		{
 			/* A `blocks` slider draws its dots from the DOM — see `SourceType/Blocks`. It has no
 			   `sliders` attribute to count, so for a while it had no indicators at all: the
@@ -147,19 +251,24 @@ const Sliders = (props) => {
 			{/* Grouped arrows sit together at one spot. */}
 			<div className={`bsbButtonDesign ${'group' === attributes?.arrowPlacement ? 'bsbArrowsGrouped' : ''}`}>
 
-				<button className={`carousel-control-prev`} id={`bsbCarousel-prev-${clientId}`} type="button" onClick={(e) => { e.stopPropagation(); carousel && carousel.prev(); }} aria-label='Carousel left arrow'>
+				<button className={`carousel-control-prev`} id={`bsbCarousel-prev-${clientId}`} type="button" onClick={(e) => { e.stopPropagation(); carousel && carousel.prev(); }} aria-label={__('Previous slide', 'b-slider')}>
 
-					<div className="bsbArrowButton" dangerouslySetInnerHTML={{ __html: arrows[arrowStyle].left(arrow?.size, arrow?.color) }}>
+					<div className="bsbArrowButton" dangerouslySetInnerHTML={{ __html: arrows[arrowStyle][rtl ? 'right' : 'left'](arrow?.size, arrow?.color) }}>
 					</div>
 				</button>
 
-				<button className="carousel-control-next" id={`bsbCarousel-next-${clientId}`} type="button" onClick={(e) => { e.stopPropagation(); carousel && carousel.next(); }} aria-label='Carousel right arrow'>
+				<button className="carousel-control-next" id={`bsbCarousel-next-${clientId}`} type="button" onClick={(e) => { e.stopPropagation(); carousel && carousel.next(); }} aria-label={__('Next slide', 'b-slider')}>
 
-					<div className="bsbArrowButton" dangerouslySetInnerHTML={{ __html: arrows[arrowStyle].right(arrow?.size, arrow?.color) }}>
+					<div className="bsbArrowButton" dangerouslySetInnerHTML={{ __html: arrows[arrowStyle][rtl ? 'left' : 'right'](arrow?.size, arrow?.color) }}>
 					</div>
 				</button>
 			</div>
 		</>}
+
+		{autoplays && attributes.autoplayToggle && slideCount > 1 && <AutoplayToggle playing={playing} onToggle={() => setPlaying(!playing)} />}
+
+		{/* Quiet while autoplay runs, so a screen reader is not interrupted every few seconds. */}
+		{!isBackend && <div className='bsb-sr-only' aria-live={autoplays && playing ? 'off' : 'polite'} aria-atomic='true'>{liveText}</div>}
 	</div>
 }
 export default Sliders;

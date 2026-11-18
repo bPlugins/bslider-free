@@ -1,5 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import { __experimentalNumberControl as NumberControl, ToggleControl } from "@wordpress/components";
+import { SlideSpeed } from '../SpeedControl';
 
 /**
  * Loop and autoplay, shared by the carousel and thumbnails panels.
@@ -10,10 +11,10 @@ import { __experimentalNumberControl as NumberControl, ToggleControl } from "@wo
  * Keeping one here is what put two notices in both panels, the carousel one contradicting the
  * controls sitting right above it.
  */
-const Controls = ({ attributes, updateObject }) => {
+const Controls = ({ attributes, setAttributes, updateObject }) => {
 
     const { carousel } = attributes;
-    const { loop, isAutoPlay, autoPlayDelay } = carousel;
+    const { loop, isAutoPlay, autoPlayDelay, mousewheel } = carousel;
 
     return <>
         <ToggleControl className='' label={__("Loop", 'b-slider')} checked={loop} onChange={val => updateObject("carousel", "loop", val)} />
@@ -21,6 +22,10 @@ const Controls = ({ attributes, updateObject }) => {
         <ToggleControl className='mt10' label={__("Auto Play", 'b-slider')} checked={isAutoPlay} onChange={val => updateObject("carousel", "isAutoPlay", val)} />
 
         {isAutoPlay && <NumberControl className='mt10' label={__("Duration", 'b-slider')} isShiftStepEnabled={true} shiftStep={10} value={autoPlayDelay} onChange={val => updateObject("carousel", "autoPlayDelay", val)} />}
+
+        {setAttributes && <SlideSpeed attributes={attributes} setAttributes={setAttributes} initial={300} className='mt10' />}
+
+        <ToggleControl className='mt10' label={__("Mouse Wheel", 'b-slider')} checked={Boolean(mousewheel)} onChange={val => updateObject("carousel", "mousewheel", val)} />
     </>
 }
 export default Controls;

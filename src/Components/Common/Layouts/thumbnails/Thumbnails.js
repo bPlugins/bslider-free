@@ -7,12 +7,13 @@ import 'swiper/css/navigation';
 import 'swiper/css/thumbs';
 import 'swiper/css/free-mode';
 import { bsb_lightbox_config, plyrInt, bsb_open_video_popup, galleryOf } from '../../../../utils/config';
-import { safeMediaUrl } from '../../../../utils/functions';
+import { isRtlSlider, safeMediaUrl, slideSpeedMs } from '../../../../utils/functions';
 import arrows from '../../../../utils/arrows';
 import ImageItem from '../../single-item/ImageItem';
 import PostItem from '../../single-item/PostItem';
 import WooItem from '../../single-item/WooItem';
 import { placeholderImg, play } from '../../../../utils/icons';
+import { breakpointsOf } from '../../../../utils/breakpoints';
 
 const Thumbnails = ({ attributes, firstPosts, commonDeProps }) => {
 
@@ -23,6 +24,7 @@ const Thumbnails = ({ attributes, firstPosts, commonDeProps }) => {
     const nextRef = useRef(null);
 
     const { sourceType, sliders, carousel, arrow, arrowStyle, columns, columnGap, thumbnails, videoConf } = attributes;
+    const rtl = isRtlSlider(attributes);
     const { clientId, activeIndex, isBackEnd, isSelected = false } = commonDeProps;
 
     useEffect(() => {
@@ -36,24 +38,26 @@ const Thumbnails = ({ attributes, firstPosts, commonDeProps }) => {
     // const autoplay = isAutoPlay ? { delay: autoPlayDelay } : false;
     const [thumbsSwiper, setThumbsSwiper] = useState(null);
 
+    // Tablet and Desktop start just above the slider's own Mobile and Tablet widths.
+    const bp = breakpointsOf(attributes);
     const breakpoints = {
         0: {
             slidesPerView: columns?.mobile
         },
-        577: {
+        [bp.mobile + 1]: {
             slidesPerView: columns?.tablet
         },
-        // Small Desktop devices (769px to 1024px)
-        769: {
+        [bp.tablet + 1]: {
             slidesPerView: columns?.desktop
         }
     };
 
     const mainSlider = {
         modules: [Navigation, FreeMode, Thumbs, Autoplay, Mousewheel],
+        speed: slideSpeedMs(attributes) || 300,
         thumbs: thumbsSwiper ? { swiper: thumbsSwiper } : {},
         loop,
-        mousewheel,
+        mousewheel: mousewheel ? { releaseOnEdges: true } : false,
         autoplay: isAutoPlay ? { delay: autoPlayDelay } : false,
         className: "bsb-main-slider",
         direction: caroDirection,
@@ -92,12 +96,12 @@ const Thumbnails = ({ attributes, firstPosts, commonDeProps }) => {
 
             {arrow?.visibility && (
                 <div className="bsbArrowWrapper bsbButtonDesign">
-                    <button ref={prevRef} className="bsbArrowButtonPrev bsbArrowButton" dangerouslySetInnerHTML={{ __html: arrows[arrowStyle].left(arrow?.size, arrow?.color) }}></button>
-                    <button ref={nextRef} className="bsbArrowButtonNext bsbArrowButton" dangerouslySetInnerHTML={{ __html: arrows[arrowStyle].right(arrow?.size, arrow?.color) }}></button>
+                    <button ref={prevRef} className="bsbArrowButtonPrev bsbArrowButton" dangerouslySetInnerHTML={{ __html: arrows[arrowStyle][rtl ? 'right' : 'left'](arrow?.size, arrow?.color) }}></button>
+                    <button ref={nextRef} className="bsbArrowButtonNext bsbArrowButton" dangerouslySetInnerHTML={{ __html: arrows[arrowStyle][rtl ? 'left' : 'right'](arrow?.size, arrow?.color) }}></button>
                 </div>
             )}
 
-            <Swiper {...mainSlider}
+            <Swiper {...mainSlider} key={rtl ? 'rtl' : 'ltr'}
                 onBeforeInit={(swiper) => {
                     if (arrow?.visibility) {
                         swiper.params.navigation.prevEl = prevRef.current;
@@ -205,5 +209,5 @@ export const ThumbnailsSlider = ({ attributes, thumbnailsSliderEle, setThumbsSwi
             return null;
     }
 
-    return <Swiper {...thumbnailsSliderEle} onSwiper={setThumbsSwiper}>{slides}</Swiper>;
+    return <Swiper {...thumbnailsSliderEle} key={isRtlSlider(attributes) ? 'rtl' : 'ltr'} onSwiper={setThumbsSwiper}>{slides}</Swiper>;
 };
