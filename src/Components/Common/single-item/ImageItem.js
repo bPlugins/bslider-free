@@ -1,6 +1,7 @@
 import { createElement, useEffect, useRef } from 'react';
 import { bsb_open_popup, galleryOf } from '../../../utils/config';
 import { lightboxCaption, safeMediaUrl } from '../../../utils/functions';
+import FreeParts, { isPlaced } from './FreeParts';
 
 /**
  * The picture, wrapped in a lightbox trigger where the slider asks for one.
@@ -125,6 +126,11 @@ const ImageItem = (props) => {
         })
         : '';
 
+    const titleEl = showTitle && (slideTitle || img?.caption || img?.title) && createElement('h5', {
+        className: `bsbTitle ${classNames.title || ''}`, dangerouslySetInnerHTML: { __html: titleCheck }
+    }, null);
+    const descEl = showDesc && desc && <p className={classNames.desc || ''} dangerouslySetInnerHTML={{ __html: desc }} />;
+
     return <div className={`item ${index === 0 ? 'active' : ''} ${isLightbox ? 'is-linked' : ''} ${classNames.item || ''}`}>
         <div className="img">
             {img?.url && <LightboxPicture enabled={isLightbox} clientId={clientId} href={safeMediaUrl(img.url)} caption={lbCaption} attributes={attributes} isBackEnd={isBackEnd} isSelected={isSelected}>
@@ -134,15 +140,13 @@ const ImageItem = (props) => {
 
         <div className={classNames.contentArea || 'content-area'}>
             <div className={`captionContent ${classNames.captionContent || ''}`}>
-                {showTitle && (slideTitle || img?.caption || img?.title) && createElement('h5', {
-                    className: `bsbTitle ${classNames.title || ''}`, dangerouslySetInnerHTML: { __html: titleCheck }
-                }, null)}
+                {!isPlaced(attributes, 'title') && titleEl}
 
-                {showDesc && desc && <>
-                    <p className={classNames.desc || ''} dangerouslySetInnerHTML={{ __html: desc }} />
-                </>}
+                {!isPlaced(attributes, 'desc') && descEl}
             </div>
         </div>
+
+        <FreeParts parts={[['title', isPlaced(attributes, 'title') && titleEl], ['desc', isPlaced(attributes, 'desc') && descEl]]} />
     </div>
 }
 export default ImageItem;

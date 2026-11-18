@@ -17,6 +17,8 @@ import { allowedAcfFields, FIELD_ROLES } from '../Common/single-item/AcfFields';
 import SelectSource from './Source/SelectSource';
 import Default from '../Common/Layouts/Default';
 import ClipBoard from './ClipBoard';
+import { hasOwnBreakpoints } from '../../utils/breakpoints';
+import { useLayerDevice } from '../../Blocks/Slide/extensions/layerDevice';
 import useIframeAssetSync from '../../../../bpl-tools/hooks/useIframeAssetSync';
 // The sidebar markup leans on bpl-tools' `mt*`/`mb*` spacing classes, which live here.
 import '../../../../bpl-tools/Components/style.scss';
@@ -33,6 +35,8 @@ const Edit = (props) => {
 	useIframeAssetSync(['bsb-slider-style-css', 'bootstrap-css', 'bsb-slider-editor-style-css', 'bsb-slider-editor-script-js', 'bootstrap-js']);
 	useEffect(() => { clientId && setAttributes({ cId: clientId.substring(0, 10) }); }, [clientId]);
 	const [activeIndex, setActiveIndex] = useState(0);
+	// The canvas shows the previewed device's caption-part places (Style.js).
+	const device = useLayerDevice();
 	// Which slide the canvas is showing, for a `blocks` slider. Editor-only and deliberately not
 	// an attribute: it is where someone is working, not part of the slider.
 	const [activeSlide, setActiveSlide] = useState(0);
@@ -155,18 +159,18 @@ const Edit = (props) => {
 			    everything inside them are real blocks with their own selection. Reaching up to
 			    the parent on every click there would take the click meant for a heading or a
 			    button and leave the user unable to edit anything inside a slide. */}
-			<div id={`bsbCarousel-${clientId}`} onClick={sourceType === 'blocks' ? undefined : () => selectBlock(clientId)}>
+			<div id={`bsbCarousel-${clientId}`} className={hasOwnBreakpoints(attributes) ? 'bsb-custom-bp' : undefined} onClick={sourceType === 'blocks' ? undefined : () => selectBlock(clientId)}>
 				<div className={`mainLayout ${layoutType}`}>
 
 					{isOld ? <>
 						<Settings {...settingsProps} />
-						<Style {...{ attributes, clientId, postsCount: formattedPosts?.length, products: formattedPosts }} />
-						<Default {...{ attributes, firstPosts: formattedPosts, commonDeProps, products: formattedPosts }} />
+						<Style {...{ attributes, clientId, postsCount: formattedPosts?.length, products: formattedPosts, device }} />
+						<Default {...{ attributes, firstPosts: formattedPosts, commonDeProps, products: formattedPosts, device }} />
 					</> : <>
 						{!layoutType ?
 							<SelectSource {...{ attributes, setAttributes, updateObject }} /> : <>
 								<Settings {...settingsProps} />
-								<Style {...{ attributes, clientId, postsCount: formattedPosts?.length, products: formattedPosts }} />
+								<Style {...{ attributes, clientId, postsCount: formattedPosts?.length, products: formattedPosts, device }} />
 								{sourceType === 'blocks' ? (
 									<>
 										<SlideTabs {...{ clientId, activeSlide, setActiveSlide }} />

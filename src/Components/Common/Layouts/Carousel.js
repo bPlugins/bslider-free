@@ -17,6 +17,7 @@ import { mountSlidersIn } from '../../../utils/sliderMounter';
 import { placeholderImg, play } from '../../../utils/icons';
 import arrows from '../../../utils/arrows';
 import ImageItem from '../single-item/ImageItem';
+import { breakpointsOf } from '../../../utils/breakpoints';
 import PostItem from '../single-item/PostItem';
 import WooItem from '../single-item/WooItem';
 
@@ -69,22 +70,18 @@ const Carousel = (props) => {
     const autoplay = isAutoPlay ? { delay: autoPlayDelay } : false;
     const centeredSlides = (carouselStyle === 'center' || carouselStyle === '3dcarousel') ? true : false;
 
+    // Tablet and Desktop start just above the slider's own Mobile and Tablet widths.
+    const bp = breakpointsOf(attributes);
     const breakpoints = {
         0: {
             slidesPerView: columns?.mobile,
             spaceBetween: columnGap
         },
-        577: {
+        [bp.mobile + 1]: {
             slidesPerView: columns?.tablet,
             spaceBetween: columnGap
         },
-        // Small Desktop devices (769px to 1024px)
-        769: {
-            slidesPerView: columns?.desktop,
-            spaceBetween: columnGap
-        },
-        // Large Desktop devices (1025px and above)
-        1025: {
+        [bp.tablet + 1]: {
             slidesPerView: columns?.desktop,
             spaceBetween: columnGap
         }

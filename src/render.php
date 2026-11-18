@@ -15,22 +15,53 @@ call_user_func( function( $attributes, $content ) {
         }
     }
 
+    if ( isset( $attributes['breakpoints'] ) ) {
+        $attributes['breakpoints'] = is_array( $attributes['breakpoints'] ) ? array_map( 'absint', array_intersect_key( $attributes['breakpoints'], [ 'tablet' => 0, 'mobile' => 0 ] ) ) : [];
+    }
+
+    $wrapper_extra = empty( $attributes['breakpoints'] ) ? [] : [ 'class' => 'bsb-custom-bp' ];
+
     if ( 'blocks' === ( isset( $attributes['sourceType'] ) ? $attributes['sourceType'] : '' ) ) {
 
         // The slides reach the browser as a string that JS drops in with innerHTML, so nothing
         // downstream expands shortcodes for us the way `the_content` would. A Shortcode block
         // inside a slide is saved as its literal text, and without this it renders as that text.
         $attributes['_blocksHtml'] = do_shortcode( $content );
-        if ( preg_match_all( '~font-family:\s*(?:\'|&\#039;|&quot;|")([A-Za-z][A-Za-z \-]{0,50})(?:\'|&\#039;|&quot;|")~', $content, $matches ) ) {
+        $font_weights = [];
 
+        if ( preg_match_all( '~style="([^"]*)"~', $content, $style_matches ) ) {
+            foreach ( $style_matches[1] as $style_value ) {
+                if ( ! preg_match( '~font-family:\s*(?:\'|&\#039;|&quot;|")([A-Za-z][A-Za-z \-]{0,50})(?:\'|&\#039;|&quot;|")~', $style_value, $family_match ) ) {
+                    continue;
+                }
+
+                $family = $family_match[1];
+                $weight = 400;
+
+                if ( preg_match( '~font-weight:\s*(\d{3}|bold|normal)\b~', $style_value, $weight_match ) ) {
+                    $weight = 'bold' === $weight_match[1] ? 700 : ( 'normal' === $weight_match[1] ? 400 : (int) $weight_match[1] );
+                }
+
+                $font_weights[ $family ][ max( 100, min( 900, $weight ) ) ] = true;
+            }
+        }
+
+        if ( preg_match_all( '~font-family:\s*(?:\'|&\#039;|&quot;|")([A-Za-z][A-Za-z \-]{0,50})(?:\'|&\#039;|&quot;|")~', $content, $matches ) ) {
             foreach ( array_unique( $matches[1] ) as $family ) {
-                $handle = 'bsb-font-' . sanitize_title( $family );
+                $font_weights[ $family ][400] = true;
+            }
+        }
+
+        foreach ( $font_weights as $family => $weights ) {
+            foreach ( array_keys( $weights ) as $weight ) {
+                $handle = 'bsb-font-' . sanitize_title( $family ) . ( 400 === $weight ? '' : '-' . $weight );
+                $query  = str_replace( ' ', '+', $family ) . ( 400 === $weight ? '' : ':wght@' . $weight );
 
                 if ( ! wp_style_is( $handle, 'registered' ) ) {
                     // phpcs:disable WordPress.WP.EnqueuedResourceParameters.MissingVersion
                     wp_register_style(
                         $handle,
-                        'https://fonts.googleapis.com/css2?family=' . str_replace( ' ', '+', $family ) . '&display=swap',
+                        'https://fonts.googleapis.com/css2?family=' . $query . '&display=swap',
                         [],
                         null
                     );
@@ -42,7 +73,7 @@ call_user_func( function( $attributes, $content ) {
         }
         ?>
         <div
-            <?php echo wp_kses_post( get_block_wrapper_attributes() ); ?>
+            <?php echo wp_kses_post( get_block_wrapper_attributes( $wrapper_extra ) ); ?>
             id='bsbCarousel-<?php echo esc_attr( isset( $attributes['cId'] ) ? $attributes['cId'] : '' ); ?>'
             data-attributes-b64='<?php echo esc_attr( base64_encode( wp_json_encode( $attributes ) ) ); ?>'
             data-nonce='<?php echo esc_attr( wp_json_encode( wp_create_nonce( \B_SLIDER\PostsAjax::NONCE_ACTION ) ) ); ?>'
@@ -116,7 +147,7 @@ call_user_func( function( $attributes, $content ) {
 
     ?>
     <div
-        <?php echo wp_kses_post( get_block_wrapper_attributes() ); ?>
+        <?php echo wp_kses_post( get_block_wrapper_attributes( $wrapper_extra ) ); ?>
         id='bsbCarousel-<?php echo esc_attr( isset( $attributes['cId'] ) ? $attributes['cId'] : '' ); ?>'
         data-attributes='<?php echo esc_attr( wp_json_encode( $attributes, BSB_JSON_IN_HTML ) ); ?>'
         data-nonce='<?php echo esc_attr( wp_json_encode( wp_create_nonce( \B_SLIDER\PostsAjax::NONCE_ACTION ), BSB_JSON_IN_HTML ) ); ?>'

@@ -138,6 +138,12 @@ export const PRO_FEATURES = {
 
 	/** The slide Background panel — the slow zoom over a background image is the Premium half. */
 	slideBackground: [__('Ken Burns Effect', 'b-slider')],
+
+	/** What Premium adds to absolute layers, in the layer's Position panel. */
+	layerPosition: [__('Follow another layer', 'b-slider'), __('Group layers', 'b-slider'), __('Rulers & Guides', 'b-slider'), __('Parallax depth', 'b-slider')],
+
+	/** What Premium adds in the slider's Layers panel. */
+	layerMotion: [__('Mouse & scroll parallax', 'b-slider'), __('Phone tilt', 'b-slider'), __('Background parallax', 'b-slider'), __('3D tilt', 'b-slider')],
 };
 
 /**

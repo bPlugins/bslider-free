@@ -3,6 +3,9 @@ import { addFilter } from '@wordpress/hooks';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { buildLayerProps, isEmptyLayer } from './layerProps';
 import { canCarryLayer } from './allowedLayerBlocks';
+import { useLayerHidden } from './hiddenLayers';
+import { useLayerPicked } from './pickedLayers';
+import { useLayerDevice } from './layerDevice';
 
 /**
  * What a layer's settings add to the block's saved markup.
@@ -33,11 +36,16 @@ addFilter('blocks.getSaveContent.extraProps', 'bsb/layer-save-props', (props, bl
  * eventually disagree, and the disagreement would only show up after publishing.
  */
 addFilter('editor.BlockListBlock', 'bsb/layer-editor-props', createHigherOrderComponent((BlockListBlock) => (props) => {
+	// Before the early return: a hook has to run on every render.
+	const hiddenOnCanvas = useLayerHidden(props.clientId);
+	const picked = useLayerPicked(props.clientId);
+	const device = useLayerDevice();
+
 	if (!canCarryLayer(props.name) || isEmptyLayer(props.attributes?.bsbLayer)) {
 		return <BlockListBlock {...props} />;
 	}
 
-	const { className, style, dataAttrs } = buildLayerProps(props.attributes.bsbLayer);
+	const { className, style, dataAttrs } = buildLayerProps(props.attributes.bsbLayer, { live: true, device });
 
 	/*
 	 * The canvas-only label naming the devices this layer is hidden on.
@@ -49,15 +57,16 @@ addFilter('editor.BlockListBlock', 'bsb/layer-editor-props', createHigherOrderCo
 	 */
 	const hiddenOn = Object.entries(props.attributes.bsbLayer?.visibility?.hideOn || {})
 		.filter(([, isHidden]) => isHidden)
-		.map(([device]) => device.charAt(0).toUpperCase() + device.slice(1));
+		.map(([name]) => name.charAt(0).toUpperCase() + name.slice(1));
 
 	return <BlockListBlock
 		{...props}
-		className={[props.className, className].filter(Boolean).join(' ')}
+		className={[props.className, className, hiddenOnCanvas && 'bsb-editor-hidden', picked && 'bsb-layer-picked'].filter(Boolean).join(' ')}
 		wrapperProps={{
 			...props.wrapperProps,
 			...dataAttrs,
 			...(hiddenOn.length ? { 'data-bsb-hidden-on': `${__('Hidden on', 'b-slider')} ${hiddenOn.join(', ')}` } : {}),
+			...(props.attributes.bsbLayer?.position?.static ? { 'data-bsb-static-label': __('All slides', 'b-slider') } : {}),
 			style: { ...props.wrapperProps?.style, ...style },
 		}}
 	/>;

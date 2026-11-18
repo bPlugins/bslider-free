@@ -1,7 +1,76 @@
 import { sanitizeHref } from '../../../utils/functions';
+import { DEVICES, hasDevicePlaces, placeFor } from '../../../utils/layerDevices';
 
 /** Nothing has been set on this layer, so its block must emit exactly what it always did. */
 export const isEmptyLayer = (layer) => !layer || 0 === Object.keys(layer).length;
+
+/** The style and data attributes one place (X/Y, anchor, size, turn, stacking) comes to. */
+const placeLook = (place) => {
+	const { x, y, xUnit, yUnit, w, wUnit, h, hUnit, rotate, z, anchor = 'top-left', area } = place;
+	const num = (value) => (Number.isFinite(Number(value)) ? Number(value) : 0);
+	const length = (value, unit) => `${num(value)}${'%' === unit ? '%' : 'px'}`;
+	const [vertical, horizontal] = anchor.split('-');
+	const style = {};
+	const dataAttrs = {};
+
+	// Full slide: counted from the slide's edges, so its padding (`--bsb-pad-*`, set at runtime) comes off.
+	const full = 'slide' === area;
+	const pad = (side) => `var(--bsb-pad-${side}, 0px)`;
+	const less = (value, side) => (full ? `calc(${value} - ${pad(side)})` : value);
+	const centreShift = `(${pad('r')} - ${pad('l')}) / 2`;
+
+	if (full) {
+		dataAttrs['data-bsb-area'] = 'slide';
+	}
+
+	if ('right' === horizontal) {
+		style.right = less(length(x, xUnit), 'r');
+	} else if ('center' === horizontal) {
+		// Both sides shifted by X with auto margins: centred without halving the width a long line may take.
+		style.left = full ? `calc(${length(x, xUnit)} + ${centreShift})` : length(x, xUnit);
+		style.right = full ? `calc(-1 * (${length(x, xUnit)} + ${centreShift}))` : length(-num(x), xUnit);
+		style.marginLeft = 'auto';
+		style.marginRight = 'auto';
+		style.width = 'fit-content';
+	} else {
+		style.left = less(length(x, xUnit), 'l');
+	}
+
+	if ('bottom' === vertical) {
+		style.bottom = less(length(y, yUnit), 'b');
+	} else if ('middle' === vertical) {
+		// `translate` is its own property, so it does not fight the animations that use `transform`.
+		style.top = full ? `calc(50% + ${length(y, yUnit)} + (${pad('b')} - ${pad('t')}) / 2)` : `calc(50% + ${length(y, yUnit)})`;
+		style.translate = '0 -50%';
+	} else {
+		style.top = less(length(y, yUnit), 't');
+	}
+
+	// Unset is auto; a set size counts padding and border in, matching the box the canvas handles drag.
+	if (undefined !== w) {
+		style.width = length(w, wUnit);
+	}
+
+	if (undefined !== h) {
+		style.height = length(h, hUnit);
+	}
+
+	if (undefined !== w || undefined !== h) {
+		style.boxSizing = 'border-box';
+	}
+
+	// Its own property, like `translate`, so animations on `transform` leave it alone.
+	if (num(rotate)) {
+		style.rotate = `${num(rotate)}deg`;
+	}
+
+	// Unset is auto (block order decides); the content area isolates it, so a negative value stays above the slide background.
+	if (Number.isInteger(z)) {
+		style.zIndex = z;
+	}
+
+	return { style, dataAttrs };
+};
 
 /**
  * The class, style and data attributes one layer's settings come to.
@@ -18,12 +87,12 @@ export const isEmptyLayer = (layer) => !layer || 0 === Object.keys(layer).length
  * put back to replay when the visitor returns to a slide, which is `layerAnimations.js`'s job at
  * runtime. Only a loop with no entry animation is baked in as a class here (see below).
  */
-export const buildLayerProps = (layer) => {
+export const buildLayerProps = (layer, { live = false, device } = {}) => {
 	if (isEmptyLayer(layer)) {
 		return { className: '', style: {}, dataAttrs: {} };
 	}
 
-	const { entry = {}, loop = {}, hover = {}, click = {}, visibility = {}, typo = {}, fitContent } = layer;
+	const { entry = {}, loop = {}, hover = {}, click = {}, visibility = {}, typo = {}, fitContent, position = {} } = layer;
 
 	const classNames = ['bsb-layer'];
 	const style = {};
@@ -36,6 +105,48 @@ export const buildLayerProps = (layer) => {
 		classNames.push('bsb-fit-content');
 		style.display = 'inline-block';
 		style.maxWidth = '100%';
+	}
+
+	// Absolute: X/Y measured inward from the anchor of the content area, which `style.scss` makes fill the slide.
+	if (position.absolute) {
+		classNames.push('bsb-abs');
+		style.position = 'absolute';
+
+		// Lifted out of its slide on the page, over every slide.
+		if (position.static) {
+			dataAttrs['data-bsb-static'] = '1';
+		}
+
+		// The canvas draws the previewed device's place; saved markup carries every device's, picked by `style.scss`.
+		if (live || !hasDevicePlaces(position)) {
+			const look = placeLook(device ? placeFor(position, device) : position.desktop || {});
+
+			Object.assign(style, look.style);
+			Object.assign(dataAttrs, look.dataAttrs);
+		} else {
+			const looks = DEVICES.map(name => placeLook(placeFor(position, name)));
+
+			[...new Set(looks.flatMap(look => Object.keys(look.style)))].forEach(key => {
+				const values = looks.map(look => look.style[key]);
+
+				if (values.every(value => value === values[0])) {
+					style[key] = values[0];
+					return;
+				}
+
+				// A device without the property keeps what came before, e.g. Fit to Content's max width.
+				const name = `--bsb-${key.replace(/[A-Z]/g, letter => `-${letter.toLowerCase()}`)}`;
+				const before = style[key] ?? 'initial';
+
+				style[key] = `var(${name})`;
+				DEVICES.forEach((on, i) => {
+					style[`${name}-${on}`] = values[i] ?? before;
+				});
+			});
+
+			looks.forEach(look => Object.assign(dataAttrs, look.dataAttrs));
+			dataAttrs['data-bsb-devices'] = '1';
+		}
 	}
 
 	// Entry
@@ -160,18 +271,31 @@ export const buildLayerProps = (layer) => {
 
 	const sizes = 'object' === typeof fontSize && null !== fontSize ? fontSize : { desktop: fontSize };
 
-	if (withUnit(sizes.desktop)) {
+	// The canvas shows the previewed device's size, Mobile falling back to Tablet, then Desktop.
+	if (live && device && 'desktop' !== device) {
+		const own = withUnit(sizes.mobile && 'mobile' === device ? sizes.mobile : sizes.tablet);
+
+		if (own) {
+			style.fontSize = own;
+			style['--bsb-font-device'] = own;
+			classNames.push('bsb-font-device');
+		} else if (withUnit(sizes.desktop)) {
+			style.fontSize = withUnit(sizes.desktop);
+		}
+	} else if (withUnit(sizes.desktop)) {
 		style.fontSize = withUnit(sizes.desktop);
 	}
 
 	// The smaller screens go out as custom properties for `style.scss` to pick up in its own
-	// media queries — an inline style cannot carry one of its own.
-	if (withUnit(sizes.tablet)) {
-		style['--bsb-font-size-tablet'] = withUnit(sizes.tablet);
-	}
+	// media queries — an inline style cannot carry one of its own. The canvas has its size already.
+	if (!live || !device) {
+		if (withUnit(sizes.tablet)) {
+			style['--bsb-font-size-tablet'] = withUnit(sizes.tablet);
+		}
 
-	if (withUnit(sizes.mobile)) {
-		style['--bsb-font-size-mobile'] = withUnit(sizes.mobile);
+		if (withUnit(sizes.mobile)) {
+			style['--bsb-font-size-mobile'] = withUnit(sizes.mobile);
+		}
 	}
 
 	if (style.fontFamily || style['--bsb-font-size-tablet'] || style['--bsb-font-size-mobile']) {

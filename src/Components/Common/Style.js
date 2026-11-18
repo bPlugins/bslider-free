@@ -1,6 +1,10 @@
 import { getBoxValue } from '../../../../bpl-tools/utils/functions';
 import { getTypoCSS, getColorsCSS } from '../../../../bpl-tools/utils/getCSS';
 import arrows from '../../utils/arrows';
+import { breakpointsOf, hasOwnBreakpoints, toPluginBreakpoints } from '../../utils/breakpoints';
+import { deviceRulesCSS } from '../../utils/deviceRules';
+import { ANCHORS } from './single-item/AcfFields';
+import { placeFor } from '../../utils/layerDevices';
 
 /** Grouped arrows: matrix spot → flex alignment. Allow-listed, since the value lands in a <style> tag. */
 const ARROW_SPOTS = { top: 'flex-start', center: 'center', bottom: 'flex-end', left: 'flex-start', right: 'flex-end' };
@@ -12,7 +16,7 @@ const arrowGroupAlign = (position) => {
 /** A plain CSS length or a safe fallback; the value is printed into the slider's stylesheet. */
 const safeLength = (value, fallback) => (/^\d+(\.\d+)?(px|em|rem|%|vw|vh)$/.test(String(value || '').trim()) ? String(value).trim() : fallback);
 
-const Style = ({ attributes, clientId, postsCount, products }) => {
+const Style = ({ attributes, clientId, postsCount, products, device }) => {
 	const { badgeStyle = {}, sliders, slideInnerGap, slideInnerGapDevice, titleTypo, titleColor, descTypo, descColor, titleMargin, descMargin, arrow, arrowStyle, indicator, SliderOverly, height, sliderHeight, borderRadius, arrowWidth, deviceArrowWidth, arrowHeight, deviceArrowHeight, arrowRadius, arrowOffset, arrowPlacement, arrowGroupPosition, arrowGap, arrowGroupDirection, arrowOffsetY, arrowHideOn = {}, btnColors, btnHovColors, btnPadding, btnBorder, btnRadius, direction, columnGap, rowGap, grid, arrowBorder, thumbnails, sourceType, carousel, caption, image, title, desc, button, postsQuery, layoutType } = attributes;
 	const { loadMoreBtn } = grid;
 	const { overly, height: thumbnailsHeight, width: thumbnailsWidth, active } = thumbnails;
@@ -100,6 +104,7 @@ const Style = ({ attributes, clientId, postsCount, products }) => {
 		`#bsbCarousel-${clientId} .item .content-area`,
 		`#bsbCarousel-${clientId} .item .carousel-caption`,
 		`#bsbCarousel-${clientId} .item .bsb-acf-layer`,
+		`#bsbCarousel-${clientId} .item .bsb-free-parts`,
 	];
 
 	/** The same, at the moment a slide is pointed at — or reached with a keyboard. */
@@ -147,12 +152,15 @@ const Style = ({ attributes, clientId, postsCount, products }) => {
 	const captionParts = [];
 	if (caption?.hoverTitle !== false) {
 		captionParts.push(['.carousel-caption .bsbTitle', 'opacity: 0; translate: -100% 0;', 0]);
+		captionParts.push(['.bsb-free-parts .bsbTitle', 'opacity: 0; translate: -100% 0;', 0]);
 	}
 	if (caption?.hoverDesc !== false) {
 		captionParts.push(['.carousel-caption p.animate__animated', 'opacity: 0; translate: 100% 0;', 0.7]);
+		captionParts.push(['.bsb-free-parts p.animate__animated', 'opacity: 0; translate: 100% 0;', 0.7]);
 	}
 	if (caption?.hoverBtn !== false) {
 		captionParts.push(['.carousel-caption .carousel-button', 'opacity: 0; scale: 0.3;', 1.4]);
+		captionParts.push(['.bsb-free-parts .carousel-button', 'opacity: 0; scale: 0.3;', 1.4]);
 	}
 
 	const hoverMotionCSS = captionParts.map(([selector, resting, delay]) => `		/* At rest, and the way back: no delay, so the caption leaves as soon as the pointer does. */
@@ -298,7 +306,8 @@ const Style = ({ attributes, clientId, postsCount, products }) => {
 	if (caption?.hoverDesc !== false) {
 		hoverIndividualSelectors.push(
 			`#bsbCarousel-${clientId} .item .content-area p`,
-			`#bsbCarousel-${clientId} .item .carousel-caption p`
+			`#bsbCarousel-${clientId} .item .carousel-caption p`,
+			`#bsbCarousel-${clientId} .item .bsb-free-parts p`
 		);
 	}
 	if (caption?.hoverBtn !== false) {
@@ -531,8 +540,74 @@ ${layerMotionCSS}
 		${postsQuery?.badgeSettings?.price?.showSaleOnly === true ? 'display: none !important;' : ''}
 	}`;
 
+	const scaleWidth = 'blocks' !== sourceType && attributes?.layerScale?.on ? Number(attributes.layerScale.width) || 0 : 0;
+	/** Title, Description and Button placed freely (FreeParts): X/Y in px or % of the slide, inward from their anchor; centre anchors centre the part itself. */
+	const placeRules = (d = {}) => {
+		const num = (value) => (Number.isFinite(Number(value)) ? Number(value) : 0);
+		const length = (axis) => {
+			const value = num(d[axis]);
+
+			if ('%' !== d[`${axis}Unit`]) {
+				// Auto-scale: px shrink with the slide (`.bsb-free-parts` is the container) below the design width, never grow.
+				return scaleWidth && value ? `${0 > value ? 'max' : 'min'}(${value}px, ${Math.round(value / scaleWidth * 100000) / 1000}cqw)` : `${value}px`;
+			}
+
+			return `${value}%`;
+		};
+		const [vertical, horizontal] = (ANCHORS.includes(d.anchor) ? d.anchor : 'top-left').split('-');
+		// Every side reset, so a device's place never keeps one from the device above.
+		const rules = ['left: auto', 'right: auto', 'top: auto', 'bottom: auto', 'margin-inline: 0', 'width: auto', 'translate: none'];
+
+		if ('right' === horizontal) {
+			rules.push(`right: ${length('x')}`);
+		} else if ('center' === horizontal) {
+			rules.push(`left: calc(${length('x')})`, `right: calc(-1 * ${length('x')})`, 'margin-inline: auto', 'width: fit-content');
+		} else {
+			rules.push(`left: ${length('x')}`);
+		}
+
+		if ('bottom' === vertical) {
+			rules.push(`bottom: ${length('y')}`);
+		} else if ('middle' === vertical) {
+			rules.push(`top: calc(50% + ${length('y')})`, 'translate: 0 -50%');
+		} else {
+			rules.push(`top: ${length('y')}`);
+		}
+
+		if (Number.isInteger(d.z) && 0 <= d.z) {
+			rules.push(`z-index: ${d.z}`);
+		}
+
+		return rules.join('; ');
+	};
+
+	// The canvas draws the previewed device's place; the page has each device's at the slider's breakpoints.
+	const placeCSS = ['title', 'desc', 'button'].map(part => {
+		const place = attributes?.[part]?.place;
+
+		if (!place?.absolute) {
+			return '';
+		}
+
+		const rule = (on) => `#bsbCarousel-${clientId} .item .bsb-free-${part} { ${placeRules(placeFor(place, on))}; }`;
+
+		if (device) {
+			return rule(device);
+		}
+
+		return place.tablet || place.mobile
+			? `${rule('desktop')} @media (max-width: 768px) { ${rule('tablet')} } @media (max-width: 576px) { ${rule('mobile')} }`
+			: rule('desktop');
+	}).join('\n');
+
+	// Custom Breakpoints: the stylesheet's device rules skip this slider, so they come in here, and every query moves to its widths.
+	const ownBreakpoints = hasOwnBreakpoints(attributes);
+	const atWidths = (css) => (ownBreakpoints ? toPluginBreakpoints(css, breakpointsOf(attributes)) : css);
+
 	return <style dangerouslySetInnerHTML={{
-		__html: `
+		__html: atWidths(`
+	${ownBreakpoints ? deviceRulesCSS(`#bsbCarousel-${clientId}`, attributes) : ''}
+	${placeCSS}
 	${getTypoCSS('', loadMoreBtn?.typo)?.googleFontLink}
 	${getTypoCSS('', titleTypo)?.googleFontLink}
 	${getTypoCSS('', descTypo)?.googleFontLink}
@@ -961,7 +1036,7 @@ ${layerMotionCSS}
 		width: calc( 100% - ${thumbnailsWidth?.desktop} );
 	}
 
-	`.replace(/\s+/g, ' ')
+	`.replace(/\s+/g, ' '))
 	}} />
 }
 export default Style;

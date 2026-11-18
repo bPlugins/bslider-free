@@ -2,6 +2,9 @@ import { useEffect, useRef } from 'react';
 import ImageIndicators from './ImageIndicators/ImageIndicators';
 import { ensureActiveCarouselItem } from '../../utils/functions';
 import { initLayerAnimations } from '../../utils/layerAnimations';
+import { liftStaticLayers } from '../../utils/staticLayers';
+import { watchSlidePads } from '../../utils/slidePads';
+import { scaleLayersIn } from '../../utils/layerScale';
 import { reviveSlideScripts } from '../../utils/reviveSlideScripts';
 import { mountSlidersIn } from '../../utils/sliderMounter';
 import arrows from '../../utils/arrows';
@@ -117,10 +120,24 @@ const Sliders = (props) => {
 		sliderDom.current._bsbAttributes = attributes;
 		// No layer animations in the editor; the published page plays them.
 		if (isBackend) return;
-		return initLayerAnimations(sliderDom.current, { isBackend });
+		const stopPads = watchSlidePads(sliderDom.current);
+		const dropStatics = liftStaticLayers(sliderDom.current);
+		const stopAnimations = initLayerAnimations(sliderDom.current, { isBackend });
+		return () => {
+			stopAnimations?.();
+			dropStatics();
+			stopPads();
+		};
 		/* `lightbox` is in the list so the editor's own lightbox picks up a setting as it is
 		   changed, rather than at the next unrelated re-render. */
 	}, [sourceType, isBackend, attributes._blocksHtml, carousel, attributes?.lightbox]);
+
+	/** Auto-scale on the canvas too, so the Tablet and Mobile previews show what the page does. */
+	useEffect(() => {
+		if ('blocks' !== sourceType || !sliderDom?.current) return;
+
+		return scaleLayersIn(sliderDom.current, attributes.layerScale?.on ? attributes.layerScale.width : 0);
+	}, [sourceType, attributes.layerScale?.on, attributes.layerScale?.width]);
 
 	// Return All Slider
 	return <div className={`bsbCarousel slide carousel ${sourceType} ${animation === 'default' ? '' : animation} ${direction}`} ref={sliderDom} id={`bsbCarouselInner-${clientId}`}>
