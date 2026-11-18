@@ -9,11 +9,11 @@ Requires PHP: 7.2
 License: GPLv2 or later 
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Responsive sliders from images, posts, WooCommerce, videos or blocks — or start from 92+ ready-made templates. Block editor & shortcode.
+Responsive sliders from images, posts, WooCommerce, videos or blocks — or start from 100+ ready-made templates. Block editor & shortcode.
 
 == Description ==
 
-**Create responsive sliders from images, posts, WooCommerce products, videos, or slides built out of Gutenberg blocks — or start from more than 92 ready-made templates — with multiple layouts, animations, and styling controls, right in the block editor.**
+**Create responsive sliders from images, posts, WooCommerce products, videos, or slides built out of Gutenberg blocks — or start from more than 100 ready-made templates — with multiple layouts, animations, and styling controls, right in the block editor.**
 
 [Documentation](https://bplugins.com/docs/bslider) | [Demo](https://bplugins.com/products/b-slider/#demos) | [Pricing](https://bplugins.com/products/b-slider/pricing/) | [Support](https://bplugins.com/support/)
 
@@ -387,6 +387,10 @@ Please report security bugs found in the source code of the bSlider plugin throu
 * Fix (Pro): Style with AI could replace the dot settings, and its arrow size did not apply.
 * Fix (Pro): AI requests fail less often when Google's default Gemini model is busy or retired.
 
+= 2.2.6 - 17 November, 2026 =
+* New: Added Black Friday / Cyber Monday promotional banner and dashboard notifications.
+* Update: Added Black Friday special discount action link and UI enhancements.
+
 = 2.2.5 - 4 November, 2026 =
 * New: Absolute Position for Gutenberg Blocks layers (Position panel): place any block anywhere on the slide by X and Y, in px or %, from one of 9 anchors.
 * New: Drag layers on the canvas, with smart guides, snapping and arrow-key nudge (Shift moves 10px).
@@ -483,6 +487,9 @@ Please report security bugs found in the source code of the bSlider plugin throu
 
 = 2.3.0 =
 Security fix, please update. Adds Create with AI, a pause button and better keyboard and screen reader support. Clear your page cache after updating. Existing sliders are untouched.
+
+= 2.2.6 =
+Upgrade to 2.2.6 for Black Friday promotions and latest UI improvements.
 
 = 2.2.5 =
 Adds absolute positioning for slide layers and slider captions, set per device. Bold Google Fonts in layers now show bold. Existing sliders are untouched.

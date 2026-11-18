@@ -1,6 +1,7 @@
 import { Outlet, Link, useLocation } from 'react-router-dom';
 
 import Header from '../../../../bpl-tools/Admin/Header';
+import BFCMBanner from './BFCMBanner/BFCMBanner';
 
 const navigation = [
     { name: 'Welcome', href: '/welcome' },
@@ -16,6 +17,7 @@ const Layout = (props) => {
     const location = useLocation();
 
     return <div className='bPlDashboard'>
+        <BFCMBanner {...props} />
         <Header {...props}>
             <nav className='bPlDashboardNav'>
                 {navigation
