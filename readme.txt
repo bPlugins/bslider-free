@@ -337,7 +337,7 @@ Please report security bugs found in the source code of the bSlider plugin throu
 
 == Changelog ==
 
-= 2.3.0 - 8 November, 2026 =
+= 2.3.0 - 19 November, 2026 =
 * Security: Users who may not add scripts to posts (such as Contributors and Authors) can no longer add HTML that the slider script would run on the page. If your site uses a page cache, clear it after updating.
 * New: Create with AI in the setup wizard: say what the slider is for and the AI writes the slides, all of them editable. Uses the AI service set up under Settings → Connectors (WordPress 7.0 and newer). Authors and above can use it.
 * New: Slides with AI panel for Gutenberg Blocks sliders: add or replace slides from one line at any time.
