@@ -4,7 +4,7 @@
 	"name": "bsb/slider",
 	"title": "Slider",
 	"category": "widgets",
-	"version": "2.2.5",
+	"version": "2.3.0",
 	"description": "Display Amazing Gutenberg Responsive Image And Content Slider",
 	"keywords": [
 		"slider",
@@ -612,6 +612,10 @@
 			"default": false
 		},
 		"isArrowFollowSlide": {
+			"type": "boolean",
+			"default": false
+		},
+		"autoplayToggle": {
 			"type": "boolean",
 			"default": false
 		},

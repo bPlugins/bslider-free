@@ -1,12 +1,21 @@
 const defaultConfig = require('@wordpress/scripts/config/webpack.config');
+const DependencyExtractionWebpackPlugin = require('@wordpress/dependency-extraction-webpack-plugin');
 const ESLintPlugin = require('eslint-webpack-plugin');
+
+// WordPress 6.6+ ships the JSX runtime as `react-jsx-runtime`; this wp-scripts version would bundle a copy.
+const isJsxRuntime = request => 'react/jsx-runtime' === request || 'react/jsx-dev-runtime' === request;
 
 const plugins = defaultConfig.plugins.filter(p => {
 	if (Object.values(p).length === 2 && Object.values(p)?.[1]['filename'] && Object.values(p)?.[1]['filename'] === '[name]-rtl.css') {
 		return false;
 	}
-	return true;
+	return 'DependencyExtractionWebpackPlugin' !== p?.constructor?.name;
 });
+
+plugins.push(new DependencyExtractionWebpackPlugin({
+	requestToExternal: request => (isJsxRuntime(request) ? 'ReactJSXRuntime' : undefined),
+	requestToHandle: request => (isJsxRuntime(request) ? 'react-jsx-runtime' : undefined),
+}));
 
 module.exports = {
 	...defaultConfig,

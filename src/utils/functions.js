@@ -61,7 +61,7 @@ export const updateArrayItem = (list, index, type, val, childType = false) => pr
 
 
 export const strToIntArr = str => str?.trim().split(',').map(id => id ? parseInt(id) : id);
-export const filterSelected = (taxonomy, selected) => taxonomy?.map(tax => tax.id)?.filter(tax => selected.indexOf(tax) !== -1);
+export const filterSelected = (taxonomy, selected) => taxonomy?.map(tax => tax.id)?.filter(tax => (selected || []).indexOf(tax) !== -1);
 
 export const checkDirection = (val) => {
 

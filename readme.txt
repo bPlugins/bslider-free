@@ -2,18 +2,18 @@
 Contributors: bplugins, abuhayat, btechnologies, farazi1, freemius
 Donate link: https://www.buymeacoffee.com/abuhayat
 Tags: block, carousel, slider, templates, Gutenberg block
-Requires at least: 6.5
+Requires at least: 6.6
 Tested up to: 7.1
-Stable tag: 2.2.5
+Stable tag: 2.3.0
 Requires PHP: 7.2
 License: GPLv2 or later 
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Responsive sliders from images, posts, WooCommerce, videos or blocks — or start from 50+ ready-made templates. Block editor & shortcode.
+Responsive sliders from images, posts, WooCommerce, videos or blocks — or start from 92+ ready-made templates. Block editor & shortcode.
 
 == Description ==
 
-**Create responsive sliders from images, posts, WooCommerce products, videos, or slides built out of Gutenberg blocks — or start from more than 50 ready-made templates — with multiple layouts, animations, and styling controls, right in the block editor.**
+**Create responsive sliders from images, posts, WooCommerce products, videos, or slides built out of Gutenberg blocks — or start from more than 92 ready-made templates — with multiple layouts, animations, and styling controls, right in the block editor.**
 
 [Documentation](https://bplugins.com/docs/bslider) | [Demo](https://bplugins.com/products/b-slider/#demos) | [Pricing](https://bplugins.com/products/b-slider/pricing/) | [Support](https://bplugins.com/support/)
 
@@ -23,7 +23,7 @@ bSlider makes it easy to build engaging sliders without coding. Choose transitio
 
 Use it for product showcases, portfolios, testimonials or hero sections. It works with any theme add the Gutenberg block, or place a shortcode anywhere.
 
-Start from a ready-made design. The Template Library, opened from the block editor toolbar, has more than 50 sliders for agencies, shops, restaurants, real estate, portfolios, video and social feeds. Pick one, click Import, and change anything you like:
+Start from a ready-made design. The Template Library, opened from the block editor toolbar, has more than 92 sliders for agencies, shops, restaurants, real estate, portfolios, video and social feeds. Pick one, click Import, and change anything you like:
 
 https://www.youtube.com/watch?v=y7jrdRujlpY
 
@@ -338,6 +338,19 @@ Please report security bugs found in the source code of the bSlider plugin throu
 
 == Changelog ==
 
+= 2.3.0 - 8 November, 2026 =
+* Security: Users who may not add scripts to posts (such as Contributors and Authors) can no longer add HTML that the slider script would run on the page. If your site uses a page cache, clear it after updating.
+* New: Create with AI: say what the slider is for and the AI built into WordPress 7.0 and newer writes the slides, all of them editable. Needs an AI service set up under Settings → Connectors. Authors and above can use it.
+* New: Slides with AI panel for Gutenberg Blocks sliders: add or replace slides from one line at any time.
+* New: Make many slides at once for Custom Images sliders: choose images from the Media Library or paste image links, one slide per picture.
+* New: Show Pause Button: a small button that stops and starts autoplay, for visitors who need the slider to stand still (WCAG 2.2.2).
+* New: Click a slider, then use the left and right arrow keys to change slides.
+* Improvement: Screen readers now announce the slider, each slide ("2 of 5") and every slide change, and the arrows and dots have clear names.
+* Improvement: Keyboard focus shows a clear ring and stops autoplay, and autoplay does not start when the visitor's device asks for less motion.
+* Improvement: Images without alt text use the slide title.
+* Fix: Slides with Vertical Align set showed on top of each other on the site.
+* Fix: The Post Query panel no longer breaks on sliders with no categories selected.
+
 = 2.2.5 - 4 November, 2026 =
 * New: Absolute Position for Gutenberg Blocks layers (Position panel): place any block anywhere on the slide by X and Y, in px or %, from one of 9 anchors.
 * New: Drag layers on the canvas, with smart guides, snapping and arrow-key nudge (Shift moves 10px).
@@ -432,6 +445,9 @@ Please report security bugs found in the source code of the bSlider plugin throu
 
 == Upgrade Notice ==
 
+= 2.3.0 =
+Security fix, please update. Adds Create with AI, a pause button and better keyboard and screen reader support. Clear your page cache after updating. Existing sliders are untouched.
+
 = 2.2.5 =
 Adds absolute positioning for slide layers and slider captions, set per device. Bold Google Fonts in layers now show bold. Existing sliders are untouched.
 
@@ -448,7 +464,14 @@ You can find the source code, report bugs, and contribute to the development of 
 
 == External Services ==
 
-This plugin contacts one service outside your site, and only while you use the feature that needs it.
+This plugin contacts services outside your site only while you use the feature that needs them.
+
+= AI service you set up in WordPress (Create with AI) =
+Used only when you click Create in the "Create with AI" box of the slider's setup screen. The plugin does not hold an AI key and contacts no AI company itself: it hands the request to the AI built into WordPress 7.0 and newer, which sends it to the AI service you chose under Settings → Connectors.
+
+* **What is sent:** the sentence you type about the slider, how many slides you asked for, and the plugin's instructions for writing them. Nothing about your posts, your users or your visitors is sent.
+* **When:** only when you click Create. Nothing is sent while the box is unused, and without a connector set up nothing is sent at all.
+* **Terms and privacy:** those of the AI service you connected (for example Google, OpenAI or Anthropic), shown on its connector under Settings → Connectors.
 
 = bPlugins Template Library =
 Used when you open the Template Library from the block editor toolbar or the source picker.

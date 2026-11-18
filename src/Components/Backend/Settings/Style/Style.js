@@ -13,8 +13,8 @@ const Style = ({ attributes, setAttributes, updateObject, multipleAttrChange }) 
     const defaultStyleProps = { attributes, setAttributes, updateObject, multipleAttrChange };
 
     return <div className='bsbGeneralMainArea'>
-        {/* First, where Pro has the real panel; not for `blocks`, styled by child blocks. */}
-        {'blocks' !== sourceType && <ProPanel title={__('Style with AI', 'b-slider')} proTitle={__('Style with AI', 'b-slider')} features={PRO_FEATURES.styleWithAi} demoUrl={TUTORIAL_VIDEOS.styleWithAi} />}
+        {/* First, where Pro has the real panel; `blocks` sliders too, for arrows, dots and height. */}
+        <ProPanel title={__('Style with AI', 'b-slider')} proTitle={__('Style with AI', 'b-slider')} features={'blocks' === sourceType ? PRO_FEATURES.styleBlocksWithAi : PRO_FEATURES.styleWithAi} demoUrl={TUTORIAL_VIDEOS.styleWithAi} />
         <DefaultStyle {...defaultStyleProps} />
         {layoutType === "grid" && <GridStyle {...defaultStyleProps} />}
         {layoutType === "thumbnails" && <ThumbnailsStyle {...defaultStyleProps} />}

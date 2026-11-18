@@ -2983,3 +2983,235 @@ svg#bsbSlider {
     &.is-sw { left: 0; top: 100%; cursor: nesw-resize; }
     &.is-w { left: 0; top: 50%; cursor: ew-resize; }
 }
+
+/* Create with AI card in the wizard and the style step above the new slides. */
+.bsb_ai_create,
+.bsb_ai_style_step {
+    position: relative;
+    padding: 20px;
+    background: var(--bsb-primary-soft);
+    border: 1.5px solid var(--bsb-primary-line);
+    border-radius: var(--bsb-radius-lg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    color: var(--bsb-text);
+
+    h3 {
+        margin: 0;
+        padding: 0;
+        font-size: 17px;
+        font-weight: 700;
+        color: var(--bsb-ink);
+    }
+
+    .bsb_ai_create_desc {
+        margin: 6px 0 14px;
+        padding: 0;
+        font-size: 13px;
+        color: var(--bsb-text-soft);
+    }
+
+    textarea,
+    input[type="text"] {
+        display: block;
+        width: 100%;
+        box-sizing: border-box;
+        padding: 10px 12px;
+        font-size: 14px;
+        font-family: inherit;
+        color: var(--bsb-text);
+        background: var(--bsb-surface);
+        border: 1.5px solid var(--bsb-line-strong);
+        border-radius: var(--bsb-radius);
+        resize: vertical;
+
+        &:focus {
+            outline: none;
+            border-color: var(--bsb-primary);
+            box-shadow: var(--bsb-ring);
+        }
+    }
+
+    .bsb_ai_create_row {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 12px;
+
+        label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            color: var(--bsb-text-soft);
+        }
+
+        select {
+            padding: 4px 8px;
+            font-size: 13px;
+            border: 1.5px solid var(--bsb-line-strong);
+            border-radius: var(--bsb-radius-sm);
+        }
+
+        button {
+            padding: 8px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--bsb-primary);
+            background: var(--bsb-surface);
+            border: 1.5px solid var(--bsb-primary-line);
+            border-radius: var(--bsb-radius-sm);
+            cursor: pointer;
+
+            &:disabled {
+                opacity: 0.55;
+                cursor: not-allowed;
+            }
+        }
+    }
+
+    .bsb_ai_create_btn,
+    .bsb_ai_create_row .bsb_ai_create_btn {
+        display: inline-block;
+        padding: 9px 20px;
+        font-size: 13px;
+        font-weight: 600;
+        text-decoration: none;
+        color: var(--bsb-surface);
+        background: var(--bsb-primary);
+        border: 1.5px solid var(--bsb-primary);
+        border-radius: var(--bsb-radius-sm);
+        cursor: pointer;
+
+        &:hover:not(:disabled) {
+            color: var(--bsb-surface);
+            background: var(--bsb-primary-dark);
+            box-shadow: var(--bsb-shadow-primary);
+        }
+    }
+
+    .bsb_ai_create_notice {
+        margin-top: 12px;
+        padding: 10px 12px;
+        font-size: 13px;
+        border-radius: var(--bsb-radius);
+        background: var(--bsb-surface);
+        border: 1px solid var(--bsb-line);
+
+        &.is-error {
+            color: var(--bsb-danger);
+            background: var(--bsb-danger-soft);
+            border-color: var(--bsb-danger-line);
+        }
+
+        &.is-warning {
+            color: var(--bsb-warning);
+            background: var(--bsb-warning-soft);
+        }
+
+        &.is-success {
+            color: var(--bsb-success, #2f7d32);
+        }
+    }
+
+    .bsb_card_flag {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+
+        p {
+            margin: 0;
+            padding: 2px 8px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--bsb-surface);
+            background: var(--bsb-accent);
+            border-radius: 12px;
+        }
+    }
+}
+
+.bsb_ai_create_or {
+    margin: 18px 0 14px;
+    padding: 0;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--bsb-muted);
+}
+
+.bsb_ai_style_step {
+    margin: 0 0 14px;
+
+    .bsb_ai_style_step_head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+    }
+
+    .bsb_step_badge {
+        flex-shrink: 0;
+        padding: 4px 12px;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        color: var(--bsb-primary);
+        background: var(--bsb-surface);
+        border: 1px solid var(--bsb-primary-line);
+        border-radius: 20px;
+    }
+
+    .bsb_ai_style_step_examples {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 10px;
+
+        button {
+            padding: 5px 10px;
+            font-size: 12px;
+            color: var(--bsb-text-soft);
+            background: var(--bsb-surface);
+            border: 1px solid var(--bsb-line-strong);
+            border-radius: var(--bsb-radius-pill);
+            cursor: pointer;
+
+            &:hover {
+                color: var(--bsb-primary);
+                border-color: var(--bsb-primary);
+            }
+        }
+    }
+}
+
+
+/* The style step as a Pro note after Create with AI. */
+.bsb_ai_style_step.is-promo {
+    .bsb_step_badge.is-pro {
+        color: var(--bsb-surface);
+        background: var(--bsb-accent);
+        border-color: var(--bsb-accent);
+    }
+
+    .bsbNoticeVideo {
+        display: inline-flex;
+        margin-top: 10px;
+        font-size: 13px;
+    }
+
+    .bsb_ai_create_btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+
+        svg {
+            fill: currentColor;
+        }
+    }
+}

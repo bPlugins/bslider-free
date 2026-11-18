@@ -23,6 +23,9 @@ const Item = ({ attributes, setAttributes, arrKey, index, setActiveIndex = false
 
             <InlineDetailMediaUpload label={`${sourceType === 'video' ? 'Poster Url' : ''}`} value={img} types={['image']} onChange={val => updateSlider('img', val)} placeholder={__('Enter Image URL', 'b-slider')} />
 
+            {/* Where Pro has its per-slide Rewrite with AI button. */}
+            {'image' === sourceType && <ProNotice className='mt10 mb10' features={PRO_FEATURES.slideRewriteAi} />}
+
             {(!isPostSource(sourceType) && sourceType !== 'video') && <>
                 <TextControl label={__("Image Alt", 'b-slider')} labelPosition={__('top', 'b-slider')} value={altText != null ? altText : img?.caption || img?.title} placeholder={__('Enter Image Alt Text', 'b-slider')} onChange={val => updateSlider('altText', val)} />
 

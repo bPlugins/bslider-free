@@ -1,3 +1,4 @@
+import { __, sprintf } from '@wordpress/i18n';
 import { useEffect, useState } from 'react';
 import { ownCarouselItems } from '../../../../utils/functions';
 
@@ -64,7 +65,7 @@ const Blocks = ({ clientId, sliderRef, blocksHtml }) => {
 		data-bs-slide-to={index}
 		className={0 === index ? 'active' : ''}
 		aria-current={0 === index ? 'true' : undefined}
-		aria-label={`${index + 1}`}
+		aria-label={sprintf(/* translators: %d: slide number. */ __('Go to slide %d', 'b-slider'), index + 1)}
 	/>);
 };
 

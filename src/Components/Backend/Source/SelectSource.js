@@ -8,6 +8,7 @@ import ProSocialPromo from '../ProSocialPromo';
 import { lock, wordpress, woo } from '../../../utils/icons';
 import { adminUrl, isPostTypeLocked } from '../../../utils/functions';
 import { VideoHelpLink, videoLabels } from '../../../utils/videos';
+import AiCreateCard from './AiCreateCard';
 
 const CardFlag = ({ item }) => {
     if (item.isNew) {
@@ -91,7 +92,7 @@ const TemplateLibraryPrompt = () => {
 };
 
 const SelectSource = (props) => {
-    const { attributes, setAttributes, updateObject } = props;
+    const { attributes, setAttributes, updateObject, clientId, onAiCreated } = props;
     const { sourceType } = attributes;
 
     const [isPostTypesView, setIsPostTypesView] = useState(false);
@@ -218,6 +219,11 @@ const SelectSource = (props) => {
                         <p className="bsb_wizard_subtitle">{__('Select the type of content you want to display in your slider', 'b-slider')}</p>
                         <VideoHelpLink video='gettingStarted' label={videoLabels.gettingStarted()} />
                     </div>
+
+                    <AiCreateCard clientId={clientId} onCreated={() => {
+                        setAttributes({ sourceType: 'blocks', layoutType: 'default' });
+                        onAiCreated?.();
+                    }} />
 
                     <div className="bsb_parent_area source_grid">
                         {sourceItem?.map((item, index) => (

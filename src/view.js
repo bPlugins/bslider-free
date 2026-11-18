@@ -13,6 +13,9 @@ document.addEventListener('DOMContentLoaded', () => {
 	mountSliders(document);
 });
 
+/** The text of a slider's own `<script type="application/json">` child, or ''. */
+export const readSliderData = (sliderEl, className) => sliderEl?.querySelector(`:scope > script.${className}[type="application/json"]`)?.textContent?.trim() || '';
+
 /**
  * Mounts every slider under `scope` that is not already running.
  *
@@ -22,17 +25,14 @@ document.addEventListener('DOMContentLoaded', () => {
  * HTML there but nothing behind it, since these are not its components. `reviveSlideScripts`
  * re-fires `DOMContentLoaded` after the insert, which brings us back here to pick it up.
  *
- * `data-attributes` being gone is what marks a slider as already mounted, so a second pass over
- * the same page cannot mount anything twice.
+ * `data-bsb-mounted` marks a slider as already mounted, so a second pass over the same page
+ * cannot mount anything twice.
  */
 export const mountSliders = (scope = document) => {
 	const sliderEls = scope.querySelectorAll('.wp-block-bsb-slider');
 	sliderEls.forEach(sliderEl => {
-		// Base64 on `blocks` sliders, whose payload can contain another slider's own escaped
-		// JSON — see the note in render.php. Everything else still carries plain JSON.
-		const raw = sliderEl.dataset.attributesB64
-			? atob(sliderEl.dataset.attributesB64)
-			: sliderEl.dataset.attributes;
+		// Only render.php's own JSON script counts; post content cannot add a <script>, so a copied wrapper cannot mount.
+		const raw = readSliderData(sliderEl, 'bsb-slider-data');
 
 		if (!raw) {
 			return;
@@ -49,15 +49,20 @@ export const mountSliders = (scope = document) => {
 		}
 		sliderEl.dataset.bsbMounted = 'true';
 
-		const attributes = JSON.parse(raw);
+		let attributes;
+		try {
+			attributes = JSON.parse(raw);
+		} catch (e) {
+			return;
+		}
 		const nonce = JSON.parse(sliderEl.dataset.nonce);
 		const totalPosts = parseInt(sliderEl.dataset.totalposts);
 		const id = sliderEl?.id;
 
 		const isBackend = false;
 		// const posts = all_posts?.posts;
-		const postsText = sliderEl.querySelector('pre#posts')?.innerText;
-		const firstPosts = postsText ? JSON.parse(postsText?.replace(/\n/g, ' ')?.replace(/\s+/g, ' ')?.trim()) : [];
+		const postsText = readSliderData(sliderEl, 'bsb-slider-posts');
+		const firstPosts = postsText ? JSON.parse(postsText) : [];
 
 		createRoot(sliderEl).render(<>
 			<RenderLayout {...{ attributes, firstPosts, totalPosts, isBackend, nonce, id }} />
@@ -67,13 +72,8 @@ export const mountSliders = (scope = document) => {
 		 *
 		 * A layer's "Open Lightbox" action opens from a DOM handler with no React props to read
 		 * — `layerAnimations` is handed the carousel node alone — so without this the lightbox
-		 * would open with Fancybox's own defaults and ignore every setting in the panel. The
-		 * `data-*` copies cannot serve: they are what marks a slider unmounted, and are removed
-		 * on the next two lines. */
+		 * would open with Fancybox's own defaults and ignore every setting in the panel. */
 		sliderEl._bsbAttributes = attributes;
-
-		sliderEl?.removeAttribute('data-attributes');
-		sliderEl?.removeAttribute('data-attributes-b64');
 	});
 };
 
