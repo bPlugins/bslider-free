@@ -57,7 +57,7 @@ const Thumbnails = ({ attributes, firstPosts, commonDeProps }) => {
         speed: slideSpeedMs(attributes) || 300,
         thumbs: thumbsSwiper ? { swiper: thumbsSwiper } : {},
         loop,
-        mousewheel,
+        mousewheel: mousewheel ? { releaseOnEdges: true } : false,
         autoplay: isAutoPlay ? { delay: autoPlayDelay } : false,
         className: "bsb-main-slider",
         direction: caroDirection,

@@ -155,10 +155,13 @@ const Carousel = (props) => {
             /* translators: Keep {{index}} and {{slidesLength}}: the slide number and how many slides. */
             slideLabelMessage: __('{{index}} of {{slidesLength}}', 'b-slider'),
             containerRoleDescriptionMessage: __('carousel', 'b-slider'),
+            containerRole: 'region',
+            containerMessage: __('Slider', 'b-slider'),
             itemRoleDescriptionMessage: __('slide', 'b-slider'),
         },
         loop,
-        mousewheel,
+        // At the first and last slide the page scrolls on, as in the Default layout.
+        mousewheel: mousewheel ? { releaseOnEdges: true } : false,
         autoplay,
         centeredSlides,
         breakpoints,

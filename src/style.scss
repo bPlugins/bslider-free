@@ -1834,8 +1834,17 @@ $bsb-std-bp: ':where(:not(.bsb-custom-bp *))';
 }
 
 /* Blocks around a layer that core positions, e.g. a Cover, are unpositioned so X/Y count from the slide. */
-.bsb-slide-content :not(.bsb-abs):has(.bsb-abs):not(:has(.bsb-slide-content)) {
+.bsb-slide-content :not(.bsb-abs):not(.wp-block-cover):has(.bsb-abs):not(:has(.bsb-slide-content)) {
     position: static;
+}
+
+/* A Cover keeps its position so its picture and overlay stay inside it; its layers become fixed boxes of the slide or group instead. */
+:is(.bsb-slide-content, .bsb-abs):has(.wp-block-cover:not(.bsb-abs) .bsb-abs) {
+    contain: layout;
+}
+
+.bsb-slide-content .wp-block-cover:not(.bsb-abs) .bsb-abs:not(.wp-block-cover .bsb-abs .bsb-abs) {
+    position: fixed !important;
 }
 
 /* A Cover's content stays over its overlay without its own position; it is a flex item, so z-index works. */

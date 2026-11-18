@@ -2761,8 +2761,17 @@ svg#bsbSlider {
 }
 
 /* Plain blocks around a layer stay unpositioned as on the page, so X/Y count from the slide. */
-.carousel.blocks .bsb-slide-content .block-editor-block-list__block:not(.bsb-abs):has(.bsb-abs) {
+.carousel.blocks .bsb-slide-content .block-editor-block-list__block:not(.bsb-abs):not(.wp-block-cover):has(.bsb-abs) {
     position: static;
+}
+
+/* A Cover keeps its position for its picture and overlay; its layers are fixed boxes of the slide or group, as on the page. */
+.carousel.blocks :is(.bsb-slide-content, .bsb-abs):has(.wp-block-cover:not(.bsb-abs) .bsb-abs) {
+    contain: layout;
+}
+
+.carousel.blocks .bsb-slide-content .wp-block-cover:not(.bsb-abs) .bsb-abs:not(.wp-block-cover .bsb-abs .bsb-abs) {
+    position: fixed !important;
 }
 
 /* Move and rotate handles beside a selected absolute layer; placed every frame by LayerCanvasHandles. */
