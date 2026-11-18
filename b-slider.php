@@ -3,7 +3,7 @@
  * Plugin Name: bSlider – Build Sliders That Bring Your Content to Life
  * Plugin URI: http://bplugins.com
  * Description: Simple slider with bootstrap.
- * Version: 2.2.5
+ * Version: 2.2.6
  * Author: bPlugins
  * Author URI: http://bplugins.com
  * License: GPLv2 or later
@@ -16,7 +16,7 @@
     if (defined('WP_DEBUG') && WP_DEBUG === true) {
         define('B_SLIDER_PLUGIN_VERSION', time());
     } else {
-        define('B_SLIDER_PLUGIN_VERSION', '2.2.5');
+        define('B_SLIDER_PLUGIN_VERSION', '2.2.6');
     }
     define('B_SLIDER_DIR', plugin_dir_url(__FILE__));
     define('B_SLIDER_DIR_PATH', plugin_dir_path(__FILE__));
@@ -33,7 +33,7 @@
             if ( !isset( $b_slider_fs ) ) {
                 require_once dirname(__FILE__) . '/vendor/freemius-lite/start.php';
 
-                $bs_fs = fs_lite_dynamic_init([
+                $b_slider_fs = fs_lite_dynamic_init([
                     'id'                  => '19318',
                     'slug'                => 'b-slider',
                     'type'                => 'plugin',
@@ -88,6 +88,7 @@
         public function load_classes () {
             require_once plugin_dir_path(__FILE__) . '/includes/admin-menu.php';
             require_once plugin_dir_path(__FILE__) . '/includes/custom-post.php';
+            require_once plugin_dir_path(__FILE__) . '/includes/BFCMNotice.php';
             new B_SLIDER\CustomPost();
         }
 
@@ -99,7 +100,17 @@
 
                  
                 $links['go_pro'] = sprintf( '<a href="%s" style="%s" target="__blank">%s</a>', 'https://bplugins.com/products/b-slider/pricing', 'color:#f18500;font-weight:bold', __( 'Go Pro!', 'b-slider' ) );
-            
+
+                // Black Friday action link (active until December 5, 2026)
+                if ( time() <= 1796515199 && ( ! function_exists( 'b_slider_fs' ) || ! b_slider_fs() || ! b_slider_fs()->can_use_premium_code() ) ) {
+                    $bfcmUrl = 'https://bplugins.com/products/b-slider/pricing/?utm_source=plugins_page&utm_medium=bfcm_action_link&utm_campaign=bfcm2026';
+                    $links['bfcm'] = sprintf(
+                        '<a href="%s" style="%s" target="_blank" rel="noopener noreferrer">%s</a>',
+                        esc_url( $bfcmUrl ),
+                        'color:#d63638;font-weight:bold;',
+                        __( 'Black Friday: Save 45%!', 'b-slider' )
+                    );
+                }
 
                 $links['dashboard'] = sprintf( '<a href="%s" style="%s" target="__blank">%s</a>', $dashboardLink, 'color:#f18500;font-weight:bold', __( 'Dashboard!', 'b-slider' ) );
             }

@@ -5,7 +5,7 @@ import { businessDemoIcon, elementorTabIcon, gutenbergTabIcon, phpTabIcon, short
 const slug = 'b-slider';
 
 export const dashboardInfo = (info) => {
-    const { version, isPremium, hasPro, adminUrl, licenseActiveNonce, deleteDataOnUninstall = false, uninstallNonce = '' } = info;
+    const { version, isPremium, hasPro, adminUrl, licenseActiveNonce, deleteDataOnUninstall = false, uninstallNonce = '', bfcm } = info;
 
     const proSuffix = isPremium ? ' Pro' : '';
 
@@ -17,6 +17,7 @@ export const dashboardInfo = (info) => {
         version,
         isPremium,
         hasPro,
+        bfcm,
         displayOurPlugins: true,
         media: {
             logo: `https://ps.w.org/${slug}/assets/icon-256x256.png`,

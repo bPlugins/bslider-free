@@ -36,8 +36,15 @@ if(!class_exists(__NAMESPACE__ . '\AdminMenu')) {
             <div
                 id='bsbDashboard'
                 data-info='<?php echo esc_attr( wp_json_encode( [
-                    'version' => B_SLIDER_PLUGIN_VERSION,
-                    'adminUrl' => admin_url(),
+                    'version'   => B_SLIDER_PLUGIN_VERSION,
+                    'adminUrl'  => admin_url(),
+                    'isPremium' => function_exists( 'b_slider_fs' ) && b_slider_fs() && b_slider_fs()->can_use_premium_code(),
+                    'bfcm'      => [
+                        'show'       => class_exists( 'BSB_BFCM_Notice' ) ? \BSB_BFCM_Notice::get_instance()->is_active() : false,
+                        'nonce'      => wp_create_nonce( 'bsb_bfcm_dismiss_nonce' ),
+                        'ajaxUrl'    => admin_url( 'admin-ajax.php' ),
+                        'pricingUrl' => 'https://bplugins.com/products/b-slider/pricing/?utm_source=plugin_dashboard&utm_medium=bfcm_banner&utm_campaign=bfcm2026',
+                    ],
                 ] ) ); ?>'
             >
             </div>

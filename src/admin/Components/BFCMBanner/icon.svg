@@ -1,0 +1,103 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="bSlider icon — a slider viewport crossfading between slides with pagination dots and an autoplay progress bar">
+  <title>bSlider — dot-driven slide swap with autoplay progress</title>
+  <defs>
+    <linearGradient id="bslbTile" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#146ef5"/>
+      <stop offset="1" stop-color="#6155f5"/>
+    </linearGradient>
+    <linearGradient id="bslbSun" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ff9dc7"/>
+      <stop offset="1" stop-color="#ff4d9d"/>
+    </linearGradient>
+    <linearGradient id="bslbGlass" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.9"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0.5"/>
+    </linearGradient>
+    <radialGradient id="bslbGlow" cx="0.5" cy="0.4" r="0.6">
+      <stop offset="0" stop-color="#ff4d9d" stop-opacity="0.45"/>
+      <stop offset="1" stop-color="#ff4d9d" stop-opacity="0"/>
+    </radialGradient>
+    <clipPath id="bslbClip"><rect x="0" y="0" width="256" height="256" rx="56"/></clipPath>
+    <clipPath id="bslbWin"><rect x="53" y="52" width="150" height="108" rx="16"/></clipPath>
+    <style>
+      :root { --bslb: 3.6s; }
+      .bslb-s1 { animation: bslbS1 var(--bslb) linear infinite; }
+      .bslb-s2 { animation: bslbS2 var(--bslb) linear infinite; }
+      .bslb-s3 { animation: bslbS3 var(--bslb) linear infinite; }
+      @keyframes bslbS1 { 0%{opacity:1} 30%{opacity:1} 35%{opacity:0} 95%{opacity:0} 100%{opacity:1} }
+      @keyframes bslbS2 { 0%{opacity:0} 30%{opacity:0} 35%{opacity:1} 63%{opacity:1} 68%{opacity:0} 100%{opacity:0} }
+      @keyframes bslbS3 { 0%{opacity:0} 63%{opacity:0} 68%{opacity:1} 95%{opacity:1} 100%{opacity:0} }
+      .bslb-prog { animation: bslbProg var(--bslb) linear infinite; transform-box: fill-box; transform-origin: left center; }
+      @keyframes bslbProg {
+        0%{transform:scaleX(0)} 31%{transform:scaleX(1)} 33%{transform:scaleX(0)}
+        64%{transform:scaleX(1)} 66%{transform:scaleX(0)}
+        97%{transform:scaleX(1)} 100%{transform:scaleX(0)}
+      }
+      .bslb-d1 { animation: bslbD1 var(--bslb) steps(1,end) infinite; }
+      .bslb-d2 { animation: bslbD2 var(--bslb) steps(1,end) infinite; }
+      .bslb-d3 { animation: bslbD3 var(--bslb) steps(1,end) infinite; }
+      @keyframes bslbD1 { 0%,31% { fill:#ff4d9d; } 33%,100% { fill:rgba(255,255,255,.42); } }
+      @keyframes bslbD2 { 0%,32% { fill:rgba(255,255,255,.42); } 34%,64% { fill:#ff4d9d; } 66%,100% { fill:rgba(255,255,255,.42); } }
+      @keyframes bslbD3 { 0%,65% { fill:rgba(255,255,255,.42); } 67%,98% { fill:#ff4d9d; } 99%,100% { fill:rgba(255,255,255,.42); } }
+      .bslb-p1 { animation: bslbP1 var(--bslb) steps(1,end) infinite; transform-box: fill-box; transform-origin: center; }
+      .bslb-p2 { animation: bslbP2 var(--bslb) steps(1,end) infinite; transform-box: fill-box; transform-origin: center; }
+      .bslb-p3 { animation: bslbP3 var(--bslb) steps(1,end) infinite; transform-box: fill-box; transform-origin: center; }
+      @keyframes bslbP1 { 0%,31% { transform:scale(1.25); } 33%,100% { transform:scale(1); } }
+      @keyframes bslbP2 { 0%,32% { transform:scale(1); } 34%,64% { transform:scale(1.25); } 66%,100% { transform:scale(1); } }
+      @keyframes bslbP3 { 0%,65% { transform:scale(1); } 67%,98% { transform:scale(1.25); } 99%,100% { transform:scale(1); } }
+      @media (prefers-reduced-motion: reduce) {
+        .bslb-s1,.bslb-s2,.bslb-s3,.bslb-prog,.bslb-d1,.bslb-d2,.bslb-d3,.bslb-p1,.bslb-p2,.bslb-p3 { animation: none; }
+        .bslb-s2,.bslb-s3 { opacity: 0; }
+        .bslb-prog { transform: scaleX(0.62); }
+      }
+    </style>
+  </defs>
+
+  <rect x="0" y="0" width="256" height="256" rx="56" fill="url(#bslbTile)"/>
+  <g clip-path="url(#bslbClip)">
+    <circle cx="42" cy="38" r="78" fill="#ffffff" opacity="0.08"/>
+    <circle cx="128" cy="104" r="130" fill="url(#bslbGlow)"/>
+
+    <!-- slider viewport -->
+    <g>
+      <rect x="47" y="46" width="162" height="120" rx="22" fill="#0a2f7a" opacity="0.30"/>
+      <rect x="53" y="52" width="150" height="108" rx="16" fill="url(#bslbGlass)"/>
+      <g clip-path="url(#bslbWin)">
+        <!-- slide 1: landscape -->
+        <g class="bslb-s1">
+          <rect x="53" y="52" width="150" height="108" fill="#e6eefc"/>
+          <circle cx="92" cy="86" r="16" fill="url(#bslbSun)"/>
+          <path d="M53 160 L92 96 L120 128 L146 98 L182 148 L203 128 L203 160 Z" fill="#146ef5"/>
+          <path d="M146 98 L182 148 L146 160 L110 160 Z" fill="#3a2fbf" opacity="0.5"/>
+        </g>
+        <!-- slide 2: gallery -->
+        <g class="bslb-s2">
+          <rect x="53" y="52" width="150" height="108" fill="#eef3fd"/>
+          <rect x="74" y="84" width="30" height="54" rx="7" fill="#146ef5"/>
+          <rect x="113" y="76" width="30" height="70" rx="7" fill="url(#bslbSun)"/>
+          <rect x="152" y="84" width="30" height="54" rx="7" fill="#6155f5" opacity="0.85"/>
+        </g>
+        <!-- slide 3: content -->
+        <g class="bslb-s3">
+          <rect x="53" y="52" width="150" height="108" fill="#eaf0fd"/>
+          <circle cx="84" cy="88" r="17" fill="url(#bslbSun)"/>
+          <rect x="110" y="78" width="58" height="9" rx="4.5" fill="#146ef5"/>
+          <rect x="110" y="94" width="70" height="9" rx="4.5" fill="#6155f5" opacity="0.55"/>
+          <rect x="74" y="126" width="108" height="9" rx="4.5" fill="#3a2fbf" opacity="0.35"/>
+        </g>
+      </g>
+      <!-- glass sheen -->
+      <path d="M53 68 L203 52 L203 52 Q203 52 203 52 L120 90 L53 100 Z" fill="#ffffff" opacity="0.14"/>
+      <rect x="53" y="52" width="150" height="108" rx="16" fill="none" stroke="#ffffff" stroke-opacity="0.35" stroke-width="2"/>
+    </g>
+
+    <!-- autoplay progress bar -->
+    <rect x="66" y="180" width="124" height="7" rx="3.5" fill="#ffffff" opacity="0.22"/>
+    <rect class="bslb-prog" x="66" y="180" width="124" height="7" rx="3.5" fill="#ff4d9d"/>
+
+    <!-- pagination dots -->
+    <circle class="bslb-p1 bslb-d1" cx="108" cy="210" r="7.5" fill="#ff4d9d"/>
+    <circle class="bslb-p2 bslb-d2" cx="128" cy="210" r="7.5" fill="rgba(255,255,255,.42)"/>
+    <circle class="bslb-p3 bslb-d3" cx="148" cy="210" r="7.5" fill="rgba(255,255,255,.42)"/>
+  </g>
+</svg>
