@@ -1,18 +1,24 @@
 import { __, sprintf } from '@wordpress/i18n';
 import { addFilter } from '@wordpress/hooks';
 import { createHigherOrderComponent } from '@wordpress/compose';
+import { useEffect } from '@wordpress/element';
 import { useSelect } from '@wordpress/data';
 import { InspectorControls } from '@wordpress/block-editor';
 import { AccordionGroup, PanelBody } from '../../../Components/Panel/AccordionPanel';
 import { PremiumBadge, PremiumPanel } from '../../../../../bpl-tools/ProControls';
 import { adminUrl, DEMO_URL } from '../../../utils/functions';
 import { proFeatureSentence, PRO_FEATURES } from '../../../utils/pro-features';
-import { canCarryCounter, canCarryLayer, canCarryTypography, WORD_STAGGER_BLOCKS } from './allowedLayerBlocks';
+import { canCarryCounter, canCarryLayer, canCarryImageFilter, canClip, canCarryTypography, WORD_STAGGER_BLOCKS } from './allowedLayerBlocks';
 import EntryExitPanel from '../Panels/EntryExitPanel';
 import LoopPanel from '../Panels/LoopPanel';
 import InteractivityPanel from '../Panels/InteractivityPanel';
 import LightboxPanel from '../Panels/LightboxPanel';
 import TypographyPanel from '../Panels/TypographyPanel';
+import TextEffectsPanel from '../Panels/TextEffectsPanel';
+import GlassPanel from '../Panels/GlassPanel';
+import ImageFilterPanel from '../Panels/ImageFilterPanel';
+import CoverVideoPanel from '../Panels/CoverVideoPanel';
+import FlowPlace from '../Panels/FlowPlace';
 import ResponsivePanel from '../Panels/ResponsivePanel';
 import PositionPanel from '../Panels/PositionPanel';
 import LayerCanvasHandles from './LayerCanvasHandles';
@@ -21,6 +27,9 @@ import { LayerPicker, usePicked } from './pickedLayers';
 import { layerOn, useLayerDevice } from './layerDevice';
 import { placeWith } from '../../../utils/layerDevices';
 import { TipToggle } from '../../../Components/Panel/TipField';
+import { loadEditorFont } from '../../../utils/editorFont';
+import { setupCoverVideos } from '../../../utils/coverVideo';
+import { findBlockElement } from './layerGeometry';
 
 /**
  * The Animation & Interactivity controls, added to any block sitting inside a `bsb/slide`.
@@ -66,6 +75,33 @@ const withLayerControls = createHigherOrderComponent((BlockEdit) => (props) => {
 	}, []);
 	const group = picked.length > 1 ? picked : (groupIds ? groupIds.split(',') : []);
 	const device = useLayerDevice();
+
+	// Every layer loads its own font, selected or not; a device switch rebuilds the canvas, so load again.
+	const typo = attributes?.bsbLayer?.typo;
+	useEffect(() => {
+		if (isInsideSlide) {
+			loadEditorFont(typo?.fontFamily, typo?.fontWeight);
+		}
+	}, [isInsideSlide, typo?.fontFamily, typo?.fontWeight, device]);
+
+	// The cover video buttons on the canvas too; a device switch rebuilds it, so add them again.
+	const coverVideo = 'core/cover' === name && 'video' === attributes?.backgroundType ? attributes?.bsbLayer?.coverVideo : null;
+	const coverButtons = coverVideo ? `${coverVideo.sound ? 'sound' : ''} ${coverVideo.playPause ? 'play' : ''}`.trim() : '';
+	useEffect(() => {
+		if (!isInsideSlide || !coverButtons) {
+			return undefined;
+		}
+
+		let stop = () => { };
+		const frame = requestAnimationFrame(() => {
+			stop = setupCoverVideos([findBlockElement(clientId)].filter(Boolean));
+		});
+
+		return () => {
+			cancelAnimationFrame(frame);
+			stop();
+		};
+	}, [isInsideSlide, coverButtons, clientId, attributes?.url, device]);
 
 	if (!isInsideSlide) {
 		return <BlockEdit {...props} />;
@@ -127,6 +163,10 @@ const withLayerControls = createHigherOrderComponent((BlockEdit) => (props) => {
 				<TypographyPanel {...panelProps} device={device} />
 			</PanelBody>}
 
+			{canCarryTypography(name) && <PanelBody className='bPlPanelBody' title={__('Text Effects', 'b-slider')} initialOpen={false} badge={__('New', 'b-slider')}>
+				<TextEffectsPanel {...panelProps} />
+			</PanelBody>}
+
 			<PanelBody className='bPlPanelBody' title={__('Animation', 'b-slider')} badge={__('New', 'b-slider')} initialOpen={false}>
 				<EntryExitPanel {...panelProps} />
 			</PanelBody>
@@ -137,9 +177,9 @@ const withLayerControls = createHigherOrderComponent((BlockEdit) => (props) => {
 
 			{/* Only on the two text blocks whose own content can be split into words — a Word by
 			    Word panel on an Image or a Button would be a control with nothing to act on. */}
-			{WORD_STAGGER_BLOCKS.includes(name) && <PanelBody className='bPlPanelBody' title={<>{__('Word by Word', 'b-slider')}<PremiumBadge /></>} initialOpen={false}>
+			{WORD_STAGGER_BLOCKS.includes(name) && <PanelBody className='bPlPanelBody' title={<>{__('Word / Line by Line', 'b-slider')}<PremiumBadge /></>} initialOpen={false}>
 				<PremiumPanel
-					title={sprintf(__('Premium %s', 'b-slider'), __('Word by Word', 'b-slider'))}
+					title={sprintf(__('Premium %s', 'b-slider'), __('Word / Line by Line', 'b-slider'))}
 					description={proFeatureSentence(PRO_FEATURES.wordStagger)}
 					pricingUrl={adminUrl()}
 					demoUrl={DEMO_URL}
@@ -176,7 +216,29 @@ const withLayerControls = createHigherOrderComponent((BlockEdit) => (props) => {
 					onChange={val => update('fitContent', val, true)}
 					tip={__('Shrinks the block background and container width to hug the inner content instead of stretching full width.', 'b-slider')}
 				/>
+
+				{canClip(name) && <TipToggle
+					className='mt15'
+					label={__('Clip overflowing content', 'b-slider')}
+					checked={Boolean(layer.clip)}
+					onChange={val => update('clip', val || undefined, true)}
+					tip={__('Hides whatever sticks out past this block’s edges, for example a picture zooming inside a box.', 'b-slider')}
+				/>}
+
+				{!layer.position?.absolute && <FlowPlace layer={layer} update={update} />}
 			</PanelBody>
+
+			<PanelBody className='bPlPanelBody' title={__('Glass Effect', 'b-slider')} initialOpen={false} badge={__('New', 'b-slider')}>
+				<GlassPanel {...panelProps} />
+			</PanelBody>
+
+			{canCarryImageFilter(name) && <PanelBody className='bPlPanelBody' title={__('Image Filters', 'b-slider')} initialOpen={false} badge={__('New', 'b-slider')}>
+				<ImageFilterPanel {...panelProps} />
+			</PanelBody>}
+
+			{'core/cover' === name && 'video' === attributes?.backgroundType && <PanelBody className='bPlPanelBody' title={__('Cover Video', 'b-slider')} initialOpen={false} badge={__('New', 'b-slider')}>
+				<CoverVideoPanel {...panelProps} />
+			</PanelBody>}
 
 			<PanelBody className='bPlPanelBody' title={__('Position', 'b-slider')} badge={__('New', 'b-slider')} initialOpen={false}>
 				<PositionPanel {...panelProps} device={device} />

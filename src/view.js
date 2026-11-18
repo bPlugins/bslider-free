@@ -1,4 +1,7 @@
 import { useState } from 'react';
+import { armFirstReveal } from './utils/firstReveal';
+import { armArrowReveal } from './utils/arrowReveal';
+import { isRtlSlider } from './utils/functions';
 import { createRoot } from 'react-dom';
 import 'animate.css';
 import './style.scss';
@@ -13,8 +16,17 @@ document.addEventListener('DOMContentLoaded', () => {
 	mountSliders(document);
 });
 
-/** The text of a slider's own `<script type="application/json">` child, or ''. */
-export const readSliderData = (sliderEl, className) => sliderEl?.querySelector(`:scope > script.${className}[type="application/json"]`)?.textContent?.trim() || '';
+/** The decoded JSON text of a slider's own `<script type="text/plain">` child, or ''. */
+export const readSliderData = (sliderEl, className) => {
+	// Base64 so no text filter (a second do_shortcode, texturize) can change it; render.php encodes ASCII-only JSON.
+	const text = sliderEl?.querySelector(`:scope > script.${className}[type="text/plain"]`)?.textContent?.trim();
+
+	try {
+		return text ? atob(text) : '';
+	} catch (e) {
+		return '';
+	}
+};
 
 /**
  * Mounts every slider under `scope` that is not already running.
@@ -48,6 +60,8 @@ export const mountSliders = (scope = document) => {
 			return;
 		}
 		sliderEl.dataset.bsbMounted = 'true';
+		armFirstReveal(sliderEl);
+		armArrowReveal(sliderEl);
 
 		let attributes;
 		try {
@@ -62,7 +76,12 @@ export const mountSliders = (scope = document) => {
 		const isBackend = false;
 		// const posts = all_posts?.posts;
 		const postsText = readSliderData(sliderEl, 'bsb-slider-posts');
-		const firstPosts = postsText ? JSON.parse(postsText) : [];
+		let firstPosts = [];
+		try {
+			firstPosts = postsText ? JSON.parse(postsText) : [];
+		} catch (e) {
+			firstPosts = [];
+		}
 
 		createRoot(sliderEl).render(<>
 			<RenderLayout {...{ attributes, firstPosts, totalPosts, isBackend, nonce, id }} />
@@ -91,7 +110,9 @@ export const RenderLayout = ({ attributes, firstPosts, totalPosts, nonce, }) => 
 	const isOld = !layoutType && sliders[0]?.img?.url !== '';
 	const LayoutEl = <Layout {...{ attributes, commonDeProps, firstPosts, products: firstPosts, totalPosts, nonce, isBackend: false, PostsGrid: PostsGridFront }} />;
 
-	return <div className={`mainLayout ${layoutType}`}>
+	const rtl = isRtlSlider(attributes);
+
+	return <div className={`mainLayout ${layoutType}${rtl ? ' bsb-rtl' : ''}`} dir={rtl ? 'rtl' : undefined}>
 		{isOld ? <>
 			<Style {...{ attributes, postsCount: firstPosts?.length, clientId: cId }} />
 			<Default {...{ attributes, firstPosts, commonDeProps, products: firstPosts }} />

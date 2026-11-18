@@ -1,5 +1,5 @@
 import { image as imageIcon, postDoc as postIcon, woo as wooIcon, video as videoIcon, socialFeed as socialFeedIcon, layers as layersIcon, instagramIcon, youtubeIcon, rssIcon, syncIcon } from '../../utils/icons';
-import { businessDemoIcon, elementorTabIcon, gutenbergTabIcon, phpTabIcon, shortcodeTabIcon } from './icons';
+import { businessDemoIcon, fashionDemoIcon, realEstateDemoIcon, shopDemoIcon, elementorTabIcon, gutenbergTabIcon, phpTabIcon, shortcodeTabIcon } from './icons';
 
 
 const slug = 'b-slider';
@@ -55,41 +55,6 @@ export const demoInfo = {
             title: 'Gutenberg',
             children: [
                 {
-                    title: 'Full Page Portfolio',
-                    type: 'iframe',
-                    url: 'https://b-slider.bplugins.com/demo/full-page-portfolio/'
-                },
-                {
-                    title: 'Live Product Carousel',
-                    type: 'iframe',
-                    url: 'https://b-slider.bplugins.com/demo/woocommerce-products-live-product-carousel/'
-                },
-                {
-                    title: 'Dynamic Post Slider',
-                    type: 'iframe',
-                    url: 'https://b-slider.bplugins.com/demo/dynamic-post-slider-live-wordpress-data/'
-                },
-                {
-                    title: 'What Our Customers Say',
-                    type: 'iframe',
-                    url: 'https://b-slider.bplugins.com/demo/what-our-customers-say/'
-                },
-                {
-                    title: 'Agency Portfolio Cover Slides',
-                    type: 'iframe',
-                    url: 'https://b-slider.bplugins.com/demo/agency-portfolio-full-screen-cover-slides/'
-                },
-                {
-                    title: 'Restaurant Menu Carousel',
-                    type: 'iframe',
-                    url: 'https://b-slider.bplugins.com/demo/restaurant-menu-carousel-with-3-cards-per-view/'
-                },
-                {
-                    title: 'SaaS Product Launch',
-                    type: 'iframe',
-                    url: 'https://b-slider.bplugins.com/demo/saas-product-launch/'
-                },
-                {
                     title: 'Luxury Real Estate Lightbox Slider',
                     type: 'iframe',
                     url: 'https://b-slider.bplugins.com/demo/luxury-real-estate-lightbox-slider/'
@@ -113,6 +78,41 @@ export const demoInfo = {
                     title: 'Software Products & Reviews',
                     type: 'iframe',
                     url: 'https://b-slider.bplugins.com/demo/software-products-reviews/'
+                },
+                {
+                    title: 'Full Page Portfolio',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/full-page-portfolio/'
+                },
+                {
+                    title: 'What Our Customers Say',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/what-our-customers-say/'
+                },
+                {
+                    title: 'Live Product Carousel',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/woocommerce-products-live-product-carousel/'
+                },
+                {
+                    title: 'Dynamic Post Slider',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/dynamic-post-slider-live-wordpress-data/'
+                },
+                {
+                    title: 'Agency Portfolio Cover Slides',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/agency-portfolio-full-screen-cover-slides/'
+                },
+                {
+                    title: 'Restaurant Menu Carousel',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/restaurant-menu-carousel-with-3-cards-per-view/'
+                },
+                {
+                    title: 'SaaS Product Launch',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/saas-product-launch/'
                 }
             ]
         },
@@ -274,6 +274,284 @@ export const demoInfo = {
                     title: 'Gradient Hero Slider – SaaS & App Landing',
                     type: 'iframe',
                     url: 'https://b-slider.bplugins.com/demo/gradient-hero-slider-saas-app-landing/'
+                },
+                {
+                    title: 'Productivity Guide',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/productivity-guide/'
+                },
+                {
+                    title: 'Creative Process',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/creative-process/'
+                },
+                {
+                    title: 'Client Logos',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/client-logos/'
+                },
+                {
+                    title: 'Web Agency 2',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/web-agency-2/'
+                },
+                {
+                    title: 'Web Agency (168)',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/web-agency-168/'
+                },
+                {
+                    title: 'Web Agency (823)',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/web-agency-823/'
+                },
+                {
+                    title: 'Trend Business',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/trend-business/'
+                },
+                {
+                    title: 'Startup Investor',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/startup-investor/'
+                },
+                {
+                    title: 'Startup Ideas',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/startup-ideas/'
+                },
+                {
+                    title: 'Red Business Agency',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/red-business-agency/'
+                },
+                {
+                    title: 'Modern Startup Agency',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/modern-startup-agency/'
+                },
+                {
+                    title: 'Modern Business',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/modern-business/'
+                },
+                {
+                    title: 'Mobile App – RTL',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/mobile-app-rtl/'
+                },
+                {
+                    title: 'Marketing Agency',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/marketing-agency/'
+                },
+                {
+                    title: 'Lawyer',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/lawyer/'
+                },
+                {
+                    title: 'Innovative Web Design',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/innovative-web-design/'
+                },
+                {
+                    title: 'Grow Business',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/grow-business/'
+                },
+                {
+                    title: 'Green Business',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/green-business/'
+                },
+                {
+                    title: 'Future Agency',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/future-agency/'
+                },
+                {
+                    title: 'Freelancer Hire',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/freelancer-hire/'
+                },
+                {
+                    title: 'East Agency – RTL',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/east-agency-rtl/'
+                }
+            ]
+        },
+        {
+            icon: fashionDemoIcon(24, 24),
+            title: 'Fashion & Beauty',
+            children: [
+                {
+                    title: 'Sunglasses Shop',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/sunglasses-shop/'
+                },
+                {
+                    title: 'Selfcare Blog',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/selfcare-blog/'
+                },
+                {
+                    title: 'Perfume Shop',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/perfume-shop/'
+                },
+                {
+                    title: 'Jewelry Video',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/jewelry-video/'
+                },
+                {
+                    title: 'Fashion Blog',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/fashion-blog/'
+                },
+                {
+                    title: 'Beauty Blog',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/beauty-blog/'
+                },
+                {
+                    title: 'Suit Shop',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/suit-shop/'
+                },
+                {
+                    title: 'Ladies Perfume Shop',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/ladies-perfume-shop/'
+                },
+                {
+                    title: 'Fashion',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/fashion/'
+                },
+                {
+                    title: 'Dark Fashion Shop',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/dark-fashion-shop/'
+                },
+                {
+                    title: 'Cloth Shop 2',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/cloth-shop-2/'
+                }
+            ]
+        },
+        {
+            icon: realEstateDemoIcon(24, 24),
+            title: 'Real Estate',
+            children: [
+                {
+                    title: 'Real Estate Listings',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/real-estate-listings/'
+                },
+                {
+                    title: 'Architecture',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/architecture/'
+                },
+                {
+                    title: 'Construction Blog',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/construction-blog/'
+                },
+                {
+                    title: 'Modern Architecture',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/modern-architecture/'
+                },
+                {
+                    title: 'Interior Design',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/interior-design/'
+                },
+                {
+                    title: 'Home design',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/home-design/'
+                },
+                {
+                    title: 'Construction Co',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/construction-co/'
+                },
+                {
+                    title: 'Construction',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/construction/'
+                },
+                {
+                    title: 'Architecture Group',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/architecture-group/'
+                },
+                {
+                    title: 'Real Estate Vimeo',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/real-estate-vimeo-2/'
+                }
+            ]
+        },
+        {
+            icon: shopDemoIcon(24, 24),
+            title: 'Shop Slider',
+            children: [
+                {
+                    title: 'Flower Shop',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/flower-shop/'
+                },
+                {
+                    title: 'Shop Cards',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/shop-cards/'
+                },
+                {
+                    title: 'Brew Yourself',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/brew-yourself/'
+                },
+                {
+                    title: 'Winter Shop',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/winter-shop/'
+                },
+                {
+                    title: 'Shoe’s Shop',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/shoes-shop/'
+                },
+                {
+                    title: 'Decorative Shop',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/decorative-shop/'
+                },
+                {
+                    title: 'Plants Shop',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/plants-shop/'
+                },
+                {
+                    title: 'Cosmetics',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/cosmetics/'
+                },
+                {
+                    title: 'Minimal Shop',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/minimal-shop/'
+                },
+                {
+                    title: 'Watch Showcase',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/watch-showcase/'
                 }
             ]
         },
@@ -350,12 +628,7 @@ export const demoInfo = {
                 {
                     title: 'Default',
                     type: 'iframe',
-                    url: 'https://b-slider.bplugins.com/demo/default/',
-                },
-                {
-                    title: 'Customize',
-                    type: 'iframe',
-                    url: 'https://b-slider.bplugins.com/demo/customize/'
+                    url: 'https://b-slider.bplugins.com/demo/default/'
                 },
                 {
                     title: 'Imae Slider',
@@ -363,19 +636,9 @@ export const demoInfo = {
                     url: 'https://b-slider.bplugins.com/demo/image-slider/'
                 },
                 {
-                    title: 'Content Slider',
-                    type: 'iframe',
-                    url: 'https://b-slider.bplugins.com/demo/content-slider/'
-                },
-                {
                     title: 'Animation Slider',
                     type: 'iframe',
                     url: 'https://b-slider.bplugins.com/demo/animation-slider/'
-                },
-                {
-                    title: 'Default Content',
-                    type: 'iframe',
-                    url: 'https://b-slider.bplugins.com/demo/default-content/'
                 },
                 {
                     title: 'Vertical Slide',
@@ -398,29 +661,9 @@ export const demoInfo = {
                     url: 'https://b-slider.bplugins.com/demo/mouse-drag-slide/'
                 },
                 {
-                    title: 'Dot Indicators',
-                    type: 'iframe',
-                    url: 'https://b-slider.bplugins.com/demo/dot-indicators/'
-                },
-                {
                     title: 'Image Indicators',
                     type: 'iframe',
                     url: 'https://b-slider.bplugins.com/demo/image-indicators/'
-                },
-                {
-                    title: 'Vertical Image Indicators (Right)',
-                    type: 'iframe',
-                    url: 'https://b-slider.bplugins.com/demo/vertical-image-indicators-right/'
-                },
-                {
-                    title: 'Vertical Image Indicators (Left)',
-                    type: 'iframe',
-                    url: 'https://b-slider.bplugins.com/demo/vertical-image-indicators-left/'
-                },
-                {
-                    title: 'Full Width',
-                    type: 'iframe',
-                    url: 'https://b-slider.bplugins.com/demo/full-width/'
                 }
             ]
         },
@@ -434,39 +677,9 @@ export const demoInfo = {
                     url: 'https://b-slider.bplugins.com/demo/posts-default-layout/'
                 },
                 {
-                    title: 'Carousel Layout',
-                    type: 'iframe',
-                    url: 'https://b-slider.bplugins.com/demo/posts-carousel-layout/'
-                },
-                {
-                    title: 'Grid Layout',
-                    type: 'iframe',
-                    url: 'https://b-slider.bplugins.com/demo/posts-grid-layout/'
-                },
-                {
-                    title: 'Thumbnails Layout',
-                    type: 'iframe',
-                    url: 'https://b-slider.bplugins.com/demo/posts-thumbnails-layout/'
-                },
-                {
-                    title: 'Default Layout with Image Indicators',
-                    type: 'iframe',
-                    url: 'https://b-slider.bplugins.com/demo/posts-default-layout-image-indicators/'
-                },
-                {
                     title: 'Default Layout Fade Effect',
                     type: 'iframe',
                     url: 'https://b-slider.bplugins.com/demo/posts-default-layout-fade-effect/'
-                },
-                {
-                    title: 'Carousel Layout Center Style',
-                    type: 'iframe',
-                    url: 'https://b-slider.bplugins.com/demo/posts-carosel-layout-center-style/'
-                },
-                {
-                    title: 'Carousel Layout Ticker Style',
-                    type: 'iframe',
-                    url: 'https://b-slider.bplugins.com/demo/post-carousel-layout-ticker-style/'
                 },
                 {
                     title: 'Carousel Layout Grid Style',
@@ -474,65 +687,36 @@ export const demoInfo = {
                     url: 'https://b-slider.bplugins.com/demo/posts-carosel-layout-grid-style/'
                 },
                 {
-                    title: 'Carousel Layout 3D Style',
+                    title: 'Carousel Layout Ticker Style',
                     type: 'iframe',
-                    url: 'https://b-slider.bplugins.com/demo/posts-carousel-layout-3d-style/'
+                    url: 'https://b-slider.bplugins.com/demo/post-carousel-layout-ticker-style/'
                 }
             ]
         },
         {
             icon: wooIcon(24, 24),
             title: 'WooCommerce Slider',
-            children: [{
-                title: 'Default Layout',
-                type: 'iframe',
-                url: 'https://b-slider.bplugins.com/demo/woo-default-layout/'
-            },
-            {
-                title: 'Carousel Layout',
-                type: 'iframe',
-                url: 'https://b-slider.bplugins.com/demo/woo-carousel-layout/'
-            },
-            {
-                title: 'Grid Layout',
-                type: 'iframe',
-                url: 'https://b-slider.bplugins.com/demo/woo-grid-layout/'
-            },
-            {
-                title: 'Thumbnails Layout',
-                type: 'iframe',
-                url: 'https://b-slider.bplugins.com/demo/woo-thumbnails-layout/'
-            },
-            {
-                title: 'Default Layout with Image Indicators',
-                type: 'iframe',
-                url: 'https://b-slider.bplugins.com/demo/woo-default-layout-image-indicators/'
-            },
-            {
-                title: 'Default Layout Fade Effect',
-                type: 'iframe',
-                url: 'https://b-slider.bplugins.com/demo/woo-default-layout-fade-effect/'
-            },
-            {
-                title: 'Carousel Layout Center Style',
-                type: 'iframe',
-                url: 'https://b-slider.bplugins.com/demo/woo-carousel-layout-center-style/'
-            },
-            {
-                title: 'Carousel Layout Ticker Style',
-                type: 'iframe',
-                url: 'https://b-slider.bplugins.com/demo/woo-carousel-layout-ticker-style/'
-            },
-            {
-                title: 'Carousel Layout Grid Style',
-                type: 'iframe',
-                url: 'https://b-slider.bplugins.com/demo/woo-carousel-layout-grid-style/'
-            },
-            {
-                title: 'Carousel Layout 3D Style',
-                type: 'iframe',
-                url: 'https://b-slider.bplugins.com/demo/woo-carousel-layout-3d-style/'
-            }
+            children: [
+                {
+                    title: 'Carousel Layout',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/woo-carousel-layout/'
+                },
+                {
+                    title: 'Grid Layout',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/woo-grid-layout/'
+                },
+                {
+                    title: 'Carousel Layout Center Style',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/woo-carousel-layout-center-style/'
+                },
+                {
+                    title: 'Thumbnails Layout',
+                    type: 'iframe',
+                    url: 'https://b-slider.bplugins.com/demo/woo-thumbnails-layout/'
+                }
             ]
         },
         {
@@ -540,49 +724,19 @@ export const demoInfo = {
             title: 'Video Slider',
             children: [
                 {
-                    title: 'Default Layout',
-                    type: 'iframe',
-                    url: 'https://b-slider.bplugins.com/demo/video-default-layout/'
-                },
-                {
-                    title: 'Carousel Layout',
-                    type: 'iframe',
-                    url: 'https://b-slider.bplugins.com/demo/video-carousel-layout/'
-                },
-                {
-                    title: 'Grid Layout',
-                    type: 'iframe',
-                    url: 'https://b-slider.bplugins.com/demo/video-grid-layout/'
-                },
-                {
                     title: 'Thumbnails Layout',
                     type: 'iframe',
                     url: 'https://b-slider.bplugins.com/demo/video-thumbnails-layout/'
                 },
                 {
-                    title: 'Default Layout with Image Indicators',
+                    title: 'Carousel Layout 3D Style',
                     type: 'iframe',
-                    url: 'https://b-slider.bplugins.com/demo/video-default-layout-image-indicators/'
-                },
-                {
-                    title: 'Default Layout Fade Effect',
-                    type: 'iframe',
-                    url: 'https://b-slider.bplugins.com/demo/video-default-layout-fade-effect/'
-                },
-                {
-                    title: 'Carousel Layout Center Style',
-                    type: 'iframe',
-                    url: 'https://b-slider.bplugins.com/demo/video-carousel-layout-center-style/'
+                    url: 'https://b-slider.bplugins.com/demo/video-carousel-layout-3d-style/'
                 },
                 {
                     title: 'Carousel Layout Ticker Style',
                     type: 'iframe',
                     url: 'https://b-slider.bplugins.com/demo/video-carousel-layout-ticker-style/'
-                },
-                {
-                    title: 'Carousel Layout 3D Style',
-                    type: 'iframe',
-                    url: 'https://b-slider.bplugins.com/demo/video-carousel-layout-3d-style/'
                 }
             ]
         }
@@ -824,7 +978,6 @@ export const welcomeInfo = (adminUrl) => ({
         'Buttons in Content: Add clickable buttons inside slides for CTAs and product links.',
         'Advanced Animations: Control timing, delay, and duration for text and button animations.',
         'Custom Image Indicators: Replace default indicators with images for a more branded look.',
-        'Multiple Arrow Icons: Select from different arrow styles to fit your design.',
         'Flexible Content Positioning: Place content anywhere within each slide for more control.',
         'Drag-and-Drop Reordering: Organize slides easily by dragging and dropping items.',
         'Mouse Controls: Navigate with the mouse wheel, dragging, or grab the cursor for better usability.',

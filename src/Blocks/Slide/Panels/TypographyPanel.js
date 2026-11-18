@@ -1,5 +1,4 @@
 import { __, sprintf } from '@wordpress/i18n';
-import { useEffect } from '@wordpress/element';
 import { Button, Flex, __experimentalUnitControl as UnitControl } from '@wordpress/components';
 import Typography from '../../../../../bpl-tools/Components/Typography/Typography';
 import Label from '../../../../../bpl-tools/Components/Label/Label';
@@ -10,39 +9,10 @@ const SIZE_UNITS = [
 	{ value: 'rem', label: 'rem', default: 1 },
 	{ value: 'em', label: 'em', default: 1 },
 	{ value: 'vw', label: 'vw', default: 1 },
+	{ value: 'cqw', label: 'cqw', default: 5 },
 ];
 
 const withUnit = (size) => ('number' === typeof size ? `${size}px` : size || '');
-/**
- * Puts a Google font stylesheet into the editor, once per family.
- *
- * The front end does this in `render.php`, reading the families out of the rendered markup. The
- * canvas has no such pass — the block is a live React component — so the family is loaded here
- * as it is chosen, or a font picked in the sidebar would name itself correctly and still be
- * drawn in the theme's own face until the page was published.
- *
- * Appended to the document that owns the sidebar, and left there: the canvas is an iframe in
- * current WordPress, and a stylesheet added to the parent still reaches it through the editor's
- * own style-copying. Removing it on unmount would take the font away from any other layer using
- * it, so each family is added once and kept for the session.
- */
-const loadEditorFont = (family) => {
-	if (!family || 'Default' === family) {
-		return;
-	}
-
-	const id = `bsb-font-${family.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
-
-	if (document.getElementById(id)) {
-		return;
-	}
-
-	const link = document.createElement('link');
-	link.id = id;
-	link.rel = 'stylesheet';
-	link.href = `https://fonts.googleapis.com/css2?family=${family.split(' ').join('+')}&display=swap`;
-	document.head.appendChild(link);
-};
 
 /**
  * A font for one layer's own text.
@@ -66,24 +36,18 @@ const TypographyPanel = ({ layer, update, device = 'desktop' }) => {
 	const DEVICE_NAMES = { desktop: __('Desktop', 'b-slider'), tablet: __('Tablet', 'b-slider'), mobile: __('Mobile', 'b-slider') };
 	const setSize = (val) => update('typo', { ...typo, fontSize: { desktop: null, tablet: null, mobile: null, ...sizes, [device]: val || null } }, true);
 
-	// On every render rather than only on change, so a font already saved is loaded when the
-	// block is selected again — `loadEditorFont` is a no-op once the link is there.
-	useEffect(() => loadEditorFont(typo.fontFamily), [typo.fontFamily]);
-
+	// The font itself loads with the layer (LayerControls), so it shows without this panel open.
 	return <>
 		<Typography
 			label={__('Font', 'b-slider')}
 			value={typo}
-			onChange={val => {
-				loadEditorFont(val?.fontFamily);
-				update('typo', val, true);
-			}}
+			onChange={val => update('typo', val, true)}
 		/>
 
 		<Flex className='mt15 bsb-device-place' align='center'>
 			<Label className=''>
 				{__('Font size', 'b-slider')}
-				<HelpTip>{__('Follows the device shown in the editor (Desktop, Tablet, Mobile). Empty takes the size of the device above. With Auto-scale on, a Tablet or Mobile size is the size seen on that screen.', 'b-slider')}</HelpTip>
+				<HelpTip>{__('Follows the device shown in the editor (Desktop, Tablet, Mobile). Empty takes the size of the device above. With Auto-scale on, a Tablet or Mobile size is the size seen on that screen. cqw is a percentage of the slider’s width, so the text grows and shrinks with the slider; leave Auto-scale off with it, or the text shrinks twice.', 'b-slider')}</HelpTip>
 			</Label>
 
 			{'desktop' !== device && <span className='bsb-device-badge'>{DEVICE_NAMES[device]}</span>}

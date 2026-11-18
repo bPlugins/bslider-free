@@ -1,6 +1,7 @@
 import { __, sprintf } from '@wordpress/i18n';
-import { ToggleControl } from '@wordpress/components';
+import { ToggleControl, __experimentalNumberControl as NumberControl } from '@wordpress/components';
 import { TipToggle } from '../../../Components/Panel/TipField';
+import HelpTip from '../../../Components/Panel/HelpTip';
 
 /**
  * Which screens a layer appears on, and which of them it animates on.
@@ -32,6 +33,15 @@ const ResponsivePanel = ({ layer, update }) => {
 		[map]: { ...(visibility[map] || {}), [key]: value },
 	});
 
+	// Empty clears a device; Mobile left empty follows Tablet.
+	const setOrder = (key, raw) => {
+		const value = '' === raw || undefined === raw || null === raw ? undefined : parseInt(raw, 10);
+		const next = { ...(layer.order || {}), [key]: Number.isInteger(value) ? value : undefined };
+
+		Object.keys(next).forEach(name => undefined === next[name] && delete next[name]);
+		update('order', Object.keys(next).length ? next : undefined, true);
+	};
+
 	// Nothing to switch off where nothing moves. Checked against the effects themselves rather
 	// than a saved flag, so a layer that loses its animation stops offering the choice too.
 	const hasMotion = Boolean(layer.entry?.effect || layer.loop?.effect || layer.hover?.effect);
@@ -45,6 +55,18 @@ const ResponsivePanel = ({ layer, update }) => {
 			checked={Boolean(hideOn[key])}
 			onChange={val => setFlag('hideOn', key, val)}
 			tip={sprintf(__('The layer is not drawn at all on %s.', 'b-slider'), label)}
+		/>)}
+
+		{!layer.position?.absolute && ['tablet', 'mobile'].map(key => <NumberControl
+			key={`order-${key}`}
+			className='mt15'
+			label={<>
+				{'tablet' === key ? __('Order on Tablet', 'b-slider') : __('Order on Mobile', 'b-slider')}
+				<HelpTip>{__('1 comes first, then 2, and so on, among the blocks beside it; blocks with no number follow, in the order they are placed. For text before the photo on phones, give the text 1 on Mobile. Mobile left empty follows Tablet.', 'b-slider')}</HelpTip>
+			</>}
+			value={layer.order?.[key] ?? ''}
+			onChange={raw => setOrder(key, raw)}
+			placeholder={'mobile' === key && Number.isInteger(layer.order?.tablet) ? String(layer.order.tablet) : __('As placed', 'b-slider')}
 		/>)}
 
 		{hasMotion && devices.map(({ key, label }) => <ToggleControl

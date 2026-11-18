@@ -506,6 +506,10 @@
 			"type": "boolean",
 			"default": false
 		},
+		"contentLayout": {
+			"type": "string",
+			"default": "overlay"
+		},
 		"cardBgColor": {
 			"type": "string",
 			"default": ""
@@ -745,6 +749,14 @@
 				"bg": "rgba(17, 17, 17, 0.55)"
 			}
 		},
+		"arrowHov": {
+			"type": "object",
+			"default": {}
+		},
+		"arrowNext": {
+			"type": "object",
+			"default": {}
+		},
 		"arrowWidth": {
 			"type": "string",
 			"default": "50px"
@@ -821,6 +833,24 @@
 			"type": "string",
 			"default": "style1"
 		},
+		"arrowAnim": {
+			"type": "string",
+			"default": ""
+		},
+		"arrowAnimOn": {
+			"type": "string",
+			"default": "view"
+		},
+		"isRtl": {
+			"type": "boolean",
+			"default": false
+		},
+		"slideSpeed": {
+			"type": "number"
+		},
+		"tickerSpeed": {
+			"type": "number"
+		},
 		"indicator": {
 			"type": "object",
 			"default": {
@@ -876,6 +906,14 @@
 			"type": "object",
 			"default": {}
 		},
+		"sliderWidth": {
+			"type": "object",
+			"default": {}
+		},
+		"sliderBorder": {
+			"type": "object",
+			"default": {}
+		},
 		"borderRadius": {
 			"type": "object",
 			"default": {
@@ -893,6 +931,10 @@
 				"bottom": "0px",
 				"left": "0px"
 			}
+		},
+		"firstReveal": {
+			"type": "string",
+			"default": ""
 		},
 		"isLazyLoad": {
 			"type": "boolean",

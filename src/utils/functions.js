@@ -1,7 +1,6 @@
 
 import { produce } from 'immer';
 
-const $ = jQuery;
 
 export const adminUrl = () => {
     return window.location.origin + '/wp-admin/edit.php?post_type=bsb&page=b-slider#/pricing';
@@ -63,6 +62,45 @@ export const updateArrayItem = (list, index, type, val, childType = false) => pr
 export const strToIntArr = str => str?.trim().split(',').map(id => id ? parseInt(id) : id);
 export const filterSelected = (taxonomy, selected) => taxonomy?.map(tax => tax.id)?.filter(tax => (selected || []).indexOf(tax) !== -1);
 
+/** Post Types text placement: 'overlay', 'below' or 'beside'; Default and Carousel only. */
+export const postContentLayout = ({ sourceType, layoutType, contentLayout } = {}) => (
+    'posts' === sourceType && ['default', 'carousel'].includes(layoutType) && ['below', 'beside'].includes(contentLayout) ? contentLayout : 'overlay'
+);
+
+/** Slide change time in ms (100–3000), or undefined to keep the layout's own. */
+export const slideSpeedMs = ({ slideSpeed } = {}) => {
+    const ms = Number(slideSpeed);
+
+    return Number.isFinite(ms) && ms > 0 ? Math.min(Math.max(ms, 100), 3000) : undefined;
+};
+
+/** Ticker: ms one slide takes to pass (1–30 s), 9 s when unset. */
+export const tickerSpeedMs = ({ tickerSpeed } = {}) => {
+    const s = Number(tickerSpeed);
+
+    return (Number.isFinite(s) && s > 0 ? Math.min(Math.max(s, 1), 30) : 9) * 1000;
+};
+
+/** Right-to-left only where slides move sideways: Default, Carousel and Thumbnails, not vertical. */
+export const isRtlSlider = ({ isRtl, layoutType, direction, carousel = {}, sourceType } = {}) => {
+    if (!isRtl) {
+        return false;
+    }
+
+    const layout = 'blocks' === sourceType && 'carousel' !== layoutType ? 'default' : layoutType;
+    const style = carousel?.carouselStyle || 'standard';
+
+    if ('default' === layout) {
+        return 'vertical' !== direction;
+    }
+
+    if ('carousel' === layout) {
+        return !(['standard', 'ticker'].includes(style) && 'vertical' === carousel?.caroDirection);
+    }
+
+    return 'thumbnails' === layout && 'vertical' !== carousel?.caroDirection;
+};
+
 export const checkDirection = (val) => {
 
     if (val === 'center center') {
@@ -93,15 +131,45 @@ export const tabController = () => {
     }, 500);
 };
 
-// slide on mouse wheel
-export function whileEvent(e) {
-    if (e.originalEvent.wheelDelta / 120 > 0) {
-        $(this).carousel('next');
-    }
-    else {
-        $(this).carousel('prev');
-    }
-}
+/** Wheel changes slides and keeps the page still; at the first or last slide the page scrolls on. Returns the unbind. */
+export const bindSlideWheel = (root, { step, rtl = false, lockMs = 800 }) => {
+    let lockedUntil = 0;
+
+    const onWheel = e => {
+        // Pinch zoom on a trackpad arrives as a wheel with ctrlKey.
+        if (e.ctrlKey) {
+            return;
+        }
+
+        const sideways = Math.abs(e.deltaX) > Math.abs(e.deltaY);
+        const delta = sideways ? (rtl ? -e.deltaX : e.deltaX) : e.deltaY;
+
+        if (!delta) {
+            return;
+        }
+
+        const slides = ownCarouselItems(root);
+        const at = slides.findIndex(item => item.classList.contains('active'));
+
+        if (at > -1 && (delta > 0 ? at === slides.length - 1 : 0 === at)) {
+            return;
+        }
+
+        e.preventDefault();
+
+        // A trackpad sends a burst of small wheels; one slide per burst.
+        if (Date.now() < lockedUntil) {
+            return;
+        }
+
+        lockedUntil = Date.now() + lockMs;
+        step(delta > 0 ? 1 : -1);
+    };
+
+    root.addEventListener('wheel', onWheel, { passive: false });
+
+    return () => root.removeEventListener('wheel', onWheel);
+};
 
 // Mouse Drag slide 
 var oldx = 0;
@@ -110,12 +178,13 @@ export function slideStart(event) {
 }
 
 export function slideEnd(event) {
-    if (event.pageX < oldx) {
-        jQuery(this).carousel('next');
+    // Right to left: dragging right brings the next slide.
+    const forward = this.closest?.('.bsb-rtl') ? event.pageX > oldx : event.pageX < oldx;
+
+    if (event.pageX === oldx) {
+        return;
     }
-    else if (event.pageX > oldx) {
-        jQuery(this).carousel('prev');
-    }
+    jQuery(this).carousel(forward ? 'next' : 'prev');
 }
 
 

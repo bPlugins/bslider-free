@@ -17,6 +17,17 @@ const fontSize = (scope, device) => `
 	${scope} .bsb-layer-scaled .bsb-abs.bsb-layer-typo[style*="--bsb-font-size-${device}"],
 	${scope} .bsb-layer-scaled .bsb-abs .bsb-layer-typo[style*="--bsb-font-size-${device}"] { font-size: calc(var(--bsb-font-size-${device}) / var(--bsb-layer-scale, 1)) !important; }`;
 
+const order = (scope, device) => {
+	const marks = 'mobile' === device ? '> .bsb-order-tablet, > .bsb-order-mobile' : '> .bsb-order-tablet';
+	const own = ('mobile' === device ? ['tablet', 'mobile'] : ['tablet'])
+		.map(name => `${scope} :has(${marks}) > .bsb-order-${name} { order: var(--bsb-order-${name}); }`).join('\n\t');
+
+	return `
+	${scope} :has(${marks}) > * { order: 9999; }
+	${own}
+	${scope} :is(.bsb-slide-content, .is-layout-flow, .is-layout-constrained):not(.is-layout-flex, .is-layout-grid):has(${marks}) { display: flex; flex-direction: column; }`;
+};
+
 export const deviceRulesCSS = (scope, attributes = {}) => `
 	${place(scope, 'desktop')}
 
@@ -24,12 +35,14 @@ export const deviceRulesCSS = (scope, attributes = {}) => `
 		${columns(scope, 'tablet', attributes.columns?.tablet)}
 		${fontSize(scope, 'tablet')}
 		${place(scope, 'tablet')}
+		${order(scope, 'tablet')}
 	}
 
 	@media (max-width: 576px) {
 		${columns(scope, 'mobile', attributes.columns?.mobile)}
 		${fontSize(scope, 'mobile')}
 		${place(scope, 'mobile')}
+		${order(scope, 'mobile')}
 	}
 
 	@media (min-width: 769px) {

@@ -46,6 +46,18 @@
 		"verticalAlign": {
 			"type": "string",
 			"default": ""
+		},
+		"kenBurns": {
+			"type": "boolean",
+			"default": false
+		},
+		"kenBurnsDirection": {
+			"type": "string",
+			"default": "in"
+		},
+		"kenBurnsDuration": {
+			"type": "number",
+			"default": 8
 		}
 	},
 	"supports": {

@@ -8,7 +8,8 @@ import { ColorControl } from '../../../../../../bpl-tools/Components/ColorContro
 import ColorsControl from '../../../../../../bpl-tools/Components/ColorsControl/ColorsControl';
 import Label from '../../../../../../bpl-tools/Components/Label/Label';
 import Typography from '../../../../../../bpl-tools/Components/Typography/Typography';
-import { emUnit, perUnit, pxUnit, styles, vhUnit } from '../../../../utils/options';
+import { arrowAnimOnOpt, arrowAnimOpt, emUnit, perUnit, pxUnit, styles, vhUnit } from '../../../../utils/options';
+import HelpTip from '../../../Panel/HelpTip';
 import ProNotice from '../../../Panel/ProNotice';
 import ProPanel from '../../../Panel/ProPanel';
 import { PRO_FEATURES } from '../../../../utils/pro-features';
@@ -20,7 +21,7 @@ const DefaultStyle = ({ attributes, setAttributes, updateObject }) => {
     const [DArrowWidth, setDArrowWidth] = useState('desktop');
     const [DArrowHeight, setDArrowHeight] = useState('desktop');
 
-    const { layoutType, sourceType, titleTypo, titleColor, descTypo, descColor, titleMargin, descMargin, SliderOverly, borderRadius, arrowRadius, arrow, indicator, arrowBorder, deviceArrowWidth, arrowHeight, deviceArrowHeight, arrowWidth, arrowOffset, arrowPlacement = 'split', arrowGroupPosition = 'center right', arrowGap = '10px', arrowGroupDirection = 'auto', arrowOffsetY = '', arrowHideOn = {} } = attributes;
+    const { layoutType, sourceType, titleTypo, titleColor, descTypo, descColor, titleMargin, descMargin, SliderOverly, borderRadius, arrowRadius, arrow, indicator, arrowBorder, deviceArrowWidth, arrowHeight, deviceArrowHeight, arrowWidth, arrowOffset, arrowPlacement = 'split', arrowGroupPosition = 'center right', arrowGap = '10px', arrowGroupDirection = 'auto', arrowOffsetY = '', arrowHideOn = {}, arrowHov = {}, arrowNext = {}, arrowAnim = '', arrowAnimOn = 'view' } = attributes;
 
     return <>
         {/* Hidden for `blocks` at the user's direction. Border Radius inside does still reach
@@ -34,6 +35,8 @@ const DefaultStyle = ({ attributes, setAttributes, updateObject }) => {
             <small className="bsb_field_hint">{__('Laid over the image, under the title and description. Use a transparent colour to keep the image readable.', 'b-slider')}</small>
 
             <BoxControl className='mt20' label={__('Border Radius', 'b-slider')} values={borderRadius} onChange={val => setAttributes({ borderRadius: val })} resetValues={{ top: '0px', right: '0px', bottom: '0px', left: '0px' }} units={[pxUnit(3), emUnit(2)]} />
+
+            <BorderControl className='mt20' label={__('Border', 'b-slider')} value={attributes.sliderBorder} onChange={val => setAttributes({ sliderBorder: val || {} })} />
             <ProNotice features={PRO_FEATURES.sliderStyle} />
 
         </PanelBody>
@@ -104,6 +107,13 @@ const DefaultStyle = ({ attributes, setAttributes, updateObject }) => {
                 <ColorsControl className='mt10' label={__('Background', 'b-slider')} value={arrow}
                     onChange={val => setAttributes({ arrow: { ...arrow, ...val } })} defaults={{ bg: 'transparent' }} isColor={false} />
 
+                {/* Empty = the next arrow uses Background. */}
+                <ColorsControl className='mt10' label={__('Next Arrow Background', 'b-slider')} value={arrowNext}
+                    onChange={val => setAttributes({ arrowNext: { ...arrowNext, ...val } })} defaults={{ bg: '' }} isColor={false} />
+
+                <ColorsControl className='mt10' label={__('Hover Colors', 'b-slider')} value={arrowHov}
+                    onChange={val => setAttributes({ arrowHov: val })} defaults={{ color: '', bg: '' }} />
+
                 <BorderControl className='mt10' label={__("Border", "b-slider")} value={arrowBorder} onChange={val => setAttributes({ arrowBorder: val })} />
 
                 <BoxControl className='mt10' label={__("Border Radius", 'b-slider')} values={arrowRadius} onChange={val => setAttributes({ arrowRadius: val })} resetValues={{ top: '0px', left: '0px', right: '0px', bottom: '0px' }} />
@@ -144,6 +154,14 @@ const DefaultStyle = ({ attributes, setAttributes, updateObject }) => {
                     <ToggleControl className='mt10' label={__('Hide on Tablet', 'b-slider')} checked={Boolean(arrowHideOn?.tablet)} onChange={val => setAttributes({ arrowHideOn: { ...arrowHideOn, tablet: val } })} />
                     <ToggleControl className='mt10' label={__('Hide on Mobile', 'b-slider')} checked={Boolean(arrowHideOn?.mobile)} onChange={val => setAttributes({ arrowHideOn: { ...arrowHideOn, mobile: val } })} />
                 </>}
+
+                <SelectControl className='mt20' label={__('Entrance', 'b-slider')} labelPosition='left' value={arrowAnim} options={arrowAnimOpt} onChange={val => setAttributes({ arrowAnim: val })} />
+
+                {arrowAnim && <SelectControl className='mt10' label={<>{__('Play', 'b-slider')} <HelpTip label={__('About arrow entrance', 'b-slider')}>
+                    {'hover' === arrowAnimOn
+                        ? __('The arrows stay hidden until the mouse is over the slider. On touch screens they are always shown.', 'b-slider')
+                        : __('The arrows come in once, the first time the slider scrolls into view.', 'b-slider')}
+                </HelpTip></>} labelPosition='left' value={arrowAnimOn} options={arrowAnimOnOpt} onChange={val => setAttributes({ arrowAnimOn: val })} />}
 
             </PanelBody>}
         </>}

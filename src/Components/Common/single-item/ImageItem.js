@@ -131,6 +131,13 @@ const ImageItem = (props) => {
     }, null);
     const descEl = showDesc && desc && <p className={classNames.desc || ''} dangerouslySetInnerHTML={{ __html: desc }} />;
 
+    // Wrapped in a box when the content background is "Box behind the text".
+    const captionParts = <>
+        {!isPlaced(attributes, 'title') && titleEl}
+
+        {!isPlaced(attributes, 'desc') && descEl}
+    </>;
+
     return <div className={`item ${index === 0 ? 'active' : ''} ${isLightbox ? 'is-linked' : ''} ${classNames.item || ''}`}>
         <div className="img">
             {img?.url && <LightboxPicture enabled={isLightbox} clientId={clientId} href={safeMediaUrl(img.url)} caption={lbCaption} attributes={attributes} isBackEnd={isBackEnd} isSelected={isSelected}>
@@ -140,9 +147,7 @@ const ImageItem = (props) => {
 
         <div className={classNames.contentArea || 'content-area'}>
             <div className={`captionContent ${classNames.captionContent || ''}`}>
-                {!isPlaced(attributes, 'title') && titleEl}
-
-                {!isPlaced(attributes, 'desc') && descEl}
+                {'box' === attributes?.caption?.background ? <div className='bsb-caption-box'>{captionParts}</div> : captionParts}
             </div>
         </div>
 
