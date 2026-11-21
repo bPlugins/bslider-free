@@ -18,6 +18,25 @@ const openedFromSlider = () => {
 	return 'bsb/slider' === editor.getBlockName(clientId) || 0 < editor.getBlockParentsByBlockName(clientId, 'bsb/slider').length;
 };
 
+// Unsplash photos stay on Unsplash: a library-less attachment that carries only the hotlink.
+const hotlinked = (media, item) => {
+	const size = { url: item.url, width: item.width, height: item.height, orientation: item.width >= item.height ? 'landscape' : 'portrait' };
+
+	return new media.model.Attachment({
+		url: item.url,
+		alt: item.alt,
+		title: item.title,
+		caption: '',
+		filename: item.title,
+		type: 'image',
+		subtype: 'jpeg',
+		mime: 'image/jpeg',
+		width: item.width,
+		height: item.height,
+		sizes: { full: size },
+	});
+};
+
 const addStockTab = () => {
 	const media = window.wp?.media;
 	const Select = media?.view?.MediaFrame?.Select;
@@ -74,8 +93,11 @@ const addStockTab = () => {
 		},
 
 		async bsbStockSelect(item) {
-			const attachment = media.attachment(item.id);
-			await attachment.fetch();
+			const attachment = item.hotlink ? hotlinked(media, item) : media.attachment(item.id);
+
+			if (!item.hotlink) {
+				await attachment.fetch();
+			}
 
 			const state = this.state();
 			const selection = state.get('selection');

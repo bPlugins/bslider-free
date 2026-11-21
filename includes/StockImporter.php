@@ -15,6 +15,8 @@ if ( ! class_exists( __NAMESPACE__ . '\StockImporter' ) ) {
             'pixabay'   => '_b_slider_pixabay_id',
         ];
 
+        const HOTLINK_WIDTH = 2400;
+
         const LICENSES = [ 'pdm', 'cc0' ];
 
         const MIMES = [
@@ -37,7 +39,7 @@ if ( ! class_exists( __NAMESPACE__ . '\StockImporter' ) ) {
                     'source' => [
                         'type'    => 'string',
                         'default' => 'openverse',
-                        'enum'    => [ 'openverse', 'pixabay' ],
+                        'enum'    => [ 'openverse', 'unsplash', 'pixabay' ],
                     ],
                     'id'     => [
                         'type'     => 'string',
@@ -52,17 +54,17 @@ if ( ! class_exists( __NAMESPACE__ . '\StockImporter' ) ) {
                 'callback'            => [ $this, 'search' ],
                 'permission_callback' => [ __CLASS__, 'can_upload' ],
                 'args'                => [
-                    'source' => [
+                    'source'      => [
                         'type'     => 'string',
                         'required' => true,
-                        'enum'     => [ 'pixabay' ],
+                        'enum'     => [ 'unsplash', 'pixabay' ],
                     ],
-                    'q'      => [
+                    'q'           => [
                         'type'              => 'string',
                         'required'          => true,
                         'sanitize_callback' => 'sanitize_text_field',
                     ],
-                    'page'   => [
+                    'page'        => [
                         'type'    => 'integer',
                         'default' => 1,
                         'minimum' => 1,
@@ -88,8 +90,16 @@ if ( ! class_exists( __NAMESPACE__ . '\StockImporter' ) ) {
             return 'bSlider/' . $version . ' (+https://bplugins.com)';
         }
 
+        private static function is_unsplash_image( $url ) {
+            return 'https' === wp_parse_url( $url, PHP_URL_SCHEME ) && 'images.unsplash.com' === wp_parse_url( $url, PHP_URL_HOST );
+        }
+
         private static function is_pixabay_image( $url ) {
             return 'https' === wp_parse_url( $url, PHP_URL_SCHEME ) && in_array( wp_parse_url( $url, PHP_URL_HOST ), [ 'pixabay.com', 'cdn.pixabay.com' ], true );
+        }
+
+        private static function is_source_image( $source, $url ) {
+            return 'pixabay' === $source ? self::is_pixabay_image( $url ) : self::is_unsplash_image( $url );
         }
 
         private static function remote( $method, $url, $args = [] ) {
@@ -121,10 +131,12 @@ if ( ! class_exists( __NAMESPACE__ . '\StockImporter' ) ) {
         public function search( \WP_REST_Request $request ) {
             $source = (string) $request->get_param( 'source' );
 
-            $data = self::remote( 'GET', add_query_arg( [
+            $query = [
                 'q'    => rawurlencode( (string) $request->get_param( 'q' ) ),
                 'page' => (int) $request->get_param( 'page' ),
-            ], self::proxy() . '/' . $source . '/search' ) );
+            ];
+
+            $data = self::remote( 'GET', add_query_arg( $query, self::proxy() . '/' . $source . '/search' ) );
 
             if ( is_wp_error( $data ) ) {
                 return $data;
@@ -136,7 +148,7 @@ if ( ! class_exists( __NAMESPACE__ . '\StockImporter' ) ) {
                 $id        = (string) ( $photo['id'] ?? '' );
                 $thumbnail = (string) ( $photo['thumbnail'] ?? '' );
 
-                if ( ! preg_match( '/^[A-Za-z0-9_-]{1,40}$/', $id ) || ! self::is_pixabay_image( $thumbnail ) ) {
+                if ( ! preg_match( '/^[A-Za-z0-9_-]{1,40}$/', $id ) || ! self::is_source_image( $source, $thumbnail ) ) {
                     continue;
                 }
 
@@ -158,6 +170,10 @@ if ( ! class_exists( __NAMESPACE__ . '\StockImporter' ) ) {
         public function import( \WP_REST_Request $request ) {
             $source = (string) $request->get_param( 'source' );
             $id     = (string) $request->get_param( 'id' );
+
+            if ( 'unsplash' === $source ) {
+                return self::unsplash_hotlink( $id );
+            }
 
             if ( 'pixabay' === $source ) {
                 if ( ! preg_match( '/^[0-9]{1,12}$/', $id ) ) {
@@ -252,6 +268,49 @@ if ( ! class_exists( __NAMESPACE__ . '\StockImporter' ) ) {
                 'title'       => $title,
                 'description' => self::pixabay_credit( $photo, $creator ),
             ];
+        }
+
+        private static function unsplash_hotlink( $id ) {
+            $photo = self::remote( 'POST', self::proxy() . '/unsplash/download', [
+                'headers' => [ 'Accept' => 'application/json', 'Content-Type' => 'application/json' ],
+                'body'    => wp_json_encode( [ 'id' => $id ] ),
+            ] );
+
+            if ( is_wp_error( $photo ) ) {
+                return $photo;
+            }
+
+            if ( empty( $photo['url'] ) || ! self::is_unsplash_image( $photo['url'] ) ) {
+                return new \WP_Error( 'bsb_stock_missing', __( 'This photo is no longer available.', 'b-slider' ), [ 'status' => 404 ] );
+            }
+
+            $creator = self::clean( $photo['creator'] ?? '' );
+            $title   = self::clean( $photo['title'] ?? '' );
+            $width   = max( 0, (int) ( $photo['width'] ?? 0 ) );
+            $height  = max( 0, (int) ( $photo['height'] ?? 0 ) );
+
+            if ( $width > self::HOTLINK_WIDTH ) {
+                $height = (int) round( $height * self::HOTLINK_WIDTH / $width );
+                $width  = self::HOTLINK_WIDTH;
+            }
+
+            if ( '' === $title && $creator ) {
+                /* translators: %s: photographer name. */
+                $title = sprintf( __( 'Photo by %s', 'b-slider' ), $creator );
+            }
+
+            return rest_ensure_response( [
+                'id'         => 0,
+                'hotlink'    => true,
+                'url'        => esc_url_raw( $photo['url'] ),
+                'alt'        => $title,
+                'title'      => $title,
+                'caption'    => '',
+                'width'      => $width,
+                'height'     => $height,
+                'creator'    => $creator,
+                'creatorUrl' => esc_url_raw( $photo['creatorUrl'] ?? '' ),
+            ] );
         }
 
         private static function clean( $text ) {

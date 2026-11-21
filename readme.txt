@@ -338,7 +338,7 @@ Please report security bugs found in the source code of the bSlider plugin throu
 == Changelog ==
 
 = Next release =
-* New: Stock Images tab in the media window while a slider is selected: search free photos from Openverse and Pixabay and add one to your Media Library in a click. (Pro) Unsplash photos, and orientation and colour filters.
+* New: Stock Images tab in the media window while a slider is selected: search free photos from Openverse, Pixabay and Unsplash and use one in a click. (Pro) Orientation and colour filters.
 
 = 2.3.0 - 19 November, 2026 =
 * Security: Users who may not add scripts to posts (such as Contributors and Authors) can no longer add HTML that the slider script would run on the page. If your site uses a page cache, clear it after updating.
@@ -534,12 +534,14 @@ Used by the Stock Images tab in the media window, only when you search there or 
 * **Endpoint:** `https://api.openverse.org/v1/images/`. The photo itself is downloaded from the site Openverse lists as its source, and the tab's thumbnails load from Openverse.
 * **Terms:** https://docs.openverse.org/terms_of_service.html — **Privacy:** https://wordpress.org/about/privacy/
 
-= Pixabay (through the bPlugins stock service) =
-Used by the Stock Images tab when you choose Pixabay, only when you search there or pick a photo.
+= Pixabay and Unsplash (through the bPlugins stock service) =
+Used by the Stock Images tab when you choose Pixabay or Unsplash, only when you search there or pick a photo.
 
-* **What is sent:** your server sends the search words and page number, or the ID of the photo you pick, to the bPlugins stock service, which asks Pixabay with bPlugins' own API key. No key of yours and nothing about your visitors is sent; the service sees your server's IP address, which it uses only to limit how many requests one site can make. The photo you pick is downloaded from Pixabay into your Media Library, and the tab's thumbnails load from Pixabay.
-* **Endpoints:** `https://api.bplugins.com/wp-json/bpl-stock/v1/`, `https://pixabay.com` and `https://cdn.pixabay.com`
-* **Terms:** https://bplugins.com/terms-of-service/ and https://pixabay.com/service/terms/ — **Privacy:** https://bplugins.com/privacy-policy/ and https://pixabay.com/service/privacy/
+* **What is sent:** your server sends the search words and page number, or the ID of the photo you pick, to the bPlugins stock service, which asks Pixabay or Unsplash with bPlugins' own API keys. No key of yours and nothing about your visitors is sent; the service sees your server's IP address, which it uses only to limit how many requests one site can make. The tab's thumbnails load from Pixabay and Unsplash.
+* **Pixabay:** the photo you pick is downloaded from Pixabay into your Media Library.
+* **Unsplash:** the photo you pick is not copied to your site. Unsplash asks for its photos to be shown from its own servers, so your visitors' browsers load them from `https://images.unsplash.com`, and Unsplash is told the photo was used.
+* **Endpoints:** `https://api.bplugins.com/wp-json/bpl-stock/v1/`, `https://pixabay.com`, `https://cdn.pixabay.com` and `https://images.unsplash.com`
+* **Terms:** https://bplugins.com/terms-of-service/, https://pixabay.com/service/terms/ and https://unsplash.com/terms — **Privacy:** https://bplugins.com/privacy-policy/, https://pixabay.com/service/privacy/ and https://unsplash.com/privacy
 
 == Third-Party Libraries ==
 

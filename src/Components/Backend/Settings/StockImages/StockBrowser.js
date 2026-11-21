@@ -3,20 +3,20 @@ import { useEffect, useState } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
 import { Button, ExternalLink, Notice, SearchControl, SelectControl, Spinner } from '@wordpress/components';
 import useStockSearch from '../../../../hooks/useStockSearch';
-import ProNotice from '../../../Panel/ProNotice';
-import { PRO_FEATURES } from '../../../../utils/pro-features';
 import './style.scss';
 
+const UNSPLASH = 'https://unsplash.com/?utm_source=bslider&utm_medium=referral';
 const PIXABAY = 'https://pixabay.com/';
 
 const LICENSES = {
 	openverse: { url: 'https://creativecommons.org/publicdomain/zero/1.0/', label: 'CC0 / Public Domain' },
+	unsplash: { url: 'https://unsplash.com/license', label: 'Unsplash License' },
 	pixabay: { url: 'https://pixabay.com/service/license-summary/', label: 'Pixabay Content License' },
 };
 
 const SOURCES = [
 	{ value: 'openverse', label: 'Openverse' },
-	{ value: 'unsplash', label: 'Unsplash', pro: true },
+	{ value: 'unsplash', label: 'Unsplash' },
 	{ value: 'pixabay', label: 'Pixabay' },
 ];
 
@@ -52,13 +52,8 @@ const StockBrowser = ({ onImported, multiple = false }) => {
 	const [added, setAdded] = useState([]);
 	const { items, loading, error, term, search, loadMore, hasMore } = useStockSearch();
 
-	const locked = 'unsplash' === from;
 
 	useEffect(() => {
-		if (locked) {
-			search('', from);
-			return;
-		}
 		const timer = setTimeout(() => search(query, from), 500);
 		return () => clearTimeout(timer);
 	}, [query, from]);
@@ -98,7 +93,6 @@ const StockBrowser = ({ onImported, multiple = false }) => {
 						disabled={!!importing}
 					>
 						{source.label}
-						{source.pro && <span className='bsbStockPro'>{__('Pro', 'b-slider')}</span>}
 					</Button>)}
 				</div>
 
@@ -137,12 +131,10 @@ const StockBrowser = ({ onImported, multiple = false }) => {
 			/>
 		</div>
 
-		{locked && <ProNotice className='bsbStockNotice' features={PRO_FEATURES.stockUnsplash} />}
-
 		{error && <Notice status='error' isDismissible={false} className='bsbStockNotice'>{error}</Notice>}
 		{importError && <Notice status='error' isDismissible={false} className='bsbStockNotice'>{importError}</Notice>}
 
-		{!locked && !term && !loading && <p className='bsbStockEmpty'>{__('Type a word to find free photos you can use anywhere.', 'b-slider')}</p>}
+		{!term && !loading && <p className='bsbStockEmpty'>{__('Type a word to find free photos you can use anywhere.', 'b-slider')}</p>}
 
 		{term && !loading && !error && !items.length && <p className='bsbStockEmpty'>{noResults}</p>}
 
@@ -182,16 +174,18 @@ const StockBrowser = ({ onImported, multiple = false }) => {
 			<Button variant='secondary' onClick={loadMore} disabled={!!importing}>{__('Load more', 'b-slider')}</Button>
 		</div>}
 
-		{!locked && <p className='bsbStockCredit'>
-			{'pixabay' === from
-				? <>{__('Images from', 'b-slider')} <ExternalLink href={PIXABAY}>Pixabay</ExternalLink>.</>
-				: <>{__('Public domain photos (CC0 / PDM) from', 'b-slider')} <ExternalLink href='https://openverse.org/'>Openverse</ExternalLink>.</>}
-			{' '}{multiple ? __('Click photos to add them to your Media Library and to this pick.', 'b-slider') : __('Clicking a photo adds it to your Media Library and selects it.', 'b-slider')}
-		</p>}
+		<p className='bsbStockCredit'>
+			{'unsplash' === from && <>{__('Photos from', 'b-slider')} <ExternalLink href={UNSPLASH}>Unsplash</ExternalLink>.</>}
+			{'pixabay' === from && <>{__('Images from', 'b-slider')} <ExternalLink href={PIXABAY}>Pixabay</ExternalLink>.</>}
+			{'openverse' === from && <>{__('Public domain photos (CC0 / PDM) from', 'b-slider')} <ExternalLink href='https://openverse.org/'>Openverse</ExternalLink>.</>}
+			{' '}{'unsplash' === from
+				? (multiple ? __('Click photos to add them to this pick. They are shown straight from Unsplash.', 'b-slider') : __('Clicking a photo uses it straight from Unsplash.', 'b-slider'))
+				: (multiple ? __('Click photos to add them to your Media Library and to this pick.', 'b-slider') : __('Clicking a photo adds it to your Media Library and selects it.', 'b-slider'))}
+		</p>
 
-		{!locked && <p className='bsbStockLicense'>
+		<p className='bsbStockLicense'>
 			{__('Free to use, also for commercial work. No credit needed.', 'b-slider')} <ExternalLink href={LICENSES[from].url}>{LICENSES[from].label}</ExternalLink>
-		</p>}
+		</p>
 	</div>;
 };
 

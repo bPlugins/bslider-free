@@ -23,7 +23,6 @@ export const PRO_FEATURES = {
 	postQuery: [__('Include', 'b-slider'), __('Exclude', 'b-slider'), __('Current Post', 'b-slider')],
 	acfQuery: [__('Sort by ACF Field', 'b-slider'), __('Filter by ACF Field', 'b-slider')],
 	title: [__('Custom HTML wrapper tags (e.g., h1-h6)', 'b-slider')],
-	stockUnsplash: [__('Unsplash photos in the Stock Images tab', 'b-slider')],
 
 	/**
 	 * The icon beside an ACF field or a badge.
