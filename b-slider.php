@@ -56,6 +56,7 @@
     require_once plugin_dir_path(__FILE__) . '/includes/PostsAjax.php';
     require_once plugin_dir_path(__FILE__) . '/includes/AcfFields.php';
     require_once plugin_dir_path(__FILE__) . '/includes/AiSlides.php';
+    require_once plugin_dir_path(__FILE__) . '/includes/StockImporter.php';
 
     // The editor's Template Library modal: AJAX proxy to templates.bplugins.com.
     require_once plugin_dir_path(__FILE__) . '/includes/Templates/Templates.php';
