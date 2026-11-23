@@ -340,7 +340,14 @@ Please report security bugs found in the source code of the bSlider plugin throu
 == Changelog ==
 
 = 2.4.0 - 23 November, 2026 =
-* New: Stock Images tab in the media window while a slider is selected: search free photos from Openverse, Pixabay and Unsplash and use one in a click. (Pro) Orientation and colour filters.
+* New: Stock Images tab in the media window. Select a bSlider block, open the media window to choose a slide image, and search free photos without leaving WordPress. No API key or account needed.
+* New: Three photo sources in one tab: Openverse (public domain), Pixabay and Unsplash. Switch between them and keep your search word.
+* New: One click puts the photo on your slide. Openverse and Pixabay photos are added to your Media Library with the photographer's credit in the description, and picking the same photo again reuses the copy already there.
+* New: Unsplash photos are shown straight from Unsplash, as Unsplash asks, so they don't fill up your Media Library.
+* New (Pro): Orientation filter in the Stock Images tab: Landscape, Portrait or Square photos.
+* New (Pro): Colour filter for Pixabay and Unsplash photos: black and white, or one colour such as blue, red or green.
+* Improvement: A licence line under the photos links to each source's licence: free to use, also for commercial work, with no credit needed.
+* Improvement: Load more for more results, and in windows that pick several images at once, each click adds a photo to the pick.
 
 = 2.3.0 - 19 November, 2026 =
 * Security: Users who may not add scripts to posts (such as Contributors and Authors) can no longer add HTML that the slider script would run on the page. If your site uses a page cache, clear it after updating.
