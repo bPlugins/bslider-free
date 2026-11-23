@@ -4,7 +4,7 @@ Donate link: https://www.buymeacoffee.com/abuhayat
 Tags: block, carousel, slider, templates, Gutenberg block
 Requires at least: 6.6
 Tested up to: 7.1
-Stable tag: 2.3.0
+Stable tag: 2.4.0
 Requires PHP: 7.2
 License: GPLv2 or later 
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -99,6 +99,7 @@ https://www.youtube.com/watch?v=Zy23dW0uQDc
 - **Lightbox Caption Typography**: Font, weight, size per device, style, transform, line height and letter spacing for the caption, and a switch between a box that hugs its text and one that spans the picture.
 - **Lightbox Toolbar**: Counter, thumbnail strip, zoom, slideshow, fullscreen, rotate, flip and download, each its own switch.
 - **Lightbox Backdrop**: Set the colour and opacity behind the picture from the panel.
+- **Stock Images**: Search free photos from Openverse, Pixabay and Unsplash inside the media window and add one to your slide in a click.
 
 === bSlider Pro – Unlock Premium Features ===
 [bSlider Pro](https://bplugins.com/products/b-slider/pricing/) gives you more design power and control. Add advanced effects, flexible layouts, and interactive options to create engaging, professional sliders.
@@ -160,6 +161,7 @@ https://www.youtube.com/watch?v=Zy23dW0uQDc
 - **Lightbox Image per Device**: Open a different file than the slide shows — the original on desktop, something lighter on a phone.
 - **Per-Slide Lightbox Control**: Decide picture by picture which ones open a lightbox, so a banner can sit out of a gallery of photographs.
 - **Lightbox Size and Loop**: Cap how large a picture opens, and choose whether the gallery wraps from the last back to the first.
+- **Stock Image Filters**: Find portrait, landscape or square photos in the colour you need.
 
 [Upgrade to Pro](https://bplugins.com/products/b-slider/pricing/) to unlock all premium features.
 
@@ -336,6 +338,9 @@ Please report security bugs found in the source code of the bSlider plugin throu
 20. Demo-16: WooCommerce Products — Live Product Carousel
 
 == Changelog ==
+
+= 2.4.0 - 23 November, 2026 =
+* New: Stock Images tab in the media window while a slider is selected: search free photos from Openverse, Pixabay and Unsplash and use one in a click. (Pro) Orientation and colour filters.
 
 = 2.3.0 - 19 November, 2026 =
 * Security: Users who may not add scripts to posts (such as Contributors and Authors) can no longer add HTML that the slider script would run on the page. If your site uses a page cache, clear it after updating.
@@ -523,6 +528,22 @@ Used when you open the Template Library from the block editor toolbar or the sou
 * **When:** only while you browse the library in the editor, and when you click Import. Importing downloads the template's images from `https://templates.bplugins.com` into your Media Library. Requests are made by your server, not by your visitors' browsers.
 * **Endpoint:** `https://templates.bplugins.com/wp-json/gutenberg-templates/v1/`
 * **Terms of Service:** https://bplugins.com/terms-of-service/ — **Privacy Policy:** https://bplugins.com/privacy-policy/
+
+= Openverse =
+Used by the Stock Images tab in the media window, only when you search there or pick a photo.
+
+* **What is sent:** your browser sends the search words and the chosen filters to Openverse. When you pick a photo, your server asks Openverse for that photo's details and downloads it into your Media Library.
+* **Endpoint:** `https://api.openverse.org/v1/images/`. The photo itself is downloaded from the site Openverse lists as its source, and the tab's thumbnails load from Openverse.
+* **Terms:** https://docs.openverse.org/terms_of_service.html — **Privacy:** https://wordpress.org/about/privacy/
+
+= Pixabay and Unsplash (through the bPlugins stock service) =
+Used by the Stock Images tab when you choose Pixabay or Unsplash, only when you search there or pick a photo.
+
+* **What is sent:** your server sends the search words and page number, or the ID of the photo you pick, to the bPlugins stock service, which asks Pixabay or Unsplash with bPlugins' own API keys. No key of yours and nothing about your visitors is sent; the service sees your server's IP address, which it uses only to limit how many requests one site can make. The tab's thumbnails load from Pixabay and Unsplash.
+* **Pixabay:** the photo you pick is downloaded from Pixabay into your Media Library.
+* **Unsplash:** the photo you pick is not copied to your site. Unsplash asks for its photos to be shown from its own servers, so your visitors' browsers load them from `https://images.unsplash.com`, and Unsplash is told the photo was used.
+* **Endpoints:** `https://api.bplugins.com/wp-json/bpl-stock/v1/`, `https://pixabay.com`, `https://cdn.pixabay.com` and `https://images.unsplash.com`
+* **Terms:** https://bplugins.com/terms-of-service/, https://pixabay.com/service/terms/ and https://unsplash.com/terms — **Privacy:** https://bplugins.com/privacy-policy/, https://pixabay.com/service/privacy/ and https://unsplash.com/privacy
 
 == Third-Party Libraries ==
 

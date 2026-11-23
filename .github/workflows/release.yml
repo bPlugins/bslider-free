@@ -1,0 +1,45 @@
+name: Tag and release
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [developer]
+
+concurrency:
+  group: release-developer
+  cancel-in-progress: false
+
+jobs:
+  check:
+    if: github.event.pull_request.merged == true
+    uses: ./.github/workflows/check.yml
+    with:
+      ref: ${{ github.event.pull_request.merge_commit_sha }}
+
+  release:
+    needs: check
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.merge_commit_sha }}
+
+      - name: Create tag and release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          SHA: ${{ github.event.pull_request.merge_commit_sha }}
+        run: |
+          version=$(grep -m1 -E '^[[:space:]]*\*[[:space:]]*Version:' b-slider.php | sed -E 's/.*Version:[[:space:]]*//' | tr -d '\r[:space:]')
+          tag="v${version}-pr${PR_NUMBER}"
+          if gh release view "$tag" > /dev/null 2>&1; then
+            echo "Release $tag already exists."
+          else
+            gh release create "$tag" --target "$SHA" --prerelease --title "$tag" \
+              --notes "Merged into developer: ${PR_TITLE} (#${PR_NUMBER})"$'\n\n'"${PR_URL}"
+          fi
+          echo "### Released ${tag}" >> "$GITHUB_STEP_SUMMARY"

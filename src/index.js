@@ -5,6 +5,7 @@ import './editor.scss';
 import Edit from './Components/Backend/Edit';
 import { blockIcon } from './utils/icons';
 import './utils/extraFonts';
+import './Components/Backend/Settings/StockImages/mediaTab';
 
 // block register
 registerBlockType(metadata, {
