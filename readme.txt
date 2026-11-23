@@ -4,7 +4,7 @@ Donate link: https://www.buymeacoffee.com/abuhayat
 Tags: block, carousel, slider, templates, Gutenberg block
 Requires at least: 6.6
 Tested up to: 7.1
-Stable tag: 2.3.0
+Stable tag: 2.4.0
 Requires PHP: 7.2
 License: GPLv2 or later 
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -99,6 +99,7 @@ https://www.youtube.com/watch?v=Zy23dW0uQDc
 - **Lightbox Caption Typography**: Font, weight, size per device, style, transform, line height and letter spacing for the caption, and a switch between a box that hugs its text and one that spans the picture.
 - **Lightbox Toolbar**: Counter, thumbnail strip, zoom, slideshow, fullscreen, rotate, flip and download, each its own switch.
 - **Lightbox Backdrop**: Set the colour and opacity behind the picture from the panel.
+- **Stock Images**: Search free photos from Openverse, Pixabay and Unsplash inside the media window and add one to your slide in a click.
 
 === bSlider Pro – Unlock Premium Features ===
 [bSlider Pro](https://bplugins.com/products/b-slider/pricing/) gives you more design power and control. Add advanced effects, flexible layouts, and interactive options to create engaging, professional sliders.
@@ -160,6 +161,7 @@ https://www.youtube.com/watch?v=Zy23dW0uQDc
 - **Lightbox Image per Device**: Open a different file than the slide shows — the original on desktop, something lighter on a phone.
 - **Per-Slide Lightbox Control**: Decide picture by picture which ones open a lightbox, so a banner can sit out of a gallery of photographs.
 - **Lightbox Size and Loop**: Cap how large a picture opens, and choose whether the gallery wraps from the last back to the first.
+- **Stock Image Filters**: Find portrait, landscape or square photos in the colour you need.
 
 [Upgrade to Pro](https://bplugins.com/products/b-slider/pricing/) to unlock all premium features.
 
@@ -337,7 +339,7 @@ Please report security bugs found in the source code of the bSlider plugin throu
 
 == Changelog ==
 
-= Next release =
+= 2.4.0 - 23 November, 2026 =
 * New: Stock Images tab in the media window while a slider is selected: search free photos from Openverse, Pixabay and Unsplash and use one in a click. (Pro) Orientation and colour filters.
 
 = 2.3.0 - 19 November, 2026 =
